@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<!-- saved from url=(0037)http://192.168.2.2:8080/restapi-panel -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+        <title>UV4L RESTful API Panel</title>
+        <script type="text/javascript">
+
+            function createGUID() {
+                function random() {
+                    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+                }
+                return random() + random() + '-' + random() + '-' + random() + '-' + random() + '-' + random() + random() + random();
+            }
+
+            var resources = [
+                {
+                    path: "/api/videodev/settings",
+                    description: "video device settings"
+                },
+                {
+                    path: "/api/webrtc/settings",
+                    description: "WebRTC settings"
+                },
+                {
+                    path: "/api/janus/client/settings",
+                    description: "Janus settings"
+                },
+                {
+                    path: "/api/janus/client",
+                    description: "session",
+                    templates: [
+                        {
+                            description: "create session",
+                            request_body: {
+                                what: "create", // command
+                                plugin: "videoroom", // janus plugin name
+                                get transaction() { return createGUID(); } // unique number
+                            }
+                        },
+                        {
+                            description: "destroy session",
+                            request_body: {
+                                what: "destroy",
+                                plugin: "videoroom",
+                                get transaction() { return createGUID(); }
+                            }
+                        }
+                    ]
+                },
+                {
+                    path: "/api/janus/client/videoroom",
+                    description: "videoroom plugin",
+                    templates: [
+                        // Synchronous operations
+                        {
+                            description: "create room",
+                            request_body: {
+                                what: "create",
+                                get transaction() { return createGUID(); },
+                                body: {
+                                    room: 999, // must be a number
+                                    room_pin: "",
+                                    room_description: "Testing Room",
+                                    room_secret: "",
+                                    videocodec: "vp8",
+                                    audiocodec: "opus",
+                                    record: false,
+                                    rec_dir: "/usr/share/janus/recordings/",
+                                    is_private: false,
+                                    permanent: false,
+                                    fir_freq: 10,
+                                    max_publishers: 6,
+                                    max_bitrate_for_publishers_bits: 128000
+                                }
+                            }
+                        },
+                        {
+                            description: "destroy room",
+                            request_body: {
+                                what: "destroy",
+                                get transaction() { return createGUID(); },
+                                body: {
+                                    room: 999,
+                                    room_secret: "",
+                                    permanent: false
+                                }
+                            }
+                        },
+                        {
+                            description: "exists room",
+                            request_body: {
+                                what: "exists",
+                                get transaction() { return createGUID(); },
+                                body: {
+                                    room: 1234
+                                }
+                            }
+                        },
+                        {
+                            description: "list rooms",
+                            request_body: {
+                                what: "list",
+                                get transaction() { return createGUID(); },
+                            }
+                        },
+                        {
+                            description: "list participants",
+                            request_body: {
+                                what: "listparticipants",
+                                get transaction() { return createGUID(); },
+                                body: {
+                                    room: 1234
+                                }
+                            }
+                        },
+                        // Asynchronous operations
+                        {
+                            description: "join room",
+                            request_body: {
+                                what: "join",
+                                get transaction() { return createGUID(); },
+                                body: {
+                                    room: 1234,
+                                    username: "My Name",
+                                    room_pin: ""
+                                }
+                            }
+                        },
+                        {
+                            // Janus won't allow to reuse the handle at the moment
+                            // so this is disabled. we must destroy the whole session
+                            // instead (and recreate it eventually
+                            // if we want to join another room)
+                            description: "leave room (disabled)",
+                            request_body: {
+                                what: "leave",
+                                get transaction() { return createGUID(); }
+                            }
+                        },
+                        {
+                            description: "publish media",
+                            request_body: {
+                                what: "publish",
+                                get transaction() { return createGUID(); },
+                                body: {
+                                    audio: true,
+                                    video: true,
+                                    data: true,
+                                    adjust_max_bitrate_for_hardware_videocodec: true,
+                                    max_bitrate_bits: 0, // 0 stands for auto from room settings
+                                    use_hardware_videocodec: false,
+                                    video_format_id: 60,
+                                    record: false,
+                                    rec_filename: "myrecording"
+                                }
+                            }
+                        },
+                        {
+                            description: "unpublish media",
+                            request_body: {
+                                what: "unpublish",
+                                get transaction() { return createGUID(); }
+                            }
+                        },
+                        {
+                            description: "configure publisher",
+                            request_body: {
+                                what: "configure",
+                                get transaction() { return createGUID(); },
+                                body: {
+                                    audio: true,
+                                    video: true,
+                                    data: true,
+                                    record: false,
+                                    rec_filename: "myrecording"
+                                }
+                            }
+                        },
+                        {
+                            description: "listen feed",
+                            request_body: {
+                                what: "listen",
+                                get transaction() { return createGUID(); },
+                                body: {
+                                    feed: "<feed_id>",
+                                    audio: true,
+                                    video: true,
+                                    data: true
+                                }
+                            }
+                        },
+                        {
+                            description: "remove listener",
+                            request_body: {
+                                what: "remove",
+                                get transaction() { return createGUID(); },
+                                body: {
+                                    feed: "<feed_id>"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    /*
+                     * this resourced is used through LONG polling requests
+                     * accepts two params:
+                     * maxev: 0 (get all events) or N >= 1 messages *at most*
+                     * timeout_S: from 1s to 30s, wait m seconds before
+                     *            timing out the request if no messages are
+                     *            present in the queue
+                     * default is maxev=1 and timeout_s = 30. if maxev is
+                     * explicitly specified, the result is always returned as
+                     * *an array* of events. if maxev is NOT specified, one
+                     * event is returned at most, but not in an array.
+                     */
+                    path: "/api/janus/client/events?maxev=0&timeout_s=1",
+                    description: "session & plugin events, all events, 5s timeout"
+                },
+                {
+                    path: "/api/janus/client/events",
+                    description: "session & plugin events, default 1 ev. 30s timeout"
+                },
+                {
+                    path: "/api/not/existing/resource",
+                    description: "fake"
+                }
+            ];
+
+            function parseJSON(text) {
+                try {
+                    JSON.parse(text);
+                } catch (e) {
+                    alert(e);
+                    throw e;
+                }
+            }
+
+            function resource_url() {
+                return document.getElementById('server').value + document.getElementById('resource').value;
+            }
+
+            function defaultHeaders() {
+                var headers_ = new Headers({
+                        'Accept': 'application/json'
+                    });
+                var username = document.getElementById('username').value;
+                if (username !== '') {
+                    var password = document.getElementById('password').value;
+                    headers_.append('Authorization', 'Basic '+ btoa(username + ':' + password));
+                }
+                return headers_;
+            }
+
+            function request(options) {
+                if (!options.headers.has('Content-Type') && (options.method === 'PUT' || options.method === 'POST')) {
+                    options.headers.append('Content-Type', 'application/json');
+                }
+                fetch(options.url, {
+                    method: options.method,
+                    mode: 'cors',
+                    headers: options.headers,
+                    body: options.body
+                }).then(function (response) {
+                    if (options.processStatus)
+                        options.processStatus(response.status, response.statusText);
+                    if (options.processHeaders)
+                        options.processHeaders(response.headers);
+                    return response.json();
+                }).then(function (j) {
+                    if (options.processBody)
+                        options.processBody(j);
+                }).catch(function (err) {
+                    alert(err);
+                });
+            }
+
+            function doGet() {
+                request({
+                    url: resource_url(),
+                    method: 'GET',
+                    headers: defaultHeaders(),
+                    processStatus: function (status, statusText) {
+                        document.getElementById('status').value = status + ' ' + statusText;
+                    },
+                    processHeaders: function (headers) {
+                        document.getElementById('headers').value = '';
+                        for (var pair of headers) {
+                            document.getElementById('headers').value += (pair[0] + ': ' + pair[1] + '\n');
+                        }
+                    },
+                    processBody: function (body) {
+                        document.getElementById('body').value = JSON.stringify(body, null, 3);
+                    }
+                });
+            }
+
+            function doOptions() {
+                request({
+                    url: resource_url(),
+                    method: 'OPTIONS',
+                    headers: defaultHeaders(),
+                    processStatus: function (status, statusText) {
+                        document.getElementById('status').value = status + ' ' + statusText;
+                    },
+                    processHeaders: function (headers) {
+                        document.getElementById('headers').value = '';
+                        for (var pair of headers) {
+                            document.getElementById('headers').value += (pair[0] + ': ' + pair[1] + '\n');
+                        }
+                    },
+                    processBody: function (body) {
+                        document.getElementById('body').value = JSON.stringify(body, null, 3);
+                    }
+                });
+            }
+
+            function doDelete() {
+                request({
+                    url: resource_url(),
+                    method: 'DELETE',
+                    headers: defaultHeaders(),
+                    processStatus: function (status, statusText) {
+                        document.getElementById('status').value = status + ' ' + statusText;
+                    },
+                    processHeaders: function (headers) {
+                        document.getElementById('headers').value = '';
+                        for (var pair of headers) {
+                            document.getElementById('headers').value += (pair[0] + ': ' + pair[1] + '\n');
+                        }
+                    },
+                    processBody: function (body) {
+                        document.getElementById('body').value = JSON.stringify(body, null, 3);
+                    }
+                });
+            }
+
+            function doPut() {
+                var body = document.getElementById('body').value;
+                parseJSON(body);
+                request({
+                    url: resource_url(),
+                    method: 'PUT',
+                    headers: defaultHeaders(),
+                    body: body,
+                    processStatus: function (status, statusText) {
+                        document.getElementById('status').value = status + ' ' + statusText;
+                    },
+                    processHeaders: function (headers) {
+                        document.getElementById('headers').value = '';
+                        for (var pair of headers) {
+                            document.getElementById('headers').value += (pair[0] + ': ' + pair[1] + '\n');
+                        }
+                    },
+                    processBody: function (body) {
+                        document.getElementById('body').value = JSON.stringify(body, null, 3);
+                    }
+                });
+            }
+
+            function doPost() {
+                var body = document.getElementById('body').value;
+                parseJSON(body);
+                request({
+                    url: resource_url(),
+                    method: 'POST',
+                    headers: defaultHeaders(),
+                    body: body,
+                    processStatus: function (status, statusText) {
+                        document.getElementById('status').value = status + ' ' + statusText;
+                    },
+                    processHeaders: function (headers) {
+                        document.getElementById('headers').value = '';
+                        for (var pair of headers) {
+                            document.getElementById('headers').value += (pair[0] + ': ' + pair[1] + '\n');
+                        }
+                    },
+                    processBody: function (body) {
+                        document.getElementById('body').value = JSON.stringify(body, null, 3);
+                    }
+                });
+            }
+
+            function setTemplate() {
+                var request_body = document.getElementById('template').value;
+                if (request_body) {
+                    document.getElementById('body').value = request_body;
+                    document.getElementById('headers').value = 'response headers';
+                }
+            }
+
+            function populateTemplateMenu() {
+                var menu = document.getElementById('template');
+                while (menu.options.length) {
+                   menu.remove(0);
+                }
+                for (var i = 0; i < resources.length; i++) {
+                    if (document.getElementById('resource').value === resources[i].path) {
+                        var templates = resources[i].templates;
+                        if (templates !== undefined) {
+                            for (var j = 0; j < templates.length; j++) {
+                                menu.add(new Option(templates[j].description, JSON.stringify(templates[j].request_body, null, 3)), false, false);
+                            }
+                        }
+                    }
+                }
+            }
+
+            function setResource() {
+                populateTemplateMenu();
+                if (!document.getElementById('auto-get').checked)
+                    return;
+                doGet();
+            }
+
+            window.onload = function() {
+                document.getElementById('server').value = (location.protocol || 'http:') + '//' + (location.hostname || "<server_address>") + ':' + (location.port || (location.protocol === 'https:' ? 443 : 80));
+                //document.getElementById('server').value = "http://<server_address>";
+                var menu = document.getElementById('resource');
+                for (var i = 0; i < resources.length; i++) {
+                    menu.add(new Option(resources[i].path + ' (' + resources[i].description + ')', resources[i].path));
+                }
+                populateTemplateMenu();
+            };
+
+        </script>
+        <style>
+            textarea {
+                background-color: lightgray;
+            }
+            #response {
+                border-style: solid;
+                display: inline-block;
+            }
+        </style>
+    <script data-dapp-detection="">!function(){let e=!1;function n(){if(!e){const n=document.createElement("meta");n.name="dapp-detected",document.head.appendChild(n),e=!0}}if(window.hasOwnProperty("ethereum")){if(window.__disableDappDetectionInsertion=!0,void 0===window.ethereum)return;n()}else{var t=window.ethereum;Object.defineProperty(window,"ethereum",{configurable:!0,enumerable:!1,set:function(e){window.__disableDappDetectionInsertion||n(),t=e},get:function(){if(!window.__disableDappDetectionInsertion){const e=arguments.callee;e&&e.caller&&e.caller.toString&&-1!==e.caller.toString().indexOf("getOwnPropertyNames")||n()}return t}})}}();</script></head>
+    <body>
+        <h1>
+            <span>RESTful API Panel</span>
+        </h1>
+        <div>
+            <label for="server">UV4L server URL</label><input title="e.g. http://serveraddress:8080" type="text" id="server">
+            <label for="username">user</label><input type="text" id="username">
+            <label for="password">password</label><input type="password" id="password">
+        </div>
+        <div>
+            <div>
+                <label for="resource">Resource</label><select id="resource" onclick="setResource();"><option value="/api/videodev/settings">/api/videodev/settings (video device settings)</option><option value="/api/webrtc/settings">/api/webrtc/settings (WebRTC settings)</option><option value="/api/janus/client/settings">/api/janus/client/settings (Janus settings)</option><option value="/api/janus/client">/api/janus/client (session)</option><option value="/api/janus/client/videoroom">/api/janus/client/videoroom (videoroom plugin)</option><option value="/api/janus/client/events?maxev=0&amp;timeout_s=1">/api/janus/client/events?maxev=0&amp;timeout_s=1 (session &amp; plugin events, all events, 5s timeout)</option><option value="/api/janus/client/events">/api/janus/client/events (session &amp; plugin events, default 1 ev. 30s timeout)</option><option value="/api/not/existing/resource">/api/not/existing/resource (fake)</option></select>
+                <label for="auto-get">auto GET</label><input id="auto-get" type="checkbox" onclick="setResource();">
+            </div>
+            <div id="response">
+                <div>
+                    <output id="status">status</output>
+                </div>
+                <div>
+                    <textarea id="body" spellcheck="false" rows="20" cols="80" title="body request or body response">body</textarea>
+                    <textarea id="headers" spellcheck="false" rows="7" cols="60" readonly="" title="response headers">response headers</textarea>
+                </div>
+            </div>
+            <div>
+                <button id="do-get" type="button" onclick="doGet();">GET</button>
+                <button id="do-put" type="button" onclick="doPut();">PUT</button>
+                <button id="do-options" type="button" onclick="doOptions();">OPTIONS</button>
+                <button id="do-delete" type="button" onclick="doDelete();">DELETE</button>
+                <span>
+                    <label for="template">Request template</label><select id="template" onclick="setTemplate()" title="allowed request bodies (templates) for the current resource"></select>
+                </span>
+                <button id="do-post" type="button" onclick="doPost();">POST</button>
+            </div>
+        </div>
+        <a target="_top" href="http://192.168.2.2:8080/">home</a>
+    
+
+</body></html>

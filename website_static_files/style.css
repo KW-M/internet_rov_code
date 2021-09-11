@@ -1,0 +1,211 @@
+html,body{overflow: hidden;margin: 0;padding: 0;}
+
+.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    width: 100%;
+    margin: 0;
+
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+#stop {
+ position: absolute
+
+}
+
+button {
+    position: relative;
+
+    display: inline-block;
+
+    padding: 10px 18px;
+
+    cursor: pointer;
+    text-decoration: none;
+
+    color: #fff;
+    border: none;
+    border: 3px solid;
+    border-radius: 6px;
+    background: -webkit-linear-gradient(
+        135deg
+        ,#d8ac0c,#f57254);
+    background: linear-gradient(
+135deg
+,#d8ac0c,#f57254);
+    box-shadow: 0 3px 6px -1px rgb(0 0 0 / 12%), 0 10px 36px -4px rgb(77 96 232 / 30%);
+
+    font-size: large;
+    font-weight: bold;
+}
+
+button:hover, button:focus {
+    border: 3px solid rgb(0, 153, 255);
+}
+
+ button:active{
+    border: 3px solid rgb(0, 84, 139);
+}
+
+.gamepad-debug-area {
+    position: absolute;
+    right:0;
+    bottom:0;
+}
+
+.gamepad-debug-area .gamepad-axis-viewer {
+    width: 100px;
+    height: 100px;
+
+    border: 1px solid greenyellow;
+    border-radius: 6px;
+}
+
+.gamepad-debug-area .gamepad-axis-viewer .debug-dot {
+    width: 5px;
+    height: 5px;
+
+    border-radius: 5px;
+    background-color: blueviolet;
+}
+
+
+/* CIRCULAR CORNER MENU WITH ICONS */
+
+#circle_corner_menu {
+    position: fixed;
+    z-index: 50;
+    bottom: 0;
+    left: 0;
+
+    overflow: hidden;
+
+    width: 70px;
+    height: 70px;
+
+    transition: width .4s ease,height .4s ease;
+
+    border-radius: 0 188px 0 0;
+    background-color: black;
+    box-shadow: 0 0px 20px -5px rgb(0 0 0 / 48%);
+}
+
+#circle_corner_menu:hover, #circle_corner_menu.expanded, #circle_corner_menu:focus-within  {
+    width: 130px;
+    height: 130px;
+}
+
+#circle_corner_menu:focus-within {
+    transition: none;
+}
+
+#circle_corner_menu:hover .icon-links-hover-hint, #circle_corner_menu.expanded .icon-links-hover-hint, #circle_corner_menu:focus-within .icon-links-hover-hint {
+    opacity: 0.1;
+}
+
+.icon-links-hover-hint {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+
+    padding: 11px;
+
+    user-select: none;
+
+    color: white;
+
+    font-size: 56px;
+    line-height: 30px;
+}
+
+#circle_corner_menu a {
+    position: absolute;
+
+    opacity: 1;
+}
+
+#circle_corner_menu img {
+    height: 30px;
+    padding: 12px;
+
+    border-radius: 100px;
+}
+
+
+/* ********* Gamepad Help Area ********* */
+
+#connect-gamepad-notice {
+    position: absolute;
+    z-index: 9;
+    bottom: 53px;
+    left: 50%;
+
+    display: block;
+
+    transform: translateX(-50%);
+
+    color: #1f5c80;
+
+    font-family: sans-serif;
+    font-size: 26px;
+}
+
+#gamepad-help-viewer-area {
+    position: absolute;
+    bottom: 40px;
+
+    width: 600px;
+    max-width: 100%;
+    max-height: 100%;
+    padding: 40px;
+
+    transition: top .5s ease,  margin-top .5s ease;
+}
+
+#gamepad-help-viewer-area.center.docked-to-screen-bottom {
+    top:100%;
+
+    margin-top: 120px;
+}
+
+#gamepad-help-viewer-area svg {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#gamepad-help-button {
+    position: absolute;
+z-index: 10;
+    bottom: 53px;
+    left: 50%;
+
+    transform: translateX(-50%);
+}
+
+#gamepad-help-text {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 50%;
+
+    display: block;
+
+    box-sizing: border-box;
+    width: 400px;
+    margin: 0;
+    padding: 7px;
+
+    transform: translateX(-50%);
+    text-align: center;
+
+    color: #419bf3;
+
+    font-family: sans-serif;
+    font-size: 26px;
+}
+

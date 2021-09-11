@@ -1,0 +1,14 @@
+[Unit]
+Description=Starts running the main.py python code on boot, and restarts it if it crashes from the /home/pi/Desktop/rov_code/python folder
+
+[Service]
+ExecStart=python3 /home/pi/Desktop/rov_code/python/main.py
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+
+stdout_logfile=/var/log/py-rov.log
+stderr_logfile=/var/log/py-rov-error.log
+
+[Install]
+WantedBy=multi-user.target
+# see: https://unix.stackexchange.com/questions/506347/why-do-most-systemd-examples-contain-wantedby-multi-user-target

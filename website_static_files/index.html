@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>SSROV Internet Rov Demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="./libraries/toastify.min.css" />
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+</head>
+
+<body>
+    <noscript>Please enable JavaScript to run this app.</noscript>
+
+    <button id='stop' style="display: none;">Disconnect</button>
+
+    <div class="center">
+        <p id="connect-notice">Plug in your game controller and press any button.</p>
+        <button id='start'>Connect to ROV</button>
+    </div>
+
+
+
+    <!-- the circle menu in the upper left -->
+    <nav id="circle_corner_menu">
+        <div class="icon-links-hover-hint">+</div>
+        <a style="bottom: 0px;left: 70px;" title="Streaming Server Dashboard" href="#"
+            onclick="open(location.protocol + '\/\/' + location.hostname + ':8080');"><img
+                src="./ui-elements/resume.svg"></a>
+        <a href="https://github.com/KW-M" style="bottom: 43px;left: 43px;" title="Visit my Github">
+            <img src="./ui-elements/more-code-icon.svg">
+        </a>
+        <a href="https://www.linkedin.com/in/kyle-worcester-moore/" title="Visit my Linkedin"
+            style="left: 0px;bottom: 70px;">
+            <img src="./ui-elements/down_arrow.svg">
+        </a>
+    </nav>
+
+    <div class="gamepad-debug-area">
+        <div class="gamepad-axis-viewer">
+            <div class="debug-dot" id="axis-debug-1"></div>
+        </div>
+        <div class="gamepad-axis-viewer">
+            <div class="debug-dot" id="axis-debug-2"></div>
+        </div>
+    </div>
+
+
+    <video id='video-livestream'></video>
+
+    <!-- <p id="connect-notice">Plug in your game controller and press any button.</p> -->
+    <button id="gamepad-help-button" style="display: none;">Gamepad Help</button>
+    <h2 id="gamepad-help-text">Gamepad Help</h2>
+    <div id="gamepad-help-viewer-area" style="display: none;" class="center docked-to-screen-bottom">
+
+        <svg viewBox="0 0 290 232" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"
+            id="gamepad-svg">
+            <path
+                d="M290 192.32c0 19.18-6.77 31.3-21.13 38.41a12.25 12.25 0 01-13.54-1.81l-37.58-33.17c-6.74-5.97-12.61-12.13-29.04-12.13h-87.4c-16.44 0-22.32 6.16-29.05 12.13l-37.58 33.17a12.18 12.18 0 01-13.55 1.81C6.77 223.63 0 211.5 0 192.33c0-24.92 11.42-65.99 32.4-119.1 9.93-25.18 27.69-34.56 44.64-34.56 7.93 0 15.69 2.05 22.4 5.5 29.28 15.1 62.47 14.78 91.15 0a49.1 49.1 0 0122.37-5.5c16.95 0 34.72 9.38 44.66 34.55C278.58 126.33 290 167.4 290 192.32z"
+                fill-rule="nonzero" />
+            <g id="buttons">
+                <circle id="button_1_highlight" style="visibility:hidden" cx="211.59" cy="128.37" r="16.11"
+                    fill="#419bf3" />
+                <g id="button_1">
+                    <g id="Group" fill="#00ff04">
+                        <circle id="shadow" cx="212.35" cy="129.12" r="10.43" fill-opacity=".5" />
+                        <circle id="Oval" cx="211.59" cy="128.37" r="9.67" stroke="#000" stroke-width="1.52" />
+                    </g>
+                    <path id="Line" d="M208.37 125.14l6.82 6.83" fill="none" stroke="#000" stroke-width="1.52"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                    <path id="Line-Copy" d="M208.37 131.97l6.82-6.83" fill="none" stroke="#000" stroke-width="1.52"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </g>
+                <circle id="button_2_highlight" style="visibility:hidden" cx="232.45" cy="107.51" r="16.11"
+                    fill="#419bf3" />
+                <g id="button_2">
+                    <g id="Group1" fill="#ff0009">
+                        <circle id="shadow1" cx="233.2" cy="108.27" r="10.43" fill-opacity=".5" />
+                        <circle id="Oval1" cx="232.45" cy="107.51" r="9.67" stroke="#000" stroke-width="1.52" />
+                    </g>
+                    <circle id="Oval2" cx="232.45" cy="107.51" r="3.98" fill="none" stroke="#000" stroke-width="1.52" />
+                </g>
+                <circle id="button_3_highlight" style="visibility:hidden" cx="190.74" cy="107.51" r="16.11"
+                    fill="#419bf3" />
+                <g id="button_3">
+                    <g id="Group2" fill="#48c0fb">
+                        <circle id="shadow2" cx="191.5" cy="108.27" r="10.43" fill-opacity=".5" />
+                        <circle id="Oval3" cx="190.74" cy="107.51" r="9.67" stroke="#000" stroke-width="1.52" />
+                    </g>
+                    <path id="Rectangle" d="M194.34 107.7a3.41 3.41 0 10-6.83 0 3.41 3.41 0 006.83 0z" fill="none"
+                        stroke="#000" stroke-width="1.52" />
+                </g>
+                <circle id="button_4_highlight" style="visibility:hidden" cx="211.59" cy="86.66" r="16.11"
+                    fill="#419bf3" />
+                <g id="button_4">
+                    <g id="Group3" fill="#fff000">
+                        <circle id="shadow3" cx="212.35" cy="87.42" r="10.43" fill-opacity=".5" />
+                        <circle id="Oval4" cx="211.59" cy="86.66" r="9.67" stroke="#000" stroke-width="1.52" />
+                    </g>
+                    <path id="Path" d="M207.61 90.2l4.1-8.28 4.09 8.27h-8.19z" fill="none" stroke="#000"
+                        stroke-width="1.52" stroke-linejoin="round" />
+                </g>
+            </g>
+            <g id="shoulder_buttons">
+                <path id="shoulder_bottom_left_highlight" style="visibility:hidden"
+                    d="M48.02 38.06h52.63c1.53 0 2.78-.66 2.78-1.47a.83.83 0 00-.08-.34L88.21 2.75c-.74-1.64-3.54-2.81-6.74-2.81H59.11c-7.66 0-13.86 3.28-13.86 7.33v29.32c0 .8 1.25 1.47 2.77 1.47z"
+                    fill="#419bf3" />
+                <path id="shoulder_top_left_highlight" style="visibility:hidden"
+                    d="M106.98 31.42H47.85a5.74 5.74 0 00-5.74 5.74v18.37a2.3 2.3 0 002.3 2.3h66.01a2.3 2.3 0 002.3-2.3V37.16a5.74 5.74 0 00-5.74-5.74z"
+                    fill="#419bf3" />
+                <path id="shadow4"
+                    d="M54.74 33.57h37.84c1.52 0 2.77-.6 2.77-1.32 0-.1-.02-.2-.07-.3L84.38 9.04c-.7-1.5-3.53-2.57-6.75-2.57h-11.8c-7.66 0-13.86 2.96-13.86 6.61v19.18c0 .72 1.25 1.32 2.77 1.32z"
+                    fill-opacity=".5" />
+                <path id="shoulder_bottom_left"
+                    d="M52.28 31.21c-.38 0-.73-.07-.98-.19s-.4-.28-.4-.47V11.37c0-1.64 1.4-3.13 3.65-4.2a21.1 21.1 0 018.83-1.75h11.79c1.26 0 2.48.2 3.46.58.98.38 1.67.9 1.95 1.48l10.9 22.93c.03.33-.13.5-.38.61-.26.13-.6.2-.98.2H52.28z"
+                    fill="#fff" stroke="#000" stroke-width="2.17" />
+                <path id="shadow5"
+                    d="M103.03 37.95H55.38a5.74 5.74 0 00-5.74 5.74v6.9a2.3 2.3 0 002.3 2.29h54.53a2.3 2.3 0 002.3-2.3V43.7a5.74 5.74 0 00-5.74-5.74z"
+                    fill-opacity=".5" />
+                <path id="shoulder_top_left"
+                    d="M101.23 38.3a4.58 4.58 0 014.6 4.6v6.89a1.14 1.14 0 01-1.15 1.15H50.15A1.15 1.15 0 0149 49.79v-6.9a4.58 4.58 0 014.59-4.58h47.64z"
+                    fill="#fff" stroke="#000" stroke-width="2.3" />
+                <path id="shoulder_bottom_right_highlight" style="visibility:hidden"
+                    d="M242.66 38.06h-52.64c-1.52 0-2.77-.66-2.77-1.47 0-.11.02-.23.07-.34l15.14-33.5c.75-1.64 3.55-2.81 6.75-2.81h22.35c7.66 0 13.87 3.28 13.87 7.33v29.32c0 .8-1.25 1.47-2.78 1.47z"
+                    fill="#419bf3" />
+                <path id="shoulder_top_right_highlight" style="visibility:hidden"
+                    d="M181.44 30.98h59.12a5.74 5.74 0 015.74 5.74v18.37a2.3 2.3 0 01-2.3 2.3h-66a2.3 2.3 0 01-2.3-2.3V36.72a5.74 5.74 0 015.74-5.74z"
+                    fill="#419bf3" />
+                <path id="shadow6"
+                    d="M237 33.57h-37.83c-1.52 0-2.78-.6-2.78-1.32 0-.1.03-.2.07-.3l10.9-22.92c.71-1.5 3.53-2.57 6.76-2.57h11.8c7.65 0 13.86 2.96 13.86 6.61v19.18c0 .72-1.25 1.32-2.78 1.32z"
+                    fill-opacity=".5" />
+                <path id="shoulder_bottom_right"
+                    d="M197.71 31.21c-.37 0-.72-.06-.98-.19-.25-.12-.4-.28-.4-.47l10.92-23.07c.28-.58.97-1.1 1.95-1.48.99-.37 2.2-.58 3.46-.58h11.8c3.44 0 6.56.67 8.82 1.75 2.34 1.11 3.66 2.63 3.65 4.2v19.18c0 .19-.15.35-.4.47-.26.13-.62.2-.98.2H197.7z"
+                    fill="#fff" stroke="#000" stroke-width="2.17" />
+                <path id="shadow7"
+                    d="M188.97 37.51h47.65a5.74 5.74 0 015.74 5.74v6.89a2.3 2.3 0 01-2.3 2.3h-54.53a2.3 2.3 0 01-2.3-2.3v-6.89a5.74 5.74 0 015.74-5.74z"
+                    fill-opacity=".5" />
+                <path id="shoulder_top_right"
+                    d="M234.82 37.86a4.58 4.58 0 014.6 4.6v6.88a1.14 1.14 0 01-1.15 1.15h-54.54a1.15 1.15 0 01-1.15-1.15v-6.88a4.58 4.58 0 014.6-4.6h47.64z"
+                    fill="#fff" stroke="#000" stroke-width="2.3" />
+            </g>
+            <g id="select_start_buttons">
+                <circle id="start_highlight" style="visibility:hidden" cx="162.73" cy="125.67" r="12.34"
+                    fill="#419bf3" />
+                <path id="shadow8"
+                    d="M170.34 126.34a3.55 3.55 0 00-3.55-3.55h-6.76a3.55 3.55 0 000 7.1h6.76a3.55 3.55 0 003.55-3.55z"
+                    fill="#bbb" fill-opacity=".5" />
+                <path id="start"
+                    d="M168.98 125.67a2.87 2.87 0 00-2.87-2.88h-6.76a2.87 2.87 0 000 5.75h6.76a2.87 2.87 0 002.87-2.87z"
+                    fill="#fff" stroke="#000" stroke-width="1.35" />
+                <circle id="select_highlight" style="visibility:hidden" cx="127.92" cy="125.67" r="12.34"
+                    fill="#419bf3" />
+                <path id="shadow9"
+                    d="M135.52 126.34c0-1.96-1.59-3.55-3.55-3.55h-6.76a3.55 3.55 0 000 7.1h6.76a3.55 3.55 0 003.55-3.55z"
+                    fill="#bbb" fill-opacity=".5" />
+                <path id="select"
+                    d="M134.17 125.67a2.87 2.87 0 00-2.87-2.88h-6.76a2.87 2.87 0 000 5.75h6.76a2.88 2.88 0 002.87-2.87z"
+                    fill="#fff" stroke="#000" stroke-width="1.35" />
+            </g>
+            <g id="stick_buttons">
+                <circle id="stick_button_left_highlight" style="visibility:hidden" cx="95.79" cy="173.84" r="34.55"
+                    fill="#419bf3" />
+                <g id="stick_button_left">
+                    <circle id="shadow10" cx="97.04" cy="175.08" r="26.46" fill-opacity=".5" />
+                    <circle id="Oval5" cx="95.79" cy="173.84" r="25.21" fill="#fff" stroke="#000" stroke-width="2.49" />
+                    <circle id="shadow11" cx="97.66" cy="175.71" r="17.12" fill-opacity=".5" />
+                    <g id="Group-6" fill="#fff" stroke="#000">
+                        <circle id="Oval-Copy" cx="95.79" cy="173.84" r="15.88" stroke-width="2.49" />
+                        <circle id="Oval-Copy-2" cx="95.79" cy="173.84" r="12.14" stroke-width="1.25" />
+                    </g>
+                </g>
+                <circle id="stick_button_right_highlight" style="visibility:hidden" cx="191.72" cy="175.08" r="34.55"
+                    fill="#419bf3" />
+                <g id="stick_button_right">
+                    <circle id="shadow12" cx="192.96" cy="176.33" r="26.46" fill-opacity=".5" />
+                    <circle id="Oval6" cx="191.72" cy="175.08" r="25.21" fill="#fff" stroke="#000"
+                        stroke-width="2.49" />
+                    <circle id="shadow13" cx="193.58" cy="176.95" r="17.12" fill-opacity=".5" />
+                    <g id="Group-61" fill="#fff" stroke="#000">
+                        <circle id="Oval-Copy1" cx="191.72" cy="175.08" r="15.88" stroke-width="2.49" />
+                        <circle id="Oval-Copy-21" cx="191.72" cy="175.08" r="12.14" stroke-width="1.25" />
+                    </g>
+                </g>
+            </g>
+            <g id="d_pad">
+                <circle id="d_pad_right_highlight" style="visibility:hidden" cx="96.08" cy="106.58" r="17.96"
+                    fill="#419bf3" />
+                <circle id="d_pad_left_highlight" style="visibility:hidden" cx="59.36" cy="106.58" r="17.96"
+                    fill="#419bf3" />
+                <circle id="d_pad_down_highlight" style="visibility:hidden" cx="77.72" cy="124.94" r="17.96"
+                    fill="#419bf3" />
+                <circle id="d_pad_up_highlight" style="visibility:hidden" cx="77.72" cy="88.22" r="17.96"
+                    fill="#419bf3" />
+                <path id="shadow14"
+                    d="M86.5 80.24c.88 0 1.6.72 1.6 1.6V99.4h17.56c.88 0 1.6.72 1.6 1.6v14.36c0 .88-.72 1.6-1.6 1.6H88.1v17.56c0 .88-.72 1.6-1.6 1.6H72.14a1.6 1.6 0 01-1.6-1.6v-17.56H52.98a1.6 1.6 0 01-1.6-1.6V101c0-.87.72-1.6 1.6-1.6h17.56V81.84c0-.87.72-1.6 1.6-1.6H86.5z"
+                    fill="#9a9a9a" fill-opacity=".5" />
+                <path
+                    d="M84.9 78.64c.88 0 1.6.72 1.6 1.6V97.8h17.57c.87 0 1.6.72 1.6 1.6v14.37c0 .87-.73 1.6-1.6 1.6H86.5v17.56c0 .87-.72 1.6-1.6 1.6H70.55a1.6 1.6 0 01-1.6-1.6v-17.57H51.38a1.6 1.6 0 01-1.6-1.6V99.4c0-.88.72-1.6 1.6-1.6h17.56V80.24c0-.88.72-1.6 1.6-1.6H84.9z"
+                    fill="#fff" stroke="#000" stroke-width="1.6" stroke-linejoin="round" />
+                <path id="d_pad_right" d="M91.7 102.2l8.77 4.38-8.78 4.4v-8.79z" fill="none" stroke="#000"
+                    stroke-width="1.6" stroke-linejoin="round" />
+                <path id="d_pad_up_left" d="M63.75 110.97l-8.78-4.39 8.78-4.39v8.78z" fill="none" stroke="#000"
+                    stroke-width="1.6" stroke-linejoin="round" />
+                <path id="d_pad_down" d="M82.11 120.55l-4.39 8.78-4.39-8.78h8.78z" fill="none" stroke="#000"
+                    stroke-width="1.6" stroke-linejoin="round" />
+                <path id="d_pad_up" d="M73.33 92.61l4.4-8.78 4.38 8.78h-8.78z" fill="none" stroke="#000"
+                    stroke-width="1.6" stroke-linejoin="round" />
+            </g>
+            <g id="vendor">
+                <ellipse id="vendor_highlight" style="visibility:hidden" cx="144.82" cy="85.82" rx="18" ry="17.82"
+                    fill="#419bf3" />
+                <circle id="shadow15" cx="145.71" cy="86.71" r="12.83" fill="#999" fill-opacity=".5" />
+                <circle id="Oval7" cx="145" cy="86" r="12.12" fill="#fff" stroke="#000" stroke-width="1.43" />
+                <path id="_-"
+                    d="M145.9 88.77c0-.4.04-.76.11-1.04a2.52 2.52 0 01.8-1.32 50.07 50.07 0 001.15-1.02 2.72 2.72 0 00.83-1.32c.08-.29.13-.63.13-1.03 0-.55-.1-1.04-.3-1.47-.19-.43-.46-.8-.8-1.09a3.55 3.55 0 00-1.17-.67 4.5 4.5 0 00-1.47-.23c-.62 0-1.19.1-1.7.3a3.68 3.68 0 00-2.12 2.17 4.92 4.92 0 00-.28 1.7h1.95c0-.77.17-1.39.5-1.85.34-.46.86-.69 1.57-.69a1.71 1.71 0 011.5 1.02 2 2 0 01.18.88c0 .28-.04.53-.12.73-.07.2-.17.4-.3.56-.14.17-.28.32-.45.45l-.52.45c-.21.18-.41.38-.59.59-.17.2-.31.44-.42.7-.11.25-.2.56-.25.9-.05.36-.07.78-.07 1.28h1.84zm.2 3.32v-2.14h-2.3v2.14h2.3z"
+                    fill="#222" fill-rule="nonzero" />
+            </g>
+        </svg>
+    </div>
+
+    <!-- load scripts at end so the page is fully loaded beforehand -->
+    <!-- <script type="text/javascript" src="./libraries/joypad.min.js"></script> -->
+    <script type="text/javascript" src="./libraries/webrtc-signaling.js"></script>
+    <script type="text/javascript" src="./libraries/toastify-js.js"></script>
+
+    <script type="text/javascript" src="./gamepad.js"></script>
+    <script type="text/javascript" src="./main.js"></script>
+
+</body>

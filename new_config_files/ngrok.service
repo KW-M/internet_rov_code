@@ -1,0 +1,19 @@
+# from: https://github.com/vincenthsu/systemd-ngrok
+# More Info about systemd service template files: https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files
+
+[Unit]
+Description=ngrok
+After=network.target
+
+[Service]
+ExecStart=/home/pi/Desktop/ngrok http 80
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+IgnoreSIGPIPE=true
+Restart=always
+RestartSec=3
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
+# see: https://unix.stackexchange.com/questions/506347/why-do-most-systemd-examples-contain-wantedby-multi-user-target
