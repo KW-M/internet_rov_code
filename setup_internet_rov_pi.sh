@@ -4,71 +4,72 @@ PATH_TO_THIS_SCRIPT=$0
 FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
 
 # below are two handy functions that are used in the main body of this script below:
-backup_and_overwrite_file(){
+backup_then_overwrite_file(){
 	ORIGINAL_FILE_PATH=$1
 	REPLACEMENT_FILE=$2
 
 	ORIGINAL_FILE_NAME=$(basename "$ORIGINAL_FILE_PATH")
 	ORIGINAL_FOLDER_PATH=${ORIGINAL_FILE_PATH%/*}
 
-	mkdir -p "$HOME/Desktop/original_config_file_backups/"
+	# make folder to hold backups and ignore errors (the " >& /dev/null" part)
+	mkdir -p "$HOME/Desktop/original_config_file_backups/" >& /dev/null
 
 	if [ -e "$ORIGINAL_FILE_PATH" ] && [ ! -e "$HOME/Desktop/original_config_file_backups/$ORIGINAL_FILE_NAME" ]; then
+		# if the original file (Usually the originally installed file exists AND a backup of that file doesn't exist in Desktop/original_config_file_backups/, then)
+		# then copy the orignal into the Desktop/original_config_file_backups/ folder
   		echo "Backing up $ORIGINAL_FILE_PATH to $HOME/Desktop/original_config_file_backups/ ..."
 		sudo cp -T "$ORIGINAL_FILE_PATH" "$HOME/Desktop/original_config_file_backups/$ORIGINAL_FILE_NAME"
 	else
-		mkdir -p "$ORIGINAL_FOLDER_PATH"
+		# otherwise the orignal file might not exist?! so make its parent folders and ignore errors (the " >& /dev/null" part)
+		mkdir -p "$ORIGINAL_FOLDER_PATH" >& /dev/null
 	fi
 	echo "Replacing $ORIGINAL_FILE_PATH with $REPLACEMENT_FILE ..."
 	sudo cp -f -T "$REPLACEMENT_FILE" "$ORIGINAL_FILE_PATH"
 };
 
+# this function gets run every time this script get's run not just on first run:
 update_config_files(){
 	cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 
 	echo "Copying over ngrok config file..."
-	backup_and_overwrite_file "$HOME/.ngrok2/ngrok.yml" "./new_config_files/ngrok.yml"
+	backup_then_overwrite_file "$HOME/.ngrok2/ngrok.yml" "./new_config_files/ngrok.yml"
 	echo "Copying over ngrok startup service file..."
-	backup_and_overwrite_file "/lib/systemd/system/ngrok.service" "./new_config_files/ngrok.service"
+	backup_then_overwrite_file "/lib/systemd/system/ngrok.service" "./new_config_files/ngrok.service"
 
 	echo "Copying over uv4l-raspicam config file to /etc/uv4l/uv4l-raspicam.conf"
-	backup_and_overwrite_file "/etc/uv4l/uv4l-raspicam.conf" "./new_config_files/uv4l-raspicam.conf"
+	backup_then_overwrite_file "/etc/uv4l/uv4l-raspicam.conf" "./new_config_files/uv4l-raspicam.conf"
 	echo "Copying over uv4l startup service file..."
-	backup_and_overwrite_file "/etc/systemd/system/uv4l_raspicam.service" "./new_config_files/uv4l_raspicam.service"
+	backup_then_overwrite_file "/etc/systemd/system/uv4l_raspicam.service" "./new_config_files/uv4l_raspicam.service"
 
 	echo "Copying over dnsmasq config file to /etc/dnsmasq.conf"
-	backup_and_overwrite_file "/etc/dnsmasq.conf" "./new_config_files/dnsmasq.conf"
-	echo "Copying over nginx config file to /etc/dnsmasq.conf"
-	backup_and_overwrite_file "/etc/nginx/nginx.conf" "./new_config_files/nginx.conf"
+	backup_then_overwrite_file "/etc/dnsmasq.conf" "./new_config_files/dnsmasq.conf"
 
-	echo "enabling uv4l_raspicam systemd service..."
-    sudo systemctl enable uv4l_raspicam
-	echo "restarting uv4l_raspicam systemd service..."
-	sudo systemctl restart uv4l_raspicam	# sudo service uv4l_raspicam restart
+	echo "Copying over nginx config file to /etc/nginx.conf"
+	backup_then_overwrite_file "/etc/nginx/nginx.conf" "./new_config_files/nginx.conf"
+	echo "Copying over rov_python_code startup service file..."
 
-	echo "enabling pigpiod systemd service..."
-	sudo systemctl enable pigpiod
+	backup_then_overwrite_file "/lib/systemd/system/rov_python_code.service" "./new_config_files/rov_python_code.service"
+
+	# enabling and restarting services:
+
+	sudo systemctl daemon-reload
+
 	echo "restarting pigpiod systemd service..."
-	sudo systemctl restart pigpiod
-
-	echo "enabling nginx systemd service..."
-	sudo systemctl enable nginx
+	sudo systemctl restart rov_python_code.service
+	echo "restarting uv4l_raspicam systemd service..."
+	sudo systemctl restart uv4l_raspicam.service	# sudo service uv4l_raspicam restart
+	echo "restarting pigpiod systemd service..."
+	sudo systemctl restart pigpiod.service
 	echo "restarting nginx systemd service..."
-	sudo systemctl restart nginx
-
-	echo "enabling ngrok.service systemd service..."
-	sudo systemctl enable ngrok.service
+	sudo systemctl restart nginx.service
 	echo "restarting ngrok.service systemd service..."
 	sudo systemctl restart ngrok.service
-
-	echo "enabling dnsmasq systemd service..."
-	sudo systemctl disable dnsmasq
 	echo "restarting dnsmasq systemd service..."
-	sudo systemctl restart dnsmasq
+	sudo systemctl restart dnsmasq.service
 	# echo "showing dnsmasq status..."
 	#sudo systemctl status ngrok.service
 
-	# The above lines enable/disable systemd "services" running when this rasberry pi boots.
+	# The above lines restart systemd "services" running when this rasberry pi boots.
 	# for more about these files: https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files
 
 	### to stop a service:
@@ -85,18 +86,21 @@ update_config_files(){
 
 
 SETUP_DONE_FILE="$HOME/Desktop/ssrov-pi-setup-done.txt"
-if test -f "$SETUP_DONE_FILE";
+if test -f "$SETUP_DONE_FILE"; # check if the file /Desktop/ssrov-pi-setup-done.txt exists.
 then
 	echo "$SETUP_DONE_FILE exists. Only updating config files. Delete $SETUP_DONE_FILE if you want to run the whole script again.";
-	update_config_files;
+	update_config_files; # run the update config files function from above
 else
-	# ASSUMING THIS IS RUN ON A FRESH PI INSTALL, DO THIS STUFF: (it's fine if it gets run twice or more anyway)
+	# ASSUMING THIS IS RUN ON A FRESH PI INSTALL, DO THIS STUFF: (it's fine if below gets run twice or more anyway, it just takes a while)
 	echo "!!!!!!!!"
 	echo "REMEMEBER to change the pi user password to something other than the default by running the command: sudo passwd pi (just type, characters won't show,  see ssrov internet_rov google drive folder for previously used password)"
 	echo "!!!!!!!!"
 
+	# From: https://raspberrypi.stackexchange.com/questions/28907/how-could-one-automate-the-raspbian-raspi-config-setup
 	echo "Setting the pi to enable ssh functionality.  (can also be set manually by running sudo raspi-config)."
-	sudo raSETUP_DONE_FILEspi-config nonint do_ssh 1
+	sudo raspi-config nonint do_ssh 1
+	echo "Setting the pi to enable vnc remote desktop functionality.  (can also be set manually by running sudo raspi-config)."
+	sudo raspi-config nonint do_vnc 1
 	echo "Setting the pi to enable i2c functionality.  (can also be set manually by running sudo raspi-config)."
 	sudo raspi-config nonint do_i2c 1
 	echo "Setting the pi to enable camera functionality.  (can also be set manually by running sudo raspi-config)."
@@ -106,7 +110,7 @@ else
 	echo "Setting the pi GPU Memory amount to 256mb (can also be set manually by running sudo raspi-config then, go to Performance, then GPU Memory."
 	sudo raspi-config nonint do_memory_split 256
 
-	# From: https://www.linux-projects.org/uv4l/installation/
+	# From: https://raspberrypi.stackexchange.com/a/66939
 	# check if ssl key or certificate files don't exists, if so, generate them.
 	if [ ! -e "$HOME/Desktop/webserver_ssl_cert/selfsign.key" ] || [ ! -e "$HOME/Desktop/webserver_ssl_cert/selfsign.crt" ]; then
 		echo "Creating self-signed ssl certificate for web server... you can type . for all of these"
@@ -130,11 +134,13 @@ else
 	sudo apt install  -y
 
 	echo "Downloading and updating Ngrok"
+	echo "This download url might break, so if it does just get the latest from https://ngrok.com/download, unzip it and put it on the desktop - might need to mark it as executable with chmod +x too."
 	curl https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm.zip --output ~/Desktop/ngrok2.zip
 	unzip -y ~/Desktop/ngrok2.zip
 	rm ~/Desktop/ngrok2.zip
+	echo "Marking ngrok as executable with command 'chmod +x ~/Desktop/ngrok'"
 	chmod +x ~/Desktop/ngrok
-	echo "updating ngrok"
+	echo "Updating ngrok"
 	~/Desktop/ngrok update
 
 	echo "Downloading Adafruit circuit python"
@@ -146,17 +152,30 @@ else
 	# from: https://learn.adafruit.com/adafruit-dc-and-stepper-motor-hat-for-raspberry-pi/installing-software
 	sudo pip3 install adafruit-circuitpython-motorkit
 
+	echo "enabling built in raspicam driver:"
 	# from: https://raspberrypi.stackexchange.com/questions/63930/remove-uv4l-software-by-http-linux-project-org-watermark
 	# https://www.raspberrypi.org/forums/viewtopic.php?t=62364
-	echo "enabling built in raspicam driver:"
 	sudo modprobe bcm2835-v4l2
 	v4l2-ctl --overlay=1 # enable viewfinder
 
 	echo "Replacing config files with ones from folder and starting services..."
-	update_config_files # this function is defined near the begining of this script.
+	update_config_files; # this function is defined near the begining of this script.
+
+	echo "enabling rov_python_code systemd service..."
+    sudo systemctl enable rov_python_code.service
+	echo "enabling uv4l_raspicam systemd service..."
+    sudo systemctl enable uv4l_raspicam.service
+	# echo "enabling pigpiod systemd service..."
+	# sudo systemctl enable pigpiod.service
+	echo "enabling nginx systemd service..."
+	sudo systemctl enable nginx.service
+	echo "enabling ngrok.service systemd service..."
+	sudo systemctl enable ngrok.service
+	echo "enabling dnsmasq systemd service..."
+	sudo systemctl disable dnsmasq.service # <<<<<<<<<< DISABLED Because might need to distable regular DHCP to make this work.
 
 	echo "Making Desktop/webite_static_files folder, please make sure you put the webite static files into that folder"
-	mkdir -p "$HOME/Desktop/website_static_files/" >& /dev/null
+	mkdir -p "$HOME/Desktop/website_static_files/" >& /dev/null # make folder and ignore errors (the " >& /dev/null" part)
 
 	echo "Creating setup done file on the desktop as a marker to tell this script it has finished";
 	echo "This file lets the setup_internet_rov_pi.sh script know it has finished the main setup, you can delete this file to allow the full script to run again." > $SETUP_DONE_FILE;

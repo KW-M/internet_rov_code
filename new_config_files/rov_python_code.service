@@ -1,13 +1,11 @@
 [Unit]
-Description=Starts running the main.py python code on boot, and restarts it if it crashes from the /home/pi/Desktop/rov_code/python folder
+Description=Runs the main.py python code on boot, and restarts it if it crashes from the /home/pi/Desktop/internet_rov_code/python folder
 
 [Service]
-ExecStart=python3 /home/pi/Desktop/rov_code/python/main.py
+ExecStart=python3 /home/pi/Desktop/internet_rov_code/python/pihat_motor_driver_test.py
 ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -HUP $MAINPID
 KillMode=process
-
-stdout_logfile=/var/log/py-rov.log
-stderr_logfile=/var/log/py-rov-error.log
 
 [Install]
 WantedBy=multi-user.target
