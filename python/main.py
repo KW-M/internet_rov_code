@@ -124,8 +124,7 @@ current_sensor_state = {
 ######## Main Program Loop ###########
 while True:
     print('awaiting connection...')
-    stop_gpio_and_motors(
-    )  # Keeps motors off while disconnected or if it becomes disconnected
+    stop_gpio_and_motors();  # Keeps motors off while disconnected or if it becomes disconnected
     connection, client_address = s.accept()
     print('client_address {}'.format(client_address))
     try:
