@@ -162,7 +162,7 @@ else
 	# from: https://raspberrypi.stackexchange.com/questions/63930/remove-uv4l-software-by-http-linux-project-org-watermark
 	# https://www.raspberrypi.org/forums/viewtopic.php?t=62364
 	sudo modprobe bcm2835-v4l2
-	v4l2-ctl --overlay=1 # enable viewfinder
+	v4l2-ctl --overlay=0 # disable preview viewfinder
 
 	echo "Replacing config files with ones from folder and starting services..."
 	update_config_files; # this function is defined near the begining of this script.
@@ -190,7 +190,7 @@ else
 	# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 	cd ~
 	wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
-	sudo python3 raspi-blinka.py
+	sudo python3 raspi-blinka.py -y
 fi
 
 # check to see if the raspi-blinka (circuit python install) script is still here, if so, run it again and then delete it
