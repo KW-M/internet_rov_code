@@ -149,14 +149,17 @@ else
 	echo "Updating ngrok"
 	~/Desktop/ngrok update
 
+	echo "Installing python3 pip"
+	sudo apt install -y python3-pip
+
 	echo "Downloading Adafruit circuit python"
 	# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
-	sudo pip3 install --upgrade setuptools
-	sudo pip3 install --upgrade adafruit-python-shell
+	sudo python3 -m pip install setuptools
+	sudo python3 -m pip install --upgrade adafruit-python-shell
 
 	echo "Downloading Adafruit motor controller python libraries..."
 	# from: https://learn.adafruit.com/adafruit-dc-and-stepper-motor-hat-for-raspberry-pi/installing-software
-	sudo pip3 install adafruit-circuitpython-motorkit
+	sudo python3 -m pip install --upgrade adafruit-circuitpython-motorkit
 
 	echo "enabling built in raspicam driver:"
 	# from: https://raspberrypi.stackexchange.com/questions/63930/remove-uv4l-software-by-http-linux-project-org-watermark
@@ -193,9 +196,13 @@ else
 	sudo python3 raspi-blinka.py -y
 fi
 
-# check to see if the raspi-blinka (circuit python install) script is still here, if so, run it again and then delete it
+# check to see if the raspi-blinka (circuit python install) script is still here, if so, run it again
 if [ -e "$HOME/raspi-blinka.py" ]; then
 	cd ~
-	sudo python3 "$HOME/raspi-blinka.py"
-	rm "$HOME/raspi-blinka.py"
+	# rename the file so it doesn't get run again if setup_internet_rov_pi.sh is run again
+	mv "$HOME/raspi-blinka.py" "$HOME/raspi-blinka-step2.py"
+	sudo python3 "$HOME/raspi-blinka-step2.py"
+else
+   # finally delete the leftover file if it exists
+   rm "$HOME/raspi-blinka-step2.py" >& /dev/null
 fi
