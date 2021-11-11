@@ -36,7 +36,7 @@ function getDefaultSignallingServerURL() {
 var datachannel, localdatachannel;
 function startVideoStream(webSocketURL) {
     if (!isStreaming) {
-        console.log(webSocketURL)
+        console.log("Attempting connection using websocket url:", webSocketURL)
         signalObj = new signal(webSocketURL,
             function (stream) {
                 console.log('got a stream!');
@@ -55,7 +55,7 @@ function startVideoStream(webSocketURL) {
                 showToastMessage('websocket closed. bye bye!');
                 video.srcObject = null;
                 isStreaming = false;
-                startVideoStream(window.prompt("Can't determine signalling server websocket url (normally wss://<host>:<port>/webrtc where <host> is the url or ip and port is the port", webSocketURL));
+                startVideoStream(window.prompt("Can't determine signalling server websocket url (normally wss://<host>:<port>/stream/webrtc where <host> is the url or ip and port is the port", webSocketURL));
             },
             function (message) {
                 alert("Got Websocket Message: " + message);
@@ -86,6 +86,9 @@ function startVideoStream(webSocketURL) {
             }
 
         );
+        // when the driver/user closes their browser window, we need tell the pi to end the webrtc & socket connections
+        // so "before" the window/tab/browser is "unloaded" (closed), hang up.
+        window.onbeforeunload = () => signalObj.hangup();
     }
 }
 
