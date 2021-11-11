@@ -31,8 +31,14 @@ backup_then_overwrite_file(){
 update_config_files(){
 	cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 
-	echo "Copying over ngrok config file..."
-	backup_then_overwrite_file "$HOME/.ngrok2/ngrok.yml" "./new_config_files/ngrok.yml"
+	echo "Copying over boot config file..."
+	backup_then_overwrite_file "boot/config.txt" "./new_config_files/boot_config.txt"
+
+	echo "Copying over boot cmdline file..."
+	backup_then_overwrite_file "boot/cmdline.txt" "./new_config_files/boot_cmdline.txt"
+
+	# echo "Copying over ngrok config file..."
+	# backup_then_overwrite_file "$HOME/.ngrok2/ngrok.yml" "./new_config_files/ngrok.yml"
 	echo "Copying over ngrok startup service file..."
 	backup_then_overwrite_file "/lib/systemd/system/ngrok.service" "./new_config_files/ngrok.service"
 
