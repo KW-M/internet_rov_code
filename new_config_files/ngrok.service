@@ -6,7 +6,7 @@ Description=ngrok
 After=network.target
 
 [Service]
-ExecStart=/home/pi/Desktop/ngrok http 80
+ExecStart=/home/pi/ngrok http 80
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
 IgnoreSIGPIPE=true

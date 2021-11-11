@@ -12,13 +12,13 @@ backup_then_overwrite_file(){
 	ORIGINAL_FOLDER_PATH=${ORIGINAL_FILE_PATH%/*}
 
 	# make folder to hold backups and ignore errors (the " >& /dev/null" part)
-	mkdir -p "$HOME/Desktop/original_config_file_backups/" >& /dev/null
+	mkdir -p "$HOME/original_config_file_backups/" >& /dev/null
 
-	if [ -e "$ORIGINAL_FILE_PATH" ] && [ ! -e "$HOME/Desktop/original_config_file_backups/$ORIGINAL_FILE_NAME" ]; then
-		# if the original file (Usually the originally installed file exists AND a backup of that file doesn't exist in Desktop/original_config_file_backups/, then)
-		# then copy the orignal into the Desktop/original_config_file_backups/ folder
-  		echo "Backing up $ORIGINAL_FILE_PATH to $HOME/Desktop/original_config_file_backups/ ..."
-		sudo cp -T "$ORIGINAL_FILE_PATH" "$HOME/Desktop/original_config_file_backups/$ORIGINAL_FILE_NAME"
+	if [ -e "$ORIGINAL_FILE_PATH" ] && [ ! -e "$HOME/original_config_file_backups/$ORIGINAL_FILE_NAME" ]; then
+		# if the original file (Usually the originally installed file exists AND a backup of that file doesn't exist in original_config_file_backups/, then)
+		# then copy the orignal into the original_config_file_backups/ folder
+  		echo "Backing up $ORIGINAL_FILE_PATH to $HOME/original_config_file_backups/ ..."
+		sudo cp -T "$ORIGINAL_FILE_PATH" "$HOME/original_config_file_backups/$ORIGINAL_FILE_NAME"
 	else
 		# otherwise the orignal file might not exist?! so make its parent folders and ignore errors (the " >& /dev/null" part)
 		mkdir -p "$ORIGINAL_FOLDER_PATH" >& /dev/null
@@ -91,8 +91,8 @@ update_config_files(){
 };
 
 
-SETUP_DONE_FILE="$HOME/Desktop/ssrov-pi-setup-done.txt"
-if test -f "$SETUP_DONE_FILE"; # check if the file /Desktop/ssrov-pi-setup-done.txt exists.
+SETUP_DONE_FILE="$HOME/ssrov-pi-setup-done.txt"
+if test -f "$SETUP_DONE_FILE"; # check if the file /ssrov-pi-setup-done.txt exists.
 then
 	echo "$SETUP_DONE_FILE exists. Only updating config files. Delete $SETUP_DONE_FILE if you want to run the whole script again.";
 	update_config_files; # run the update config files function from above
@@ -118,10 +118,10 @@ else
 
 	# From: https://raspberrypi.stackexchange.com/a/66939
 	# check if ssl key or certificate files don't exists, if so, generate them.
-	if [ ! -e "$HOME/Desktop/webserver_ssl_cert/selfsign.key" ] || [ ! -e "$HOME/Desktop/webserver_ssl_cert/selfsign.crt" ]; then
+	if [ ! -e "$HOME/webserver_ssl_cert/selfsign.key" ] || [ ! -e "$HOME/webserver_ssl_cert/selfsign.crt" ]; then
 		echo "Creating self-signed ssl certificate for web server... you can type . for all of these"
-		mkdir "$HOME/Desktop/webserver_ssl_cert"
-		openssl genrsa -out "$HOME/Desktop/webserver_ssl_cert/selfsign.key" 2048 && openssl req -new -x509 -key "$HOME/Desktop/webserver_ssl_cert/selfsign.key" -out ~/Desktop/webserver_ssl_cert/selfsign.crt -sha256
+		mkdir "$HOME/webserver_ssl_cert"
+		openssl genrsa -out "$HOME/webserver_ssl_cert/selfsign.key" 2048 && openssl req -new -x509 -key "$HOME/webserver_ssl_cert/selfsign.key" -out ~/webserver_ssl_cert/selfsign.crt -sha256
 	fi
 
 	# From: https://www.linux-projects.org/uv4l/installation/
@@ -141,13 +141,13 @@ else
 
 	echo "Downloading and updating Ngrok"
 	echo "This download url might break, so if it does just get the latest from https://ngrok.com/download, unzip it and put it on the desktop - might need to mark it as executable with chmod +x too."
-	curl https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm.zip --output ~/Desktop/ngrok2.zip
-	unzip -y ~/Desktop/ngrok2.zip
-	rm ~/Desktop/ngrok2.zip
-	echo "Marking ngrok as executable with command 'chmod +x ~/Desktop/ngrok'"
-	chmod +x ~/Desktop/ngrok
+	curl https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm.zip --output ~/ngrok2.zip
+	unzip -y ~/ngrok2.zip
+	rm ~/ngrok2.zip
+	echo "Marking ngrok as executable with command 'chmod +x ~/ngrok'"
+	chmod +x ~/ngrok
 	echo "Updating ngrok"
-	~/Desktop/ngrok update
+	~/ngrok update
 
 	echo "Installing python3 pip"
 	sudo apt install -y python3-pip
@@ -183,8 +183,8 @@ else
 	echo "enabling dnsmasq systemd service..."
 	sudo systemctl disable dnsmasq.service # <<<<<<<<<< DISABLED Because might need to distable regular DHCP to make this work.
 
-	echo "Making Desktop/webite_static_files folder, please make sure you put the webite static files into that folder"
-	mkdir -p "$HOME/Desktop/website_static_files/" >& /dev/null # make folder and ignore errors (the " >& /dev/null" part)
+	echo "Making webite_static_files folder, please make sure you put the webite static files into that folder"
+	mkdir -p "$HOME/website_static_files/" >& /dev/null # make folder and ignore errors (the " >& /dev/null" part)
 
 	echo "Creating setup done file on the desktop as a marker to tell this script it has finished";
 	echo "This file lets the setup_internet_rov_pi.sh script know it has finished the main setup, you can delete this file to allow the full script to run again." > $SETUP_DONE_FILE;
