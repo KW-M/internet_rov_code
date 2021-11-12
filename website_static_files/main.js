@@ -144,7 +144,7 @@ initilizeGamepadInterface({
     handleGamepadConnected: function (device) {
         // a new gamepad connected
         console.log('Gamepad Connected:', device);
-        document.getElementById("connect-notice").style.display = "none";
+        document.getElementById("gamepad-connect-notice").style.display = "none";
         showToastMessage("Gamepad Connected")
         // startVideoStream(getDefaultSignallingServerURL())
     },
@@ -152,7 +152,7 @@ initilizeGamepadInterface({
     handleGamepadDisconnected: function (device) {
         // gamepad disconnected
         console.log('Gamepad Disconnected:', device);
-        document.getElementById("connect-notice").style.display = "block";
+        document.getElementById("gamepad-connect-notice").style.display = "block";
     },
 
     handleGamepadStateChange: function (gamepadState, stateChangesMask) {

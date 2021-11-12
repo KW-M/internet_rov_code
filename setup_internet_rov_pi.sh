@@ -90,6 +90,7 @@ update_config_files(){
 	# sudo systemctl status the_service_name
 };
 
+# from https://raspberrypi.stackexchange.com/questions/100076/what-revisions-does-cat-proc-cpuinfo-return-on-the-new-pi-4-1-2-4gb
 PI_CPU_MODEL=$(cat /proc/cpuinfo | grep 'Hardware' | awk '{print $3}')
 
 
@@ -141,7 +142,7 @@ else
 	# From: https://www.highvoltagecode.com/post/webrtc-on-raspberry-pi-live-hd-video-and-audio-streaming
 	if(($PI_CPU_MODEL == "BCM2835")); then
 		echo "Pi Zero or similar board detected, installing uv4l-webrtc-armv6"
-		sudo apt install uv4l-webrtc-armv6
+		sudo apt install -y uv4l-webrtc-armv6
 	else
 		echo "PI other than PI Zero detected, installing uv4l-webrtc"
 		sudo apt install -y uv4l-webrtc

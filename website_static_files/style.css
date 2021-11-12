@@ -51,7 +51,7 @@ button:hover, button:focus {
  button:active{
     border: 3px solid rgb(0, 84, 139);
 }
-
+/*
 .gamepad-debug-area {
     position: absolute;
     right:0;
@@ -72,16 +72,9 @@ button:hover, button:focus {
 
     border-radius: 5px;
     background-color: blueviolet;
-}
+} */
 
-.onscreen-gamepad {
-    position: absolute;
-    bottom: -15px;
 
-    height: 60vw;
-    min-height: 9cm;
-    max-height: 14cm;
-}
 
 /* CIRCULAR CORNER MENU WITH ICONS */
 
@@ -145,9 +138,9 @@ button:hover, button:focus {
 }
 
 
-/* ********* Gamepad Help Area ********* */
+/* ********* Gamepads / Gamepad Help ********* */
 
-#connect-gamepad-notice {
+#gamepad-connect-notice {
     position: absolute;
     z-index: 9;
     bottom: 53px;
@@ -155,7 +148,10 @@ button:hover, button:focus {
 
     display: block;
 
+ max-width: 40vw;
+
     transform: translateX(-50%);
+ text-align: center;
 
     color: #1f5c80;
 
@@ -163,45 +159,23 @@ button:hover, button:focus {
     font-size: 26px;
 }
 
-#gamepad-help-viewer-area {
+#gamepad-container {
     position: absolute;
-    bottom: 40px;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
 
-    width: 600px;
-    max-width: 100%;
-    max-height: 100%;
-    padding: 40px;
-
-    transition: top .5s ease,  margin-top .5s ease;
-}
-
-#gamepad-help-viewer-area.center.docked-to-screen-bottom {
-    top:100%;
-
-    margin-top: 120px;
-}
-
-#gamepad-help-viewer-area svg {
-    max-width: 100%;
-    max-height: 100%;
-}
-
-#gamepad-help-button {
-    position: absolute;
-z-index: 10;
-    bottom: 53px;
-    left: 50%;
-
-    transform: translateX(-50%);
+    pointer-events: none;
 }
 
 #gamepad-help-text {
     position: absolute;
+    top: 58px;
     right: 0;
-    bottom: 0;
     left: 50%;
 
-    display: block;
+    display: none;
 
     box-sizing: border-box;
     width: 400px;
@@ -217,3 +191,49 @@ z-index: 10;
     font-size: 26px;
 }
 
+#gamepad-help-button {
+    position: absolute;
+    z-index: 10;
+    bottom: 6px;
+    left: 50%;
+
+    transform: translateX(-50%);
+    pointer-events: all;
+}
+
+.onscreen-gamepad {
+    position: absolute;
+    bottom: -15px;
+
+    height: 60vw;
+    min-height: 9cm;
+    max-height: 14cm;
+}
+
+#gamepad-container.help-open {
+    z-index: 20;
+
+    background-color: #ffffffdb;
+}
+
+#gamepad-container.help-open #gamepad-connect-notice {
+    display: none;
+}
+
+
+#gamepad-container.help-open #gamepad-help-text {
+    display: block;
+}
+
+
+#gamepad-container.help-open  #onscreen_gamepad_left {
+    left: 50% !important;
+
+    transform: translateX(-120%);
+}
+
+#gamepad-container.help-open #onscreen_gamepad_right {
+    right: 50% !important;
+
+    transform: translateX(120%);
+}

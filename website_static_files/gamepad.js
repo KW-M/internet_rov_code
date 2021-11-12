@@ -1,4 +1,4 @@
-var DEFAULT_GAMEPAD_HELP_MSG = "Touch any button on your controller."
+var DEFAULT_GAMEPAD_HELP_MSG = "Press any button on your controller or onscreen."
 var GAME_CONTROLLER_BUTTONS = [
     { btnName: "button_1", btnFunction: "Todo: Lights On/Off" },
     { btnName: "button_2", btnFunction: "Todo: Take Phtoto" },
@@ -94,6 +94,7 @@ function initilizeGamepadInterface(interfaceConfig) {
         }, 100); // wait roughly this number of miliseconds before running again.
     }
 
+    setupGamepadHelp();
     window.navigator.getGamepads = navigator.getGamepads || navigator.webkitGamepads || navigator.webkitGetGamepads;
     if (!window.navigator.getGamepads) {
         alert('This browser does not support gamepads. Please update your browser - Any modern browser should work.');
@@ -101,7 +102,6 @@ function initilizeGamepadInterface(interfaceConfig) {
         // gamepad api is supported
         window.addEventListener('gamepadconnected', function (e) {
             // if (window.navigator.getGamepads().length > 1) return; // if the user for some reason connects more than one gamepad, don't trigger again.
-            setupGamepadHelp()
             interfaceConfig.handleGamepadConnected(e)
             requestAnimationFrame(gamepadStateUpdateLoop);
         });
@@ -119,20 +119,19 @@ function initilizeGamepadInterface(interfaceConfig) {
 
 var gamepadHelpVisible = false;
 function setupGamepadHelp() {
-    var gamepadHelpContainter = document.getElementById("gamepad-help-viewer-area")
+    var gamepadContainer = document.getElementById("gamepad-container")
     var gamepadHelpToggleButton = document.getElementById("gamepad-help-button")
     gamepadHelpToggleButton.onclick = () => {
-        gamepadHelpVisible = !gamepadHelpVisible // toggle it
         if (gamepadHelpVisible == false) {
-            gamepadHelpContainter.classList.add("docked-to-screen-bottom")
-            gamepadHelpToggleButton.innerText = "Gamepad Help"
-        } else {
-            gamepadHelpContainter.classList.remove("docked-to-screen-bottom")
+            gamepadContainer.classList.add("help-open")
             gamepadHelpToggleButton.innerText = "Close Help"
+            gamepadHelpText.innerText = 'Press or click any button to see help'
+        } else {
+            gamepadContainer.classList.remove("help-open")
+            gamepadHelpToggleButton.innerText = "Gamepad Help"
         }
+        gamepadHelpVisible = !gamepadHelpVisible // toggle it
     }
-    gamepadHelpContainter.style.display = "block"
-    gamepadHelpToggleButton.style.display = "block"
 }
 
 
