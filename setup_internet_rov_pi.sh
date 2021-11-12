@@ -3,7 +3,7 @@
 PATH_TO_THIS_SCRIPT=$0
 FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
 
-# below are two handy functions that are used in the main body of this script below:
+# these are two handy functions that are used in the main body of this script below:
 backup_then_overwrite_file(){
 	ORIGINAL_FILE_PATH=$1
 	REPLACEMENT_FILE=$2
@@ -105,24 +105,24 @@ else
 	# From: https://raspberrypi.stackexchange.com/questions/28907/how-could-one-automate-the-raspbian-raspi-config-setup
 	echo "Setting the pi to enable ssh functionality.  (can also be set manually by running sudo raspi-config)."
 	sudo raspi-config nonint do_ssh 1
-	echo "Setting the pi to enable vnc remote desktop functionality.  (can also be set manually by running sudo raspi-config)."
-	sudo raspi-config nonint do_vnc 1
 	echo "Setting the pi to enable i2c functionality.  (can also be set manually by running sudo raspi-config)."
 	sudo raspi-config nonint do_i2c 1
 	echo "Setting the pi to enable camera functionality.  (can also be set manually by running sudo raspi-config)."
 	sudo raspi-config nonint do_camera 1
-	echo "Setting the pi to automatically login and boot to the desktop (can also be set manually by running sudo raspi-config then, go to System, then Auto Boot / Login."
-	sudo raspi-config nonint do_boot_behaviour B4
-	echo "Setting the pi GPU Memory amount to 256mb (can also be set manually by running sudo raspi-config then, go to Performance, then GPU Memory."
-	sudo raspi-config nonint do_memory_split 256
+	echo "Setting the pi to disable vnc remote desktop functionality.  (can also be set manually by running sudo raspi-config)."
+	sudo raspi-config nonint do_vnc 0
+	# echo "Setting the pi to automatically login and boot to the desktop (can also be set manually by running sudo raspi-config then, go to System, then Auto Boot / Login."
+	# sudo raspi-config nonint do_boot_behaviour B4
+	# echo "Setting the pi GPU Memory amount to 256mb (can also be set manually by running sudo raspi-config then, go to Performance, then GPU Memory."
+	# sudo raspi-config nonint do_memory_split 256
 
 	# From: https://raspberrypi.stackexchange.com/a/66939
 	# check if ssl key or certificate files don't exists, if so, generate them.
-	if [ ! -e "$HOME/webserver_ssl_cert/selfsign.key" ] || [ ! -e "$HOME/webserver_ssl_cert/selfsign.crt" ]; then
-		echo "Creating self-signed ssl certificate for web server... you can type . for all of these"
-		mkdir "$HOME/webserver_ssl_cert"
-		openssl genrsa -out "$HOME/webserver_ssl_cert/selfsign.key" 2048 && openssl req -new -x509 -key "$HOME/webserver_ssl_cert/selfsign.key" -out ~/webserver_ssl_cert/selfsign.crt -sha256
-	fi
+	# if [ ! -e "$HOME/webserver_ssl_cert/selfsign.key" ] || [ ! -e "$HOME/webserver_ssl_cert/selfsign.crt" ]; then
+	# 	echo "Creating self-signed ssl certificate for web server... you can type . for all of these"
+	# 	mkdir "$HOME/webserver_ssl_cert"
+	# 	openssl genrsa -out "$HOME/webserver_ssl_cert/selfsign.key" 2048 && openssl req -new -x509 -key "$HOME/webserver_ssl_cert/selfsign.key" -out ~/webserver_ssl_cert/selfsign.crt -sha256
+	# fi
 
 	# From: https://www.linux-projects.org/uv4l/installation/
 	echo "Adding uv4l repository key to apt"
@@ -130,17 +130,14 @@ else
 	echo "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | sudo tee /etc/apt/sources.list.d/uv4l.list
 
 	# From: https://www.linux-projects.org/uv4l/installation/
-	echo "Installing packages with apt: dnsmasq nginx uv4l-raspicam uv4l-server uv4l-webrtc uv4l-demos uv4l-raspicam-extras"
+	echo "Installing packages with apt: dnsmasq nginx uv4l uv4l-raspicam uv4l-server uv4l-webrtc uv4l-demos uv4l-raspicam-extras"
 	sudo apt update -y
 	sudo apt-get update -y
 	sudo apt-get upgrade -y # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 	sudo apt install -y dnsmasq nginx uv4l uv4l-raspicam uv4l-server uv4l-webrtc uv4l-demos uv4l-raspicam-extras
 
-	echo "Installing nginx Web Server..."
-	sudo apt install  -y
-
 	echo "Downloading and updating Ngrok"
-	echo "This download url might break, so if it does just get the latest from https://ngrok.com/download, unzip it and put it on the desktop - might need to mark it as executable with chmod +x too."
+	echo "This download url might break, so if it does just get the latest from https://ngrok.com/download, unzip it and put it in the home folder - might need to mark it as executable with chmod +x too."
 	curl https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm.zip --output ~/ngrok2.zip
 	unzip -y ~/ngrok2.zip
 	rm ~/ngrok2.zip
@@ -193,7 +190,7 @@ else
 	# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 	cd ~
 	wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
-	sudo python3 raspi-blinka.py -y
+	# sudo python3 raspi-blinka.py
 fi
 
 # check to see if the raspi-blinka (circuit python install) script is still here, if so, run it again

@@ -74,6 +74,14 @@ button:hover, button:focus {
     background-color: blueviolet;
 }
 
+.onscreen-gamepad {
+    position: absolute;
+    bottom: -15px;
+
+    height: 60vw;
+    min-height: 9cm;
+    max-height: 14cm;
+}
 
 /* CIRCULAR CORNER MENU WITH ICONS */
 
