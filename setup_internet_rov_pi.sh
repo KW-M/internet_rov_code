@@ -90,6 +90,8 @@ update_config_files(){
 	# sudo systemctl status the_service_name
 };
 
+PI_CPU_MODEL=$(cat /proc/cpuinfo | grep 'Hardware' | awk '{print $3}')
+
 
 SETUP_DONE_FILE="$HOME/ssrov-pi-setup-done.txt"
 if test -f "$SETUP_DONE_FILE"; # check if the file /ssrov-pi-setup-done.txt exists.
@@ -130,11 +132,20 @@ else
 	echo "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | sudo tee /etc/apt/sources.list.d/uv4l.list
 
 	# From: https://www.linux-projects.org/uv4l/installation/
-	echo "Installing packages with apt: dnsmasq nginx uv4l uv4l-raspicam uv4l-server uv4l-webrtc uv4l-demos uv4l-raspicam-extras"
+	echo "Installing packages with apt: dnsmasq nginx uv4l uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras"
 	sudo apt -y update
-	sudo apt-get -y update
-	sudo apt-get -y upgrade # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
-	sudo apt install -y dnsmasq nginx uv4l uv4l-raspicam uv4l-server uv4l-webrtc uv4l-demos uv4l-raspicam-extras
+	sudo apt-get -y update && sudo apt-get -y upgrade  # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+	sudo apt install -y dnsmasq nginx uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras
+
+	echo "Installing uv4l webrtc plugin with apt (package depending on raspberry pi model)"
+	# From: https://www.highvoltagecode.com/post/webrtc-on-raspberry-pi-live-hd-video-and-audio-streaming
+	if(($PI_CPU_MODEL == "BCM2835")); then
+		echo "Pi Zero or similar board detected, installing uv4l-webrtc-armv6"
+		sudo apt install uv4l-webrtc-armv6
+	else
+		echo "PI other than PI Zero detected, installing uv4l-webrtc"
+		sudo apt install -y uv4l-webrtc
+	fi
 
 	echo "Downloading and updating Ngrok"
 	echo "This download url might break, so if it does just get the latest from https://ngrok.com/download, unzip it and put it in the home folder - might need to mark it as executable with chmod +x too."
