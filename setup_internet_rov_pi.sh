@@ -109,8 +109,8 @@ else
 	sudo raspi-config nonint do_i2c 1
 	echo "Setting the pi to enable camera functionality.  (can also be set manually by running sudo raspi-config)."
 	sudo raspi-config nonint do_camera 1
-	echo "Setting the pi to disable vnc remote desktop functionality.  (can also be set manually by running sudo raspi-config)."
-	sudo raspi-config nonint do_vnc 0
+	# echo "Setting the pi to enable vnc remote desktop functionality.  (can also be set manually by running sudo raspi-config)."
+	# sudo raspi-config nonint do_vnc 1
 	# echo "Setting the pi to automatically login and boot to the desktop (can also be set manually by running sudo raspi-config then, go to System, then Auto Boot / Login."
 	# sudo raspi-config nonint do_boot_behaviour B4
 	# echo "Setting the pi GPU Memory amount to 256mb (can also be set manually by running sudo raspi-config then, go to Performance, then GPU Memory."
@@ -131,9 +131,9 @@ else
 
 	# From: https://www.linux-projects.org/uv4l/installation/
 	echo "Installing packages with apt: dnsmasq nginx uv4l uv4l-raspicam uv4l-server uv4l-webrtc uv4l-demos uv4l-raspicam-extras"
-	sudo apt update -y
-	sudo apt-get update -y
-	sudo apt-get upgrade -y # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+	sudo apt -y update
+	sudo apt-get -y update
+	sudo apt-get -y upgrade # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 	sudo apt install -y dnsmasq nginx uv4l uv4l-raspicam uv4l-server uv4l-webrtc uv4l-demos uv4l-raspicam-extras
 
 	echo "Downloading and updating Ngrok"
@@ -190,7 +190,7 @@ else
 	# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 	cd ~
 	wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
-	# sudo python3 raspi-blinka.py
+	sudo python3 raspi-blinka.py
 fi
 
 # check to see if the raspi-blinka (circuit python install) script is still here, if so, run it again
