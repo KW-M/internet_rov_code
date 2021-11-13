@@ -20,8 +20,8 @@ function showToastMessage(message) {
 
 var signalObj = null;
 var isStreaming = false;
-var startBtn = document.getElementById('start');
-var stopBtn = document.getElementById('stop');
+var startBtn = document.getElementById('connect_btn');
+var stopBtn = document.getElementById('disconnect_btn');
 var video = document.getElementById('video-livestream');
 
 function getDefaultSignallingServerURL() {
@@ -39,7 +39,7 @@ function startVideoStream(webSocketURL) {
         console.log("Attempting connection using websocket url:", webSocketURL)
         signalObj = new signal(webSocketURL,
             function (stream) {
-                console.log('got a stream!');
+                console.log('got a stream!', stream);
                 //var url = window.URL || window.webkitURL;
                 //video.src = url ? url.createObjectURL(stream) : stream; // deprecated
                 video.srcObject = stream;

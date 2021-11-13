@@ -1,13 +1,13 @@
 var DEFAULT_GAMEPAD_HELP_MSG = "Press any button on your controller or onscreen."
 var GAME_CONTROLLER_BUTTONS = [
     { btnName: "button_1", btnFunction: "Todo: Lights On/Off" },
-    { btnName: "button_2", btnFunction: "Todo: Take Phtoto" },
-    { btnName: "button_3", btnFunction: "Todo: Start/Stop Recording" },
+    { btnName: "button_2", btnFunction: "Todo: Start/Stop Recording" },
+    { btnName: "button_3", btnFunction: "Todo: Take Phtoto" },
     { btnName: "button_4", btnFunction: "Todo: Something" },
-    { btnName: "shoulder_top_left", btnFunction: "TODO: Open Claw" },
-    { btnName: "shoulder_top_right", btnFunction: "TODO: Close Claw" },
-    { btnName: "shoulder_bottom_left", btnFunction: "Show this help" },
-    { btnName: "shoulder_bottom_right", btnFunction: "Show this help" },
+    { btnName: "shoulder_btn_front_left", btnFunction: "TODO: Something" },
+    { btnName: "shoulder_btn_front_right", btnFunction: "TODO: Something" },
+    { btnName: "shoulder_trigger_back_left", btnFunction: "TODO: Open Claw" },
+    { btnName: "shoulder_trigger_back_right", btnFunction: "TODO: Close Claw" },
     { btnName: "select", btnFunction: "" },
     { btnName: "start", btnFunction: "" },
     { btnName: "stick_button_left", btnFunction: "Lock Vertical Thruster" },
@@ -137,20 +137,27 @@ function setupGamepadHelp() {
 
 // taken roughly from https://codesandbox.io/s/u4o9w?file=/src/recorder.js
 var gamepadHelpText = document.getElementById("gamepad-help-text")
-var highlights = [].slice.call(document.querySelectorAll('svg [id$="_highlight"]'));
+var pressedBtnCount = 0;
+// var highlights = [].slice.call(document.querySelectorAll('svg [id$="_highlight"]'));
 function handleGamepadHelpHighlights(buttonStates, changedButtons) {
-    highlights.forEach((highlight) => { highlight.setAttribute("style", "visibility:hidden") });
-
     for (let btnNum = 0; btnNum < buttonStates.length; btnNum++) {
-        if (changedButtons[btnNum] == true && buttonStates[btnNum].value > 0.1) {
+        if (changedButtons[btnNum] == true) {
             var btnDetails = GAME_CONTROLLER_BUTTONS[btnNum]
-            console.log(btnDetails, document.getElementById(`${btnDetails.btnName}_highlight`))
-            document.getElementById(`${btnDetails.btnName}_highlight`).setAttribute("style", "visibility:visible");
-            gamepadHelpText.innerText = btnDetails.btnFunction
-            return;
+            var highlightElem = document.getElementById(`${btnDetails.btnName}_highlight`)
+            // console.log(btnNum, btnDetails, highlightElem)
+            if (buttonStates[btnNum].value > 0.1) {
+                if (highlightElem) highlightElem.setAttribute("style", "visibility:visible");
+                gamepadHelpText.innerText = btnDetails.btnFunction
+                pressedBtnCount++;
+            } else {
+                if (highlightElem) highlightElem.setAttribute("style", "visibility:hidden")
+                pressedBtnCount--;
+            }
         }
     }
-    // if no buttons are pressed, show the defualt help text
+    // if no single button is pressed, show the defualt help text
+    if (pressedBtnCount != 1) {
     gamepadHelpText.innerText = DEFAULT_GAMEPAD_HELP_MSG
+    }
 }
 

@@ -1,4 +1,4 @@
-html,body{overflow: hidden;margin: 0;padding: 0;}
+html,body{overflow: hidden;width: 100%;height: 100%;margin: 0;padding: 0;}
 
 .center {
     position: absolute;
@@ -13,10 +13,26 @@ html,body{overflow: hidden;margin: 0;padding: 0;}
     text-align: center;
 }
 
-#stop {
- position: absolute
+#connect_btn, #disconnect_btn {
+ position: absolute;
+ top:16px;
+ left: 50%;
+
+ transform: translateX(-50%);
+
+ background: -webkit-linear-gradient(
+    135deg
+    ,#0c61d8,#661ca7);
+background: linear-gradient(
+135deg
+,#0c61d8,#661ca7);
 
 }
+
+#connect_btn {
+    transform: translate(-50%, 20vh) scale(2) ;
+}
+
 
 button {
     position: relative;
