@@ -31,47 +31,48 @@ backup_then_overwrite_file(){
 update_config_files(){
 	cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 
-	echo "Copying over boot config file..."
-	backup_then_overwrite_file "/boot/config.txt" "./new_config_files/boot_config.txt"
+	# echo "Copying over boot config file..."
+	# backup_then_overwrite_file "/boot/config.txt" "./new_config_files/boot_config.txt"
 
-	echo "Copying over boot cmdline file..."
-	backup_then_overwrite_file "/boot/cmdline.txt" "./new_config_files/boot_cmdline.txt"
+	# echo "Copying over boot cmdline file..."
+	# backup_then_overwrite_file "/boot/cmdline.txt" "./new_config_files/boot_cmdline.txt"
 
 	# echo "Copying over ngrok config file..."
 	# backup_then_overwrite_file "$HOME/.ngrok2/ngrok.yml" "./new_config_files/ngrok.yml"
 	echo "Copying over ngrok startup service file..."
 	backup_then_overwrite_file "/lib/systemd/system/ngrok.service" "./new_config_files/ngrok.service"
 
-	echo "Copying over uv4l-raspicam config file to /etc/uv4l/uv4l-raspicam.conf"
-	backup_then_overwrite_file "/etc/uv4l/uv4l-raspicam.conf" "./new_config_files/uv4l-raspicam.conf"
+	echo "Copying over rov_python_code startup service file..."
+	backup_then_overwrite_file "/lib/systemd/system/rov_python_code.service" "./new_config_files/rov_python_code.service"
+
 	echo "Copying over uv4l startup service file..."
 	backup_then_overwrite_file "/etc/systemd/system/uv4l_raspicam.service" "./new_config_files/uv4l_raspicam.service"
+
+	echo "Copying over uv4l-raspicam config file"
+	backup_then_overwrite_file "/etc/uv4l/uv4l-raspicam.conf" "./new_config_files/uv4l-raspicam.conf"
 
 	echo "Copying over dnsmasq config file to /etc/dnsmasq.conf"
 	backup_then_overwrite_file "/etc/dnsmasq.conf" "./new_config_files/dnsmasq.conf"
 
 	echo "Copying over nginx config file to /etc/nginx.conf"
 	backup_then_overwrite_file "/etc/nginx/nginx.conf" "./new_config_files/nginx.conf"
-	echo "Copying over rov_python_code startup service file..."
-
-	backup_then_overwrite_file "/lib/systemd/system/rov_python_code.service" "./new_config_files/rov_python_code.service"
 
 	# enabling and restarting services:
 
 	sudo systemctl daemon-reload
 
-	echo "restarting pigpiod systemd service..."
+	echo "restarting rov_python_code systemd service..."
 	sudo systemctl restart rov_python_code.service
 	echo "restarting uv4l_raspicam systemd service..."
 	sudo systemctl restart uv4l_raspicam.service	# sudo service uv4l_raspicam restart
-	echo "restarting pigpiod systemd service..."
-	sudo systemctl restart pigpiod.service
+	# echo "restarting pigpiod systemd service..."
+	# sudo systemctl restart pigpiod.service
 	echo "restarting nginx systemd service..."
 	sudo systemctl restart nginx.service
 	echo "restarting ngrok.service systemd service..."
 	sudo systemctl restart ngrok.service
-	echo "restarting dnsmasq systemd service..."
-	sudo systemctl restart dnsmasq.service
+	# echo "restarting dnsmasq systemd service..."
+	# sudo systemctl restart dnsmasq.service
 	# echo "showing dnsmasq status..."
 	#sudo systemctl status ngrok.service
 
@@ -192,17 +193,17 @@ else
 	echo "enabling dnsmasq systemd service..."
 	sudo systemctl disable dnsmasq.service # <<<<<<<<<< DISABLED Because might need to distable regular DHCP to make this work.
 
-	echo "Making webite_static_files folder, please make sure you put the webite static files into that folder"
+	echo "Making ~/webite_static_files folder, please make sure you have the webite static files into that folder"
 	mkdir -p "$HOME/website_static_files/" >& /dev/null # make folder and ignore errors (the " >& /dev/null" part)
 
 	echo "Creating setup done file on the desktop as a marker to tell this script it has finished";
 	echo "This file lets the setup_internet_rov_pi.sh script know it has finished the main setup, you can delete this file to allow the full script to run again." > $SETUP_DONE_FILE;
 
-	echo "Installing Adafruit circuit python (May ask to reboot, say yes)"
-	# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
-	cd ~
-	wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
-	sudo python3 raspi-blinka.py
+	# echo "Installing Adafruit circuit python (May ask to reboot, say yes)"
+	# # from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+	# cd ~
+	# wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
+	# sudo python3 raspi-blinka.py
 fi
 
 # check to see if the raspi-blinka (circuit python install) script is still here, if so, run it again
@@ -210,7 +211,7 @@ if [ -e "$HOME/raspi-blinka.py" ]; then
 	cd ~
 	# rename the file so it doesn't get run again if setup_internet_rov_pi.sh is run again
 	mv "$HOME/raspi-blinka.py" "$HOME/raspi-blinka-step2.py"
-	sudo python3 "$HOME/raspi-blinka-step2.py"
+	# sudo python3 "$HOME/raspi-blinka-step2.py"
 else
    # finally delete the leftover file if it exists
    rm "$HOME/raspi-blinka-step2.py" >& /dev/null
