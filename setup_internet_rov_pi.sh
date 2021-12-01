@@ -204,9 +204,9 @@ else
 
 	echo "Downloading and updating Ngrok"
 	echo "This download url might break, so if it does just get the latest from https://ngrok.com/download, unzip it and put it in the home folder - might need to mark it as executable with chmod +x too."
-	curl https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm.zip --output ~/ngrok2.zip
-	unzip -y ~/ngrok2.zip
-	rm ~/ngrok2.zip
+	curl https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm.zip --output ~/ngrok_download.zip
+	unzip -o ~/ngrok_download.zip
+	rm ~/ngrok_download.zip
 	echo "Marking ngrok as executable with command 'chmod +x ~/ngrok'"
 	chmod +x ~/ngrok
 	echo "Updating ngrok"
