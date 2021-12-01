@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/bash -e
+
+# https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
 
 PATH_TO_THIS_SCRIPT=$0
 FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
@@ -8,6 +10,7 @@ backup_then_overwrite_file(){
 	ORIGINAL_FILE_PATH=$1
 	REPLACEMENT_FILE=$2
 
+	# split the path into the folder path and filename for use later:
 	ORIGINAL_FILE_NAME=$(basename "$ORIGINAL_FILE_PATH")
 	ORIGINAL_FOLDER_PATH=${ORIGINAL_FILE_PATH%/*}
 
@@ -27,7 +30,7 @@ backup_then_overwrite_file(){
 	sudo cp -f -T "$REPLACEMENT_FILE" "$ORIGINAL_FILE_PATH"
 };
 
-# this function gets run every time this script get's run not just on first run:
+# this function gets run every time this script gets run not just on first run:
 update_config_files(){
 	cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 
@@ -91,20 +94,65 @@ update_config_files(){
 	# sudo systemctl status the_service_name
 };
 
+setup_bluetooth_serial(){
+	# enables the bluetooth serial port for the pi
+	echo "Enabling bluetooth..."
+	sudo raspi-config nonint do_bluetooth 1
+	sudo raspi-config nonint do_bluetooth_discoverable 1
+
+	# check if this function hasn't already been run (works bcuz this function creates the file /etc/systemd/system/rfcomm.service):
+	if [ ! -e "/etc/systemd/system/rfcomm.service" ]; then
+		# Edit the display name of the RaspberryPi so you can distinguish
+		# your unit from others in the Bluetooth device list or console
+		echo "PRETTY_HOSTNAME=raspberrypi_rov" > /etc/machine-info
+
+		# Alternateive way to change bluetooth.service (uncomment & make sure no indents on multiline below): (Edits file instead of replace) to enable BT services
+# 		sudo sed -i: 's|^Exec.*toothd$| \
+# ExecStart=/usr/libexec/bluetooth/bluetoothd -C \
+# ExecStartPost=/usr/bin/sdptool add SP \
+# ExecStartPost=/bin/hciconfig hci0 piscan \
+# |g' /lib/systemd/system/bluetooth.service
+	fi
+
+	# replace /lib/systemd/system/bluetooth.service with our version to make the pi a discoverable bluetooth device
+	echo "Copying over rfcomm startup service file (TO ENABLE BLUETOOTH CONNECTION)..."
+	backup_then_overwrite_file "/lib/systemd/system/bluetooth.service" "./new_config_files/bluetooth.service"
+
+	# create /etc/systemd/system/rfcomm.service to enable
+	# the Bluetooth serial port from systemctl
+	echo "Copying over rfcomm startup service file (TO ENABLE BLUETOOTH SERIAL TERMINAL CONNECTIONS)..."
+	backup_then_overwrite_file "/etc/systemd/system/rfcomm.service" "./new_config_files/rfcomm.service"
+
+	# enable the new rfcomm service
+	sudo systemctl enable rfcomm
+
+	# start the rfcomm service
+	sudo systemctl restart rfcomm
+};
+
 # from https://raspberrypi.stackexchange.com/questions/100076/what-revisions-does-cat-proc-cpuinfo-return-on-the-new-pi-4-1-2-4gb
 PI_CPU_MODEL=$(cat /proc/cpuinfo | grep 'Hardware' | awk '{print $3}')
 
 
-SETUP_DONE_FILE="$HOME/ssrov-pi-setup-done.txt"
-if test -f "$SETUP_DONE_FILE"; # check if the file /ssrov-pi-setup-done.txt exists.
+SETUP_DONE_MARKER_FILE="$HOME/ssrov-pi-setup-done.txt"
+if test -f "$SETUP_DONE_MARKER_FILE"; # check if the file /ssrov-pi-setup-done.txt exists.
 then
-	echo "$SETUP_DONE_FILE exists. Only updating config files. Delete $SETUP_DONE_FILE if you want to run the whole script again.";
+	echo "$SETUP_DONE_MARKER_FILE exists. Only updating config files. Delete $SETUP_DONE_MARKER_FILE if you want to run the whole script again.";
 	update_config_files; # run the update config files function from above
+	setup_bluetooth_serial; # run the setup_bluetooth_serial function from above
 else
 	# ASSUMING THIS IS RUN ON A FRESH PI INSTALL, DO THIS STUFF: (it's fine if below gets run twice or more anyway, it just takes a while)
 	echo "!!!!!!!!"
-	echo "REMEMEBER to change the pi user password to something other than the default by running the command: sudo passwd pi (just type, characters won't show,  see ssrov internet_rov google drive folder for previously used password)"
+	echo "REMEMEBER to change the pi user password to something other than the default by running the command: sudo passwd pi (just type, characters won't show,  see notes in internet_rov google drive folder for previously used password)"
 	echo "!!!!!!!!"
+
+	echo "Setting Timezone and Locale"
+	sudo timedatectl set-timezone America/Los_Angeles
+	sudo timedatectl set-ntp true
+	# https://www.jaredwolff.com/raspberry-pi-setting-your-locale/
+	sudo perl -pi -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
+	sudo locale-gen en_US.UTF-8
+	sudo update-locale en_US.UTF-8
 
 	# From: https://raspberrypi.stackexchange.com/questions/28907/how-could-one-automate-the-raspbian-raspi-config-setup
 	echo "Setting the pi to enable ssh functionality.  (can also be set manually by running sudo raspi-config)."
@@ -113,8 +161,8 @@ else
 	sudo raspi-config nonint do_i2c 1
 	echo "Setting the pi to enable camera functionality.  (can also be set manually by running sudo raspi-config)."
 	sudo raspi-config nonint do_camera 1
-	# echo "Setting the pi to enable vnc remote desktop functionality.  (can also be set manually by running sudo raspi-config)."
-	# sudo raspi-config nonint do_vnc 1
+	echo "Setting the pi to enable vnc remote desktop functionality.  (can also be set manually by running sudo raspi-config)."
+	sudo raspi-config nonint do_vnc 1
 	# echo "Setting the pi to automatically login and boot to the desktop (can also be set manually by running sudo raspi-config then, go to System, then Auto Boot / Login."
 	# sudo raspi-config nonint do_boot_behaviour B4
 	# echo "Setting the pi GPU Memory amount to 256mb (can also be set manually by running sudo raspi-config then, go to Performance, then GPU Memory."
@@ -138,6 +186,11 @@ else
 	sudo apt -y update
 	sudo apt-get -y update && sudo apt-get -y upgrade  # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 	sudo apt install -y dnsmasq nginx uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras
+
+	# From: https://www.youtube.com/watch?v=Q-m4i7LFxLA
+	echo "Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils"
+	echo "These packages enable the pi to do usb internet teathering with an iphone..."
+	sudo apt install usbmuxd ipheth-utils libimobiledevice-utils
 
 	echo "Installing uv4l webrtc plugin with apt (package depending on raspberry pi model)"
 	# From: https://www.highvoltagecode.com/post/webrtc-on-raspberry-pi-live-hd-video-and-audio-streaming
@@ -197,13 +250,13 @@ else
 	mkdir -p "$HOME/website_static_files/" >& /dev/null # make folder and ignore errors (the " >& /dev/null" part)
 
 	echo "Creating setup done file on the desktop as a marker to tell this script it has finished";
-	echo "This file lets the setup_internet_rov_pi.sh script know it has finished the main setup, you can delete this file to allow the full script to run again." > $SETUP_DONE_FILE;
+	echo "This file lets the setup_internet_rov_pi.sh script know it has finished the main setup, you can delete this file to allow the full script to run again." > $SETUP_DONE_MARKER_FILE;
 
 	# echo "Installing Adafruit circuit python (May ask to reboot, say yes)"
-	# # from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
-	# cd ~
-	# wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
-	# sudo python3 raspi-blinka.py
+	# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+	cd ~
+	wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
+	sudo python3 raspi-blinka.py
 fi
 
 # check to see if the raspi-blinka (circuit python install) script is still here, if so, run it again
