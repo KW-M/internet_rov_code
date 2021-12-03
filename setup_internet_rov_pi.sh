@@ -100,6 +100,9 @@ setup_bluetooth_serial(){
 	sudo raspi-config nonint do_bluetooth 1
 	sudo raspi-config nonint do_bluetooth_discoverable 1
 
+	# https://raspberrypi.stackexchange.com/questions/50496/automatically-accept-bluetooth-pairings
+
+
 	# check if this function hasn't already been run (works bcuz this function creates the file /etc/systemd/system/rfcomm.service):
 	if [ ! -e "/etc/systemd/system/rfcomm.service" ]; then
 		# Edit the display name of the RaspberryPi so you can distinguish
@@ -155,18 +158,23 @@ else
 	sudo update-locale en_US.UTF-8
 
 	# From: https://raspberrypi.stackexchange.com/questions/28907/how-could-one-automate-the-raspbian-raspi-config-setup
-	echo "Setting the pi to enable ssh functionality.  (can also be set manually by running sudo raspi-config)."
-	sudo raspi-config nonint do_ssh 1
-	echo "Setting the pi to enable i2c functionality.  (can also be set manually by running sudo raspi-config)."
-	sudo raspi-config nonint do_i2c 1
-	echo "Setting the pi to enable camera functionality.  (can also be set manually by running sudo raspi-config)."
-	sudo raspi-config nonint do_camera 1
-	echo "Setting the pi to enable vnc remote desktop functionality.  (can also be set manually by running sudo raspi-config)."
-	sudo raspi-config nonint do_vnc 1
-	# echo "Setting the pi to automatically login and boot to the desktop (can also be set manually by running sudo raspi-config then, go to System, then Auto Boot / Login."
-	# sudo raspi-config nonint do_boot_behaviour B4
-	# echo "Setting the pi GPU Memory amount to 256mb (can also be set manually by running sudo raspi-config then, go to Performance, then GPU Memory."
-	# sudo raspi-config nonint do_memory_split 256
+	echo "Setting the pi to enable different functionality.  (all of these can also be set manually by running sudo raspi-config)."
+	echo "Enabling I2C"
+    sudo raspi-config nonint do_i2c 0 # zero here means "enable"
+    echo "Enabling SPI"
+    sudo raspi-config nonint do_spi 0 #  zero here means "enable"
+    echo "Enabling Serial"
+    sudo raspi-config nonint do_serial 0 # zero here means "enable"
+    echo "Enabling SSH"
+    sudo raspi-config nonint do_ssh 0 # zero here means "enable"
+    echo "Enabling Camera"
+    sudo raspi-config nonint do_camera 0 # zero here means "enable"
+	echo "Enabling VNC remote desktop"
+	sudo raspi-config nonint do_vnc 0 # zero here means "enable"
+	echo "Setting the pi to automatically login and boot to the desktop (can also be set manually by running sudo raspi-config then, go to System, then Auto Boot / Login."
+	sudo raspi-config nonint do_boot_behaviour B4
+	echo "Setting the pi GPU Memory amount to 256mb (can also be set manually by running sudo raspi-config then, go to Performance, then GPU Memory."
+	sudo raspi-config nonint do_memory_split 256
 
 	# From: https://raspberrypi.stackexchange.com/a/66939
 	# check if ssl key or certificate files don't exists, if so, generate them.
@@ -179,6 +187,9 @@ else
 	# From: https://www.linux-projects.org/uv4l/installation/
 	echo "Adding uv4l repository key to apt"
 	curl https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo apt-key add -
+	# The above command is depricated, the one below should work in the future (see: https://suay.site/?p=526)
+	curl -s https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/uv4l.gpg --import
+	sudo chmod 644 /etc/apt/trusted.gpg.d/uv4l.gpg
 	echo "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | sudo tee /etc/apt/sources.list.d/uv4l.list
 
 	# From: https://www.linux-projects.org/uv4l/installation/
@@ -227,45 +238,46 @@ else
 	echo "enabling built in raspicam driver:"
 	# from: https://raspberrypi.stackexchange.com/questions/63930/remove-uv4l-software-by-http-linux-project-org-watermark
 	# https://www.raspberrypi.org/forums/viewtopic.php?t=62364
-	sudo modprobe bcm2835-v4l2
-	v4l2-ctl --overlay=0 # disable preview viewfinder
+	sudo modprobe bcm2835-v4l2 &&
+	v4l2-ctl --overlay=0 && # disable preview viewfinder, && catches errors, which this will throw if the raspi camera is in use or missing.
 
-	echo "Replacing config files with ones from folder and starting services..."
+	echo "Replacing config files with ones from our folder and starting services..."
 	update_config_files; # this function is defined near the begining of this script.
+	setup_bluetooth_serial; # run the setup_bluetooth_serial function from above
 
 	echo "enabling rov_python_code systemd service..."
     sudo systemctl enable rov_python_code.service
 	echo "enabling uv4l_raspicam systemd service..."
     sudo systemctl enable uv4l_raspicam.service
-	# echo "enabling pigpiod systemd service..."
-	# sudo systemctl enable pigpiod.service
 	echo "enabling nginx systemd service..."
 	sudo systemctl enable nginx.service
 	echo "enabling ngrok.service systemd service..."
 	sudo systemctl enable ngrok.service
-	echo "enabling dnsmasq systemd service..."
-	sudo systemctl disable dnsmasq.service # <<<<<<<<<< DISABLED Because might need to distable regular DHCP to make this work.
+	# echo "enabling pigpiod systemd service..."
+	# sudo systemctl enable pigpiod.service # <<< We're now using the adafruit motor controller python library which handles gpio, so we don't need pigpio anymore.
+	# echo "enabling dnsmasq systemd service..."
+	# sudo systemctl disable dnsmasq.service # <<<<<<<<<< DISABLED Because we are now using usb teathering, plus might have need to distable regular DHCP to make this work as a router or reciever for phone teathering (Not ideal).
 
-	echo "Making ~/webite_static_files folder, please make sure you have the webite static files into that folder"
+	echo "Making the /home/pi/webite_static_files folder, please make sure all the webite files are in that folder"
 	mkdir -p "$HOME/website_static_files/" >& /dev/null # make folder and ignore errors (the " >& /dev/null" part)
 
 	echo "Creating setup done file on the desktop as a marker to tell this script it has finished";
-	echo "This file lets the setup_internet_rov_pi.sh script know it has finished the main setup, you can delete this file to allow the full script to run again." > $SETUP_DONE_MARKER_FILE;
+	echo "This file lets the setup_internet_rov_pi.sh script know it has finished the main setup/install, you can delete this file to allow the full script to run again." > $SETUP_DONE_MARKER_FILE;
 
-	# echo "Installing Adafruit circuit python (May ask to reboot, say yes)"
+	echo "Installing Adafruit circuit python (May ask to reboot, say yes)"
 	# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 	cd ~
 	wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
 	sudo python3 raspi-blinka.py
 fi
 
-# check to see if the raspi-blinka (circuit python install) script is still here, if so, run it again
-if [ -e "$HOME/raspi-blinka.py" ]; then
-	cd ~
-	# rename the file so it doesn't get run again if setup_internet_rov_pi.sh is run again
-	mv "$HOME/raspi-blinka.py" "$HOME/raspi-blinka-step2.py"
-	# sudo python3 "$HOME/raspi-blinka-step2.py"
-else
-   # finally delete the leftover file if it exists
-   rm "$HOME/raspi-blinka-step2.py" >& /dev/null
-fi
+# # check to see if the raspi-blinka (circuit python install) script is still here, if so, run it again
+# if [ -e "$HOME/raspi-blinka.py" ]; then
+# 	cd ~
+# 	# rename the file so it doesn't get run again if setup_internet_rov_pi.sh is run again
+# 	mv "$HOME/raspi-blinka.py" "$HOME/raspi-blinka-step2.py"
+# 	# sudo python3 "$HOME/raspi-blinka-step2.py"
+# else
+#    # finally delete the leftover file if it exists
+#    rm "$HOME/raspi-blinka-step2.py" >& /dev/null
+# fi
