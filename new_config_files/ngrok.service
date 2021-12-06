@@ -13,6 +13,8 @@ IgnoreSIGPIPE=true
 Restart=always
 RestartSec=3
 Type=simple
+User=pi
+Group=sudo
 
 [Install]
 WantedBy=multi-user.target
