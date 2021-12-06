@@ -97,8 +97,8 @@ update_config_files(){
 setup_bluetooth_serial(){
 	# enables the bluetooth serial port for the pi
 	echo "Enabling bluetooth..."
-	sudo raspi-config nonint do_bluetooth 1
-	sudo raspi-config nonint do_bluetooth_discoverable 1
+	sudo raspi-config nonint do_bluetooth 1 &&
+	sudo raspi-config nonint do_bluetooth_discoverable 1 &&
 
 	# https://raspberrypi.stackexchange.com/questions/50496/automatically-accept-bluetooth-pairings
 
@@ -132,6 +132,8 @@ setup_bluetooth_serial(){
 	# start the rfcomm service
 	sudo systemctl restart rfcomm
 };
+
+setup_bluetooth_serial;
 
 # from https://raspberrypi.stackexchange.com/questions/100076/what-revisions-does-cat-proc-cpuinfo-return-on-the-new-pi-4-1-2-4gb
 PI_CPU_MODEL=$(cat /proc/cpuinfo | grep 'Hardware' | awk '{print $3}')
@@ -226,18 +228,18 @@ else
 	echo "Installing python3 pip"
 	sudo apt install -y python3-pip
 
-	echo "Downloading Adafruit circuit python"
 	# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
-	sudo python3 -m pip install setuptools
+	echo "Downloading Adafruit circuit python"
+	sudo python3 -m pip install --upgrade setuptools
 	sudo python3 -m pip install --upgrade adafruit-python-shell
 
-	echo "Downloading Adafruit motor controller python libraries..."
 	# from: https://learn.adafruit.com/adafruit-dc-and-stepper-motor-hat-for-raspberry-pi/installing-software
+	echo "Downloading Adafruit motor controller python libraries..."
 	sudo python3 -m pip install --upgrade adafruit-circuitpython-motorkit
 
-	echo "enabling built in raspicam driver:"
 	# from: https://raspberrypi.stackexchange.com/questions/63930/remove-uv4l-software-by-http-linux-project-org-watermark
 	# https://www.raspberrypi.org/forums/viewtopic.php?t=62364
+	echo "enabling built in raspicam driver:"
 	sudo modprobe bcm2835-v4l2 &&
 	v4l2-ctl --overlay=0 && # disable preview viewfinder, && catches errors, which this will throw if the raspi camera is in use or missing.
 
@@ -264,20 +266,9 @@ else
 	echo "Creating setup done file on the desktop as a marker to tell this script it has finished";
 	echo "This file lets the setup_internet_rov_pi.sh script know it has finished the main setup/install, you can delete this file to allow the full script to run again." > $SETUP_DONE_MARKER_FILE;
 
-	echo "Installing Adafruit circuit python (May ask to reboot, say yes)"
 	# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+	echo "Installing Adafruit circuit python (May ask to reboot, say yes)"
 	cd ~
 	wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
 	sudo python3 raspi-blinka.py
 fi
-
-# # check to see if the raspi-blinka (circuit python install) script is still here, if so, run it again
-# if [ -e "$HOME/raspi-blinka.py" ]; then
-# 	cd ~
-# 	# rename the file so it doesn't get run again if setup_internet_rov_pi.sh is run again
-# 	mv "$HOME/raspi-blinka.py" "$HOME/raspi-blinka-step2.py"
-# 	# sudo python3 "$HOME/raspi-blinka-step2.py"
-# else
-#    # finally delete the leftover file if it exists
-#    rm "$HOME/raspi-blinka-step2.py" >& /dev/null
-# fi
