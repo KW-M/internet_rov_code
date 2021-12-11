@@ -14,13 +14,22 @@ echo "!!!!!!!!"
 echo "REMEMEBER to change the pi user password to something other than the default by running the command: sudo passwd pi (just type, characters won't show,  see notes in internet_rov google drive folder for previously used password)"
 echo "!!!!!!!!"
 
-echo "Setting Timezone and Locale..."
+echo "Setting Timezone to America/Los_Angeles ..."
 sudo timedatectl set-timezone America/Los_Angeles
-sudo timedatectl set-ntp true
+sudo timedatectl set-ntp true # enable network time sync
+
+echo "Setting Locale (Language & keyboard to English US layout)..."
 # https://www.jaredwolff.com/raspberry-pi-setting-your-locale/
-sudo perl -pi -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
-sudo locale-gen en_US.UTF-8
-sudo update-locale en_US.UTF-8
+# check if the loaded locales contains machine-info file:
+if ! $( locale -a | grep -i -q 'en_US.utf8') || $(locale -a | grep -i -q 'en_US.utf-8'); then
+ 	echo "en_US.utf8 local not generated, loading it now ..."
+	sudo perl -pi -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
+	sudo locale-gen en_US.UTF-8
+fi
+sudo localectl set-locale en_US.UTF-8
+sudo update-locale LANG=en_US.UTF-8
+sudo update-locale LC_ALL=en_US.UTF-8
+sudo localectl set-keymap us
 
 # From: https://raspberrypi.stackexchange.com/questions/28907/how-could-one-automate-the-raspbian-raspi-config-setup
 echo "Setting the pi to enable different functionality.  (all of these can also be set manually by running sudo raspi-config)."
