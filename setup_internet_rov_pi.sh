@@ -4,7 +4,7 @@ PATH_TO_THIS_SCRIPT=$0
 FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 FOLDER_CONTAINING_THIS_SCRIPT="$(pwd)"
-echo "FOLDER_CONTAINING_THIS_SCRIPT: $FOLDER_CONTAINING_THIS_SCRIPT"
+
 # from https://raspberrypi.stackexchange.com/questions/100076/what-revisions-does-cat-proc-cpuinfo-return-on-the-new-pi-4-1-2-4gb
 PI_CPU_MODEL=$(cat /proc/cpuinfo | grep 'Hardware' | awk '{print $3}')
 
@@ -64,9 +64,9 @@ sudo raspi-config nonint do_memory_split 256
 # fi
 
 # From: https://www.linux-projects.org/uv4l/installation/
-echo -e "$Cyan Adding uv4l repository key to apt $Color_Off"
+echo -e "$Cyan Adding uv4l repository key to apt... $Color_Off"
 curl https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo apt-key add -
-# The above command is depricated, the one below should work in the future (see: https://suay.site/?p=526)
+# The above command is depricated, the one bellow should probably work in the future (see: https://suay.site/?p=526)
 curl -s https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/uv4l.gpg --import
 sudo chmod 644 /etc/apt/trusted.gpg.d/uv4l.gpg
 echo -e "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | sudo tee /etc/apt/sources.list.d/uv4l.list
@@ -88,7 +88,7 @@ sudo apt install usbmuxd ipheth-utils libimobiledevice-utils
 
 echo -e "$Cyan Installing uv4l webrtc plugin with apt (package depending on raspberry pi model) $Color_Off"
 # From: https://www.highvoltagecode.com/post/webrtc-on-raspberry-pi-live-hd-video-and-audio-streaming
-if(($PI_CPU_MODEL == "BCM2835")); then
+if [[ $PI_CPU_MODEL == "BCM2835" ]]; then
 	echo -e "$Green Pi Zero or similar board detected, installing uv4l-webrtc-armv6 $Color_Off"
 	sudo apt install -y uv4l-webrtc-armv6
 else

@@ -29,6 +29,8 @@ backup_then_overwrite_file(){
 	sudo cp -f -T "$REPLACEMENT_FILE" "$ORIGINAL_FILE_PATH"
 };
 
+rm ~/raspi-blinka.py && # clean up the adafruit circuitpython installer script if it's still around.
+
 # echo "Copying over boot config file..."
 # backup_then_overwrite_file "/boot/config.txt" "./new_config_files/boot_config.txt"
 
