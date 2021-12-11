@@ -3,7 +3,8 @@
 PATH_TO_THIS_SCRIPT=$0
 FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
-
+FOLDER_CONTAINING_THIS_SCRIPT="$(pwd)"
+echo "FOLDER_CONTAINING_THIS_SCRIPT: $FOLDER_CONTAINING_THIS_SCRIPT"
 # from https://raspberrypi.stackexchange.com/questions/100076/what-revisions-does-cat-proc-cpuinfo-return-on-the-new-pi-4-1-2-4gb
 PI_CPU_MODEL=$(cat /proc/cpuinfo | grep 'Hardware' | awk '{print $3}')
 
@@ -127,7 +128,7 @@ v4l2-ctl --overlay=0 && # disable preview viewfinder, && catches errors, which t
 
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 echo "$FOLDER_CONTAINING_THIS_SCRIPT"
-echo "$(PWD)"
+echo "$(pwd)"
 echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_Off"
 /bin/bash ./update_config_files.sh # run the update config files script in this folder.
 
