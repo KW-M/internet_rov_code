@@ -126,6 +126,8 @@ sudo modprobe bcm2835-v4l2 &&
 v4l2-ctl --overlay=0 && # disable preview viewfinder, && catches errors, which this will throw if the raspi camera is in use or missing.
 
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
+echo "$FOLDER_CONTAINING_THIS_SCRIPT"
+echo "$(PWD)"
 echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_Off"
 /bin/bash ./update_config_files.sh # run the update config files script in this folder.
 
