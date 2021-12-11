@@ -34,7 +34,7 @@ sudo update-locale LC_ALL=en_US.UTF-8
 sudo localectl set-keymap us
 
 # From: https://raspberrypi.stackexchange.com/questions/28907/how-could-one-automate-the-raspbian-raspi-config-setup
-print_ssrov; echo -e "$Cyan Setting the pi to enable different functionality.  (all of these can also be set manually by running sudo raspi-config). $Color_Off"
+echo -e "$Cyan Setting the pi to enable different functionality.  (all of these can also be set manually by running sudo raspi-config). $Color_Off"
 echo -e "$Cyan Enabling I2C $Color_Off"
 sudo raspi-config nonint do_i2c 0 # zero here means "enable"
 echo -e "$Cyan Enabling SPI $Color_Off"
