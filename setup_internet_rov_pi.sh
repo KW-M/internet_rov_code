@@ -11,12 +11,12 @@ Green="\033[1;32m"  # Green color code for console text
 Cyan="\033[1;36m"   # Cyan color code for console text
 Color_Off="\033[0m" # Text color Reset code for console text
 
-echo -e "This scripts sets up a raspberry pi install as an internet rov, (from a fresh install of raspbian.)"
-echo -e "It should be fine if it gets run twice or more anyway, it just takes a while."
+echo -e "$Cyan This scripts sets up a raspberry pi install as an internet rov, (from a fresh install of raspbian.)"
+echo -e "$Green It should be fine if it gets run twice or more anyway, it just takes a while."
 
-echo -e "$Green !!!!!!!! $Color_Off"
-echo -e "$Green REMEMEBER to change the pi user password to something other than the default by running the command: sudo passwd pi (just type, characters won't show,  see notes in internet_rov google drive folder for previously used password) $Color_Off"
-echo -e "$Green !!!!!!!! $Color_Off"
+echo -e "$Cyan  !!!!!!!! $Color_Off"
+echo -e "$Cyan REMEMEBER to change the pi user password to something other than the default by running the command: sudo passwd pi (just type, characters won't show,  see notes in internet_rov google drive folder for previously used password) $Color_Off"
+echo -e "$Cyan  !!!!!!!! $Color_Off"
 
 echo -e "$Cyan Setting Timezone to America/Los_Angeles ... $Color_Off"
 sudo timedatectl set-timezone America/Los_Angeles
