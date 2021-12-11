@@ -66,10 +66,14 @@ curl -s https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo gpg --
 sudo chmod 644 /etc/apt/trusted.gpg.d/uv4l.gpg
 echo "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | sudo tee /etc/apt/sources.list.d/uv4l.list
 
+echo "Making sure all system & package updates are installed..."
+sudo apt -y full-upgrade
+sudo apt -y dist-upgrade
+sudo apt -y update
+sudo apt-get -y update && sudo apt-get -y upgrade # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+
 # From: https://www.linux-projects.org/uv4l/installation/
 echo "Installing packages with apt: nginx uv4l uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras"
-sudo apt -y update
-sudo apt-get -y update && sudo apt-get -y upgrade  # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 sudo apt install -y nginx uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras
 
 # From: https://www.youtube.com/watch?v=Q-m4i7LFxLA
