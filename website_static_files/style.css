@@ -257,3 +257,11 @@ button:hover, button:focus {
 
     transform: translateX(120%);
 }
+
+.video-livestream {
+position: relative;
+
+display: block;
+
+margin: auto;
+}

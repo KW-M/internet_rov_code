@@ -8,7 +8,7 @@ RTCIceCandidate = /*window.mozRTCIceCandidate ||*/ window.RTCIceCandidate;
 
 function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
     if ("WebSocket" in window) {
-        console.log("opening web socket: " + url);
+        console.log("Opening signalling web socket: " + url);
         var ws = new WebSocket(url);
         var pc;
         var iceCandidates = [];
@@ -28,7 +28,7 @@ function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
                 iceCandidates.forEach(function (candidate) {
                     pc.addIceCandidate(candidate,
                         function () {
-                            console.log("IceCandidate added: " + JSON.stringify(candidate));
+                            console.log("IceCandidate added: ", candidate);
                         },
                         function (error) {
                             console.error("addIceCandidate error: " + error);
@@ -102,7 +102,7 @@ function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
                     trickle_ice: true
                 }
             };
-            console.log("sending web socket message: " + JSON.stringify(request));
+            console.log("Sending signalling web socket message: ", request);
             ws.send(JSON.stringify(request));
         };
 
@@ -111,7 +111,7 @@ function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
             var what = msg.what;
             var data = msg.data;
 
-            console.log("received web socket message: " + JSON.stringify(msg));
+            console.log("Received signalling web socket message: ", msg);
 
             switch (what) {
                 case "offer":
@@ -178,7 +178,7 @@ function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
         };
 
         ws.onclose = function (event) {
-            console.log('socket closed with code: ' + event.code);
+            console.warn('Signalling web socket closed with code: ' + event.code);
             if (pc) {
                 pc.close();
                 pc = null;
@@ -204,6 +204,6 @@ function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
         };
 
     } else {
-        onError("Sorry, this browser does not support Web Sockets. Bye.");
+        onError("Sorry, this browser does not support Web Sockets. Please use a newer browser.");
     }
 }
