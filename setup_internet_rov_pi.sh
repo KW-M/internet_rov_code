@@ -105,7 +105,7 @@ echo -e "$Green Marking ngrok as executable with command 'chmod +x ~/ngrok' $Col
 chmod +x ~/ngrok
 echo -e "$Green Updating ngrok $Color_Off"
 ~/ngrok update
-cd $FOLDER_CONTAINING_THIS_SCRIPT
+cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 
 echo -e "$Cyan Installing python3 pip $Color_Off"
 sudo apt install -y python3-pip
@@ -125,8 +125,7 @@ echo -e "$Cyan enabling built in raspicam driver: $Color_Off"
 sudo modprobe bcm2835-v4l2 &&
 v4l2-ctl --overlay=0 && # disable preview viewfinder, && catches errors, which this will throw if the raspi camera is in use or missing.
 
-pwd
-ls
+cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_Off"
 /bin/bash ./update_config_files.sh # run the update config files script in this folder.
 
