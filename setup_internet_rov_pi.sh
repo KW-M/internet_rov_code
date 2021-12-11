@@ -66,7 +66,7 @@ curl https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo apt-key a
 # The above command is depricated, the one below should work in the future (see: https://suay.site/?p=526)
 curl -s https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/uv4l.gpg --import
 sudo chmod 644 /etc/apt/trusted.gpg.d/uv4l.gpg
-echo -e "$Cyan deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main $Color_Off" | sudo tee /etc/apt/sources.list.d/uv4l.list
+echo -e "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | sudo tee /etc/apt/sources.list.d/uv4l.list
 
 echo -e "$Cyan Making sure all system & package updates are installed... $Color_Off"
 sudo apt -y full-upgrade
