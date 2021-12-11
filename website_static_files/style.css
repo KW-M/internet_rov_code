@@ -229,7 +229,11 @@ button:hover, button:focus {
 #gamepad-container.help-open {
     z-index: 20;
 
-    background-color: #ffffffdb;
+    pointer-events: all;
+
+    background-color: #ffffffba;
+
+    backdrop-filter: blur(3px);
 }
 
 #gamepad-container.help-open #gamepad-connect-notice {

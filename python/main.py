@@ -4,6 +4,8 @@
 # https://raspberrypigpi.stackexchange.com/questions/29480/how-to-use-pigpio-to-control-a-servo-motor-with-a-keyboard
 # public domain
 
+# https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
+
 import os
 import time
 import json
