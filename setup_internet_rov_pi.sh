@@ -6,6 +6,7 @@ cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 
 # from https://raspberrypi.stackexchange.com/questions/100076/what-revisions-does-cat-proc-cpuinfo-return-on-the-new-pi-4-1-2-4gb
 PI_CPU_MODEL=$(cat /proc/cpuinfo | grep 'Hardware' | awk '{print $3}')
+Green="\032[1;36m"   # Green color code for console text
 Cyan="\033[1;36m"   # Cyan color code for console text
 Color_Off="\033[0m" # Text color Reset code for console text
 
@@ -124,7 +125,7 @@ sudo modprobe bcm2835-v4l2 &&
 v4l2-ctl --overlay=0 && # disable preview viewfinder, && catches errors, which this will throw if the raspi camera is in use or missing.
 
 echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_Off"
-./update_config_files.sh # run the update config files script in this folder.
+./update_config_files # run the update config files script in this folder.
 
 echo -e "$Cyan Enabling services so they start at boot... $Color_Off"
 echo -e "$Cyan enabling rov_python_code systemd service... $Color_Off"
