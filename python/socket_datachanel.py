@@ -8,8 +8,8 @@ class socket_datachanel:
 
     def close_socket(self):
         if self.sock:
-            self.self.sock.close()
-            self.self.sock = None
+            self.sock.close()
+            self.sock = None
             self.connection = None
 
     def setup_socket(self, socket_path='/tmp/uv4l.socket', socket_timeout=.1):
