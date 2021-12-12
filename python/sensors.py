@@ -21,7 +21,7 @@ class sensor_ctrl:
     light_sensor = None
 
     def setup_sensors(self):
-        self.pressure_sensor = ms5803py.MS5803_30BA()
+        self.pressure_sensor = self.pressure_sensor or ms5803py.MS5803()
         self.orientation_sensor = None
         self.light_sensor = None
 
