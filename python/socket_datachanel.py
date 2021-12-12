@@ -65,9 +65,6 @@ class socket_datachanel:
             self.close_socket()
             return False
 
-        finally:
-            return True
-
     def recieve_socket_message(self):
         """
         Checks for new data on the socket setup in the setup_socket() function. Waits the timeout specified in the setup_socket() function before returning None
