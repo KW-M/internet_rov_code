@@ -18,7 +18,7 @@ class socket_datachanel:
         This function is intended to be called in a loop so long as it returns False (indicating it was not able to connect).
         :param socket_path: Path to the UV4L socket file (Default = '/tmp/uv4l.socket').
         :param socket_timeout: Timeout in seconds to wait to open the socket or recive data before moving on (Default = 0.1 seconds).
-        :return: True only if the socket was successfully created and is connected.
+        Raises exceptions if the socket was not successfully created or connected within the timeout.
         """
 
         print('Attempting to open socket at path: {}'.format(socket_path))
@@ -28,11 +28,11 @@ class socket_datachanel:
             os.unlink(socket_path)
         except OSError as e:
             if os.path.exists(socket_path):
-                print("Error unlinking socket file: {}, {}".format(
-                    socket_path, e))
+                raise Exception("Error unlinking socket file: {}, {}".format(
+                    socket_path, e)) from e
             else:
-                print("Socket file: {} does not exist".format(socket_path))
-            return False
+                raise Exception("Socket file: {} does not exist".format(
+                    socket_path)) from e
 
         # try to create the socket class with the given path:
         try:
@@ -46,7 +46,6 @@ class socket_datachanel:
             # try to connect to the socket:
             self.connection, client_address = self.sock.accept()
             print('Established socket connection with ', client_address)
-            return True
 
         # if the socket was not opened/connected before the timeout, return False:
         except socket.timeout as e:
@@ -54,16 +53,14 @@ class socket_datachanel:
             # this next if/else is a bit redundant, but illustrates how the
             # timeout exception is setup
             if err == 'timed out':
-                print('recv timed out, retry later')
+                raise Exception('recv timed out, retry later') from e
             else:
-                print("Socket timeout error: %s" % e)
-            return False
+                raise Exception("Socket timeout error") from e
 
         # if there was some other socket error, close the socket and return False:
-        except socket.error as error_msg:
-            print("Socket error: %s" % error_msg)
+        except socket.error as e:
             self.close_socket()
-            return False
+            raise Exception("Socket error") from e
 
     def recieve_socket_message(self):
         """

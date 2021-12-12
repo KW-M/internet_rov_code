@@ -27,14 +27,15 @@ while True:
         sensors.setup_sensors()
 
         print('Awaiting connection...')
-        connection_succesful = msg_socket.setup_socket(
-            socket_path='/tmp/uv4l.socket', socket_timeout=0.1)
-        print('Connection succesful?:', connection_succesful)
-        if connection_succesful == True:
-            print('Connected!')
-        else:
+        try:
+            msg_socket.setup_socket(socket_path='/tmp/uv4l.socket',
+                                    socket_timeout=0.1)
+        except Exception as e:
+            print('Socket setup failed: {}'.format(e))
             time.sleep(3)
             continue  # Go back to start of loop
+        else:
+            print('Connected!')
 
         while True:
             recived_message = str(msg_socket.recieve_socket_message())
