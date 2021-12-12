@@ -81,7 +81,9 @@ while True:
             sensor_values_did_change = sensors.update_all_sensors()
             if sensor_values_did_change:
                 msg_socket.send_socket_message(
-                    json.dumps({"sensor_update": sensors.get_changed_sensor_values()}))
+                    json.dumps(
+                        {"sensor_update":
+                         sensors.get_changed_sensor_values()}))
 
     except Exception as e:
         print(e)
@@ -90,7 +92,7 @@ while True:
         except:
             pass
 
-    finally:
         # Clean up the connection
+        print('Closing connection...')
         motors.stop_gpio_and_motors()
         msg_socket.close_socket()
