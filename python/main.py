@@ -16,13 +16,14 @@ from sensors import sensor_ctrl
 
 msg_socket = socket_datachanel()
 sensors = sensor_ctrl()
+motors = motor_ctl()
 
 ######## Main Program Loop ###########
 while True:
     try:
-        init_motor_controllers()
-        stop_gpio_and_motors(
-        )  # Keeps motors off while disconnected or if it becomes disconnected
+        motors.init_motor_controllers()
+        motors.stop_gpio_and_motors()
+        # ^ Keeps motors off while disconnected.
         sensors.setup_sensors()
 
         print('Awaiting connection...')
@@ -43,29 +44,31 @@ while True:
                 print(updated_values)
 
                 if 'motors' in updated_values:
-                    for key in updated_values['motors']:
-                        value = updated_values['motors'][key]
-                        print("Got motor update:{}is{}".format(key, value))
-                        if key == 'left':
-                            FORWARD_LEFT_MOTOR.throttle = value
-                            # driveMotor(FL_in1_pin, FL_in2_pin, value)
-                        elif key == 'right':
-                            FORWARD_RIGHT_MOTOR.throttle = value
-                            # driveMotor(FR_in1_pin, FR_in2_pin, value)
-                        elif key == 'vertical':
-                            VERTICAL_MOTOR.throttle = value
-                            # driveMotor(V_in1_pin, V_in2_pin, value)
-                        elif key == 'strafe':
-                            STRAFING_MOTOR.throttle = value
-                            # driveMotor(S_in1_pin, S_in2_pin, value)
+                    pass
+                #     for key in updated_values['motors']:
+                #         value = updated_values['motors'][key]
+                #         print("Got motor update:{}is{}".format(key, value))
+                #         if key == 'left':
+                #             FORWARD_LEFT_MOTOR.throttle = value
+                #             # driveMotor(FL_in1_pin, FL_in2_pin, value)
+                #         elif key == 'right':
+                #             FORWARD_RIGHT_MOTOR.throttle = value
+                #             # driveMotor(FR_in1_pin, FR_in2_pin, value)
+                #         elif key == 'vertical':
+                #             VERTICAL_MOTOR.throttle = value
+                #             # driveMotor(V_in1_pin, V_in2_pin, value)
+                #         elif key == 'strafe':
+                #             STRAFING_MOTOR.throttle = value
+                #             # driveMotor(S_in1_pin, S_in2_pin, value)
 
                 elif 'cmds' in updated_values:
-                    for key in updated_values:
-                        value = updated_values[key]
-                        print("Got command update: {} is {}".format(
-                            key, value))
-                        if key is 'lights':
-                            pass  # todo
+                    pass
+                    # for key in updated_values:
+                    #     value = updated_values[key]
+                    #     print("Got command update: {} is {}".format(
+                    #         key, value))
+                    #     if key is 'lights':
+                    #         pass  # todo
 
     #             else:
     # #                 send_socket_message(json.dumps({
@@ -87,5 +90,5 @@ while True:
 
     finally:
         # Clean up the connection
-        stop_gpio_and_motors()
+        motors.stop_gpio_and_motors()
         msg_socket.close_socket()
