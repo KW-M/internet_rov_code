@@ -120,6 +120,10 @@ sudo python3 -m pip install --upgrade adafruit-python-shell
 echo -e "$Cyan Downloading Adafruit motor controller python libraries... $Color_Off"
 sudo python3 -m pip install --upgrade adafruit-circuitpython-motorkit
 
+# from: https://github.com/NickCrews/ms5803py
+echo -e "$Cyan Downloading pressure sensor python libraries... $Color_Off"
+sudo python3 -m pip install --upgrade ms5803py
+
 # from: https://raspberrypi.stackexchange.com/questions/63930/remove-uv4l-software-by-http-linux-project-org-watermark
 # https://www.raspberrypi.org/forums/viewtopic.php?t=62364
 echo -e "$Cyan enabling built in raspicam driver: $Color_Off"
