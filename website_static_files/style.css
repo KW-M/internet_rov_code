@@ -258,7 +258,7 @@ button:hover, button:focus {
     transform: translateX(120%);
 }
 
-.video-livestream {
+#video-livestream {
 position: relative;
 
 display: block;

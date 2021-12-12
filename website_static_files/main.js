@@ -34,7 +34,7 @@ function getDefaultSignallingServerURL() {
 }
 
 var datachannel, localdatachannel;
-function startVideoStream(webSocketURL) {
+function connectToROV(webSocketURL) {
     if (!isStreaming) {
         console.log("Attempting connection using websocket url:", webSocketURL)
         signalObj = new signal(webSocketURL,
@@ -44,6 +44,8 @@ function startVideoStream(webSocketURL) {
                 //video.src = url ? url.createObjectURL(stream) : stream; // deprecated
                 video.srcObject = stream;
                 video.play();
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'block';
             },
             function (error) {
                 // this function runs when there is an error with the socket (or webrtc?) connection
@@ -55,7 +57,7 @@ function startVideoStream(webSocketURL) {
                 showToastMessage('websocket closed. bye bye!');
                 video.srcObject = null;
                 isStreaming = false;
-                startVideoStream(window.prompt("Can't determine signalling server websocket url (normally wss://<host>:<port>/stream/webrtc where <host> is the url or ip and port is the port", webSocketURL));
+                connectToROV(window.prompt("Can't determine signalling server websocket url (normally wss://<host>:<port>/stream/webrtc where <host> is the url or ip and port is the port", webSocketURL));
             },
             function (message) {
                 alert("Got Websocket Message: " + message);
@@ -82,26 +84,29 @@ function startVideoStream(webSocketURL) {
                     datachannel = null;
                     // document.getElementById('datachannels').disabled = true;
                     console.log("The Data Channel is Closed");
+                    signalObj.hangup();
+                    startBtn.style.display = 'block';
+                    stopBtn.style.display = 'none';
                 };
             }
 
         );
-        // when the driver/user closes their browser window, we need tell the pi to end the webrtc & socket connections
+
+        // when the user closes their browser window, we need tell the pi to end the webrtc & socket connections
         // so "before" the window/tab/browser is "unloaded" (closed), hang up.
         window.onbeforeunload = () => signalObj.hangup();
     }
 }
 
 // window.addEventListener('DOMContentLoaded', () => { startVideoStream(getDefaultSignallingServerURL()) }, false);
-startBtn.addEventListener('click', () => { startVideoStream(getDefaultSignallingServerURL()) }, false);
+startBtn.addEventListener('click', () => { connectToROV(getDefaultSignallingServerURL()) }, false);
 
 stopBtn.addEventListener('click', function (e) {
     if (signalObj) {
         console.log(signalObj)
-        // signalObj.hangup();
-        // signalObj = null;
-        // isStreaming = false;
-
+        signalObj.hangup();
+        signalObj = null;
+        isStreaming = false;
     }
 }, false);
 
