@@ -51,7 +51,7 @@ function initilizeGamepadInterface(interfaceConfig) {
 
     window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
     function gamepadStateUpdateLoop() {
-        var gpad = window.navigator.getGamepads()[0];
+        var gpad = navigator.getGamepads()[0];
         if (gpad == undefined) return; // exit if the gamepad has been disconnected
 
         // find buttons that changed from the last gamepad state to the current.
@@ -95,18 +95,18 @@ function initilizeGamepadInterface(interfaceConfig) {
     }
 
     setupGamepadHelp();
-    window.navigator.getGamepads = navigator.getGamepads || navigator.webkitGamepads || navigator.webkitGetGamepads;
-    if (!window.navigator.getGamepads) {
+    navigator.getGamepads = navigator.getGamepads || navigator.webkitGamepads || navigator.webkitGetGamepads;
+    if (!navigator.getGamepads) {
         alert('This browser does not support gamepads. Please update your browser - Any modern browser should work.');
     } else {
         // gamepad api is supported
         window.addEventListener('gamepadconnected', function (e) {
-            // if (window.navigator.getGamepads().length > 1) return; // if the user for some reason connects more than one gamepad, don't trigger again.
+            // if (navigator.getGamepads().length > 1) return; // if the user for some reason connects more than one gamepad, don't trigger again.
             interfaceConfig.handleGamepadConnected(e)
             requestAnimationFrame(gamepadStateUpdateLoop);
         });
         window.addEventListener('gamepaddisconnected', function (e) {
-            if (window.navigator.getGamepads().length > 0) return; // if the user somehow disconnected only one of several gamepads, don't disable gamepad mode
+            if (navigator.getGamepads().length > 0) return; // if the user somehow disconnected only one of several gamepads, don't disable gamepad mode
             lastGamepadState = { buttons: [], axes: [] }
             interfaceConfig.handleGamepadDisconnected(e)
             gamepadHelpToggleButton.style.display = 'none'
