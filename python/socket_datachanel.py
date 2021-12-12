@@ -44,7 +44,7 @@ class socket_datachanel:
                 self.sock.listen(1)
 
             # try to connect to the socket:
-            connection, client_address = self.sock.accept()
+            self.connection, client_address = self.sock.accept()
             print('Established socket connection with ', client_address)
             return True
 
@@ -81,7 +81,7 @@ class socket_datachanel:
                 print('Socket not setup')
             else:
                 # pause program while waiting for a message in utf-8 character encoding up to 1024 bytes long to appear in the socket file.
-                message = str(self.connection.recv(1024), 'utf-8')
+                message = str(self.connection(1024), 'utf-8')
                 if message:
                     return message
                 else:

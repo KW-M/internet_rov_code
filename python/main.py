@@ -29,10 +29,10 @@ while True:
         print('Awaiting connection...')
         connection_succesful = msg_socket.setup_socket(
             socket_path='/tmp/uv4l.socket', socket_timeout=0.1)
-        if not connection_succesful:
-            continue
-        else:
+        if connection_succesful:
             print('Connected!')
+        else:
+            continue
 
         while True:
             recived_message = str(msg_socket.recieve_socket_message())
