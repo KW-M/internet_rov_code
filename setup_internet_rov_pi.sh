@@ -7,6 +7,7 @@ FOLDER_CONTAINING_THIS_SCRIPT="$(pwd)"
 
 # from https://raspberrypi.stackexchange.com/questions/100076/what-revisions-does-cat-proc-cpuinfo-return-on-the-new-pi-4-1-2-4gb
 PI_CPU_MODEL=$(cat /proc/cpuinfo | grep 'Hardware' | awk '{print $3}')
+PI_CPU_ARCHITECTURE=$(arch)
 
 Green="\033[1;32m"  # Green color code for console text
 Cyan="\033[1;36m"   # Cyan color code for console text
@@ -88,11 +89,11 @@ sudo apt install usbmuxd ipheth-utils libimobiledevice-utils
 
 echo -e "$Cyan Installing uv4l webrtc plugin with apt (package depending on raspberry pi model) $Color_Off"
 # From: https://www.highvoltagecode.com/post/webrtc-on-raspberry-pi-live-hd-video-and-audio-streaming
-if [[ $PI_CPU_MODEL == "BCM2835" ]]; then
-	echo -e "$Green Pi Zero or similar board detected, installing uv4l-webrtc-armv6 $Color_Off"
+if [[ $PI_CPU_ARCHITECTURE == "armv6l" ]]; then
+	echo -e "$Green PI with ARMv6 cpu detecte (Pi Zero or similar), installing uv4l-webrtc-armv6 $Color_Off"
 	sudo apt install -y uv4l-webrtc-armv6
 else
-	echo -e "$Green PI other than PI Zero detected, installing uv4l-webrtc $Color_Off"
+	echo -e "$Green PI with non ARMv6 cpu detected, installing uv4l-webrtc $Color_Off"
 	sudo apt install -y uv4l-webrtc
 fi
 

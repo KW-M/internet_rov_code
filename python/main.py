@@ -32,7 +32,8 @@ while True:
         if connection_succesful:
             print('Connected!')
         else:
-            continue
+            time.sleep(3)
+            continue  # Go back to start of loop
 
         while True:
             recived_message = str(msg_socket.recieve_socket_message())
