@@ -69,7 +69,8 @@ while True:
 
             sensor_values_did_change = sensors.update_all_sensors()
             if sensor_values_did_change:
-                reply_data["sensor_update"] = sensors.get_changed_sensor_values()}
+                reply_data[
+                    "sensor_update"] = sensors.get_changed_sensor_values()
 
             # finally, send the reply_data as a json string if it has any data in it.
             if len(reply_data) > 0:
