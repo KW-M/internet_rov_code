@@ -7,6 +7,10 @@ from adafruit_motorkit import MotorKit
 ############### Motor / GPIO Stuff #################
 
 
+def clamp(minimum, x, maximum):
+    return max(minimum, min(x, maximum))
+
+
 class motor_ctl:
 
     ### ---- PWM Motor Pinouts ------
@@ -75,12 +79,14 @@ class motor_ctl:
         thrust_vector: a vector of the form [x,y,z] where x is strafe, y is forward, and z is vertical (all components should be between -1 & 1)
         turn_speed: a number between -1 & 1 coresponding to the amount of opposing thrust to apply on the two forward thrusters to turn the ROV at some rate (full clockwise = 1, full counterclokwise = -1).
         """
-        self.STRAFING_MOTOR.throttle = math.clamp(thrust_vector[0], -1, 1)
-        self.VERTICAL_MOTOR.throttle = math.clamp(thrust_vector[2], -1, 1)
-        self.FORWARD_LEFT_MOTOR.throttle = math.clamp(
-            thrust_vector[1] + turn_rate, -1, 1)
-        self.FORWARD_RIGHT_MOTOR.throttle = math.clamp(
-            thrust_vector[1] - turn_rate, -1, 1)
+        self.STRAFING_MOTOR.throttle = clamp(-1, thrust_vector[0], 1)
+        self.VERTICAL_MOTOR.throttle = clamp(-1, thrust_vector[2], 1)
+        self.FORWARD_LEFT_MOTOR.throttle = clamp(-1,
+                                                 thrust_vector[1] + turn_rate,
+                                                 1)
+        self.FORWARD_RIGHT_MOTOR.throttle = clamp(-1,
+                                                  thrust_vector[1] - turn_rate,
+                                                  1)
 
     def stop_gpio_and_motors(self):
         self.FORWARD_LEFT_MOTOR.throttle = 0
