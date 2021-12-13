@@ -32,7 +32,8 @@ while True:
             msg_socket.setup_socket(socket_path='/tmp/uv4l.socket',
                                     socket_timeout=0.1)
         except Exception as e:
-            print('Socket setup failed: {}'.format(e))
+            print('Socket setup failed')
+            traceback.print_exc()
             time.sleep(3)
             continue  # Go back to start of loop
         else:

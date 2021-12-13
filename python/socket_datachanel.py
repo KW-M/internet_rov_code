@@ -28,10 +28,10 @@ class socket_datachanel:
             os.unlink(socket_path)
         except OSError as e:
             if os.path.exists(socket_path):
-                raise Exception("Error unlinking socket file: {}, {}".format(
+                raise OSError("Error unlinking socket file: {}, {}".format(
                     socket_path, e)) from e
             else:
-                raise Exception("Socket file: {} does not exist".format(
+                raise OSError("Socket file: {} does not exist".format(
                     socket_path)) from e
 
         # try to create the socket class with the given path:
