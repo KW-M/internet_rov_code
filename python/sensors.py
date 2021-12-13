@@ -1,6 +1,12 @@
 import ms5803py
 import time
 
+
+def get_rounded_string(value):
+    # from: https://stackoverflow.com/questions/20457038/how-to-round-to-2-decimals-with-python/20457284#20457284
+    return "{:0.3f}".format(value)
+
+
 class sensor_ctrl:
 
     sensor_values_have_changed_flag = False
@@ -35,10 +41,10 @@ class sensor_ctrl:
         if self.pressure_sensor is not None:
             pressure, temp = self.pressure_sensor.read(pressure_osr=4096)
             print("Sensors: pressure={} mBar, temperature={} C".format(
-                pressure, temp))
+                get_rounded_string(pressure), get_rounded_string(temp)))
 
-            self.update_sensor_value('pressure', pressure)
-            self.update_sensor_value('temp', temp)
+            self.update_sensor_value('pressure', get_rounded_string(pressure))
+            self.update_sensor_value('temp', get_rounded_string(temp))
 
         # Read the orientation sensor values
         if self.orientation_sensor is not None:
