@@ -33,6 +33,8 @@ def pretty_print_exception(exception, show_traceback=False):
                 msg_socket.send_socket_message(json.dumps({'error': err_msg}))
             except:
                 pass
+        else:
+            print(err_msg)
         last_err_message = err_msg
     else:
         print(".", end='')  # print a dot to show the same error happend again.
@@ -49,7 +51,7 @@ while True:
         print('Awaiting connection...')
         try:
             msg_socket.setup_socket(socket_path='/tmp/uv4l.socket',
-                                    socket_timeout=0.1)
+                                    socket_timeout=3)
         except Exception as e:
             is_important = type(e) != TimeoutError and type(e) != FileNotFoundError
             pretty_print_exception(e, show_traceback=is_important)
