@@ -79,14 +79,15 @@ class motor_ctl:
         thrust_vector: a vector of the form [x,y,z] where x is strafe, y is forward, and z is vertical (all components should be between -1 & 1)
         turn_speed: a number between -1 & 1 coresponding to the amount of opposing thrust to apply on the two forward thrusters to turn the ROV at some rate (full clockwise = 1, full counterclokwise = -1).
         """
-        self.STRAFING_MOTOR.throttle = clamp(-1, thrust_vector[0], 1)
-        self.VERTICAL_MOTOR.throttle = clamp(-1, thrust_vector[2], 1)
-        self.FORWARD_LEFT_MOTOR.throttle = clamp(-1,
-                                                 thrust_vector[1] + turn_rate,
-                                                 1)
-        self.FORWARD_RIGHT_MOTOR.throttle = clamp(-1,
-                                                  thrust_vector[1] - turn_rate,
-                                                  1)
+        turn_rate = float(turn_rate)
+        self.STRAFING_MOTOR.throttle = clamp(-1, float(thrust_vector[0]), 1)
+        self.VERTICAL_MOTOR.throttle = clamp(-1, float(thrust_vector[2]), 1)
+        self.FORWARD_LEFT_MOTOR.throttle = clamp(
+            -1,
+            float(thrust_vector[1]) + turn_rate, 1)
+        self.FORWARD_RIGHT_MOTOR.throttle = clamp(
+            -1,
+            float(thrust_vector[1]) - turn_rate, 1)
 
         print("ThrustVec ", thrust_vector, "TurnRate ", turn_rate,
               " -> Motors ", self.FORWARD_RIGHT_MOTOR.throttle,
