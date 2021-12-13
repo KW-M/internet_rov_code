@@ -48,7 +48,7 @@ class motor_ctl:
         kit = MotorKit(i2c=board.I2C())
         self.FORWARD_RIGHT_MOTOR = kit.motor1
         self.FORWARD_LEFT_MOTOR = kit.motor2
-        self.STRAFING_MOTOR = kit.motor4
+        self.STRAFING_MOTOR = kit.motor3
         self.VERTICAL_MOTOR = kit.motor4
 
     def drivePwmMotor(self, in1_pin, in2_pin, speed):
@@ -87,6 +87,11 @@ class motor_ctl:
         self.FORWARD_RIGHT_MOTOR.throttle = clamp(-1,
                                                   thrust_vector[1] - turn_rate,
                                                   1)
+
+        print("ThrustVec ", thrust_vector, "TurnRate ", turn_rate,
+              " -> Motors ", self.FORWARD_RIGHT_MOTOR.throttle,
+              self.FORWARD_LEFT_MOTOR.throttle, self.STRAFING_MOTOR.throttle,
+              self.VERTICAL_MOTOR.throttle)
 
     def stop_gpio_and_motors(self):
         self.FORWARD_LEFT_MOTOR.throttle = 0
