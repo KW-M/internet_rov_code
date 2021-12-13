@@ -55,6 +55,7 @@ while True:
         except Exception as e:
             is_important = type(e) != TimeoutError and type(e) != FileNotFoundError
             pretty_print_exception(e, show_traceback=is_important)
+            msg_socket.close_socket()
             time.sleep(3)
             continue  # Go back to start of loop
         else:

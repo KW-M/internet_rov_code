@@ -39,7 +39,7 @@ class socket_datachanel:
             if (self.sock == None):
                 self.sock = socket.socket(socket.AF_UNIX,
                                           socket.SOCK_SEQPACKET)
-                self.sock.settimeout(socket_timeout)
+                # self.sock.settimeout(socket_timeout)
                 self.sock.bind(socket_path)
                 self.sock.listen(1)
 
