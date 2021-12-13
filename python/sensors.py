@@ -1,10 +1,7 @@
 import ms5803py
 import time
 
-
-def get_rounded_string(value):
-    # from: https://stackoverflow.com/questions/20457038/how-to-round-to-2-decimals-with-python/20457284#20457284
-    return "{:0.3f}".format(value)
+from utilities import *
 
 
 class sensor_ctrl:
@@ -27,9 +24,13 @@ class sensor_ctrl:
     light_sensor = None
 
     def setup_sensors(self):
-        self.pressure_sensor = self.pressure_sensor or ms5803py.MS5803()
-        self.orientation_sensor = None
-        self.light_sensor = None
+        try:
+            print("Setting up sensors...")
+            self.pressure_sensor = self.pressure_sensor or ms5803py.MS5803()
+            self.orientation_sensor = None
+            self.light_sensor = None
+        except Exception as e:
+            pretty_print_exception(e, True)
 
     def update_sensor_value(self,sensor_name, new_value):
         if (self.current_sensor_state[sensor_name] != new_value):
@@ -39,12 +40,17 @@ class sensor_ctrl:
     def update_all_sensors(self):
         # Read the pressure sensor values
         if self.pressure_sensor is not None:
-            pressure, temp = self.pressure_sensor.read(pressure_osr=4096)
-            print("Sensors: pressure={} mBar, temperature={} C".format(
-                get_rounded_string(pressure), get_rounded_string(temp)))
+            try:
+                pressure, temp = self.pressure_sensor.read(pressure_osr=4096)
+                print("Sensors: pressure={} mBar, temperature={} C".format(
+                    get_rounded_string(pressure), get_rounded_string(temp)))
 
-            self.update_sensor_value('pressure', get_rounded_string(pressure))
-            self.update_sensor_value('temp', get_rounded_string(temp))
+                self.update_sensor_value('pressure',
+                                         get_rounded_string(pressure))
+                self.update_sensor_value('temp', get_rounded_string(temp))
+            except Exception as e:
+                print("Error reading pressure sensor:")
+                pretty_print_exception(e, True)
 
         # Read the orientation sensor values
         if self.orientation_sensor is not None:

@@ -3,13 +3,10 @@ import math
 import board
 from adafruit_motorkit import MotorKit
 
+from utilities import *
+
 ############################################
-############### Motor / GPIO Stuff #################
-
-
-def clamp(minimum, x, maximum):
-    return max(minimum, min(x, maximum))
-
+############### Motor / GPIO Stuff ################
 
 class motor_ctl:
 

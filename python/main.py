@@ -8,37 +8,17 @@
 
 import time
 import json
-import traceback
+
 
 # import our python files from the same directory
 from socket_datachanel import socket_datachanel
 from motor_controllers import motor_ctl
 from sensors import sensor_ctrl
+from utilities import *
 
 msg_socket = socket_datachanel()
 sensors = sensor_ctrl()
 motors = motor_ctl()
-
-last_err_message = ""
-
-
-def pretty_print_exception(exception, show_traceback=False):
-    global last_err_message
-    err_msg = str(exception)
-    if err_msg != last_err_message:
-        if show_traceback:
-            traceback.print_exc()
-            err_msg = traceback.format_exc()
-            try:  # try to send the full traceback to the pilot's web browser
-                msg_socket.send_socket_message(json.dumps({'error': err_msg}))
-            except:
-                pass
-        else:
-            print(err_msg)
-        last_err_message = err_msg
-    else:
-        print(".", end='')  # print a dot to show the same error happend again.
-
 
 ######## Main Program Loop ###########
 while True:
@@ -53,8 +33,11 @@ while True:
             msg_socket.setup_socket(socket_path='/tmp/uv4l.socket',
                                     socket_timeout=3)
         except Exception as e:
-            is_important = type(e) != TimeoutError and type(e) != FileNotFoundError
-            pretty_print_exception(e, show_traceback=is_important)
+            is_important = type(e) != TimeoutError and type(
+                e) != FileNotFoundError
+            pretty_print_exception(e,
+                                   show_traceback=is_important,
+                                   msg_socket=msg_socket)
             msg_socket.close_socket()
             time.sleep(3)
             continue  # Go back to start of loop
@@ -98,7 +81,9 @@ while True:
                          sensors.get_changed_sensor_values()}))
 
     except Exception as error:
-        pretty_print_exception(error, show_traceback=True)
+        pretty_print_exception(error,
+                               show_traceback=True,
+                               msg_socket=msg_socket)
         # Clean up the connection
         print('Closing connection...')
         motors.stop_gpio_and_motors()
