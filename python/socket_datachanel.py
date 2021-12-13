@@ -31,8 +31,9 @@ class socket_datachanel:
                 raise OSError("Error unlinking socket file: {}, {}".format(
                     socket_path, e)) from e
             else:
-                raise OSError("Socket file: {} does not exist".format(
-                    socket_path)) from e
+                # raise OSError("Socket file: {} does not exist".format(
+                #     socket_path)) from e
+                pass
 
         # try to create the socket class with the given path:
         try:
