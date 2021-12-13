@@ -79,13 +79,8 @@ sudo apt -y update
 sudo apt-get -y update && sudo apt-get -y upgrade # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 
 # From: https://www.linux-projects.org/uv4l/installation/
-echo -e "$Cyan Installing packages with apt: nginx uv4l uv4l-raspicam uv4l-server uv4l-webrtc uv4l-demos uv4l-raspicam-extras $Color_Off"
-sudo apt install -y nginx uv4l-raspicam uv4l-server uv4l-webrtc uv4l-demos uv4l-raspicam-extras
-
-# From: https://www.youtube.com/watch?v=Q-m4i7LFxLA
-echo -e "$Cyan Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils $Color_Off"
-echo -e "$Green These packages enable the pi to do usb internet teathering with an iphone... $Color_Off"
-sudo apt install usbmuxd ipheth-utils libimobiledevice-utils
+echo -e "$Cyan Installing packages with apt: nginx uv4l uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras $Color_Off"
+sudo apt install -y nginx uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras
 
 echo -e "$Cyan Installing uv4l webrtc plugin with apt (package depending on raspberry pi model) $Color_Off"
 # From: https://www.highvoltagecode.com/post/webrtc-on-raspberry-pi-live-hd-video-and-audio-streaming
@@ -96,6 +91,11 @@ else
 	echo -e "$Green PI with non ARMv6 cpu detected, installing uv4l-webrtc $Color_Off"
 	sudo apt install -y uv4l-webrtc
 fi
+
+# From: https://www.youtube.com/watch?v=Q-m4i7LFxLA
+echo -e "$Cyan Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils $Color_Off"
+echo -e "$Green These packages enable the pi to do usb internet teathering with an iphone... $Color_Off"
+sudo apt install usbmuxd ipheth-utils libimobiledevice-utils
 
 echo -e "$Cyan Downloading and updating Ngrok $Color_Off"
 echo -e "$Green This download url might break, so if it does just get the latest from https://ngrok.com/download, unzip it and put it in the home folder - might need to mark it as executable with chmod +x too. $Color_Off"
