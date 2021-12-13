@@ -1,0 +1,11 @@
+[Unit]
+Description=redirect journalctl output for ROV relevant systemd services to the .log file
+
+[Service]
+ExecStart=/usr/bin/bash -c "/usr/bin/journalctl --follow --user -u userunit.service >> /home/pi/rov_logs.log"
+Restart=always
+RestartSec=3
+Type=simple
+
+[Install]
+WantedBy=default.target

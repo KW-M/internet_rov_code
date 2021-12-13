@@ -8,6 +8,7 @@
 
 import time
 import json
+import traceback
 
 # import our python files from the same directory
 from socket_datachanel import socket_datachanel
@@ -86,10 +87,11 @@ while True:
                         {"sensor_update":
                          sensors.get_changed_sensor_values()}))
 
-    except Exception as e:
-        print(e)
+    except Exception as error:
+        traceback.print_exc()
+        err_msg = traceback.format_exc()
         try:
-            msg_socket.send_socket_message(json.dumps({'error': e}))
+            msg_socket.send_socket_message(json.dumps({'error': err_msg}))
         except:
             pass
 

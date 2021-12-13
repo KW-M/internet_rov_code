@@ -85,10 +85,10 @@ sudo apt install -y nginx uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-ext
 echo -e "$Cyan Installing uv4l webrtc plugin with apt (package depending on raspberry pi model) $Color_Off"
 # From: https://www.highvoltagecode.com/post/webrtc-on-raspberry-pi-live-hd-video-and-audio-streaming
 if [[ $PI_CPU_ARCHITECTURE == "armv6l" ]]; then
-	echo -e "$Green PI with ARMv6 cpu detecte (Pi Zero or similar), installing uv4l-webrtc-armv6 $Color_Off"
+	echo -e "$Green PI with ARMv6 cpu detected (Pi Zero or similar), installing uv4l-webrtc-armv6 $Color_Off"
 	sudo apt install -y uv4l-webrtc-armv6
 else
-	echo -e "$Green PI with non ARMv6 cpu detected, installing uv4l-webrtc $Color_Off"
+	echo -e "$Green PI with non ARMv6 (v7 or higher) cpu detected, installing uv4l-webrtc $Color_Off"
 	sudo apt install -y uv4l-webrtc
 fi
 
