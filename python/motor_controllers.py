@@ -79,12 +79,10 @@ class motor_ctl:
         turn_rate = float(turn_rate)
         self.STRAFING_MOTOR.throttle = clamp(-1, float(thrust_vector[0]), 1)
         self.VERTICAL_MOTOR.throttle = clamp(-1, float(thrust_vector[2]), 1)
-        self.FORWARD_LEFT_MOTOR.throttle = clamp(
-            -1,
-            float(thrust_vector[1]) + turn_rate, 1)
-        self.FORWARD_RIGHT_MOTOR.throttle = clamp(
-            -1,
-            float(thrust_vector[1]) - turn_rate, 1)
+        self.FORWARD_LEFT_MOTOR.throttle = clamp(-1, float(thrust_vector[1]),
+                                                 1)  # + turn_rate
+        self.FORWARD_RIGHT_MOTOR.throttle = clamp(-1, float(thrust_vector[1]),
+                                                  1)  # - turn_rate
 
         print("ThrustVec ", thrust_vector, "TurnRate ", turn_rate,
               " -> Motors ", self.FORWARD_RIGHT_MOTOR.throttle,

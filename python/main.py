@@ -47,11 +47,11 @@ while True:
         while True:
             recived_message = str(msg_socket.recieve_socket_message())
             if (recived_message != None):
-                print('Received message"{}"'.format(recived_message))
+                # print('Received message"{}"'.format(recived_message))
 
                 # parse the message data as a JSON formatted string.
                 updated_values = json.loads(recived_message)
-                print(updated_values)
+                # print(updated_values)
 
                 if 'move' in updated_values:
                     motors.set_rov_motion(
