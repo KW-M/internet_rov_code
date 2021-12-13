@@ -6,6 +6,8 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+
+  background: linear-gradient(#00effb,#1537a6);
 }
 
 .center {
@@ -171,7 +173,7 @@ button:active {
   transform: translateX(-50%);
   text-align: center;
 
-  color: #1f5c80;
+  color: #ffcb00;
 
   font-family: sans-serif;
   font-size: 26px;
@@ -202,8 +204,6 @@ button:active {
 
   transform: translateX(-50%);
   text-align: center;
-
-  color: #419bf3;
 
   font-family: sans-serif;
   font-size: 26px;

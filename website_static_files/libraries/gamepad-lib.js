@@ -1,3 +1,5 @@
+// Note: this file was written by me (Kyle), and is not a library found on the web.
+
 var DEFAULT_GAMEPAD_HELP_MSG = "Press any button on your controller or onscreen."
 var GAME_CONTROLLER_BUTTONS = [
     { btnName: "button_1", btnFunction: "Todo: Lights On/Off" },
@@ -180,7 +182,15 @@ function handleGamepadHelpHighlights(buttonStates, changedButtons) {
     }
     // if no single button is pressed, show the defualt help text
     if (pressedBtnCount != 1) {
-    gamepadHelpText.innerText = DEFAULT_GAMEPAD_HELP_MSG
+        gamepadHelpText.innerText = DEFAULT_GAMEPAD_HELP_MSG
     }
 }
 
+
+        // gamepadState.LEFT_STICK_X, gamepadState.LEFT_STICK_Y
+        // let axisDebug1 = document.getElementById("axis-debug-1")
+        // axisDebug1.style.left = gamepadState.LEFT_STICK_X * 50 + 50
+        // axisDebug1.style.bottom = gamepadState.LEFT_STICK_y * 50 + 50
+        // let axisDebug2 = document.getElementById("axis-debug-2")
+        // axisDebug1.style.left = gamepadState.RIGHT_STICK_X * 50 + 50
+        // axisDebug1.style.bottom = gamepadState.RIGHT_STICK_y * 50 + 50

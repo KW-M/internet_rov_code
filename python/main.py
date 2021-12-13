@@ -50,35 +50,30 @@ while True:
                 # print('Received message"{}"'.format(recived_message))
 
                 # parse the message data as a JSON formatted string.
-                updated_values = json.loads(recived_message)
+                recived_data = json.loads(recived_message)
+                reply_data = {}
                 # print(updated_values)
 
-                if 'move' in updated_values:
+                if 'ping' in recived_data:
+                    reply_data['pong'] = recived_data['ping']
+                    continue
+
+                if 'move' in recived_data:
                     motors.set_rov_motion(
-                        thrust_vector=updated_values['move']['thrustVector'],
-                        turn_rate=updated_values['move']['turnRate'])
+                        thrust_vector=recived_data['move']['thrustVector'],
+                        turn_rate=recived_data['move']['turnRate'])
 
-                elif 'cmds' in updated_values:
+                if 'toggleLights' in recived_data:
                     pass
-                    # for key in updated_values:
-                    #     value = updated_values[key]
-                    #     print("Got command update: {} is {}".format(
-                    #         key, value))
-                    #     if key is 'lights':
-                    #         pass  # todo
 
-    #             else:
-    # #                 send_socket_message(json.dumps({
-    #                         'error':
-    #                         "Got invalid message. 'msgtype' must be specified as either 'motor' or 'cmd' in every message"
-    #                     }))
 
             sensor_values_did_change = sensors.update_all_sensors()
             if sensor_values_did_change:
-                msg_socket.send_socket_message(
-                    json.dumps(
-                        {"sensor_update":
-                         sensors.get_changed_sensor_values()}))
+                reply_data["sensor_update"] = sensors.get_changed_sensor_values()}
+
+            # finally, send the reply_data as a json string if it has any data in it.
+            if len(reply_data) > 0:
+                msg_socket.send_socket_message(json.dumps(reply_data))
 
     except Exception as error:
         pretty_print_exception(error,
