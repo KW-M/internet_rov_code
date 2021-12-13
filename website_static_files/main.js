@@ -128,9 +128,9 @@ function clamp(number, max, min) {
 
 function calculateDesiredMotion(axes) {
     var turn = axes[0]
-    var forward = axes[1]
+    var forward = -1 * axes[1]
     var strafe = axes[2]
-    var vertical = axes[3]
+    var vertical = -1 * axes[3]
     return {
         thrustVector: [strafe, forward, vertical], // vector in the form [x,y,z]
         turnRate: turn,
