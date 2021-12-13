@@ -90,7 +90,7 @@ while True:
     try:
         print('established connection with', client_address)
 
-        pi = pigpio.pi()
+        # pi = pigpio.pi()
 
         rollPulsewidth = MID_PW
         pitchPulsewidth = MID_PW
