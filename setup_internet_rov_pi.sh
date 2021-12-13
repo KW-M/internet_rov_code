@@ -79,8 +79,8 @@ sudo apt -y update
 sudo apt-get -y update && sudo apt-get -y upgrade # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 
 # From: https://www.linux-projects.org/uv4l/installation/
-echo -e "$Cyan Installing packages with apt: nginx uv4l uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras $Color_Off"
-sudo apt install -y nginx uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras
+echo -e "$Cyan Installing packages with apt: nginx uv4l uv4l-raspicam uv4l-server uv4l-webrtc uv4l-demos uv4l-raspicam-extras $Color_Off"
+sudo apt install -y nginx uv4l-raspicam uv4l-server uv4l-webrtc uv4l-demos uv4l-raspicam-extras
 
 # From: https://www.youtube.com/watch?v=Q-m4i7LFxLA
 echo -e "$Cyan Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils $Color_Off"

@@ -28,7 +28,7 @@ while True:
 
         print('Awaiting connection...')
         try:
-            msg_socket.setup_socket(socket_path='/tmp/uv4l.socket',
+            msg_socket.setup_socket(socket_path='/users/pi/uv4l.socket',
                                     socket_timeout=0.1)
         except Exception as e:
             print('Socket setup failed: {}'.format(e))
