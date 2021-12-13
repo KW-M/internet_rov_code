@@ -29,22 +29,23 @@ var GAME_CONTROLLER_BUTTONS = [
  *  handleGamepadStateChange: function (gamepadState,gamepadChangesMask) {} - will get passed:
         gamepadState: the current state of gamepad 0 as returned by navigator.getGamepads(),
         gamepadChangesMask: An object with the following fields:
-            {
+        {
             axesDidChange: True if any axis changed in the last gamepad update loop,
             changedAxes: [ An array with the same length as gamepadState.axes where the bolean value at a given index represents whether that axis changed in the last gamepad update loop ]
             buttonsDidChange: True if any button value changed in the last gamepad update loop,
             changedButtons: [ An array with the same length as gamepadState.buttons where the bolean value at a given index represents whether that button was pressed, realeased or changed value in the last gamepad update loop ]
-            }
+        }
  * }
  */
 function initilizeGamepadInterface(interfaceConfig) {
 
     var lastGamepadState = { buttons: [], axes: [] }
-    var emulatedGamePadState = { buttons: [], axes: [] } // TODO: state of the gamepad as emulated by onscreen buttons
+    var emulatedGamepadState = { buttons: [], axes: [] } // State of the gamepad as emulated by onscreen buttons
     var gamepadChangesMask = { axesDidChange: false, changedAxes: [], buttonsDidChange: false, changedButtons: [] }
 
     this.GAME_CONTROLLER_BUTTONS = GAME_CONTROLLER_BUTTONS;
 
+    // setup the gamepad events passed to this function so that they have the same scope as 'this' function
     interfaceConfig.handleGamepadConnected.bind(this);
     interfaceConfig.handleGamepadDisconnected.bind(this);
     interfaceConfig.handleGamepadStateChange.bind(this);
@@ -112,6 +113,28 @@ function initilizeGamepadInterface(interfaceConfig) {
             gamepadHelpToggleButton.style.display = 'none'
         });
 
+    }
+    setupOnscreenGamepadEvents()
+}
+
+function setupOnscreenGamepadEvents() {
+    for (let i = 0; i < GAME_CONTROLLER_BUTTONS.length; i++) {
+        var btnDetails = GAME_CONTROLLER_BUTTONS[i]
+        var highlightElem = document.getElementById(`${btnDetails.btnName}_highlight`)
+        console.log(i, btnDetails, highlightElem)
+        if (!highlightElem) continue;
+        highlightElem.addEventListener('pointerover', function (event) {
+            event.currentTarget.setAttribute("style", "visibility:visible;opacity:0.5;")
+        });
+        highlightElem.addEventListener('pointerout', function (event) {
+            event.currentTarget.setAttribute("style", "visibility:hidden;");
+        });
+        highlightElem.addEventListener('pointerdown', function (event) {
+            event.currentTarget.setAttribute("style", "visibility:visible;opacity:1;");
+        });
+        highlightElem.addEventListener('pointerup', function (event) {
+            event.currentTarget.setAttribute("style", "visibility:visible;opacity:0.5;");
+        });
     }
 }
 

@@ -1,71 +1,72 @@
-html,body{overflow: hidden;width: 100%;height: 100%;margin: 0;padding: 0;}
+html,
+body {
+  overflow: hidden;
 
-.center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-
-    width: 100%;
-    margin: 0;
-
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-    text-align: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-#connect_btn, #disconnect_btn {
- position: absolute;
- top:16px;
- left: 50%;
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
 
- transform: translateX(-50%);
+  width: 100%;
+  margin: 0;
 
- background: -webkit-linear-gradient(
-    135deg
-    ,#0c61d8,#661ca7);
-background: linear-gradient(
-135deg
-,#0c61d8,#661ca7);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
 
+#connect_btn,
+#disconnect_btn {
+  position: absolute;
+  z-index: 2;
+  top: 6px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  background: -webkit-linear-gradient(135deg, #0c61d8, #661ca7);
+  background: linear-gradient(135deg, #0c61d8, #661ca7);
 }
 
 #connect_btn {
-    transform: translate(-50%, 20vh) scale(2) ;
+  transform: translate(-50%, 20vh) scale(2);
 }
-
 
 button {
-    position: relative;
+  position: relative;
 
-    display: inline-block;
+  display: inline-block;
 
-    padding: 10px 18px;
+  padding: 10px 18px;
 
-    cursor: pointer;
-    text-decoration: none;
+  cursor: pointer;
+  text-decoration: none;
 
-    color: #fff;
-    border: none;
-    border: 3px solid;
-    border-radius: 6px;
-    background: -webkit-linear-gradient(
-        135deg
-        ,#d8ac0c,#f57254);
-    background: linear-gradient(
-135deg
-,#d8ac0c,#f57254);
-    box-shadow: 0 3px 6px -1px rgb(0 0 0 / 12%), 0 10px 36px -4px rgb(77 96 232 / 30%);
+  color: #fff;
+  border: none;
+  border: 3px solid;
+  border-radius: 6px;
+  background: -webkit-linear-gradient(135deg, #d8ac0c, #f57254);
+  background: linear-gradient(135deg, #d8ac0c, #f57254);
+  box-shadow: 0 3px 6px -1px rgb(0 0 0 / 12%), 0 10px 36px -4px rgb(77 96 232 / 30%);
 
-    font-size: large;
-    font-weight: bold;
+  font-size: large;
+  font-weight: bold;
 }
 
-button:hover, button:focus {
-    border: 3px solid rgb(0, 153, 255);
+button:hover,
+button:focus {
+  border: 3px solid rgb(0, 153, 255);
 }
 
- button:active{
-    border: 3px solid rgb(0, 84, 139);
+button:active {
+  border: 3px solid rgb(0, 84, 139);
 }
 /*
 .gamepad-debug-area {
@@ -90,178 +91,189 @@ button:hover, button:focus {
     background-color: blueviolet;
 } */
 
-
-
 /* CIRCULAR CORNER MENU WITH ICONS */
 
 #circle_corner_menu {
-    position: fixed;
-    z-index: 50;
-    bottom: 0;
-    left: 0;
+  position: fixed;
+  z-index: 50;
+  bottom: 0;
+  left: 0;
 
-    overflow: hidden;
+  overflow: hidden;
 
-    width: 70px;
-    height: 70px;
+  width: 70px;
+  height: 70px;
 
-    transition: width .4s ease,height .4s ease;
+  transition: width 0.4s ease, height 0.4s ease;
 
-    border-radius: 0 188px 0 0;
-    background-color: black;
-    box-shadow: 0 0px 20px -5px rgb(0 0 0 / 48%);
+  border-radius: 0 188px 0 0;
+  background-color: black;
+  box-shadow: 0 0px 20px -5px rgb(0 0 0 / 48%);
 }
 
-#circle_corner_menu:hover, #circle_corner_menu.expanded, #circle_corner_menu:focus-within  {
-    width: 130px;
-    height: 130px;
+#circle_corner_menu:hover,
+#circle_corner_menu.expanded,
+#circle_corner_menu:focus-within {
+  width: 130px;
+  height: 130px;
 }
 
 #circle_corner_menu:focus-within {
-    transition: none;
+  transition: none;
 }
 
-#circle_corner_menu:hover .icon-links-hover-hint, #circle_corner_menu.expanded .icon-links-hover-hint, #circle_corner_menu:focus-within .icon-links-hover-hint {
-    opacity: 0.1;
+#circle_corner_menu:hover .icon-links-hover-hint,
+#circle_corner_menu.expanded .icon-links-hover-hint,
+#circle_corner_menu:focus-within .icon-links-hover-hint {
+  opacity: 0.1;
 }
 
 .icon-links-hover-hint {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
 
-    padding: 11px;
+  padding: 11px;
 
-    user-select: none;
+  user-select: none;
 
-    color: white;
+  color: white;
 
-    font-size: 56px;
-    line-height: 30px;
+  font-size: 56px;
+  line-height: 30px;
 }
 
 #circle_corner_menu a {
-    position: absolute;
+  position: absolute;
 
-    opacity: 1;
+  opacity: 1;
 }
 
 #circle_corner_menu img {
-    height: 30px;
-    padding: 12px;
+  height: 30px;
+  padding: 12px;
 
-    border-radius: 100px;
+  border-radius: 100px;
 }
-
 
 /* ********* Gamepads / Gamepad Help ********* */
 
 #gamepad-connect-notice {
-    position: absolute;
-    z-index: 9;
-    bottom: 53px;
-    left: 50%;
+  position: absolute;
+  z-index: 9;
+  bottom: 53px;
+  left: 50%;
 
-    display: block;
+  display: block;
 
- max-width: 40vw;
+  max-width: 40vw;
 
-    transform: translateX(-50%);
- text-align: center;
+  transform: translateX(-50%);
+  text-align: center;
 
-    color: #1f5c80;
+  color: #1f5c80;
 
-    font-family: sans-serif;
-    font-size: 26px;
+  font-family: sans-serif;
+  font-size: 26px;
 }
 
 #gamepad-container {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 
-    pointer-events: none;
+  pointer-events: none;
 }
 
 #gamepad-help-text {
-    position: absolute;
-    top: 58px;
-    right: 0;
-    left: 50%;
+  position: absolute;
+  top: 58px;
+  right: 0;
+  left: 50%;
 
-    display: none;
+  display: none;
 
-    box-sizing: border-box;
-    width: 400px;
-    margin: 0;
-    padding: 7px;
+  box-sizing: border-box;
+  width: 400px;
+  margin: 0;
+  padding: 7px;
 
-    transform: translateX(-50%);
-    text-align: center;
+  transform: translateX(-50%);
+  text-align: center;
 
-    color: #419bf3;
+  color: #419bf3;
 
-    font-family: sans-serif;
-    font-size: 26px;
+  font-family: sans-serif;
+  font-size: 26px;
 }
 
 #gamepad-help-button {
-    position: absolute;
-    z-index: 10;
-    bottom: 6px;
-    left: 50%;
+  position: absolute;
+  z-index: 10;
+  bottom: 6px;
+  left: 50%;
 
-    transform: translateX(-50%);
-    pointer-events: all;
+  transform: translateX(-50%);
+  pointer-events: all;
 }
 
 .onscreen-gamepad {
-    position: absolute;
-    bottom: -15px;
+  position: absolute;
+  bottom: -15px;
 
-    height: 60vw;
-    min-height: 9cm;
-    max-height: 14cm;
+  height: 60vw;
+  min-height: 9cm;
+  max-height: 14cm;
 }
 
 #gamepad-container.help-open {
-    z-index: 20;
+  z-index: 20;
 
-    pointer-events: all;
+  pointer-events: all;
 
-    background-color: #ffffffba;
+  background-color: #ffffffba;
 
-    backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
 }
 
 #gamepad-container.help-open #gamepad-connect-notice {
-    display: none;
+  display: none;
 }
-
 
 #gamepad-container.help-open #gamepad-help-text {
-    display: block;
+  display: block;
 }
 
+#gamepad-container.help-open #onscreen_gamepad_left {
+  left: 50% !important;
 
-#gamepad-container.help-open  #onscreen_gamepad_left {
-    left: 50% !important;
-
-    transform: translateX(-120%);
+  transform: translateX(-120%);
 }
 
 #gamepad-container.help-open #onscreen_gamepad_right {
-    right: 50% !important;
+  right: 50% !important;
 
-    transform: translateX(120%);
+  transform: translateX(120%);
 }
 
 #video-livestream {
-position: relative;
+  position: relative;
 
-display: block;
+  display: block;
 
-margin: auto;
+  margin: auto;
+}
+
+.gamepad-btn-highlight {
+    visibility: hidden;
+
+    pointer-events:all;
+}
+
+.gamepad-arrow-highlight {
+    visibility: hidden;
+
+    pointer-events:none;
 }

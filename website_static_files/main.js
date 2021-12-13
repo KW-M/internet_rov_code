@@ -126,15 +126,14 @@ function clamp(number, max, min) {
     return Math.max(Math.min(number, max), min)
 }
 
-function calculateMotorSpeeds(axes) {
-    var left = axes[1], right = axes[1] // first set both forward facing thrusters to the left vertical joystick vertical axis
-    left = left - axes[0] // subtract the turn amount of left vertical joystick horizontal axis from the left motor
-    right += axes[0] // and add the turn from amount left vertical joystick horizontal axis to the right motor
+function calculateDesiredMotion(axes) {
+    var turn = axes[0]
+    var forward = axes[1]
+    var strafe = axes[2]
+    var vertical = axes[3]
     return {
-        left: clamp(left, -1, 1),
-        right: clamp(right, -1, 1),
-        strafe: axes[2],
-        vertical: axes[3]
+        thrustVector: [strafe, forward, vertical], // vector in the form [x,y,z]
+        turnRate: turn,
     }
 }
 
@@ -166,20 +165,25 @@ initilizeGamepadInterface({
         var updatesPacket = {}
 
         if (stateChangesMask.buttonsDidChange) {
-            for (let i = 0; i < gamepadState.buttons.length; i++) {
-                if (stateChangesMask.changedButtons[i] != true) continue;
-                if (gamepadState.buttons[i].value >= 0.2)
-                    showToastMessage(`Button ${i} pressed`); // [${this.GAME_CONTROLLER_BUTTONS[i].btnName}]
-                else
-                    showToastMessage(`Button ${i} released`);
+            for (let btnNum = 0; btnNum < gamepadState.buttons.length; btnNum++) {
+                if (stateChangesMask.changedButtons[btnNum] != true) continue;
+                if (gamepadState.buttons[btnNum].value >= 0.2) {
+                    showToastMessage(`Button ${btnNum} pressed`); // [${this.GAME_CONTROLLER_BUTTONS[i].btnName}]
+                    if (btnNum == 0) updatesPacket.toggleLights = true;
+                } else {
+                    showToastMessage(`Button ${btnNum} released`);
+                }
             }
         }
 
-        if (stateChangesMask.axesDidChange) updatesPacket.motors = calculateMotorSpeeds(gamepadState.axes)
+        if (stateChangesMask.axesDidChange) updatesPacket.move = calculateDesiredMotion(gamepadState.axes)
+
 
         // send the data packet object as a json string if the webrtc data channel is ready and has
-        if (datachannel && Object.keys(updatesPacket).length > 0) datachannel.send(JSON.stringify(updatesPacket));
-        console.log(JSON.stringify(updatesPacket))
+        if (datachannel && Object.keys(updatesPacket).length > 0) {
+            console.log("Sending Updates Packet:", updatesPacket)
+            datachannel.send(JSON.stringify(updatesPacket));
+        }
 
         // gamepadState.LEFT_STICK_X, gamepadState.LEFT_STICK_Y
         // let axisDebug1 = document.getElementById("axis-debug-1")
