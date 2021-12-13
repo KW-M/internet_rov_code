@@ -28,11 +28,10 @@ class socket_datachanel:
             os.unlink(socket_path)
         except OSError as e:
             if os.path.exists(socket_path):
-                raise OSError("Error unlinking socket file: {}, {}".format(
-                    socket_path, e)) from e
+                raise OSError(
+                    "Error unlinking socket file {} are you root?: {}".format(
+                        socket_path, e)) from e
             else:
-                # raise OSError("Socket file: {} does not exist".format(
-                #     socket_path)) from e
                 pass
 
         # try to create the socket class with the given path:
@@ -48,15 +47,9 @@ class socket_datachanel:
             self.connection, client_address = self.sock.accept()
             print('Established socket connection with ', client_address)
 
-        # if the socket was not opened/connected before the timeout, return False:
+        # if the socket was not opened/connected before the timeout, throw an exception:
         except socket.timeout as e:
-            err = e.args[0]
-            # this next if/else is a bit redundant, but illustrates how the
-            # timeout exception is setup
-            if err == 'timed out':
-                raise Exception('recv timed out, retry later') from e
-            else:
-                raise Exception("Socket timeout error") from e
+            raise TimeoutError('Socket setup timed out, retry later') from e
 
         # if there was some other socket error, close the socket and raise the error again:
         except socket.error as e:
