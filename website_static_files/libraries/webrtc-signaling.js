@@ -72,7 +72,10 @@ function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
 
             if ('ontrack' in pc) {
                 pc.ontrack = function (event) {
-                    onStream(event.streams[0]);
+                    console.log('pc.ontrack', event);       // <-- new line
+                    if (event.track.kind === 'video') {     // <-- new line
+                        onStream(event.streams[0]);
+                    }                                       // <-- new line
                 };
             } else {  // onaddstream() deprecated
                 pc.onaddstream = function (event) {
