@@ -40,6 +40,7 @@ class motor_ctl:
 
     def init_motor_controllers(self):
         # Initilize the library for adafruit I2C 4 motor controller pi hat:
+        print("Initializing motor controllers...")
         kit = MotorKit(i2c=board.I2C())
         self.FORWARD_RIGHT_MOTOR = kit.motor1
         self.FORWARD_LEFT_MOTOR = kit.motor2
@@ -68,24 +69,25 @@ class motor_ctl:
         #     pi.write(in1_pin, 0)  # PWM off
         #     pi.write(in2_pin, 0)  # PWM off
 
-    def set_rov_velocity(self, velocity_vector=[0, 0, 0], turn_speed=0):
+    def set_rov_motion(self, thrust_vector=[0, 0, 0], turn_rate=0):
         """
         Function to set the rov velocity based on the vector passed in.
-        velocity_vector: a vector of the form [x,y,z] where x is strafe, y is forward, and z is vertical (all components should be between -1 & 1)
+        thrust_vector: a vector of the form [x,y,z] where x is strafe, y is forward, and z is vertical (all components should be between -1 & 1)
         turn_speed: a number between -1 & 1 coresponding to the amount of opposing thrust to apply on the two forward thrusters to turn the ROV at some rate (full clockwise = 1, full counterclokwise = -1).
         """
-        self.STRAFING_MOTOR.throttle = math.clamp(velocity_vector[0], -1, 1)
-        self.VERTICAL_MOTOR.throttle = math.clamp(velocity_vector[2], -1, 1)
+        self.STRAFING_MOTOR.throttle = math.clamp(thrust_vector[0], -1, 1)
+        self.VERTICAL_MOTOR.throttle = math.clamp(thrust_vector[2], -1, 1)
         self.FORWARD_LEFT_MOTOR.throttle = math.clamp(
-            velocity_vector[1] + turn_speed, -1, 1)
+            thrust_vector[1] + turn_rate, -1, 1)
         self.FORWARD_RIGHT_MOTOR.throttle = math.clamp(
-            velocity_vector[1] - turn_speed, -1, 1)
+            thrust_vector[1] - turn_rate, -1, 1)
 
     def stop_gpio_and_motors(self):
         self.FORWARD_LEFT_MOTOR.throttle = 0
         self.FORWARD_RIGHT_MOTOR.throttle = 0
         self.VERTICAL_MOTOR.throttle = 0
         self.STRAFING_MOTOR.throttle = 0
+        print("All motors and PWM now STOPPED")
         # pi.write(FL_in1_pin, 0)
         # pi.write(FL_in2_pin, 0)
         # pi.write(FR_in1_pin, 0)

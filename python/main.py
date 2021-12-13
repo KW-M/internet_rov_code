@@ -70,23 +70,10 @@ while True:
                 updated_values = json.loads(recived_message)
                 print(updated_values)
 
-                if 'motors' in updated_values:
-                    pass
-                #     for key in updated_values['motors']:
-                #         value = updated_values['motors'][key]
-                #         print("Got motor update:{}is{}".format(key, value))
-                #         if key == 'left':
-                #             FORWARD_LEFT_MOTOR.throttle = value
-                #             # driveMotor(FL_in1_pin, FL_in2_pin, value)
-                #         elif key == 'right':
-                #             FORWARD_RIGHT_MOTOR.throttle = value
-                #             # driveMotor(FR_in1_pin, FR_in2_pin, value)
-                #         elif key == 'vertical':
-                #             VERTICAL_MOTOR.throttle = value
-                #             # driveMotor(V_in1_pin, V_in2_pin, value)
-                #         elif key == 'strafe':
-                #             STRAFING_MOTOR.throttle = value
-                #             # driveMotor(S_in1_pin, S_in2_pin, value)
+                if 'move' in updated_values:
+                    motors.set_rov_motion(
+                        thrust_vector=updated_values['move']['thrustVector'],
+                        turn_rate=updated_values['move']['turnRate'])
 
                 elif 'cmds' in updated_values:
                     pass
