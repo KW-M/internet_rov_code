@@ -57,10 +57,14 @@ class socket_datachanel:
             else:
                 raise Exception("Socket timeout error") from e
 
-        # if there was some other socket error, close the socket and return False:
+        # if there was some other socket error, close the socket and raise the error again:
         except socket.error as e:
             self.close_socket()
-            raise Exception("Socket error") from e
+            raise Exception("Setup Socket Socket Error") from e
+
+        # if there was some other error
+        except Exception as e:
+            raise Exception("Setup Socket Other Error") from e
 
     def recieve_socket_message(self):
         """
@@ -85,11 +89,14 @@ class socket_datachanel:
         except socket.timeout as e:
             return None
 
-        # if there was some other socket error, close the socket and raise the error again
+        # if there was some other socket error, close the socket and raise the error again:
         except socket.error as e:
-            print("Socket error: %s" % e)
             self.close_socket()
-            raise socket.error(e)
+            raise Exception("Recive Message Socket Error") from e
+
+        # if there was some other error
+        except Exception as e:
+            raise Exception("Recive Message Other Error") from e
 
     def send_socket_message(self, socket_message):
         """
@@ -112,8 +119,11 @@ class socket_datachanel:
         except socket.timeout as e:
             return False
 
-        # if there was some other socket error, close the socket and raise the error again
+        # if there was some other socket error, close the socket and raise the error again:
         except socket.error as e:
-            print("Socket error: %s" % e)
             self.close_socket()
-            raise socket.error(e)
+            raise Exception("Send Message Socket Error") from e
+
+        # if there was some other error
+        except Exception as e:
+            raise Exception("Send Message Other Error") from e
