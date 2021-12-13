@@ -16,7 +16,7 @@ setupConnectDisconnectButtonEvents(() => {
         console.log("Connected to ROV");
         // start ping timer to send ping every second
         pingTimer = setInterval(() => {
-            sendPingToROV();
+            sendMessageToROV({ 'ping': Date.now() });
         }, 1000);
     });
 }, () => {
