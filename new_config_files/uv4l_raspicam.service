@@ -3,7 +3,7 @@ Description=UV4L Raspicam
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/uv4l -f -k --sched-fifo --mem-lock --config-file=/etc/uv4l/uv4l-raspicam.conf --external-driver=yes --device-name=video0 --auto-video_nr yes
+ExecStart=/usr/bin/uv4l -f -k --sched-fifo --mem-lock --config-file=/etc/uv4l/uv4l-raspicam.conf --driver raspicam --driver-config-file=/etc/uv4l/uv4l-raspicam.conf
 Restart=on-abnormal
 LimitNOFILE=65536
 
