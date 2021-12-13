@@ -2,6 +2,7 @@
 Description=Runs the main.py python code on boot, and restarts it if it crashes from the /home/pi/internet_rov_code/python folder
 
 [Service]
+Environment=PYTHONUNBUFFERED=1
 ExecStart=python3 /home/pi/internet_rov_code/python/main.py
 ExecReload=/bin/kill -HUP $MAINPID
 ExecStop=/bin/kill -HUP $MAINPID
