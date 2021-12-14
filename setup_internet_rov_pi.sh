@@ -141,7 +141,9 @@ sudo raspi-config nonint do_bluetooth 1 &&
 sudo raspi-config nonint do_bluetooth_discoverable 1 &&
 
 # check if we haven't already added the PRETTY_HOSTNAME to the machine-info file or the file doesnt exist yet:
-if [ ! -f "/etc/machine-info" ] || [ ! $(grep "PRETTY_HOSTNAME=raspberrypi_rov" "/etc/machine-info") ]; then
+if grep -q "PRETTY_HOSTNAME=raspberrypi_rov" "/etc/machine-info"; then
+	echo -e "$Cyan PRETTY_HOSTNAME=raspberrypi_rov already set in /etc/machine-info $Color_Off"
+else
 	# Edit the display name of the RaspberryPi so you can distinguish
 	# your unit from others in the Bluetooth device list or console
 	echo "Setting bluetooth hostname to raspberrypi_rov"
@@ -150,8 +152,10 @@ if [ ! -f "/etc/machine-info" ] || [ ! $(grep "PRETTY_HOSTNAME=raspberrypi_rov" 
 fi
 
 # check if we haven't already added the --compat flag to the bluetooth.service file:
-if [ ! $(grep "PRETTY_HOSTNAME=raspberrypi_rov" "/etc/machine-info") ]; then
-	echo "adding bluetoothd --compat flag in /lib/systemd/system/bluetooth.service"
+if grep "bluetoothd --compat" "/lib/systemd/system/bluetooth.service"; then
+	echo "bluetoothd already has the --compat flag"
+else
+	echo "Adding bluetoothd --compat flag in /lib/systemd/system/bluetooth.service"
 	# Backup bluetooth.service file
 	sudo cp /lib/systemd/system/bluetooth.service $HOME/original_config_file_backups/bluetooth.service
 	# add the --compat flag to the bluetooth.service file by find & replace /bluetoothd with /bluetoothd --compat
@@ -160,13 +164,18 @@ fi
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-# check if we haven't already added our configs to the /etc/dhcpd.conf file or the file doesnt exist yet:
-if [ ! -f "/etc/dhcpd.conf" ] || [ ! $(grep "ROV Additions" "/etc/dhcpd.conf") ]; then
-	echo "Adding static IPs to the DCHP configs"
-	sudo touch /etc/dhcpd.conf
-	sudo bash -c 'cat /home/pi/internet_rov_code/new_config_files/dchpd-txt-to-append.conf >> /etc/dhcpd.conf'
+# check if we haven't already added our configs to the /etc/dhcpcd.conf file or the file doesnt exist yet:
+if grep -q "ROV Additions" "/etc/dhcpcd.conf"; then
+	echo "dhcpcd.conf already has our configs"
+else
+	echo "Adding static IPs to the DCHP configs";
+	sudo bash -c 'cat /home/pi/internet_rov_code/new_config_files/dchpd-txt-to-append.conf >> /etc/dhcpcd.conf'
 fi
 
+# ----------------------------------------------------------------------------------------------------------------------
+echo "Adding line to run rov_login_message.sh whenever a terminal is oppened by adding it to the .bashrc file"
+# the .bashrc file is the file that gets run to setup the default bash shell whenever you open a terminal session
+echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/new_config_files/rov_login_message.sh" >> ~/.bashrc
 # ----------------------------------------------------------------------------------------------------------------------
 
 echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_Off"
