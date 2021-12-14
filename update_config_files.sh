@@ -71,16 +71,20 @@ echo "Restarting Services..."
 # daemon-reload makes the system load any new/changed services in the /lib/systemd/system/ directory
 sudo systemctl daemon-reload
 
-echo "restarting rov_python_code systemd service..."
+echo "restarting rov_python_code.service systemd service..."
 sudo systemctl restart rov_python_code.service
-echo "restarting uv4l_raspicam systemd service..."
+echo "restarting uv4l_raspicam.service systemd service..."
 sudo systemctl restart uv4l_raspicam.service	# sudo service uv4l_raspicam restart
 # echo "restarting pigpiod systemd service..."
 # sudo systemctl restart pigpiod.service
-echo "restarting nginx systemd service..."
+echo "restarting nginx.service systemd service..."
 sudo systemctl restart nginx.service
 echo "restarting ngrok.service systemd service..."
 sudo systemctl restart ngrok.service
+echo "restarting bluetooth.service systemd service..."
+sudo systemctl restart bluetooth.service
+echo "restarting rfcomm.service systemd service..."
+sudo systemctl restart rfcomm.service
 # The above lines restart systemd "services" running when this rasberry pi boots.
 # for more about these files: https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files
 
