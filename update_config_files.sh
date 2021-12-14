@@ -61,6 +61,10 @@ echo "Copying over save_rov_logs startup service file..."
 backup_then_overwrite_file "/lib/systemd/system/save_rov_logs.service" "./new_config_files/save_rov_logs.service"
 
 # create /etc/systemd/system/rov_bluetooth_terminal.service to enable the Bluetooth serial port / serial termial and to make the pi a discoverable & pairable bluetooth device
+echo "Copying over add_fixed_ip.service startup service file..."
+backup_then_overwrite_file "/etc/systemd/system/add_fixed_ip.service" "./new_config_files/add_fixed_ip.service"
+
+# create /etc/systemd/system/rov_bluetooth_terminal.service to enable the Bluetooth serial port / serial termial and to make the pi a discoverable & pairable bluetooth device
 echo "Copying over rov_bluetooth_terminal startup service file (TO ENABLE BLUETOOTH SERIAL TERMINAL CONNECTIONS)..."
 backup_then_overwrite_file "/etc/systemd/system/rov_bluetooth_terminal.service" "./new_config_files/rov_bluetooth_terminal.service"
 
@@ -86,6 +90,8 @@ echo "restarting bluetooth.service..."
 sudo systemctl restart bluetooth.service
 echo "restarting rov_bluetooth_terminal.service..."
 sudo systemctl restart rov_bluetooth_terminal.service
+echo "restarting add_fixed_ip.service..."
+sudo systemctl restart add_fixed_ip.service
 # The above lines restart systemd "services" running when this rasberry pi boots.
 # for more about these files: https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files
 

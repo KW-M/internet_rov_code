@@ -195,6 +195,8 @@ echo -e "$Green enabling nginx.service ... $Color_Off"
 sudo systemctl enable nginx.service
 echo -e "$Green enabling save_rov_logs.service ... $Color_Off"
 sudo systemctl enable save_rov_logs.service
+echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
+sudo systemctl enable add_fixed_ip.service
 
 # ----------------------------------------------------------------------------------------------------------------------
 

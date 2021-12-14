@@ -1,0 +1,21 @@
+[Unit]
+Description=Adds the fixed ip 192.168.0.85 on interface %I
+BindsTo=sys-subsystem-net-devices-%i.device
+After=sys-subsystem-net-devices-%i.device
+After=network-online.target
+Wants=network-online.target
+
+# from: https://unix.stackexchange.com/questions/159641/systemd-restart-service-when-ip-address-changed
+# and from: https://www.youtube.com/watch?v=yuzjEJxwQTs
+# which solves this problem: https://raspberrypi.stackexchange.com/questions/87081/how-to-have-fallback-to-dynamic-ip-when-static-ip-fails
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=ip address add 192.168.0.1 dev %I
+Restart=always
+RestartSec=3
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
