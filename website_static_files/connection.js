@@ -92,8 +92,8 @@ function connectToROV(signallingWebsocketURL, dataChannelMessageRecievedCallback
     }
 }
 
-function sendMessageToROV(message) {
+function sendUpdateToROV(updateData) {
     if (dataChannel) {
-        dataChannel.send(message);
+        dataChannel.send(JSON.stringify(updateData));
     }
 }

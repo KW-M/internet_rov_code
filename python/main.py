@@ -47,7 +47,7 @@ while True:
         while True:
             recived_message = str(msg_socket.recieve_socket_message())
             if (recived_message != None):
-                # print('Received message"{}"'.format(recived_message))
+                print('Received message"{}"'.format(recived_message))
 
                 # parse the message data as a JSON formatted string.
                 recived_data = json.loads(recived_message)

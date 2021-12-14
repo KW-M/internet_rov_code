@@ -16,7 +16,7 @@ setupConnectDisconnectButtonEvents(() => {
         console.log("Connected to ROV");
         // start ping timer to send ping every second
         pingTimer = setInterval(() => {
-            sendMessageToROV({ 'ping': Date.now() });
+            sendUpdateToROV({ 'ping': Date.now() });
         }, 1000);
     });
 }, () => {
@@ -73,7 +73,7 @@ initilizeGamepadInterface({
         // send the data packet object as a json string
         if (Object.keys(updatesPacket).length > 0) {
             console.log("Sending Updates Message:", updatesPacket)
-            sendMessageToROV(JSON.stringify(updatesPacket));
+            sendUpdateToROV(updatesPacket);
         }
     }
 
