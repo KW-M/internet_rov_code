@@ -60,12 +60,17 @@ backup_then_overwrite_file "/etc/nginx/nginx.conf" "./new_config_files/nginx.con
 echo "Copying over save_rov_logs startup service file..."
 backup_then_overwrite_file "/lib/systemd/system/save_rov_logs.service" "./new_config_files/save_rov_logs.service"
 
-# create /etc/systemd/system/rfcomm.service to enable the Bluetooth serial port / serial termial and to make the pi a discoverable bluetooth device
-echo "Copying over rfcomm startup service file (TO ENABLE BLUETOOTH SERIAL TERMINAL CONNECTIONS)..."
-backup_then_overwrite_file "/etc/systemd/system/rfcomm.service" "./new_config_files/rfcomm.service"
+# create /etc/systemd/system/rov_bluetooth_terminal.service to enable the Bluetooth serial port / serial termial and to make the pi a discoverable & pairable bluetooth device
+echo "Copying over rov_bluetooth_terminal startup service file (TO ENABLE BLUETOOTH SERIAL TERMINAL CONNECTIONS)..."
+backup_then_overwrite_file "/etc/systemd/system/rov_bluetooth_terminal.service" "./new_config_files/rov_bluetooth_terminal.service"
 
+echo "Copying over rov_login_message.sh (aka: the terminal login message, aka:'Message Of The Day') script to /etc/etc/update-motd.d/"
+backup_then_overwrite_file "/etc/etc/update-motd.d/rov_login_message.sh" "./new_config_files/rov_login_message.sh"
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+echo ""
 echo "Restarting systemd (systemctl) Services..."
-
 # daemon-reload makes the system load any new/changed services in the /lib/systemd/system/ directory
 sudo systemctl daemon-reload
 echo "restarting save_rov_logs.service..."
@@ -82,11 +87,10 @@ echo "restarting ngrok.service..."
 sudo systemctl restart ngrok.service
 echo "restarting bluetooth.service..."
 sudo systemctl restart bluetooth.service
-echo "restarting rfcomm.service..."
-sudo systemctl restart rfcomm.service
+echo "restarting rov_bluetooth_terminal.service..."
+sudo systemctl restart rov_bluetooth_terminal.service
 # The above lines restart systemd "services" running when this rasberry pi boots.
 # for more about these files: https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files
-
 
 ### to stop a service:
 # sudo systemctl stop the_service_name

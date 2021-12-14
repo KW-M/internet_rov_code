@@ -131,26 +131,6 @@ echo -e "$Cyan enabling built in raspicam driver: $Color_Off"
 sudo modprobe bcm2835-v4l2 &&
 v4l2-ctl --overlay=0 && # disable preview viewfinder, && catches errors, which this will throw if the raspi camera is in use or missing.
 
-cd "$FOLDER_CONTAINING_THIS_SCRIPT"
-echo "$FOLDER_CONTAINING_THIS_SCRIPT"
-echo "$(pwd)"
-echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_Off"
-/bin/bash ./update_config_files.sh # run the update config files script in this folder.
-
-echo -e "$Cyan Enabling services so they start at boot... $Color_Off"
-echo -e "$Green enabling rov_python_code systemd service... $Color_Off"
-sudo systemctl enable rov_python_code.service
-echo -e "$Green enabling uv4l_raspicam systemd service... $Color_Off"
-sudo systemctl enable uv4l_raspicam.service
-echo -e "$Green enabling nginx systemd service... $Color_Off"
-sudo systemctl enable nginx.service
-echo -e "$Green enabling ngrok.service systemd service... $Color_Off"
-sudo systemctl enable ngrok.service
-# echo -e "$Green enabling pigpiod systemd service... $Color_Off"
-# sudo systemctl enable pigpiod.service # <<< We're now using the adafruit motor controller python library which handles gpio, so we don't need pigpio anymore.
-# echo -e "$Green enabling dnsmasq systemd service... $Color_Off"
-# sudo systemctl disable dnsmasq.service # <<<<<<<<<< DISABLED Because we are now using usb teathering, plus might have need to distable regular DHCP to make this work as a router or reciever for phone teathering (Not ideal).
-
 # ----------------------------------------------------------------------------------------------------------------------
 # ----- Bluetooth Serial Setup -----------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
@@ -164,23 +144,46 @@ sudo raspi-config nonint do_bluetooth_discoverable 1 &&
 if [ ! -f "/etc/machine-info" ] || [ ! $(grep "PRETTY_HOSTNAME=raspberrypi_rov" "/etc/machine-info") ]; then
 	# Edit the display name of the RaspberryPi so you can distinguish
 	# your unit from others in the Bluetooth device list or console
-	echo "setting hostname to raspberrypi_rov"
+	echo "Setting bluetooth hostname to raspberrypi_rov"
 	sudo touch /etc/machine-info
 	sudo bash -c 'echo "PRETTY_HOSTNAME=raspberrypi_rov" >> /etc/machine-info'
 fi
 
-# TODO: https://raspberrypi.stackexchange.com/questions/50496/automatically-accept-bluetooth-pairings
-
-# check if we haven't already the --compat flag to the bluetooth.service file:
+# check if we haven't already added the --compat flag to the bluetooth.service file:
 if [ ! $(grep "PRETTY_HOSTNAME=raspberrypi_rov" "/etc/machine-info") ]; then
 	echo "adding bluetoothd --compat flag in /lib/systemd/system/bluetooth.service"
-# Backup bluetooth.service file
+	# Backup bluetooth.service file
 	sudo cp /lib/systemd/system/bluetooth.service $HOME/original_config_file_backups/bluetooth.service
+	# add the --compat flag to the bluetooth.service file by find & replace /bluetoothd with /bluetoothd --compat
 	sudo sed -i 's|/bluetoothd|/bluetoothd --compat|g' /lib/systemd/system/bluetooth.service
 fi
 
+# ----------------------------------------------------------------------------------------------------------------------
 
-sudo systemctl enable rfcomm.service # enable the new rfcomm service
+# check if we haven't already added our configs to the /etc/dhcpd.conf file or the file doesnt exist yet:
+if [ ! -f "/etc/dhcpd.conf" ] || [ ! $(grep "ROV Additions" "/etc/dhcpd.conf") ]; then
+	echo "Adding static IPs to the DCHP configs"
+	sudo touch /etc/dhcpd.conf
+	sudo bash -c 'cat /home/pi/internet_rov_code/new_config_files/dchpd-txt-to-append.conf >> /etc/dhcpd.conf'
+fi
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_Off"
+cd "$FOLDER_CONTAINING_THIS_SCRIPT"
+/bin/bash ./update_config_files.sh # run the update config files script in this folder.
+
+echo -e "$Cyan Enabling systemd (systemctl) services so they start at boot (or whenever configured too)... $Color_Off"
+echo -e "$Green enabling rov_python_code.service ... $Color_Off"
+sudo systemctl enable rov_python_code.service # enable the new rov_python_code service
+echo -e "$Green enabling rov_bluetooth_terminal.service ... $Color_Off"
+sudo systemctl enable rov_bluetooth_terminal.service # enable the new rfcomm service
+echo -e "$Green enabling ngrok.service ... $Color_Off"
+sudo systemctl enable ngrok.service # enable the new ngrok service
+echo -e "$Green enabling uv4l_raspicam.service ... $Color_Off"
+sudo systemctl enable uv4l_raspicam.service
+echo -e "$Green enabling nginx.service ... $Color_Off"
+sudo systemctl enable nginx.service
 
 # ----------------------------------------------------------------------------------------------------------------------
 

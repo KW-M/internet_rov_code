@@ -1,0 +1,19 @@
+[Unit]
+Description=ROV Bluetooth Terminal Service.
+After=bluetooth.service
+Requires=bluetooth.service
+
+
+# https://raspberrypi.stackexchange.com/a/96100
+# https://hacks.mozilla.org/2017/02/headless-raspberry-pi-configuration-over-bluetooth/
+# Instead of adding ExecStartPost comands to the bluetooth.service like most guides do. I added those commands
+# here as ExecStartPre in this new service (based on the RFCOMM service in the mozilla article)
+
+[Service]
+ExecStartPre=-sdptool add SP
+ExecStartPre=-hciconfig hci0 piscan
+ExecStartPre=-hciconfig hci0 sspmode 1
+ExecStart=rfcomm watch hci0 1 getty rfcomm0 115200 vt100 -a pi
+
+[Install]
+WantedBy=multi-user.target
