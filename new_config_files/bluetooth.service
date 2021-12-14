@@ -7,7 +7,7 @@ ConditionPathIsDirectory=/sys/class/bluetooth
 Type=dbus
 BusName=org.bluez
 
-ExecStart=/usr/libexec/bluetooth/bluetoothd -C
+ExecStart=/usr/lib/bluetooth/bluetoothd -C
 ExecStartPost=/usr/bin/sdptool add SP
 ExecStartPost=/bin/hciconfig hci0 piscan
 ExecStartPost=/bin/hciconfig hci0 sspmode 1
