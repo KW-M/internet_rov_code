@@ -64,8 +64,8 @@ backup_then_overwrite_file "/lib/systemd/system/save_rov_logs.service" "./new_co
 echo "Copying over rov_bluetooth_terminal startup service file (TO ENABLE BLUETOOTH SERIAL TERMINAL CONNECTIONS)..."
 backup_then_overwrite_file "/etc/systemd/system/rov_bluetooth_terminal.service" "./new_config_files/rov_bluetooth_terminal.service"
 
-echo "Copying over rov_login_message.sh (aka: the terminal login message, aka:'Message Of The Day') script to /etc/etc/update-motd.d/"
-backup_then_overwrite_file "/etc/etc/update-motd.d/rov_login_message.sh" "./new_config_files/rov_login_message.sh"
+echo "Copying over 1_rov_login_message.sh (aka: the terminal login message, aka:'Message Of The Day') script to /etc/etc/update-motd.d/"
+backup_then_overwrite_file "/etc/etc/update-motd.d/1_rov_login_message.sh" "./new_config_files/1_rov_login_message.sh"
 
 #-----------------------------------------------------------------------------------------------------------------------
 

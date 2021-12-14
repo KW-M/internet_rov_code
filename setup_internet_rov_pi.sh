@@ -184,6 +184,8 @@ echo -e "$Green enabling uv4l_raspicam.service ... $Color_Off"
 sudo systemctl enable uv4l_raspicam.service
 echo -e "$Green enabling nginx.service ... $Color_Off"
 sudo systemctl enable nginx.service
+echo -e "$Green enabling save_rov_logs.service ... $Color_Off"
+sudo systemctl enable save_rov_logs.service
 
 # ----------------------------------------------------------------------------------------------------------------------
 
