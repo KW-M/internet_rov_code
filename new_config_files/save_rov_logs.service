@@ -1,9 +1,9 @@
 [Unit]
-Description=redirect journalctl output for ROV relevant systemd services to the /var/logs/rov_logs.log file
+Description=redirect journalctl output for ROV relevant systemd services to the /var/logs/rov/rov_logs.log file
 
 [Service]
 ExecStartPre=sudo mkdir /var/log/rov/
-ExecStartPre=sudo bash -c 'echo "" > /var/log/rov/rov_logs.log'
+ExecStartPre=sudo bash -c 'echo > /var/log/rov/rov_logs.log'
 ExecStart=sudo bash -c 'journalctl --unit=rov_python_code --unit=nginx --unit=ngrok --unit=uv4l --no-pager --follow -n 300 >> /var/log/rov/rov_logs.log'
 Restart=always
 RestartSec=3
