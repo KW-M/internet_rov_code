@@ -4,9 +4,9 @@ After=bluetooth.service
 Requires=bluetooth.service
 
 [Service]
-ExecStartPre=sdptool add SP
-ExecStartPre=hciconfig hci0 piscan
-ExecStartPre=hciconfig hci0 sspmode 1
+ExecStartPre=-sdptool add SP
+ExecStartPre=-hciconfig hci0 piscan
+ExecStartPre=-hciconfig hci0 sspmode 1
 ExecStart=rfcomm watch hci0 1 getty rfcomm0 115200 vt100 -a pi
 
 [Install]
