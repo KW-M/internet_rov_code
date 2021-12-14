@@ -52,11 +52,10 @@ while True:
                 # parse the message data as a JSON formatted string.
                 recived_data = json.loads(recived_message)
 
-                # print(updated_values)
+                print(recived_data)
 
                 if 'ping' in recived_data:
                     reply_data['pong'] = recived_data['ping']
-                    continue
 
                 if 'move' in recived_data:
                     motors.set_rov_motion(
