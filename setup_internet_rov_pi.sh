@@ -160,17 +160,27 @@ echo -e "$Cyan Enabling Bluetooth... $Color_Off"
 sudo raspi-config nonint do_bluetooth 1 &&
 sudo raspi-config nonint do_bluetooth_discoverable 1 &&
 
-# TODO: https://raspberrypi.stackexchange.com/questions/50496/automatically-accept-bluetooth-pairings
-
-# check if we haven't already added the PRETTY_HOSTNAME to the machine-info file:
-if [ -z $(grep "PRETTY_HOSTNAME=raspberrypi_rov" "/etc/machine-info") ]; then
+# check if we haven't already added the PRETTY_HOSTNAME to the machine-info file or the file doesnt exist yet:
+if [ ! -f "/etc/machine-info" ] || [ ! $(grep "PRETTY_HOSTNAME=raspberrypi_rov" "/etc/machine-info") ]; then
 	# Edit the display name of the RaspberryPi so you can distinguish
 	# your unit from others in the Bluetooth device list or console
-	echo -e "PRETTY_HOSTNAME=raspberrypi_rov" > /etc/machine-info
+	echo "setting hostname to raspberrypi_rov"
+	sudo touch /etc/machine-info
+	sudo bash -c 'echo "PRETTY_HOSTNAME=raspberrypi_rov" >> /etc/machine-info'
 fi
 
-sudo systemctl enable rfcomm # enable the new rfcomm service
-sudo systemctl restart rfcomm # start the rfcomm service
+# TODO: https://raspberrypi.stackexchange.com/questions/50496/automatically-accept-bluetooth-pairings
+
+# check if we haven't already the --compat flag to the bluetooth.service file:
+if [ ! $(grep "PRETTY_HOSTNAME=raspberrypi_rov" "/etc/machine-info") ]; then
+	echo "adding bluetoothd --compat flag in /lib/systemd/system/bluetooth.service"
+# Backup bluetooth.service file
+	sudo cp /lib/systemd/system/bluetooth.service $HOME/original_config_file_backups/bluetooth.service
+	sudo sed -i 's|/bluetoothd|/bluetoothd --compat|g' /lib/systemd/system/bluetooth.service
+fi
+
+
+sudo systemctl enable rfcomm.service # enable the new rfcomm service
 
 # ----------------------------------------------------------------------------------------------------------------------
 

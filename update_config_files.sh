@@ -60,14 +60,9 @@ backup_then_overwrite_file "/etc/nginx/nginx.conf" "./new_config_files/nginx.con
 echo "Copying over save_rov_logs startup service file..."
 backup_then_overwrite_file "/lib/systemd/system/save_rov_logs.service" "./new_config_files/save_rov_logs.service"
 
-# replace /lib/systemd/system/bluetooth.service with our version
-# echo "Copying over bluetooth startup service file (TO ENABLE BLUETOOTH CONNECTION)..."
-# backup_then_overwrite_file "/lib/systemd/system/bluetooth.service" "./new_config_files/bluetooth.service"
-
 # create /etc/systemd/system/rfcomm.service to enable the Bluetooth serial port / serial termial and to make the pi a discoverable bluetooth device
 echo "Copying over rfcomm startup service file (TO ENABLE BLUETOOTH SERIAL TERMINAL CONNECTIONS)..."
 backup_then_overwrite_file "/etc/systemd/system/rfcomm.service" "./new_config_files/rfcomm.service"
-
 
 echo "Restarting systemd (systemctl) Services..."
 
@@ -85,6 +80,8 @@ echo "restarting nginx.service..."
 sudo systemctl restart nginx.service
 echo "restarting ngrok.service..."
 sudo systemctl restart ngrok.service
+echo "restarting bluetooth.service..."
+sudo systemctl restart bluetooth.service
 echo "restarting rfcomm.service..."
 sudo systemctl restart rfcomm.service
 # The above lines restart systemd "services" running when this rasberry pi boots.
