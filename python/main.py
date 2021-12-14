@@ -9,7 +9,6 @@
 import time
 import json
 
-
 # import our python files from the same directory
 from socket_datachanel import socket_datachanel
 from motor_controllers import motor_ctl
@@ -45,13 +44,14 @@ while True:
             print('Connected!')
 
         while True:
+            reply_data = {}
             recived_message = str(msg_socket.recieve_socket_message())
             if (recived_message != None):
-                print('Received message"{}"'.format(recived_message))
+                print('Received message: {}'.format(recived_message))
 
                 # parse the message data as a JSON formatted string.
                 recived_data = json.loads(recived_message)
-                reply_data = {}
+
                 # print(updated_values)
 
                 if 'ping' in recived_data:
@@ -66,7 +66,6 @@ while True:
                 if 'toggleLights' in recived_data:
                     pass
 
-
             sensor_values_did_change = sensors.update_all_sensors()
             if sensor_values_did_change:
                 reply_data[
@@ -74,7 +73,9 @@ while True:
 
             # finally, send the reply_data as a json string if it has any data in it.
             if len(reply_data) > 0:
-                msg_socket.send_socket_message(json.dumps(reply_data))
+                reply_message = json.dumps(reply_data)
+                print('Sending message: {}'.format(reply_message))
+                msg_socket.send_socket_message(reply_message)
 
     except Exception as error:
         pretty_print_exception(error,
