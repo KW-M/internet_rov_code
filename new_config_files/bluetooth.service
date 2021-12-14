@@ -10,6 +10,7 @@ BusName=org.bluez
 ExecStart=/usr/libexec/bluetooth/bluetoothd -C
 ExecStartPost=/usr/bin/sdptool add SP
 ExecStartPost=/bin/hciconfig hci0 piscan
+ExecStartPost=/bin/hciconfig hci0 sspmode 1
 
 NotifyAccess=main
 #WatchdogSec=10
