@@ -3,11 +3,15 @@
 # script will add custom text to the login message that shows when you open an ssh / terminal / bluetooth serial terminal
 # From: https://raspberrypi.stackexchange.com/questions/73681/raspberry-pi-custom-ssh-normal-login-message
 
-echo "Welcome to the ROV!"
+echo "========================="
+echo "Welcome to Raspberry ROV!"
+echo "========================="
 
 # from: https://stackoverflow.com/questions/8529181/which-terminal-command-to-get-just-ip-address-and-nothing-else
 echo "The ROV's IP addresses are:"
 hostname --all-ip-addresses | sed 's/ /\n/g'
+
+# from
 PUBLIC_IP = $(wget -q -O - http://icanhazip.com/ | tail)
 if [ $PUBLIC_IP ]; then
     echo "Public IP: $PUBLIC_IP"
@@ -16,13 +20,12 @@ else
 fi
 echo ""
 
-echo "Wifi status is: "
-rfkill list wlan
-echo "Run 'rfkill unblock wlan' to enable wifi or 'rfkill block wlan' to disable wifi"
+echo "WIFI status: `rfkill list wlan`"
+echo "NOTE: Run 'rfkill unblock wlan' to enable wifi or 'rfkill block wlan' to disable wifi"
 echo ""
 
-echo "Bluetooth is: "
-rfkill list bluetooth
+echo "Bluetooth status: `rfkill list bluetooth`"
+echo ""
 
 echo "rov_python_code.service is: `systemctl is-active rov_python_code.service`"
 echo "uv4l_raspicam.service is: `systemctl is-active uv4l_raspicam.service`"
