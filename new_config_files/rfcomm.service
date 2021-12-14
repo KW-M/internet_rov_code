@@ -1,9 +1,12 @@
 [Unit]
-Description=RFCOMM service
+Description=RFCOMM service - allows the
 After=bluetooth.service
 Requires=bluetooth.service
 
 [Service]
+ExecStartPre=/usr/bin/sdptool add SP
+ExecStartPre=/bin/hciconfig hci0 piscan
+ExecStartPre=/bin/hciconfig hci0 sspmode 1
 ExecStart=/usr/bin/rfcomm watch hci0 1 getty rfcomm0 115200 vt100 -a pi
 
 [Install]

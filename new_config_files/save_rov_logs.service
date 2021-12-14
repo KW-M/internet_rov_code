@@ -1,8 +1,8 @@
 [Unit]
-Description=redirect journalctl output for ROV relevant systemd services to the .log file
+Description=redirect journalctl output for ROV relevant systemd services to the /var/logs/rov_logs.log file
 
 [Service]
-ExecStart=/usr/bin/bash -c "/usr/bin/journalctl --follow --user -u userunit.service >> /home/pi/rov_logs.log"
+ExecStart=/usr/bin/bash -c "/usr/bin/journalctl --unit=rov_python_code --unit=nginx --unit=ngrok --unit=uv4l --no-pager --follow -n 300 >> /var/logs/rov_logs.log"
 Restart=always
 RestartSec=3
 Type=simple

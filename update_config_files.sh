@@ -57,33 +57,35 @@ backup_then_overwrite_file "/etc/dnsmasq.conf" "./new_config_files/dnsmasq.conf"
 echo "Copying over nginx config file to /etc/nginx.conf"
 backup_then_overwrite_file "/etc/nginx/nginx.conf" "./new_config_files/nginx.conf"
 
-# replace /lib/systemd/system/bluetooth.service with our version to make the pi a discoverable bluetooth device
-echo "Copying over rfcomm startup service file (TO ENABLE BLUETOOTH CONNECTION)..."
-backup_then_overwrite_file "/lib/systemd/system/bluetooth.service" "./new_config_files/bluetooth.service"
+echo "Copying over save_rov_logs startup service file..."
+backup_then_overwrite_file "/lib/systemd/system/save_rov_logs.service" "./new_config_files/save_rov_logs.service"
 
-# create /etc/systemd/system/rfcomm.service to enable the Bluetooth serial port / serial termial
+# replace /lib/systemd/system/bluetooth.service with our version
+# echo "Copying over bluetooth startup service file (TO ENABLE BLUETOOTH CONNECTION)..."
+# backup_then_overwrite_file "/lib/systemd/system/bluetooth.service" "./new_config_files/bluetooth.service"
+
+# create /etc/systemd/system/rfcomm.service to enable the Bluetooth serial port / serial termial and to make the pi a discoverable bluetooth device
 echo "Copying over rfcomm startup service file (TO ENABLE BLUETOOTH SERIAL TERMINAL CONNECTIONS)..."
 backup_then_overwrite_file "/etc/systemd/system/rfcomm.service" "./new_config_files/rfcomm.service"
 
 
-echo "Restarting Services..."
+echo "Restarting systemd (systemctl) Services..."
 
 # daemon-reload makes the system load any new/changed services in the /lib/systemd/system/ directory
 sudo systemctl daemon-reload
-
-echo "restarting rov_python_code.service systemd service..."
+echo "restarting save_rov_logs.service..."
+sudo systemctl restart save_rov_logs.service
+echo "restarting rov_python_code.service..."
 sudo systemctl restart rov_python_code.service
-echo "restarting uv4l_raspicam.service systemd service..."
+echo "restarting uv4l_raspicam.service..."
 sudo systemctl restart uv4l_raspicam.service	# sudo service uv4l_raspicam restart
-# echo "restarting pigpiod systemd service..."
+# echo "restarting pigpiod..."
 # sudo systemctl restart pigpiod.service
-echo "restarting nginx.service systemd service..."
+echo "restarting nginx.service..."
 sudo systemctl restart nginx.service
-echo "restarting ngrok.service systemd service..."
+echo "restarting ngrok.service..."
 sudo systemctl restart ngrok.service
-echo "restarting bluetooth.service systemd service..."
-sudo systemctl restart bluetooth.service
-echo "restarting rfcomm.service systemd service..."
+echo "restarting rfcomm.service..."
 sudo systemctl restart rfcomm.service
 # The above lines restart systemd "services" running when this rasberry pi boots.
 # for more about these files: https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files
