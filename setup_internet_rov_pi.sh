@@ -179,7 +179,11 @@ echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/new_config_files/rov_login_messag
 # ----------------------------------------------------------------------------------------------------------------------
 $FOLDER_CONTAINING_THIS_SCRIPT="/home/pi/internet_rov_code"
 echo "Adding line to run add_fixed_ip.sh whenever a network interface changes by adding it to the /etc/dhcpcd.enter-hook file"
-sudo bash -c 'echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/new_config_files/add_fixed_ip.sh" >> /etc/dhcpcd.enter-hook'
+sudo bash -c "echo '/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/new_config_files/add_fixed_ip.sh' >> /etc/dhcpcd.enter-hook"
+sudo mkdir -p /etc/network/if-up.d/
+sudo bash -c "echo '#! /bin/bash' > /etc/network/if-up.d/rov_handle_ifup"
+sudo bash -c "echo 'reason=NETUP;/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/new_config_files/add_fixed_ip.sh' >> /etc/network/if-up.d/rov_handle_ifup"
+sudo chmod +X /etc/network/if-up.d/rov_handle_ifup
 # ----------------------------------------------------------------------------------------------------------------------
 
 

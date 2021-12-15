@@ -1,15 +1,9 @@
 #!/bin/bash
 # Note this MUST be run from a dhcpcd hook so that the environment vars are set.
 # This script is setup to be run when the /etc/dhcpcd.enter-hook hook is called.
-echo “================” >> /tmp/variables.txt
-echo "Environment Variables" >> /tmp/variables.txt
-printenv >> /tmp/variables.txt
-echo “===============” >> /tmp/variables.txt
-echo "Shell Variables" >> /tmp/variables.txt
-set >> /tmp/variables.txt
 
-case “${reason}” in BOUND|RENEW|REBIND|REBOOT)
-    echo “nameserver 1.1.1.1” >> /etc/resolv.conf
-    ip address add 192.168.0.88 dev ${interface} 2>&1 >> /etc/log/
-;;
-esac
+# case “${reason}” in BOUND|BOUND6|RENEW|RENEW6|REBIND|REBIND6|REBOOT|CARRIER|NETUP)
+    echo "Adding fixed IP 192.168.0.88 to ${interface} because ${reason}. Is up:${if_up}" | systemd-cat -t rov_add_fixed_ip
+    sudo ip address add 192.168.0.88 dev ${interface} | systemd-cat -t rov_add_fixed_ip
+# ;;
+# esac
