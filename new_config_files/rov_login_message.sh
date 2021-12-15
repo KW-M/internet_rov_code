@@ -50,11 +50,11 @@ echo "$(tput setaf 2)
   '. \ ' ' / .'   `uname -srmo`$(tput setaf 1)
    .~ .~~~..~.
   : .~.'~'.~. :   Uptime.............: ${UPTIME}
- ~ (   ) (   ) ~  Memory.............: `cat /proc/meminfo | grep MemFree | awk {'print $2'}`kB (Free) / `cat /proc/meminfo | grep MemTotal | awk {'print $2'}`kB (Total)
+ ~ (   ) (   ) ~  Memory.............: `cat /proc/meminfo | grep MemFree | awk {'print($2 * 0.001)'}`MB (Free) / `cat /proc/meminfo | grep MemTotal | awk {'print($2 * 0.001)'}`MB (Total)
 ( : '~'.~.'~' : ) Load Averages......: ${one}, ${five}, ${fifteen} (1, 5, 15 min)
  ~ .~ (   ) ~. ~  Running Processes..: `ps ax | wc -l | tr -d " "`
-  (  : '~' :  )
-   '~ .~~~. ~'    Disk Space.........: `df -h | grep /dev/root | awk {'print $4'}` (root) / `df -h | grep /dev/root | awk {'print $2'}` (used)
+  (  : '~' :  )   Temperature........: `/opt/vc/bin/vcgencmd measure_temp | awk -F "[=\']" '{print($2)}'`
+   '~ .~~~. ~'    Disk Space.........: `df -h | grep /dev/root | awk {'print $5'}` full (`df -h | grep /dev/root | awk {'print $3'}` used of `df -h | grep /dev/root | awk {'print $2'}`)
        '~'
 $(tput sgr0)"
 
