@@ -9,8 +9,6 @@ echo "========================="
 
 # from: https://stackoverflow.com/questions/8529181/which-terminal-command-to-get-just-ip-address-and-nothing-else
 echo "The ROV's IP addresses are:"
-hostname --all-ip-addresses | sed 's/ /\n/g'
-
 # from
 PUBLIC_IP=$(wget -q -O - http://icanhazip.com/ | tail)
 if [ $PUBLIC_IP ]; then
@@ -18,6 +16,11 @@ if [ $PUBLIC_IP ]; then
 else
     echo "Public IP: No Internet Connection"
 fi
+# list all local ip addresses
+hostname --all-ip-addresses | xargs echo | sed 's/ /\n/g'
+echo "`hostname`.local - This is the pi's mDNS name, it might work."
+
+
 echo ""
 echo "Bluetooth status: `rfkill list bluetooth`"
 echo "WIFI status: `rfkill list wlan`"
