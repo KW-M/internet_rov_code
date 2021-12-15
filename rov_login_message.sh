@@ -12,19 +12,16 @@ echo "The ROV's IP addresses are:"
 hostname --all-ip-addresses | sed 's/ /\n/g'
 
 # from
-PUBLIC_IP = $(wget -q -O - http://icanhazip.com/ | tail)
+PUBLIC_IP=$(wget -q -O - http://icanhazip.com/ | tail)
 if [ $PUBLIC_IP ]; then
     echo "Public IP: $PUBLIC_IP"
 else
     echo "Public IP: No Internet Connection"
 fi
 echo ""
-
+echo "Bluetooth status: `rfkill list bluetooth`"
 echo "WIFI status: `rfkill list wlan`"
 echo "NOTE: Run 'rfkill unblock wlan' to enable wifi or 'rfkill block wlan' to disable wifi"
-echo ""
-
-echo "Bluetooth status: `rfkill list bluetooth`"
 echo ""
 
 #check if services are active, if not, show their status:
