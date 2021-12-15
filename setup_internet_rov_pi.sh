@@ -175,7 +175,7 @@ fi
 # ----------------------------------------------------------------------------------------------------------------------
 echo "Adding line to run rov_login_message.sh whenever a terminal is oppened by adding it to the .bashrc file"
 # the .bashrc file is the file that gets run to setup the default bash shell whenever you open a terminal session
-echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/new_config_files/rov_login_message.sh" >> ~/.bashrc
+echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_login_message.sh" >> ~/.bashrc
 # ----------------------------------------------------------------------------------------------------------------------
 # $FOLDER_CONTAINING_THIS_SCRIPT="/home/pi/internet_rov_code"
 # echo "Adding line to run add_fixed_ip.sh whenever a network interface changes by adding it to the /etc/dhcpcd.enter-hook file"

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# script will add custom text to the login message that shows when you open an ssh / terminal / bluetooth serial terminal
+# script will be the custom text that shows when you open an ssh / terminal / bluetooth serial terminal
 # From: https://raspberrypi.stackexchange.com/questions/73681/raspberry-pi-custom-ssh-normal-login-message
 
 echo "========================="
@@ -27,13 +27,52 @@ echo ""
 echo "Bluetooth status: `rfkill list bluetooth`"
 echo ""
 
-echo "rov_python_code.service is: `systemctl is-active rov_python_code.service`"
-echo "uv4l_raspicam.service is: `systemctl is-active uv4l_raspicam.service`"
-echo "nginx.service is: `systemctl is-active nginx.service`"
-echo "ngrok.service is: `systemctl is-active ngrok.service`"
-echo "bluetooth.service is: `systemctl is-active bluetooth.service`"
-echo "rov_bluetooth_terminal.service is: `systemctl is-active rov_bluetooth_terminal.service`"
-echo "save_rov_logs.service is: `systemctl is-active save_rov_logs.service`"
+#check if services are active, if not, show their status:
+if systemctl -q is-active rov_python_code.service; then
+    echo "rov_python_code.service is active"
+else
+    systemctl status rov_python_code.service
+fi
+if systemctl -q is-active uv4l_raspicam.service; then
+    echo "uv4l_raspicam.service is active"
+else
+    systemctl status uv4l_raspicam.service
+fi
+if systemctl -q is-active rov_bluetooth_terminal.service; then
+    echo "rov_bluetooth_terminal.service is active"
+else
+    systemctl status rov_bluetooth_terminal.service
+fi
+if systemctl -q is-active save_rov_logs.service; then
+    echo "save_rov_logs.service is active"
+else
+    systemctl status save_rov_logs.service
+fi
+if systemctl -q is-active netdata.service; then
+    echo "netdata.service is active"
+else
+    systemctl status netdata.service
+fi
+if systemctl -q is-active add_fixed_ip.service; then
+    echo "add_fixed_ip.service is active"
+else
+    systemctl status add_fixed_ip.service
+fi
+if systemctl -q is-active ngrok.service; then
+    echo "ngrok.service is active"
+else
+    systemctl status ngrok.service
+fi
+if systemctl -q is-active bluetooth.service; then
+    echo "bluetooth.service is active"
+else
+    systemctl status bluetooth.service
+fi
+if systemctl -q is-active nginx.service; then
+    echo "nginx.service is active"
+else
+    systemctl status nginx.service
+fi
 
 let upSeconds=$(/usr/bin/cut -d. -f1 /proc/uptime)
 let secs=$((${upSeconds}%60))
