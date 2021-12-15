@@ -177,6 +177,11 @@ echo "Adding line to run rov_login_message.sh whenever a terminal is oppened by 
 # the .bashrc file is the file that gets run to setup the default bash shell whenever you open a terminal session
 echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/new_config_files/rov_login_message.sh" >> ~/.bashrc
 # ----------------------------------------------------------------------------------------------------------------------
+$FOLDER_CONTAINING_THIS_SCRIPT="/home/pi/internet_rov_code"
+echo "Adding line to run add_fixed_ip.sh whenever a network interface changes by adding it to the /etc/dhcpcd.enter-hook file"
+sudo bash -c 'echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/new_config_files/add_fixed_ip.sh" >> /etc/dhcpcd.enter-hook'
+# ----------------------------------------------------------------------------------------------------------------------
+
 
 echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_Off"
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
@@ -195,8 +200,8 @@ echo -e "$Green enabling nginx.service ... $Color_Off"
 sudo systemctl enable nginx.service
 echo -e "$Green enabling save_rov_logs.service ... $Color_Off"
 sudo systemctl enable save_rov_logs.service
-echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
-sudo systemctl enable add_fixed_ip.service
+# echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
+# sudo systemctl enable add_fixed_ip.service
 
 # ----------------------------------------------------------------------------------------------------------------------
 
