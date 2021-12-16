@@ -125,6 +125,11 @@ sudo python3 -m pip install --upgrade adafruit-circuitpython-motorkit
 echo -e "$Cyan Downloading pressure sensor python libraries... $Color_Off"
 sudo python3 -m pip install --upgrade ms5803py
 
+# From: https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html
+echo -e "$Cyan Installing uWSGI python3 library (tiny server handler) and python c bindings for it $Color_Off"
+sudo apt install -y build-essential python-dev
+sudo python3 -m pip install --upgrade uwsg
+
 # from: https://raspberrypi.stackexchange.com/questions/63930/remove-uv4l-software-by-http-linux-project-org-watermark
 # https://www.raspberrypi.org/forums/viewtopic.php?t=62364
 echo -e "$Cyan enabling built in raspicam driver: $Color_Off"
@@ -194,6 +199,8 @@ cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 echo -e "$Cyan Enabling systemd (systemctl) services so they start at boot (or whenever configured too)... $Color_Off"
 echo -e "$Green enabling rov_python_code.service ... $Color_Off"
 sudo systemctl enable rov_python_code.service # enable the new rov_python_code service
+echo -e "$Green enabling save_rov_logs.service ... $Color_Off"
+sudo systemctl enable save_rov_logs.service
 echo -e "$Green enabling rov_bluetooth_terminal.service ... $Color_Off"
 sudo systemctl enable rov_bluetooth_terminal.service # enable the new rfcomm service
 echo -e "$Green enabling ngrok.service ... $Color_Off"
@@ -202,8 +209,9 @@ echo -e "$Green enabling uv4l_raspicam.service ... $Color_Off"
 sudo systemctl enable uv4l_raspicam.service
 echo -e "$Green enabling nginx.service ... $Color_Off"
 sudo systemctl enable nginx.service
-echo -e "$Green enabling save_rov_logs.service ... $Color_Off"
-sudo systemctl enable save_rov_logs.service
+echo -e "$Green enabling rov_uwsgi_server.service ... $Color_Off"
+sudo systemctl enable rov_uwsgi_server.service
+
 # echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
 # sudo systemctl enable add_fixed_ip.service
 

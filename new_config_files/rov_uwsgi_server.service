@@ -1,0 +1,13 @@
+[Unit]
+Description=Runs the main.py python code on boot, and restarts it if it crashes from the /home/pi/internet_rov_code/python folder
+
+[Service]
+Environment=PYTHONUNBUFFERED=1
+ExecStart=uwsgi --socket 127.0.0.1:3031 --wsgi-file /home/pi/internet_rov_code/python/uwsgi_server.py --master --processes 1 --threads 2 --harakiri 20 --stats 127.0.0.1:9191
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -HUP $MAINPID
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+# see: https://unix.stackexchange.com/questions/506347/why-do-most-systemd-examples-contain-wantedby-multi-user-target

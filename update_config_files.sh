@@ -68,6 +68,9 @@ backup_then_overwrite_file "/etc/systemd/system/add_fixed_ip.service" "./new_con
 echo "Copying over rov_bluetooth_terminal startup service file (TO ENABLE BLUETOOTH SERIAL TERMINAL CONNECTIONS)..."
 backup_then_overwrite_file "/etc/systemd/system/rov_bluetooth_terminal.service" "./new_config_files/rov_bluetooth_terminal.service"
 
+echo "Copying over rov_uwsgi_server startup service file..."
+backup_then_overwrite_file "/etc/systemd/system/rov_uwsgi_server.service" "./new_config_files/rov_uwsgi_server.service"
+
 #-----------------------------------------------------------------------------------------------------------------------
 
 echo ""
@@ -84,6 +87,8 @@ sudo systemctl restart uv4l_raspicam.service	# sudo service uv4l_raspicam restar
 # sudo systemctl restart pigpiod.service
 echo "restarting nginx.service..."
 sudo systemctl restart nginx.service
+echo "restarting rov_uwsgi_server.service..."
+sudo systemctl restart rov_uwsgi_server.service
 echo "restarting ngrok.service..."
 sudo systemctl restart ngrok.service
 echo "restarting bluetooth.service..."
