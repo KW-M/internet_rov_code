@@ -39,6 +39,7 @@ rm ~/raspi-blinka.py && # clean up the adafruit circuitpython installer script i
 
 # echo "Copying over ngrok config file..." # < no longer needed
 # backup_then_overwrite_file "$HOME/.ngrok2/ngrok.yml" "./new_config_files/ngrok.yml"
+
 echo "Copying over ngrok startup service file..."
 backup_then_overwrite_file "/lib/systemd/system/ngrok.service" "./new_config_files/ngrok.service"
 
@@ -51,20 +52,15 @@ backup_then_overwrite_file "/etc/systemd/system/uv4l_raspicam.service" "./new_co
 echo "Copying over uv4l-raspicam config file"
 backup_then_overwrite_file "/etc/uv4l/uv4l-raspicam.conf" "./new_config_files/uv4l-raspicam.conf"
 
-echo "Copying over dnsmasq config file to /etc/dnsmasq.conf"
-backup_then_overwrite_file "/etc/dnsmasq.conf" "./new_config_files/dnsmasq.conf"
-
 echo "Copying over nginx config file to /etc/nginx.conf"
 backup_then_overwrite_file "/etc/nginx/nginx.conf" "./new_config_files/nginx.conf"
 
 echo "Copying over save_rov_logs startup service file..."
 backup_then_overwrite_file "/lib/systemd/system/save_rov_logs.service" "./new_config_files/save_rov_logs.service"
 
-# create /etc/systemd/system/rov_bluetooth_terminal.service to enable the Bluetooth serial port / serial termial and to make the pi a discoverable & pairable bluetooth device
 echo "Copying over add_fixed_ip.service startup service file..."
 backup_then_overwrite_file "/etc/systemd/system/add_fixed_ip.service" "./new_config_files/add_fixed_ip.service"
 
-# create /etc/systemd/system/rov_bluetooth_terminal.service to enable the Bluetooth serial port / serial termial and to make the pi a discoverable & pairable bluetooth device
 echo "Copying over rov_bluetooth_terminal startup service file (TO ENABLE BLUETOOTH SERIAL TERMINAL CONNECTIONS)..."
 backup_then_overwrite_file "/etc/systemd/system/rov_bluetooth_terminal.service" "./new_config_files/rov_bluetooth_terminal.service"
 
@@ -75,16 +71,16 @@ backup_then_overwrite_file "/etc/systemd/system/rov_uwsgi_server.service" "./new
 
 echo ""
 echo "Restarting systemd (systemctl) Services..."
+
 # daemon-reload makes the system load any new/changed services in the /lib/systemd/system/ directory
 sudo systemctl daemon-reload
+
 echo "restarting save_rov_logs.service..."
 sudo systemctl restart save_rov_logs.service
 echo "restarting rov_python_code.service..."
 sudo systemctl restart rov_python_code.service
 echo "restarting uv4l_raspicam.service..."
 sudo systemctl restart uv4l_raspicam.service	# sudo service uv4l_raspicam restart
-# echo "restarting pigpiod..."
-# sudo systemctl restart pigpiod.service
 echo "restarting nginx.service..."
 sudo systemctl restart nginx.service
 echo "restarting rov_uwsgi_server.service..."
@@ -97,6 +93,9 @@ echo "restarting rov_bluetooth_terminal.service..."
 sudo systemctl restart rov_bluetooth_terminal.service
 # echo "restarting add_fixed_ip.service..."
 # sudo systemctl restart add_fixed_ip.service
+# echo "restarting pigpiod..."
+# sudo systemctl restart pigpiod.service # no longer using pigpiod
+
 # The above lines restart systemd "services" running when this rasberry pi boots.
 # for more about these files: https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files
 

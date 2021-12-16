@@ -83,7 +83,7 @@ var tester = {
     },
 
     /**
-     * Tell the user the browser doesnâ€™t support Gamepad API.
+     * Tell the user the browser doesn't support Gamepad API.
      */
     showNotSupported: function () {
         document.querySelector('#no-gamepad-support').classList.add('visible');
