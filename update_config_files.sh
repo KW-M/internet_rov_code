@@ -90,8 +90,8 @@ echo "restarting bluetooth.service..."
 sudo systemctl restart bluetooth.service
 echo "restarting rov_bluetooth_terminal.service..."
 sudo systemctl restart rov_bluetooth_terminal.service
-echo "restarting add_fixed_ip.service..."
-sudo systemctl restart add_fixed_ip.service
+# echo "restarting add_fixed_ip.service..."
+# sudo systemctl restart add_fixed_ip.service
 # The above lines restart systemd "services" running when this rasberry pi boots.
 # for more about these files: https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files
 

@@ -164,13 +164,13 @@ fi
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-# check if we haven't already added our configs to the /etc/dhcpcd.conf file or the file doesnt exist yet:
-if grep -q "ROV Additions" "/etc/dhcpcd.conf"; then
-	echo "dhcpcd.conf already has our configs"
-else
-	echo "Adding static IPs to the DCHP configs";
-	sudo bash -c 'cat /home/pi/internet_rov_code/new_config_files/dchpd-txt-to-append.conf >> /etc/dhcpcd.conf'
-fi
+# # check if we haven't already added our configs to the /etc/dhcpcd.conf file or the file doesnt exist yet:
+# if grep -q "ROV Additions" "/etc/dhcpcd.conf"; then
+# 	echo "dhcpcd.conf already has our configs"
+# else
+# 	echo "Adding static IPs to the DCHP configs";
+# 	sudo bash -c 'cat /home/pi/internet_rov_code/new_config_files/dchpd-txt-to-append.conf >> /etc/dhcpcd.conf'
+# fi
 
 # ----------------------------------------------------------------------------------------------------------------------
 echo "Adding line to run rov_login_message.sh whenever a terminal is oppened by adding it to the .bashrc file"
@@ -203,8 +203,8 @@ echo -e "$Green enabling nginx.service ... $Color_Off"
 sudo systemctl enable nginx.service
 echo -e "$Green enabling save_rov_logs.service ... $Color_Off"
 sudo systemctl enable save_rov_logs.service
-echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
-sudo systemctl enable add_fixed_ip.service
+# echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
+# sudo systemctl enable add_fixed_ip.service
 
 # ----------------------------------------------------------------------------------------------------------------------
 # from: https://learn.netdata.cloud/docs/agent/packaging/installer/methods/kickstart
