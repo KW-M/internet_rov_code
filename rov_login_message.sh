@@ -27,6 +27,8 @@ echo "WIFI status: `rfkill list wlan`"
 echo "NOTE: Run 'rfkill unblock wlan' to enable wifi or 'rfkill block wlan' to disable wifi"
 echo ""
 
+
+echo "Systemd Service Statuses:"
 #check if services are active, if not, show their status:
 if systemctl -q is-active rov_python_code.service; then
     echo "rov_python_code.service is active"
@@ -92,7 +94,7 @@ echo "$(tput setaf 2)
  ~ (   ) (   ) ~  Memory.............: `cat /proc/meminfo | grep MemFree | awk {'print($2 * 0.001)'}`MB (Free) / `cat /proc/meminfo | grep MemTotal | awk {'print($2 * 0.001)'}`MB (Total)
 ( : '~'.~.'~' : ) Load Averages......: ${one}, ${five}, ${fifteen} (1, 5, 15 min)
  ~ .~ (   ) ~. ~  Running Processes..: `ps ax | wc -l | tr -d " "`
-  (  : '~' :  )   Temperature........: `/opt/vc/bin/vcgencmd measure_temp | awk -F "[=\']" '{print($2)}'`
+  (  : '~' :  )   CPU Temperature....: `/opt/vc/bin/vcgencmd measure_temp | awk -F "[=\']" '{print($2)}'`'c
    '~ .~~~. ~'    Disk Space.........: `df -h | grep /dev/root | awk {'print $5'}` full (`df -h | grep /dev/root | awk {'print $3'}` used of `df -h | grep /dev/root | awk {'print $2'}`)
        '~'
 $(tput sgr0)"
