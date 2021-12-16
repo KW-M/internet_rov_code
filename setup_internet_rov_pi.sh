@@ -157,6 +157,7 @@ if grep "bluetoothd --compat" "/lib/systemd/system/bluetooth.service"; then
 else
 	echo "Adding bluetoothd --compat flag in /lib/systemd/system/bluetooth.service"
 	# Backup bluetooth.service file
+	mkdir -p $HOME/original_config_file_backups
 	sudo cp /lib/systemd/system/bluetooth.service $HOME/original_config_file_backups/bluetooth.service
 	# add the --compat flag to the bluetooth.service file by find & replace /bluetoothd with /bluetoothd --compat
 	sudo sed -i 's|/bluetoothd|/bluetoothd --compat|g' /lib/systemd/system/bluetooth.service
