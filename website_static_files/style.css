@@ -8,6 +8,8 @@ body {
   padding: 0;
 
   background: linear-gradient(#00effb,#1537a6);
+
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .center {
@@ -21,6 +23,18 @@ body {
   -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
   text-align: center;
+}
+.top-left-corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  padding: 0px 16px;
+}
+.top-right-corner {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 #connect_btn,
@@ -54,8 +68,8 @@ button {
   border: none;
   border: 3px solid;
   border-radius: 6px;
-  background: -webkit-linear-gradient(135deg, #d8ac0c, #f57254);
-  background: linear-gradient(135deg, #d8ac0c, #f57254);
+  background: -webkit-linear-gradient(135deg, #d2a500, #ea2c00);
+  background: linear-gradient(135deg, #d2a500, #ea2c00);
   box-shadow: 0 3px 6px -1px rgb(0 0 0 / 12%), 0 10px 36px -4px rgb(77 96 232 / 30%);
 
   font-size: large;
@@ -92,6 +106,75 @@ button:active {
     border-radius: 5px;
     background-color: blueviolet;
 } */
+
+/* Drop Down Menus */
+
+.icon-btn{
+  position: relative;
+
+  width: 52px;
+  height: 52px;
+  margin: 0;
+  padding: 0;
+
+  cursor: pointer;
+
+  border: none;
+  border-radius: 0 0 100px 100px;
+  background: none;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 40px;
+}
+
+.power-menu-btn{
+  background-image: url('./ui-elements/settings_power_black_24dp.svg');
+}
+
+.debug-menu-btn{
+  background-image: url('./ui-elements/insights_black_24dp.svg');
+}
+
+.dropdown-menu {
+  position: relative;
+  z-index: 10;
+
+  display: flex;
+  overflow: visible;
+  align-items: end;
+  flex-direction: column;
+
+  margin: 10px;
+}
+
+.dropdown-menu:focus-within .dropdown-menu-list, .dropdown-menu:hover .dropdown-menu-list {
+ display: flex;
+}
+
+
+
+.dropdown-menu-list {
+  right: 0;
+  /* UNCOMMENT THIS AFTER STYLING. */
+
+  display: none;
+  flex-direction: column;
+
+  min-width: 100px;
+  padding: 12px;
+
+  list-style-type: none;
+
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.dropdown-menu-list li:not(:first-child) {
+  margin-top: 0.5rem;
+}
 
 /* CIRCULAR CORNER MENU WITH ICONS */
 

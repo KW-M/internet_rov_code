@@ -25,8 +25,29 @@
         <p>Temp: <span id="temp_value">--</span>mPa</p>
     </div>
 
-
-
+    <div class="top-right-corner">
+        <div class="power-menu dropdown-menu">
+            <button class="power-menu-btn icon-btn"></button>
+            <ul class="dropdown-menu-list">
+                <li onclick="shutdownROV()">Shutdown ROV</li>
+                <li onclick="rebootROV()">Reboot ROV</li>
+                <li onclick="restartROVServices()">Restart ROV Services</li>
+                <li onclick="disconnect()">Disconnect</li>
+            </ul>
+        </div>
+        <div class="debug-menu dropdown-menu">
+            <button class="debug-menu-btn icon-btn"></button>
+            <ul class="dropdown-menu-list">
+                <li><a href="/status/" target="_blank">System Status</a></li>
+                <li><a href="/netdata/" target="_blank">System Performance Dashboard</a></li>
+                <li><a href="/log/rov/" target="_blank">ROV Logs</a></li>
+                <li><a href="/log/nginx/" target="_blank">Server Logs</a></li>
+                <li><a href="/ngrok_dashboard/" target="_blank">Ngrok Dashboard</a></li>
+                <li><a href="/uv4l_dashboard/" target="_blank">Streaming Server Dashboard</a></li>
+            </ul>
+        </div>
+    </div>
+    </div>
     <!-- the circle menu in the upper left -->
     <!-- <nav id="circle_corner_menu">
         <div class="icon-links-hover-hint">+</div>
@@ -357,6 +378,7 @@
 
     <script type="text/javascript" src="./util.js"></script>
     <script type="text/javascript" src="./ui.js"></script>
+    <script type="text/javascript" src="./api.js"></script>
     <script type="text/javascript" src="./connection.js"></script>
     <!-- <script type="text/javascript" src="./gamepad.js"></script> -->
     <script type="text/javascript" src="./main.js"></script>

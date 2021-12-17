@@ -75,16 +75,17 @@ echo "Restarting systemd (systemctl) Services..."
 # daemon-reload makes the system load any new/changed services in the /lib/systemd/system/ directory
 sudo systemctl daemon-reload
 
+
+echo "restarting nginx.service..."
+sudo systemctl restart nginx.service
 echo "restarting save_rov_logs.service..."
 sudo systemctl restart save_rov_logs.service
+echo "restarting rov_uwsgi_server.service..."
+sudo systemctl restart rov_uwsgi_server.service
 echo "restarting rov_python_code.service..."
 sudo systemctl restart rov_python_code.service
 echo "restarting uv4l_raspicam.service..."
 sudo systemctl restart uv4l_raspicam.service	# sudo service uv4l_raspicam restart
-echo "restarting nginx.service..."
-sudo systemctl restart nginx.service
-echo "restarting rov_uwsgi_server.service..."
-sudo systemctl restart rov_uwsgi_server.service
 echo "restarting ngrok.service..."
 sudo systemctl restart ngrok.service
 echo "restarting bluetooth.service..."
