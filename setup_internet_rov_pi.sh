@@ -6,7 +6,7 @@ cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 FOLDER_CONTAINING_THIS_SCRIPT="$(pwd)"
 
 # from https://raspberrypi.stackexchange.com/questions/100076/what-revisions-does-cat-proc-cpuinfo-return-on-the-new-pi-4-1-2-4gb
-PI_CPU_MODEL=$(cat /proc/cpuinfo | grep 'Hardware' | awk '{print $3}')
+# PI_CPU_MODEL=$(cat /proc/cpuinfo | grep 'Hardware' | awk '{print $3}')
 PI_CPU_ARCHITECTURE=$(arch)
 
 Green="\033[1;32m"  # Green color code for console text
@@ -16,10 +16,6 @@ Color_Off="\033[0m" # Text color Reset code for console text
 echo -e "$Cyan This scripts sets up a raspberry pi install as an internet rov, (from a fresh install of raspbian.)"
 echo -e "$Green It should be fine if it gets run twice or more anyway, it just takes a while."
 
-echo -e "$Cyan  !!!!!!!! $Color_Off"
-echo -e "$Cyan REMEMEBER to change the pi user password to something other than the default by running the command: sudo passwd pi (just type, characters won't show,  see notes in internet_rov google drive folder for previously used password) $Color_Off"
-echo -e "$Cyan  !!!!!!!! $Color_Off"
-
 echo -e "$Cyan Setting Timezone to America/Los_Angeles ... $Color_Off"
 sudo timedatectl set-timezone America/Los_Angeles
 sudo timedatectl set-ntp true # enable network time sync
@@ -27,7 +23,7 @@ sudo timedatectl set-ntp true # enable network time sync
 echo -e "$Cyan Setting Locale (Language & keyboard to English US layout)... $Color_Off"
 # https://www.jaredwolff.com/raspberry-pi-setting-your-locale/
 # check if the loaded locales contains machine-info file:
-if ! $( locale -a | grep -i -q 'en_US.utf8') || $(locale -a | grep -i -q 'en_US.utf-8'); then
+if ! locale -a | grep -i -q 'en_US.utf8' || locale -a | grep -i -q 'en_US.utf-8'; then
  	echo -e "$Green en_US.utf8 local not generated, loading it now ... $Color_Off"
 	sudo perl -pi -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
 	sudo locale-gen en_US.UTF-8
@@ -162,8 +158,8 @@ if grep "bluetoothd --compat" "/lib/systemd/system/bluetooth.service"; then
 else
 	echo "Adding bluetoothd --compat flag in /lib/systemd/system/bluetooth.service"
 	# Backup bluetooth.service file
-	mkdir -p $HOME/original_config_file_backups
-	sudo cp /lib/systemd/system/bluetooth.service $HOME/original_config_file_backups/bluetooth.service
+	mkdir -p "$HOME/original_config_file_backups"
+	sudo cp /lib/systemd/system/bluetooth.service "$HOME/original_config_file_backups/bluetooth.service"
 	# add the --compat flag to the bluetooth.service file by find & replace /bluetoothd with /bluetoothd --compat
 	sudo sed -i 's|/bluetoothd|/bluetoothd --compat|g' /lib/systemd/system/bluetooth.service
 fi
