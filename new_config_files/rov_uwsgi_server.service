@@ -1,5 +1,5 @@
 [Unit]
-Description=uWSGI server running the python to handle out of band / standard api calls.
+Description=uWSGI server running rov_uwsgi_server.py python to handle non-webrtc / standard api calls.
 
 Requires=network.target
 After=network.target
