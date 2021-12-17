@@ -1,15 +1,17 @@
 [Unit]
-Description=Runs the main.py python code on boot, and restarts it if it crashes from the /home/pi/internet_rov_code/python folder
+Description=uWSGI server running the python to handle out of band / standard api calls.
+
+Requires=network.target
+After=network.target
 
 [Service]
 Environment=PYTHONUNBUFFERED=1
 ExecStart=uwsgi --socket 127.0.0.1:3031 --wsgi-file /home/pi/internet_rov_code/python/uwsgi_server.py --master --processes 1 --threads 2 --harakiri 20 --stats 127.0.0.1:9191
-ExecReload=/bin/kill -HUP $MAINPID
-ExecStop=/bin/kill -HUP $MAINPID
-KillMode=process
-Restart=always
-RestartSec=1
-Type=simple
+Restart=on-failure
+User=pi
+KillSignal=SIGQUIT
+Type=notify
+NotifyAccess=all
 
 [Install]
 WantedBy=multi-user.target
