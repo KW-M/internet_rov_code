@@ -33,47 +33,47 @@ echo "Systemd Service Statuses:"
 if systemctl -q is-active rov_python_code.service; then
     echo "rov_python_code.service is active"
 else
-    systemctl status rov_python_code.service
+    systemctl status --no-pager rov_python_code.service
 fi
 if systemctl -q is-active uv4l_raspicam.service; then
     echo "uv4l_raspicam.service is active"
 else
-    systemctl status uv4l_raspicam.service
+    systemctl status --no-pager uv4l_raspicam.service
 fi
 if systemctl -q is-active rov_bluetooth_terminal.service; then
     echo "rov_bluetooth_terminal.service is active"
 else
-    systemctl status rov_bluetooth_terminal.service
+    systemctl status --no-pager rov_bluetooth_terminal.service
 fi
 if systemctl -q is-active save_rov_logs.service; then
     echo "save_rov_logs.service is active"
 else
-    systemctl status save_rov_logs.service
+    systemctl status --no-pager save_rov_logs.service
 fi
 if systemctl -q is-active netdata.service; then
     echo "netdata.service is active"
 else
-    systemctl status netdata.service
+    systemctl status --no-pager netdata.service
 fi
 if systemctl -q is-active add_fixed_ip.service; then
     echo "add_fixed_ip.service is active"
 else
-    systemctl status add_fixed_ip.service
+    systemctl status --no-pager add_fixed_ip.service
 fi
 if systemctl -q is-active ngrok.service; then
     echo "ngrok.service is active"
 else
-    systemctl status ngrok.service
+    systemctl status --no-pager ngrok.service
 fi
 if systemctl -q is-active bluetooth.service; then
     echo "bluetooth.service is active"
 else
-    systemctl status bluetooth.service
+    systemctl status --no-pager bluetooth.service
 fi
 if systemctl -q is-active nginx.service; then
     echo "nginx.service is active"
 else
-    systemctl status nginx.service
+    systemctl status --no-pager nginx.service
 fi
 
 let upSeconds=$(/usr/bin/cut -d. -f1 /proc/uptime)

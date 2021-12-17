@@ -92,8 +92,8 @@ echo "restarting bluetooth.service..."
 sudo systemctl restart bluetooth.service
 echo "restarting rov_bluetooth_terminal.service..."
 sudo systemctl restart rov_bluetooth_terminal.service
-# echo "restarting add_fixed_ip.service..."
-# sudo systemctl restart add_fixed_ip.service
+echo "restarting add_fixed_ip.service..."
+sudo systemctl restart add_fixed_ip.service
 # echo "restarting pigpiod..."
 # sudo systemctl restart pigpiod.service # no longer using pigpiod
 

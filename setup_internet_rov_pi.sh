@@ -169,28 +169,10 @@ else
 fi
 
 # ----------------------------------------------------------------------------------------------------------------------
-
-# # check if we haven't already added our configs to the /etc/dhcpcd.conf file or the file doesnt exist yet:
-# if grep -q "ROV Additions" "/etc/dhcpcd.conf"; then
-# 	echo "dhcpcd.conf already has our configs"
-# else
-# 	echo "Adding static IPs to the DCHP configs";
-# 	sudo bash -c 'cat /home/pi/internet_rov_code/new_config_files/dchpd-txt-to-append.conf >> /etc/dhcpcd.conf'
-# fi
-
-# ----------------------------------------------------------------------------------------------------------------------
 echo "Adding line to run rov_login_message.sh whenever a terminal is oppened by adding it to the .bashrc file"
 # the .bashrc file is the file that gets run to setup the default bash shell whenever you open a terminal session
 echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_login_message.sh" >> ~/.bashrc
 # ----------------------------------------------------------------------------------------------------------------------
-# $FOLDER_CONTAINING_THIS_SCRIPT="/home/pi/internet_rov_code"
-# echo "Adding line to run add_fixed_ip.sh whenever a network interface changes by adding it to the /etc/dhcpcd.enter-hook file"
-# sudo bash -c "echo '/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/new_config_files/add_fixed_ip.sh' >> /etc/dhcpcd.enter-hook"
-# sudo mkdir -p /etc/network/if-up.d/
-# sudo bash -c "echo '#! /bin/bash' > /etc/network/if-up.d/rov_handle_ifup"
-# sudo bash -c "echo 'reason=NETUP;/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/new_config_files/add_fixed_ip.sh' >> /etc/network/if-up.d/rov_handle_ifup"
-# sudo chmod +X /etc/network/if-up.d/rov_handle_ifup
-# # ----------------------------------------------------------------------------------------------------------------------
 
 echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_Off"
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
@@ -211,9 +193,8 @@ echo -e "$Green enabling nginx.service ... $Color_Off"
 sudo systemctl enable nginx.service
 echo -e "$Green enabling rov_uwsgi_server.service ... $Color_Off"
 sudo systemctl enable rov_uwsgi_server.service
-
-# echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
-# sudo systemctl enable add_fixed_ip.service
+echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
+sudo systemctl enable add_fixed_ip.service
 
 # ----------------------------------------------------------------------------------------------------------------------
 # from: https://learn.netdata.cloud/docs/agent/packaging/installer/methods/kickstart

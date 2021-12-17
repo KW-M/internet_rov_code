@@ -3,7 +3,7 @@
 # alternative (didn't work) from: https://unix.stackexchange.com/questions/159641/systemd-restart-service-when-ip-address-changed
 # which solves this problem: https://raspberrypi.stackexchange.com/questions/87081/how-to-have-fallback-to-dynamic-ip-when-static-ip-fails
 
-# Runs the internet_rov_code/new_config_files/add_fixed_ip.sh IP Change Monitor script that adds the static ip 192.168.0.88 to any new network
+# Runs the internet_rov_code/new_config_files/add_fixed_ip.sh IP Change Monitor script that adds the static ip 10.0.99.88 to any new network
 
 [Unit]
 Description=Add Fixed IP Address on Network Change
