@@ -12,5 +12,6 @@ def application(env, start_response):
         for key, value in query_string.items()
     ])
 
+    print(response)
     start_response('200 OK', [('Content-Type', 'text/html')])
-    return [response]
+    return response.encode('utf-8')
