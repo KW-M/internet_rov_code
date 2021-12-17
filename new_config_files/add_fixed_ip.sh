@@ -12,6 +12,8 @@ ip monitor link | awk -W interactive -F ': ' '{if ($2) print $2;}' | while read 
     sudo ip address add 10.00.99.88/24 dev ${iface}
     # check if we don't have a dynamically (dchp) assigned IP address:
     if ip addr list ${iface} | grep 'inet ' | grep 'dynamic'; then
+    else
+        echo "No dynamic IP address assigned to ${iface}. Assigning one now."
         echo "rebinding dchp assinged ip on ${iface}."
         sudo dhcpcd --rebind ${iface}
     fi
