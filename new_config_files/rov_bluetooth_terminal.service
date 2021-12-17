@@ -17,5 +17,9 @@ ExecStartPre=-hciconfig hci0 sspmode 1
 ExecStartPre=-sudo rfcomm release rfcomm0
 ExecStart=rfcomm watch hci0 1 getty rfcomm0 115200 vt100 -a pi
 
+Restart=always
+RestartSec=3
+Type=simple
+
 [Install]
 WantedBy=multi-user.target

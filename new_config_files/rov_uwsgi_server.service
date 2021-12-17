@@ -7,6 +7,9 @@ ExecStart=uwsgi --socket 127.0.0.1:3031 --wsgi-file /home/pi/internet_rov_code/p
 ExecReload=/bin/kill -HUP $MAINPID
 ExecStop=/bin/kill -HUP $MAINPID
 KillMode=process
+Restart=always
+RestartSec=1
+Type=simple
 
 [Install]
 WantedBy=multi-user.target
