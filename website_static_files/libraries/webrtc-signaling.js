@@ -9,8 +9,8 @@ RTCIceCandidate = /*window.mozRTCIceCandidate ||*/ window.RTCIceCandidate;
 function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
     if ("WebSocket" in window) {
         console.log("Opening signalling web socket: " + url);
-        var ws = new WebSocket(url);
-        var pc;
+        var wSocket = new WebSocket(url);
+        var peerConnection;
         var iceCandidates = [];
         var trickle_ice = true;
         var hasRemoteDesc = false;
@@ -26,7 +26,7 @@ function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
         function addIceCandidates() {
             if (hasRemoteDesc) {
                 iceCandidates.forEach(function (candidate) {
-                    pc.addIceCandidate(candidate,
+                    peerConnection.addIceCandidate(candidate,
                         function () {
                             console.log("IceCandidate added: ", candidate);
                         },
@@ -39,7 +39,7 @@ function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
             }
         }
 
-        ws.onopen = function () {
+        wSocket.onopen = function () {
             /* First we create a peer connection */
             var config = { "iceServers": [{ "urls": ["stun:stun.l.google.com:19302"] }] };
             var options = {
@@ -49,11 +49,11 @@ function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
                     //{DtlsSrtpKeyAgreement: true}
                 ]
             };
-            pc = new RTCPeerConnection(config, options);
+            peerConnection = new RTCPeerConnection(config, options);
             iceCandidates = [];
             hasRemoteDesc = false;
 
-            pc.onicecandidate = function (event) {
+            peerConnection.onicecandidate = function (event) {
                 if (event.candidate && event.candidate.candidate) {
                     var candidate = {
                         sdpMLineIndex: event.candidate.sdpMLineIndex,
@@ -64,30 +64,30 @@ function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
                         what: "addIceCandidate",
                         data: JSON.stringify(candidate)
                     };
-                    ws.send(JSON.stringify(request));
+                    wSocket.send(JSON.stringify(request));
                 } else {
                     console.log("end of candidates.");
                 }
             };
 
-            if ('ontrack' in pc) {
-                pc.ontrack = function (event) {
+            if ('ontrack' in peerConnection) {
+                peerConnection.ontrack = function (event) {
                     console.log('pc.ontrack', event);       // <-- new line
                     if (event.track.kind === 'video') {     // <-- new line
                         onStream(event.streams[0]);
                     }                                       // <-- new line
                 };
             } else {  // onaddstream() deprecated
-                pc.onaddstream = function (event) {
+                peerConnection.onaddstream = function (event) {
                     onStream(event.stream);
                 };
             }
 
-            pc.onremovestream = function (event) {
+            peerConnection.onremovestream = function (event) {
                 console.log("the stream has been removed: do your stuff now");
             };
 
-            pc.ondatachannel = function (event) {
+            peerConnection.ondatachannel = function (event) {
                 console.log("a data channel is available: do your stuff with it");
                 onDataChannelOpen(event)
                 // For an example, see https://www.linux-projects.org/uv4l/tutorials/webrtc-data-channels/
@@ -100,16 +100,16 @@ function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
                     // If forced, the hardware codec depends on the arch.
                     // (e.g. it's H264 on the Raspberry Pi)
                     // Make sure the browser supports the codec too.
-                    force_hw_vcodec: true,
+                    force_hw_vcodec: false,
                     vformat: 30, /* 30=640x480, 30 fps */
                     trickle_ice: true
                 }
             };
             console.log("Sending signalling web socket message: ", request);
-            ws.send(JSON.stringify(request));
+            wSocket.send(JSON.stringify(request));
         };
 
-        ws.onmessage = function (evt) {
+        wSocket.onmessage = function (evt) {
             var msg = JSON.parse(evt.data);
             var what = msg.what;
             var data = msg.data;
@@ -121,28 +121,29 @@ function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
                     var mediaConstraints = {
                         optional: [],
                         mandatory: {
-                            OfferToReceiveAudio: true,
+                            OfferToReceiveAudio: false,
                             OfferToReceiveVideo: true
                         }
+
                     };
-                    pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(data)),
+                    peerConnection.setRemoteDescription(new RTCSessionDescription(JSON.parse(data)),
                         function onRemoteSdpSuccess() {
                             hasRemoteDesc = true;
                             addIceCandidates();
-                            pc.createAnswer(function (sessionDescription) {
-                                pc.setLocalDescription(sessionDescription);
+                            peerConnection.createAnswer(function (sessionDescription) {
+                                peerConnection.setLocalDescription(sessionDescription);
                                 var request = {
                                     what: "answer",
                                     data: JSON.stringify(sessionDescription)
                                 };
-                                ws.send(JSON.stringify(request));
+                                wSocket.send(JSON.stringify(request));
                             }, function (error) {
                                 onError("failed to create answer: " + error);
                             }, mediaConstraints);
                         },
                         function onRemoteSdpError(event) {
                             onError('failed to set the remote description: ' + event);
-                            ws.close();
+                            wSocket.close();
                         }
                     );
 
@@ -180,29 +181,29 @@ function signal(url, onStream, onError, onClose, onMessage, onDataChannelOpen) {
             }
         };
 
-        ws.onclose = function (event) {
+        wSocket.onclose = function (event) {
             console.warn('Signalling web socket closed with code: ' + event.code);
-            if (pc) {
-                pc.close();
-                pc = null;
-                ws = null;
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+                wSocket = null;
             }
             if (onClose) {
                 onClose();
             }
         };
 
-        ws.onerror = function (event) {
+        wSocket.onerror = function (event) {
             onError("An error has occurred on the websocket (make sure the address is correct)!");
         };
 
         this.hangup = function () {
-            if (ws) {
+            if (wSocket) {
                 var request = {
                     what: "hangup"
                 };
                 console.log("send message " + JSON.stringify(request));
-                ws.send(JSON.stringify(request));
+                wSocket.send(JSON.stringify(request));
             }
         };
 

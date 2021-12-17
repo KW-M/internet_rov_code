@@ -3,7 +3,9 @@ function makeJsonApiRequest(url) {
     return fetch(url).then((response) => {
         response.json()
     }).then((result) => {
-        if (result['error']) {
+        if (!result) {
+            throw Error("Got no response from rov")
+        } else if (result['error']) {
             throw Error(result['error'])
         }
     }).catch((e) => {

@@ -8,7 +8,7 @@ var videoElem = document.getElementById('video-livestream');
 
 function getDefaultSignallingServerURL() {
     // Let's get a default address for the signalling server
-    var signalling_server_hostname = location.hostname || "192.168.2.2";
+    var signalling_server_hostname = location.hostname || "192.168.0.88";
     var signalling_server_address = signalling_server_hostname;// ':' + (location.port || (location.protocol === 'https:' ? 443 : 80)
     var protocol = location.protocol === "https:" ? "wss:" : "ws:";
     address = protocol + '//' + signalling_server_address + '/stream/webrtc';
@@ -18,15 +18,15 @@ function getDefaultSignallingServerURL() {
 function setupVideoDisplay(stream) {
     // Wait until the video stream can play to say we're streaming
     videoElem.addEventListener('canplay', function canPlayHandler(e) {
+        videoElem.play();
         if (!isStreaming) {
             isStreaming = true;
         }
-        videoElem.removeEventListener('canplay', canPlayHandler);
+        // videoElem.removeEventListener('canplay', canPlayHandler);
     }, false);
 
     // set the video element to show the webrtc stream.
     videoElem.srcObject = stream;
-    videoElem.play();
 }
 
 var dataChannel;
