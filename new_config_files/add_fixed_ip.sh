@@ -7,14 +7,15 @@
 # - then add our fixed ip address to that interface (so it will hopefully have 2 ip addresses).
 # - if that interface does not have a dynamic ip, we ask dchp(cd) to assign a dynamic one in addition.
 #    - this ensures whatever network we're on is happy because it can give us some IP address of its choosing.
-ip monitor link | awk -W interactive -F ': ' '{if ($2) print $2;}' | while read iface; do
+ip monitor link | awk -W interactive -F ': ' '{if ($2) print $2;}' | while read -r iface; do
     echo "Adding fixed IP 10.00.99.88/24 to ${iface}."
-    sudo ip address add 10.00.99.88/24 dev ${iface}
+    sudo ip address add 10.00.99.88/24 dev "${iface}"
     # check if we don't have a dynamically (dchp) assigned IP address:
-    if ip addr list ${iface} | grep 'inet ' | grep 'dynamic'; then
+    if ip addr list "${iface}" | grep 'inet ' | grep 'dynamic'; then
+        true;
     else
         echo "No dynamic IP address assigned to ${iface}. Assigning one now."
         echo "rebinding dchp assinged ip on ${iface}."
-        sudo dhcpcd --rebind ${iface}
+        sudo dhcpcd --rebind "${iface}"
     fi
 done
