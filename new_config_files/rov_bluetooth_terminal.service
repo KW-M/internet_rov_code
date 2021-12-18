@@ -1,3 +1,5 @@
+# More Info about systemd service template files: https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files
+
 [Unit]
 Description=ROV Bluetooth Terminal Service.
 After=bluetooth.service

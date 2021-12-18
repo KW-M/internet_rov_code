@@ -10,13 +10,15 @@ def application(env, start_response):
 
     response = ""
     if path_info[1] == 'shutdown':
-        response = subprocess.Popen(["/bin/bash", "-c", "sleep 0;echo 'ocean'"])
+        response = subprocess.Popen(
+            ["/bin/bash", "-c", "sleep 0;echo 'ocean'"]).wait()
     elif path_info[1] == 'reboot':
-        response = subprocess.Popen(["/bin/bash", "-c", "sleep 2;echo 'ocean'"])
+        response = subprocess.Popen(
+            ["/bin/bash", "-c", "sleep 5;echo 'ocean2'"]).wait()
     elif path_info[1] == 'restart_services':
         pass
     elif path_info[1] == 'pull_github_code':
-        subprocess.Popen(["/bin/bash", "-c", "sleep 2;echo 'ocean'"])
+        subprocess.Popen(["/bin/bash", "-c", "sleep 2;echo 'ocean3'"])
     # response = '<h4>PATH_INFO</h4>' + '[' + ', '.join(path_info) + ']'
     # response += '<h4>QUERY_STRING</h4>' + '\n'.join([
     #     "%s: %s" % (key, '[' + ', '.join(value) + ']')
