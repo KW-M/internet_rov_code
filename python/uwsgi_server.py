@@ -3,29 +3,65 @@ import json
 import subprocess
 
 
+def generateResponse(statusCode, outputMessage, outputErrMessage):
+    responseDict = {
+        "status": 'ok' if statusCode == 0 else 'error',
+    }
+    if outputMessage:
+        responseDict['output'] = outputMessage
+    if outputErrMessage:
+        responseDict['error'] = outputErrMessage
+    return json.dumps(responseDict)
+
+
+def generateResponseFromSubprocess(subprocessResult):
+    # Generate response from subprocess
+    out, err = subprocessResult.communicate()
+    response = generateResponse(subprocessResult.returncode, out, err)
+    return response
+
+
 # https://yuluyan.com/posts/uwsgi-server/
 def application(env, start_response):
     path_info = env.get('PATH_INFO', '').strip('/').split('/')
     # query_string = parse_qs(env.get('QUERY_STRING', ''))
 
-    response = path_info[1]
     if path_info[1] == 'shutdown':
-        response = subprocess.Popen(["/bin/bash", "-c", "echo 'ocean'"],
-                                    text=True).wait()
+        subprocess.Popen(["/bin/bash", "-c", "sleep 3; sudo poweroff"],
+                         text=True)
+        response = generateResponse(0, 'Shutting Down...', None)
+
     elif path_info[1] == 'reboot':
-        response = subprocess.Popen(
-            ["/bin/bash", "-c", "sleep 5;echo 'ocean2'"], text=True).wait()
+        subprocess.Popen(["/bin/bash", "-c", "sleep 3; sudo reboot"],
+                         text=True)
+        response = generateResponse(0, 'Rebooting...', None)
+
     elif path_info[1] == 'restart_services':
-        pass
+        sp = subprocess.Popen(
+            ["/bin/bash", "-c", "/home/pi/scripts/restart_services.sh"],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE).wait()
+        response = generateResponseFromSubprocess(sp)
+
     elif path_info[1] == 'pull_github_code':
-        subprocess.Popen("sleep 5;echo 'ocean3'", shell=True, text=True).wait()
+        sp = subprocess.Popen(["/bin/bash", "-c", "sleep 3;sudo reboot"],
+                              text=True,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE).wait()
+        response = generateResponseFromSubprocess(sp)
+
     elif path_info[1] == 'status':
-        subprocess.Popen("echo 'ocean4'", shell=True, text=True).wait()
-    # response = '<h4>PATH_INFO</h4>' + '[' + ', '.join(path_info) + ']'
-    # response += '<h4>QUERY_STRING</h4>' + '\n'.join([
-    #     "%s: %s" % (key, '[' + ', '.join(value) + ']')
-    #     for key, value in query_string.items()
-    # ])
+        sp = subprocess.Popen(
+            ["/bin/bash", "-c", "/home/pi/scripts/restart_services.sh"],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE).wait()
+        response = generateResponseFromSubprocess(sp)
+
+    else:
+        response = generateResponse(1, None,
+                                    'Unknown command: ' + path_info[1])
 
     start_response('200 OK', [('Content-Type', 'text/html')])
     return str(response).encode('utf-8')
