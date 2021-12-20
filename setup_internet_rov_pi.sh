@@ -63,8 +63,6 @@ if [ ! -e "$HOME/webserver_ssl_cert/selfsigned.key" ] || [ ! -e "$HOME/webserver
 	sudo openssl req -x509 -nodes -newkey rsa:2048 -keyout "$HOME/webserver_ssl_cert/selfsigned.key" -out "$HOME/webserver_ssl_cert/selfsigned.cert" -sha256 -days 365 -subj "/C=US/ST=California/L=Monterey/O=SSROV/CN=internet_rov"
 fi
 
-
-
 # From: https://www.linux-projects.org/uv4l/installation/
 echo -e "$Cyan Adding uv4l repository key to apt... $Color_Off"
 curl https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo apt-key add -
