@@ -7,8 +7,7 @@ ExecStart=python3 /home/pi/internet_rov_code/python/main.py
 ExecReload=/bin/kill -HUP $MAINPID
 ExecStop=/bin/kill -HUP $MAINPID
 KillMode=process
-Restart=always
-RestartSec=1
+Restart=on-failure
 Type=simple
 
 [Install]

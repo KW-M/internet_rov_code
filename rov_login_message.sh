@@ -30,11 +30,6 @@ echo ""
 
 echo "Systemd Service Statuses:"
 #check if services are active, if not, show their status:
-if systemctl -q is-active rov_python_code.service; then
-    echo "rov_python_code.service is active"
-else
-    systemctl status --no-pager rov_python_code.service
-fi
 if systemctl -q is-active uv4l_raspicam.service; then
     echo "uv4l_raspicam.service is active"
 else
@@ -74,6 +69,16 @@ if systemctl -q is-active nginx.service; then
     echo "nginx.service is active"
 else
     systemctl status --no-pager nginx.service
+fi
+if systemctl -q is-active rov_python_code.service; then
+    echo "rov_python_code.service is active"
+else
+    systemctl status --no-pager rov_python_code.service
+fi
+if systemctl -q is-active rov_uwsgi_server.service; then
+    echo "rov_uwsgi_server.service is active"
+else
+    systemctl status --no-pager rov_uwsgi_server.service
 fi
 
 let upSeconds=$(/usr/bin/cut -d. -f1 /proc/uptime)

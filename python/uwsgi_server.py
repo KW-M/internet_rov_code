@@ -18,8 +18,9 @@ def application(env, start_response):
     elif path_info[1] == 'restart_services':
         pass
     elif path_info[1] == 'pull_github_code':
-        subprocess.Popen("sleep 2;echo 'ocean3'", shell=True,
-                         text=True).wait()
+        subprocess.Popen("sleep 5;echo 'ocean3'", shell=True, text=True).wait()
+    elif path_info[1] == 'status':
+        subprocess.Popen("echo 'ocean4'", shell=True, text=True).wait()
     # response = '<h4>PATH_INFO</h4>' + '[' + ', '.join(path_info) + ']'
     # response += '<h4>QUERY_STRING</h4>' + '\n'.join([
     #     "%s: %s" % (key, '[' + ', '.join(value) + ']')
