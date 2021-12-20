@@ -2,8 +2,9 @@
 <html>
 
 <head>
-    <title>SSROV Internet Rov Demo</title>
+    <title>ROV Cockpit</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="./libraries/toastify.min.css" />
     <link rel="stylesheet" type="text/css" href="./style.css" />
 </head>
@@ -26,27 +27,47 @@
     </div>
 
     <div class="top-right-corner">
-        <div class="power-menu dropdown-menu">
-            <button class="power-menu-btn icon-btn"></button>
-            <ul class="dropdown-menu-list">
-                <li onclick="shutdownROV()">Shutdown ROV</li>
-                <li onclick="rebootROV()">Reboot ROV</li>
-                <li onclick="restartROVServices()">Restart ROV Services</li>
-                <li onclick="disconnect()">Disconnect</li>
+        <button class="fullscreen-btn icon-btn transparent-btn" onclick="toggleFullscreen(event)"></button>
+        <button class="power-menu-btn icon-btn top-btn"></button>
+        <div class="power-menu dropdown-menu-list" tabindex="0">
+            <ul tabindex="0">
+                <li onclick="shutdownROV()" tabindex="0">Shutdown ROV</li>
+                <li onclick="rebootROV()" tabindex="0">Reboot ROV</li>
+                <li onclick="restartROVServices()" tabindex="0">Restart ROV Services</li>
+                <!-- <li onclick="disconnect()">Disconnect</li> -->
             </ul>
         </div>
-        <div class="debug-menu dropdown-menu">
-            <button class="debug-menu-btn icon-btn"></button>
-            <ul class="dropdown-menu-list">
-                <li><a href="/status/" target="_blank">System Status</a></li>
-                <li><a href="/netdata/" target="_blank">System Performance Dashboard</a></li>
-                <li><a href="/log/rov/" target="_blank">ROV Logs</a></li>
-                <li><a href="/log/nginx/" target="_blank">Server Logs</a></li>
-                <li><a href="/ngrok_dashboard/" target="_blank">Ngrok Dashboard</a></li>
-                <li><a href="/uv4l_dashboard/" target="_blank">Streaming Server Dashboard</a></li>
+        <button class="gamepad-menu-btn icon-btn middle-btn"></button>
+        <div class="dropdown-menu-list">
+            <ul>
+                <a href="/status/" target="_blank" tabindex="0">
+                    <li>System Status</li>
+                </a>
             </ul>
         </div>
-    </div>
+        <button class="debug-menu-btn icon-btn bottom-btn"></button>
+        <div class="dropdown-menu-list">
+            <ul>
+                <a href="/status/" target="_blank" tabindex="0">
+                    <li>System Status</li>
+                </a>
+                <a href="/netdata/" target="_blank" tabindex="0">
+                    <li>System Performance Dashboard</li>
+                </a>
+                <a href="/log/rov/" target="_blank" tabindex="0">
+                    <li>ROV Logs</li>
+                </a>
+                <a href="/log/nginx/" target="_blank" tabindex="0">
+                    <li>Server Logs</li>
+                </a>
+                <a href="/ngrok_dashboard/" target="_blank" tabindex="0">
+                    <li>Ngrok Dashboard</li>
+                </a>
+                <a href="/uv4l_dashboard/" target="_blank" tabindex="0">
+                    <li>Streaming Server Dashboard</li>
+                </a>
+            </ul>
+        </div>
     </div>
     <!-- the circle menu in the upper left -->
     <!-- <nav id="circle_corner_menu">
@@ -65,14 +86,19 @@
 
     <video id='video-livestream'></video>
     <div id="gamepad-container">
-        <!-- <p id="connect-notice">Plug in your game controller and press any button.</p> -->
-        <button id="gamepad-help-button">Gamepad Help</button>
+        <!-- Gamepad Connected/Disconned Feedback -->
         <p id="gamepad-connect-notice">Plug in your game controller and press any button or use the onscreen gamepads
         </p>
+        <p id="too-many-gamepads-notice" style="display: none;">Multiple gamepads connected, only one will be used.</p>
+        
+        <!-- Gamepad Help Area -->
         <h2 id="gamepad-help-text">Gamepad Help</h2>
+        <button id="gamepad-help-button">Gamepad Help</button>
+        <div id="gamepad-joystick-touch-area-left" class="gamepad-joystick-touch-area"></div>
+        <div id="gamepad-joystick-touch-area-right" class="gamepad-joystick-touch-area"></div>
         <!-- id="gamepad-help-viewer-area" -->
-        <div id="onscreen_gamepad_left" style="left:-35px" class="onscreen-gamepad">
-            <svg width="100%" height="100%" viewBox="0 0 120 232" version="1.1" xmlns="http://www.w3.org/2000/svg"
+        <div id="onscreen_gamepad_left" style="left:0px" class="onscreen-gamepad">
+            <svg width="100%" height="100%" viewBox="40 0 120 232" version="1.1" xmlns="http://www.w3.org/2000/svg"
                 xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"
                 style="fill-rule:evenodd;clip-rule:evenodd;">
                 <g id="left_side_of_controller">
@@ -80,8 +106,8 @@
                         <path
                             d="M113,141.637c-6,29.375 -13.537,33.424 -35.28,43.583c-35.355,16.519 -33.138,57.105 -56.59,45.51c-14.36,-7.1 -21.13,-19.23 -21.13,-38.4c0,-24.92 11.42,-65.99 32.4,-119.1c9.93,-25.18 27.69,-34.56 44.64,-34.56c7.93,0 15.69,2.05 22.4,5.5c14.564,7.511 19.239,69.665 13.56,97.467Z" />
                     </g>
-                    <g id="stick_button_left" transform="matrix(1,0,0,1,-14.73,1.25)">
-                        <g id="stick_button_left_highlight" class="gamepad-btn-highlight"
+                    <g id="stick_button_left" style="pointer-events: none;" transform="matrix(1,0,0,1,-14.73,1.25)">
+                        <g id="stick_button_left_highlight" class="gamepad-btn-highlight" style="pointer-events: none;"
                             transform="matrix(0.622551,0,0,0.622551,61.2384,139.288)">
                             <circle cx="55.5" cy="55.5" r="55.5" style="fill:#419bf3;" />
                         </g>
@@ -106,15 +132,16 @@
                             transform="matrix(2.52678e-17,-0.412655,0.672778,4.11958e-17,-25.9828,241.515)">
                             <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z" style="fill:#ff00bf;" />
                         </g>
-                        <g id="stick_left">
-                            <circle id="shadow11" cx="97.66" cy="175.71" r="17.12" style="fill-opacity:0.5;" />
-                            <g id="Group-6">
-                                <circle id="Oval-Copy" cx="95.79" cy="173.84" r="15.88"
-                                    style="fill:#fff;stroke:#000;stroke-width:2.49px;" />
-                                <circle id="Oval-Copy-2" cx="95.79" cy="173.84" r="12.14"
-                                    style="fill:#fff;stroke:#000;stroke-width:1.25px;" />
-                            </g>
-                        </g>
+                        <g transform="translate(95.79 173.84)">
+                            <!--container for stick so it's transform can start at zero zero -->
+                            <g id="stick_left">
+                                <circle id="shadow11" cx="1.86" cy="1.87" r="17.12" style="fill-opacity:0.5;" />
+                                <g id="Group-6">
+                                    <circle id="Oval-Copy" cx="0" cy="0" r="15.88" style="fill:#fff;stroke:#000;stroke-width:2.49px;" />
+                                    <circle id="Oval-Copy-2" cx="0" cy="0" r="12.14" style="fill:#fff;stroke:#000;stroke-width:1.25px;" />
+                                    </g>
+                                    </g>
+                                    </g>
                     </g>
                     <g id="select_button" transform="matrix(1,0,0,1,-28.46,12.0685)">
                         <g id="select_highlight" class="gamepad-btn-highlight" transform="matrix(1,0,0,1,28.46,-12.0685)">
@@ -215,9 +242,9 @@
                     </g>
                 </g>
             </svg>
-            </div>
-        <div id="onscreen_gamepad_right" style="right:-35px" class="onscreen-gamepad">
-            <svg width="100%" height="100%" viewBox="170 0 120 232" version="1.1" xmlns="http://www.w3.org/2000/svg"
+        </div>
+        <div id="onscreen_gamepad_right" style="right:0px" class="onscreen-gamepad">
+            <svg width="100%" height="100%" viewBox="170 0 80 232" version="1.1" xmlns="http://www.w3.org/2000/svg"
                 xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"
                 style="fill-rule:evenodd;clip-rule:evenodd;">
                 <g id="right_side_of_controller">
@@ -225,8 +252,8 @@
                         <path
                             d="M113,141.637c-6,29.375 -13.537,33.424 -35.28,43.583c-35.355,16.519 -33.138,57.105 -56.59,45.51c-14.36,-7.1 -21.13,-19.23 -21.13,-38.4c0,-24.92 11.42,-65.99 32.4,-119.1c9.93,-25.18 27.69,-34.56 44.64,-34.56c7.93,0 15.69,2.05 22.4,5.5c14.564,7.511 19.239,69.665 13.56,97.467Z" />
                     </g>
-                    <g id="stick_button_right" transform="matrix(1,0,0,1,16.08,0)">
-                        <g id="stick_button_right_highlight" class="gamepad-btn-highlight"
+                    <g id="stick_button_right" style="pointer-events: none;" transform="matrix(1,0,0,1,16.08,0)">
+                        <g id="stick_button_right_highlight" style="pointer-events: none;" class="gamepad-btn-highlight"
                             transform="matrix(0.622551,0,0,0.622551,74.2846,141.118)">
                             <circle cx="188.5" cy="55.5" r="55.5" style="fill:#419bf3;" />
                         </g>
@@ -251,13 +278,14 @@
                             transform="matrix(2.52678e-17,-0.412655,0.672778,4.11958e-17,69.8626,242.785)">
                             <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z" style="fill:#ff00bf;" />
                         </g>
-                        <g id="stick_right">
-                            <circle id="shadow13" cx="193.58" cy="176.95" r="17.12" style="fill-opacity:0.5;" />
-                            <g id="Group-61">
-                                <circle id="Oval-Copy1" cx="191.72" cy="175.08" r="15.88"
-                                    style="fill:#fff;stroke:#000;stroke-width:2.49px;" />
-                                <circle id="Oval-Copy-21" cx="191.72" cy="175.08" r="12.14"
-                                    style="fill:#fff;stroke:#000;stroke-width:1.25px;" />
+                        <g transform="translate(191.72 175.08)">
+                            <!--container for stick so it's transform can start at zero zero -->
+                            <g id="stick_right">
+                                <circle id="shadow13" cx="1.86" cy="1.87" r="17.12" style="fill-opacity:0.5;" />
+                                <g id="Group-61">
+                                    <circle id="Oval-Copy1" cx="0" cy="0" r="15.88" style="fill:#fff;stroke:#000;stroke-width:2.49px;" />
+                                    <circle id="Oval-Copy-21" cx="0" cy="0" r="12.14" style="fill:#fff;stroke:#000;stroke-width:1.25px;" />
+                                    </g>
                             </g>
                         </g>
                     </g>
@@ -365,7 +393,7 @@
                             style="fill:#fff;stroke:#000;stroke-width:2.17px;" />
                     </g>
                 </g>
-                </svg>
+            </svg>
 
         </div>
     </div>
@@ -374,13 +402,16 @@
     <!-- <script type="text/javascript" src="./libraries/joypad.min.js"></script> -->
     <script type="text/javascript" src="./libraries/webrtc-signaling.js"></script>
     <script type="text/javascript" src="./libraries/toastify-js.js"></script>
-    <script type="text/javascript" src="./libraries/gamepad-lib.js"></script>
+    <script type="text/javascript" src="./libraries/joymap.min.js"></script>
+    <!-- <script type="text/javascript" src="./libraries/gamepad-lib.js"></script> -->
 
     <script type="text/javascript" src="./util.js"></script>
     <script type="text/javascript" src="./ui.js"></script>
     <script type="text/javascript" src="./api.js"></script>
     <script type="text/javascript" src="./connection.js"></script>
-    <!-- <script type="text/javascript" src="./gamepad.js"></script> -->
+    <script type="text/javascript" src="./gamepad-emulation.js"></script>
+    <script type="text/javascript" src="./gamepad-ui.js"></script>
+    <script type="text/javascript" src="./gamepad.js"></script>
     <script type="text/javascript" src="./main.js"></script>
 
 </body>

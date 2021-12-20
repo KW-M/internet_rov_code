@@ -1,30 +1,121 @@
-/**
- * Copyright 2012 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @author mwichary@google.com (Marcin Wichary)
- * Modified by Christopher R.
- */
+
+const DEFUALT_BUTTON_ORDER = ["A",
+    "B",
+    "X",
+    "Y",
+    "L1",
+    "R1",
+    "L2",
+    "R2",
+    "select",
+    "start",
+    "stick_button_left",
+    "stick_button_right",
+    "dpadUp",
+    "dpadDown",
+    "dpadLeft",
+    "dpadRight"]
+
+function initGamepadSupport(gamepadUi, gamepadEmulator, gamepadUpdatedCallback) {
+
+    // As of 2012, it seems impossible to detect Gamepad API support
+    // in Firefox, hence we need to hardcode it in gamepadSupportAvailable.
+    navigator.getGamepads = navigator.getGamepads || navigator.webkitGamepads || navigator.webkitGetGamepads
+    var gamepadSupportAvailable = !!navigator.getGamepads || (navigator.userAgent.indexOf('Firefox/') != -1);
+    if (!gamepadSupportAvailable) {
+        // It doesn't seem Gamepad API is available ' show a message telling
+        // the visitor about it.
+        gamepadUi.showNotSupported();
+        return false;
+    }
+
+    const buttonHighlightElements = gamepadUi.getButtonHighlightElements();
+    gamepadEmulator.monkeyPatchGetGamepads()
+    gamepadEmulator.addEmulatedGamepad(0, gamepadEmulator.DEFAULT_BUTTON_COUNT, gamepadEmulator.DEFAULT_AXIS_COUNT)
+    gamepadEmulator.registerOnScreenGamepadButtonEvents(0, buttonHighlightElements);
+    gamepadEmulator.registerOnScreenGamepadAxisEvents(0, [{
+        xAxisGpadAxis: 0,
+        yAxisGpadAxis: 1,
+        elem: document.getElementById("gamepad-joystick-touch-area-left"),
+    }, {
+        xAxisGpadAxis: 2,
+        yAxisGpadAxis: 3,
+        elem: document.getElementById("gamepad-joystick-touch-area-right"),
+    }]);
+
+    // otherwise gamepad support is available. so initilize the joymap library
+    var lastGamepadCount = 0;
+    const joyMod = joymap.createQueryModule({ threshold: 0.2, clampThreshold: true });
+    const gpadMap = joymap.createJoymap({
+        autoConnect: true,
+        // do stuff immediately after each Gamepad Poll (should/will be called about 60 times per second)
+        onPoll: function gamepadUpdate() {
+
+            // check if a gamepad was just connected or disconnected:
+            const gamepadCount = gpadMap.getGamepads().length;
+            if (gamepadCount != lastGamepadCount) {
+                if (gamepadCount == 0) {
+                    gamepadUi.showNoGamepads();
+                    lastGamepadCount = 0;
+                    return;
+                } else if (gamepadCount >= 1) {
+                    gamepadUi.showGamepadsConnected(gamepadCount);
+                    console.log(joyMod.getAllButtons(), joyMod.getAllSticks(), joyMod.getAllMappers())
+                }
+                lastGamepadCount = gamepadCount;
+            }
+
+            // console.log("g:", gpadMap.getGamepads())
+            var buttonStates = joyMod.getAllButtons();
+            if (buttonStates["A"]) {
+                buttonStates = DEFUALT_BUTTON_ORDER.map((key) => buttonStates[key])
+                gamepadUi.handleGamepadVisualFeedbackButtonEvents(buttonStates, buttonHighlightElements, "touched", "pressed");
+            }
+
+            var axisStates = joyMod.getAllSticks();
+            if (axisStates["L"] && axisStates["R"]) {
+                axisStates = [
+                    {
+                        thumbStickElement: document.getElementById("stick_left"),
+                        axisRange: 14,
+                        xValue: axisStates.L.value[0],
+                        yValue: axisStates.L.value[1],
+                    },
+                    {
+                        thumbStickElement: document.getElementById("stick_right"),
+                        axisRange: 14,
+                        xValue: axisStates.R.value[0],
+                        yValue: axisStates.R.value[1],
+                    }
+                ]
+
+                gamepadUi.handleGamepadVisualFeedbackAxisEvents(axisStates, "axis-hovered", "axis-moved");
+            }
+
+            gamepadUpdatedCallback(joyMod.getAllButtons(), joyMod.getAllSticks(), joyMod.getAllMappers())
+        }
+    });
+    gpadMap.addModule(joyMod);
+    gpadMap.start();
+}
+
+    // // Initial joymap setup
+    // const joymap = createJoymap({
+    //     onPoll() {
+    //         const unusedIds = joymap.getUnusedPadIds();
+
+    //         if (unusedIds.length > 0) {
+    //             for (let idIdx = 0; idIdx < unusedIds.length; idIdx++) {
+    //                 const module = joymap.createQueryModule({ threshold: 0.2, clampThreshold: true });
+    //                 module.setPadId(unusedIds[idIdx]);
+    //             }
+    //         }
+
+
+    // joymap.start();
+
 
 var gamepadSupport = {
-    // A number of typical buttons recognized by Gamepad API and mapped to
-    // standard controls. Any extraneous buttons will have larger indexes.
-    TYPICAL_BUTTON_COUNT: 18,
-
-    // A number of typical axes recognized by Gamepad API and mapped to
-    // standard controls. Any extraneous buttons will have larger indexes.
-    TYPICAL_AXIS_COUNT: 4,
 
     // Whether we're requestAnimationFrameing like it's 1999.
     ticking: false,
@@ -53,12 +144,9 @@ var gamepadSupport = {
     init: function (gamepadUi) {
         this.gamepadUi = gamepadUi;
 
-        // As of 2012, it seems impossible to detect Gamepad API support
-        // in Firefox, hence we need to hardcode it in gamepadSupportAvailable.
-        // (The preceding two clauses are for Chrome.)
-        navigator.getGamepads = navigator.getGamepads || navigator.webkitGamepads || navigator.webkitGetGamepads;
-        var gamepadSupportAvailable = navigator.getGamepads || (navigator.userAgent.indexOf('Firefox/') != -1);
-
+            // As of 2012, it seems impossible to detect Gamepad API support
+            // in Firefox, hence we need to hardcode it in gamepadSupportAvailable.
+        var gamepadSupportAvailable = !!(navigator.getGamepads || navigator.webkitGamepads || navigator.webkitGetGamepads || (navigator.userAgent.indexOf('Firefox/') != -1));
         if (!gamepadSupportAvailable) {
             // It doesn't seem Gamepad API is available ' show a message telling
             // the visitor about it.
@@ -97,19 +185,6 @@ var gamepadSupport = {
      * React to a gamepad being unplugged.
      */
     onGamepadDisconnect: function (event) {
-        // Remove the gamepad from the list of gamepads to monitor.
-        for (var i in this.gamepads) {
-            if (this.gamepads[i].index == event.gamepad.index) {
-                this.gamepads.splice(i, 1);
-                break;
-            }
-        }
-
-        // If no gamepads are left, stop the polling loop.
-        if (this.gamepads.length == 0) {
-            this.stopPolling();
-        }
-
         // Ask the this.gamepadUi to update the screen to remove the gamepad.
         this.gamepadUi.updateGamepads(this.gamepads);
     },
@@ -207,15 +282,15 @@ var gamepadSupport = {
             this.gamepads = [];
             this.gamepadsRaw = [];
 
-            //var rawFixedGamepads = {};
-            //for(var i = 0, ii = 0; i <= rawGamepads.length; i++){
-            //    if (typeof rawGamepads[i] == "object" && rawGamepads[i].id.indexOf("(Vendor: b58e Product: 9e84)") !== -1) continue;
-            //    rawFixedGamepads[ii] = rawGamepads[i];
-            //    rawFixedGamepads.length = i;
-            //    ii++;
-            //}
-            //console.log(rawFixedGamepads);
-            //rawGamepads = rawFixedGamepads;
+                //var rawFixedGamepads = {};
+                //for(var i = 0, ii = 0; i <= rawGamepads.length; i++){
+                //    if (typeof rawGamepads[i] == "object" && rawGamepads[i].id.indexOf("(Vendor: b58e Product: 9e84)") !== -1) continue;
+                //    rawFixedGamepads[ii] = rawGamepads[i];
+                //    rawFixedGamepads.length = i;
+                //    ii++;
+                //}
+                //console.log(rawFixedGamepads);
+                //rawGamepads = rawFixedGamepads;
 
 
             // We only refresh the display when we detect some gamepads are new
@@ -494,8 +569,8 @@ var gamepadSupport = {
         // Update extraneous buttons.
         var extraButtonId = this.TYPICAL_BUTTON_COUNT;
         while (typeof gamepad.buttons[extraButtonId] != 'undefined') {
-            //this.gamepadUi.queueButton(gamepad.buttons[extraButtonId], gamepadId,
-            //    'extra-button-' + extraButtonId);
+                //this.gamepadUi.queueButton(gamepad.buttons[extraButtonId], gamepadId,
+                //    'extra-button-' + extraButtonId);
 
             extraButtonId++;
         }
@@ -503,8 +578,8 @@ var gamepadSupport = {
         // Update extraneous axes.
         var extraAxisId = this.TYPICAL_AXIS_COUNT;
         while (typeof gamepad.axes[extraAxisId] != 'undefined') {
-            //this.gamepadUi.queueAxis(gamepad.axes[extraAxisId], gamepadId,
-            //    'extra-axis-' + extraAxisId);
+                //this.gamepadUi.queueAxis(gamepad.axes[extraAxisId], gamepadId,
+                //    'extra-axis-' + extraAxisId);
 
             extraAxisId++;
         }

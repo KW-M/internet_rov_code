@@ -7,9 +7,20 @@ body {
   margin: 0;
   padding: 0;
 
-  background: linear-gradient(#00effb,#1537a6);
+  user-select: none;
 
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(#00effb, #1537a6);
+
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+  touch-action: none;
+}
+
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .center {
@@ -26,6 +37,7 @@ body {
 }
 .top-left-corner {
   position: absolute;
+  z-index: 4;
   top: 0;
   left: 0;
 
@@ -33,8 +45,11 @@ body {
 }
 .top-right-corner {
   position: absolute;
+  z-index: 5;
   top: 0;
   right: 0;
+
+  padding: 8px;
 }
 
 #connect_btn,
@@ -78,11 +93,11 @@ button {
 
 button:hover,
 button:focus {
-  border: 3px solid rgb(0, 153, 255);
+  border: 3px solid black;
 }
 
 button:active {
-  border: 3px solid rgb(0, 84, 139);
+  border: 3px solid rgb(0, 153, 255)
 }
 /*
 .gamepad-debug-area {
@@ -109,8 +124,10 @@ button:active {
 
 /* Drop Down Menus */
 
-.icon-btn{
+.icon-btn {
   position: relative;
+
+  display: block;
 
   width: 52px;
   height: 52px;
@@ -118,9 +135,10 @@ button:active {
   padding: 0;
 
   cursor: pointer;
+  pointer-events: all;
 
   border: none;
-  border-radius: 0 0 100px 100px;
+  border-bottom: 2px solid grey;
   background: none;
   background-color: #fff;
   background-repeat: no-repeat;
@@ -128,52 +146,103 @@ button:active {
   background-size: 40px;
 }
 
-.power-menu-btn{
-  background-image: url('./ui-elements/settings_power_black_24dp.svg');
+.transparent-btn {
+  border: none;
+  background-color: transparent;
+  box-shadow: none;
 }
 
-.debug-menu-btn{
-  background-image: url('./ui-elements/insights_black_24dp.svg');
+.icon-btn.top-btn {
+  border-radius: 10px 10px 0 0;
 }
 
-.dropdown-menu {
-  position: relative;
-  z-index: 10;
-
-  display: flex;
-  overflow: visible;
-  align-items: end;
-  flex-direction: column;
-
-  margin: 10px;
+.icon-btn.middle-btn {
+  border-radius: 0;
 }
 
-.dropdown-menu:focus-within .dropdown-menu-list, .dropdown-menu:hover .dropdown-menu-list {
- display: flex;
+.icon-btn.bottom-btn {
+  border-bottom: none;
+  border-radius: 0 0 10px 10px;
+}
+
+.power-menu-btn {
+  background-image: url("./ui-elements/settings_power_black_24dp.svg");
+}
+
+.gamepad-menu-btn {
+  background-image: url("./ui-elements/gamepad_black_24dp.svg");
+}
+
+.debug-menu-btn {
+  background-image: url("./ui-elements/insights_black_24dp.svg");
+}
+
+.fullscreen-btn {
+  margin-bottom: 10px;
+
+  border-radius: 100px;
+  background-image: url("./ui-elements/open_in_full_black_24dp.svg");
+}
+
+.fullscreen-btn.fullscreen-open {
+  background-image: url("./ui-elements/close_fullscreen_black_24dp.svg");
 }
 
 
+.dropdown-menu-list:focus-within,
+.dropdown-menu-list:hover {
+  visibility: visible;
+}
+
+.icon-btn:focus + .dropdown-menu-list,
+.icon-btn:hover + .dropdown-menu-list {
+  visibility: visible;
+}
 
 .dropdown-menu-list {
-  right: 0;
-  /* UNCOMMENT THIS AFTER STYLING. */
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  right: 60px;
 
-  display: none;
+  visibility: hidden;
+  overflow: hidden;
+
+  min-width: 200px;
+  padding: 4px;
+
+  pointer-events: all;
+}
+
+.dropdown-menu-list ul {
+  display: flex;
+overflow: hidden;
   flex-direction: column;
 
-  min-width: 100px;
-  padding: 12px;
+  padding: 0;
 
   list-style-type: none;
 
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
-.dropdown-menu-list li:not(:first-child) {
-  margin-top: 0.5rem;
+.dropdown-menu-list li {
+  padding: 12px;
+
+  cursor: pointer;
+
+  color: black;
+  border-bottom: 2px solid grey;
+  background-color: rgb(255, 255, 255);
+
+  font-weight: bold;
+}
+
+.dropdown-menu-list li:hover {
+  color: white;
+  border-bottom: 2px solid rgb(0, 153, 255);
+  background-color: rgb(0, 52, 87);
 }
 
 /* CIRCULAR CORNER MENU WITH ICONS */
@@ -243,7 +312,8 @@ button:active {
 
 /* ********* Gamepads / Gamepad Help ********* */
 
-#gamepad-connect-notice {
+#gamepad-connect-notice,
+#too-many-gamepads-notice {
   position: absolute;
   z-index: 9;
   bottom: 53px;
@@ -264,6 +334,7 @@ button:active {
 
 #gamepad-container {
   position: absolute;
+  z-index: 3;
   top: 0;
   right: 0;
   bottom: 0;
@@ -306,7 +377,7 @@ button:active {
   position: absolute;
   bottom: -15px;
 
-  height: 60vw;
+  height: 60vh;
   min-height: 9cm;
   max-height: 14cm;
 }
@@ -350,13 +421,57 @@ button:active {
 }
 
 .gamepad-btn-highlight {
-    visibility: hidden;
+  visibility: hidden;
 
-    pointer-events:all;
+  pointer-events: all;
+}
+
+.gamepad-btn-highlight.touched {
+  visibility: visible;
+
+  opacity: 0.5;
+}
+
+.gamepad-btn-highlight.pressed {
+  visibility: visible;
+
+  opacity: 1 !important;
 }
 
 .gamepad-arrow-highlight {
-    visibility: hidden;
+  visibility: hidden;
 
-    pointer-events:none;
+  pointer-events: none;
+}
+
+.gamepad-arrow-highlight.touched {
+  visibility: visible;
+}
+
+.gamepad-arrow-highlight.axis-moved {
+  visibility: visible;
+
+  opacity: 0.5 !important;
+}
+
+.gamepad-joystick-touch-area {
+  position: fixed;
+  bottom: 0;
+
+  width: 50%;
+  height: 10cm;
+
+  pointer-events: all;
+
+  background-color: #0c61d860;
+
+  touch-action: none;
+}
+
+.gamepad-joystick-touch-area#gamepad-joystick-touch-area-left {
+  left: 0;
+}
+
+.gamepad-joystick-touch-area#gamepad-joystick-touch-area-right {
+  right: 0;
 }

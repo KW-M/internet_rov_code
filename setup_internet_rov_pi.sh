@@ -193,6 +193,13 @@ echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
 sudo systemctl enable add_fixed_ip.service
 
 # ----------------------------------------------------------------------------------------------------------------------
+#from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
+echo "installing arducam camera driver"
+wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
+chmod +x install_pivariety_pkgs.sh
+./install_pivariety_pkgs.sh -p kernel_driver
+
+# ----------------------------------------------------------------------------------------------------------------------
 # from: https://learn.netdata.cloud/docs/agent/packaging/installer/methods/kickstart
  echo -e "$Cyan Installing Netdata for  $Color_Off"
  bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive --disable-cloud --disable-telemetry
