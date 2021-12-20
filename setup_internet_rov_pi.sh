@@ -54,11 +54,16 @@ sudo raspi-config nonint do_memory_split 256
 
 # From: https://raspberrypi.stackexchange.com/a/66939
 # check if ssl key or certificate files don't exists, if so, generate them.
-# if [ ! -e "$HOME/webserver_ssl_cert/selfsign.key" ] || [ ! -e "$HOME/webserver_ssl_cert/selfsign.crt" ]; then
-# 	echo -e "$Green Creating self-signed ssl certificate for web server... you can type . for all of these $Color_Off"
-# 	mkdir "$HOME/webserver_ssl_cert"
-# 	openssl genrsa -out "$HOME/webserver_ssl_cert/selfsign.key" 2048 && openssl req -new -x509 -key "$HOME/webserver_ssl_cert/selfsign.key" -out ~/webserver_ssl_cert/selfsign.crt -sha256
-# fi
+# This allows use to use https on the webserver
+if [ ! -e "$HOME/webserver_ssl_cert/selfsigned.key" ] || [ ! -e "$HOME/webserver_ssl_cert/selfsigned.cert" ]; then
+	echo -e "$Green Creating self-signed ssl certificate for web server... you can type . for all of these $Color_Off"
+	mkdir -p "$HOME/webserver_ssl_cert"
+	# openssl genrsa -out "$HOME/webserver_ssl_cert/selfsign.key" 2048 && openssl req -new -x509 -key "$HOME/webserver_ssl_cert/selfsign.key" -out ~/webserver_ssl_cert/selfsign.crt -sha256
+	# -subj from https://stackoverflow.com/questions/16842768/passing-csr-distinguished-name-fields-as-parameters-to-openssl
+	sudo openssl req -x509 -nodes -newkey rsa:2048 -keyout "$HOME/webserver_ssl_cert/selfsigned.key" -out "$HOME/webserver_ssl_cert/selfsigned.cert" -sha256 -days 365 -subj "/C=US/ST=California/L=Monterey/O=SSROV/CN=internet_rov"
+fi
+
+
 
 # From: https://www.linux-projects.org/uv4l/installation/
 echo -e "$Cyan Adding uv4l repository key to apt... $Color_Off"
