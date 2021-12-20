@@ -16,22 +16,33 @@ function makeJsonApiRequest(url) {
 }
 
 function shutdownROV() {
-    makeJsonApiRequest("/api/shutdown").then((result) => {
+    makeJsonApiRequest("/uwsgi/shutdown").then((result) => {
+        console.log(result)
         showToastMessage("Please wait 20 seconds before unplugging")
         showToastMessage("ROV Shutting Down...")
     })
 }
 
 function rebootROV() {
-    makeJsonApiRequest("/api/reboot").then((result) => {
+    makeJsonApiRequest("/uwsgi/reboot").then((result) => {
+        console.log(result)
         showToastMessage("Press Connect again in ~30 seconds")
         showToastMessage("ROV Rebooting...")
     })
 }
 
 function restartROVServices() {
-    makeJsonApiRequest("/api/restart_services").then((result) => {
+    makeJsonApiRequest("/uwsgi/restart_services").then((result) => {
+        console.log(result)
         showToastMessage("Press Connect button again in about 8 seconds")
         showToastMessage("ROV Restarting Services...")
+    })
+}
+
+function rePullROVGithubCode() {
+    makeJsonApiRequest("/uwsgi/pull_github_code").then((result) => {
+        console.log(result)
+        showToastMessage("Make sure to click restart ROV services in about 30 seconds")
+        showToastMessage("Pulling latest code changes from main branch...")
     })
 }

@@ -8,7 +8,7 @@ def application(env, start_response):
     path_info = env.get('PATH_INFO', '').strip('/').split('/')
     # query_string = parse_qs(env.get('QUERY_STRING', ''))
 
-    response = ""
+    response = "No Response"
     if path_info[1] == 'shutdown':
         response = subprocess.Popen(
             ["/bin/bash", "-c", "sleep 0;echo 'ocean'"]).wait()
