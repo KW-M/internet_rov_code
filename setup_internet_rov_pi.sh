@@ -28,6 +28,7 @@ if ! locale -a | grep -i -q 'en_US.utf8' || locale -a | grep -i -q 'en_US.utf-8'
 	sudo perl -pi -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
 	sudo locale-gen en_US.UTF-8
 fi
+sudo dpkg-reconfigure locales
 sudo localectl set-locale en_US.UTF-8
 sudo update-locale LANGUAGE=en_US.UTF-8
 sudo update-locale LANG=en_US.UTF-8
