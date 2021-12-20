@@ -37,26 +37,32 @@ def application(env, start_response):
         response = generateResponse(0, 'Rebooting...', None)
 
     elif path_info[1] == 'restart_services':
-        sp = subprocess.Popen(
-            ["/bin/bash", "-c", "/home/pi/scripts/restart_services.sh"],
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE).wait()
+        sp = subprocess.Popen([
+            "/bin/bash", "-c",
+            "/home/pi/intenet_rov_code/update_config_files.sh"
+        ],
+                              text=True,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE).wait()
         response = generateResponseFromSubprocess(sp)
 
     elif path_info[1] == 'pull_github_code':
-        sp = subprocess.Popen(["/bin/bash", "-c", "sleep 3;sudo reboot"],
+        sp = subprocess.Popen([
+            "/bin/bash", "-c",
+            "cd /home/pi/internet_rov_code/; git add .; git stash; git pull"
+        ],
                               text=True,
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE).wait()
         response = generateResponseFromSubprocess(sp)
 
     elif path_info[1] == 'status':
-        sp = subprocess.Popen(
-            ["/bin/bash", "-c", "/home/pi/scripts/restart_services.sh"],
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE).wait()
+        sp = subprocess.Popen([
+            "/bin/bash", "-c", "/home/pi/intenet_rov_code/rov_login_message.sh"
+        ],
+                              text=True,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE).wait()
         response = generateResponseFromSubprocess(sp)
 
     else:
