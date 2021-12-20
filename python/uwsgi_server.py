@@ -38,8 +38,8 @@ def application(env, start_response):
 
     elif path_info[1] == 'restart_services':
         sp = subprocess.Popen([
-            "/bin/bash", "-c",
-            "/home/pi/intenet_rov_code/update_config_files.sh"
+            "/bin/bash",
+            "-c '/home/pi/intenet_rov_code/update_config_files.sh'"
         ],
                               text=True,
                               stdout=subprocess.PIPE,
