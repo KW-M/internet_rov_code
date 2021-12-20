@@ -166,10 +166,11 @@ const gamepadEmulator = {
     },
 
     monkeyPatchGetGamepads: function () {
-        const getNativeGamepads = navigator.getGamepads.bind(navigator);
+        var getNativeGamepads = navigator.getGamepads
+        if (getNativeGamepads) getNativeGamepads = getNativeGamepads.bind(navigator);
         var self = this;
         navigator.getGamepads = function () {
-            var nativeGamepads = getNativeGamepads();
+            var nativeGamepads = getNativeGamepads != undefined ? getNativeGamepads() : [];
             nativeGamepads = Array.from(nativeGamepads)
             for (var i = 0; i < self.emulatedGamepads.length; i++) {
                 var n_gpad = nativeGamepads[i];
