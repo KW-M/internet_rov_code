@@ -84,8 +84,9 @@
             <img src="./ui-elements/down_arrow.svg">
         </a>
     </nav> -->
-
-    <video id='video-livestream'></video>
+    <div class="livestream-container">
+        <video id='video-livestream'></video>
+    </div>
     <div id="gamepad-container">
         <!-- Gamepad Connected/Disconned Feedback -->
         <p id="gamepad-connect-notice">Plug in your game controller and press any button or use the onscreen gamepads
@@ -398,6 +399,36 @@
 
         </div>
     </div>
+
+    <script>
+        if (location.protocol != 'https:') {
+            var sslCertTrusted = false;
+
+            var sslTestScript = document.createElement('script');
+            sslTestScript.src = 'https://' + window.location.host + '/sslTest.js';
+
+            sslTestScript.addEventListener('load', () => {
+                console.log(sslCertTrusted)
+                if (!sslCertTrusted) {
+                    if (confirm(`To use game controllers, you'll need to have a secure connection (https://).
+            Your browser will say a warning message about insecure connection because of a self-signed certificate.
+            In firefox: Click advanced, then 'accept risk' or 'proceede anyway'.
+            In Chrome: type 'thisisunsafe' on the warning page (without quotes))`)) {
+                        window.location('http://example.com/cert_install_instructions/');
+                    }
+                }
+                else if (confirm("Game controller support may only work if this page is accessed over an ssl (aka: https://) secure connection. Switch to secure connection?")) {
+                    // redirect to https:// (ie secure ssl)
+                    location.protocol = 'https:'
+                }
+            });
+            try {
+                document.body.appendChild(sslTestScript);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+    </script>
 
     <!-- load scripts at end so the page is fully loaded beforehand -->
     <!-- <script type="text/javascript" src="./libraries/joypad.min.js"></script> -->

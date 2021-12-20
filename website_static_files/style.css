@@ -97,7 +97,7 @@ button:focus {
 }
 
 button:active {
-  border: 3px solid rgb(0, 153, 255)
+  border: 3px solid rgb(0, 153, 255);
 }
 /*
 .gamepad-debug-area {
@@ -188,7 +188,6 @@ button:active {
   background-image: url("./ui-elements/close_fullscreen_black_24dp.svg");
 }
 
-
 .dropdown-menu-list:focus-within,
 .dropdown-menu-list:hover {
   visibility: visible;
@@ -216,7 +215,7 @@ button:active {
 
 .dropdown-menu-list ul {
   display: flex;
-overflow: hidden;
+  overflow: hidden;
   flex-direction: column;
 
   padding: 0;
@@ -412,12 +411,29 @@ overflow: hidden;
   transform: translateX(120%);
 }
 
-#video-livestream {
+.livestream-container {
   position: relative;
 
   display: block;
 
   margin: auto;
+
+  cursor: zoom-in;
+}
+.livestream-container:-webkit-full-screen {
+  cursor: zoom-out;
+}
+.livestream-container:-moz-full-screen {
+  cursor: zoom-out;
+}
+.livestream-container:-ms-fullscreen {
+  cursor: zoom-out;
+}
+.livestream-container:fullscreen {
+  cursor: zoom-out;
+}
+#video-livestream {
+  height: 100%;
 }
 
 .gamepad-btn-highlight {

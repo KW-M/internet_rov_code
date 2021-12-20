@@ -116,13 +116,3 @@ function handleGamepadInput(buttonStates, axisState) {
 //     // }
 
 // })
-if (location.protocol != 'https:') {
-    if (confirm("Game controller support may only work if this page is accessed over an ssl (aka: https://) secure connection. Switch to ssl connection?")) {
-        if (confirm(`
-Your browser will say a warning message about insecure connection because of a self-signed certificate.
-In firefox: Click advanced, then 'accept risk' or 'proceede anyway'.
-In Chrome: type 'thisisunsafe' on the warning page (without quotes))`)) {
-            location.protocol = 'https:'
-        }
-    }
-}
