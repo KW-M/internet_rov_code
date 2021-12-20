@@ -6,7 +6,9 @@ Description=UV4L Raspicam
 # To use the raspicam uv4l diver, uncomment this ExecStart line:
 # ExecStart=/usr/bin/uv4l -f -k --sched-fifo --mem-lock --config-file=/etc/uv4l/uv4l-raspicam.conf --driver raspicam --driver-config-file=/etc/uv4l/uv4l-raspicam.conf
 # To use raw video0 device, uncomment this ExecStart line:
-ExecStart=/usr/bin/uv4l -f -k --sched-fifo --mem-lock --config-file=/etc/uv4l/uv4l-raspicam.conf --external-driver=yes --device-name=video0 --auto-video_nr yes
+# ExecStart=/usr/bin/uv4l -f -k --sched-fifo --mem-lock --config-file=/etc/uv4l/uv4l-raspicam.conf --external-driver=yes --device-name=video0 --auto-video_nr yes
+# To use display output, uncomment this ExecStart line:
+ExecStart=/usr/bin/uv4l -f -k --sched-fifo --mem-lock --config-file=/etc/uv4l/uv4l-raspicam.conf  –driver raspidisp --driver-config-file=/etc/uv4l/uv4l-raspicam.conf
 
 Type=simple
 Restart=on-abnormal
