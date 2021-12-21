@@ -7,11 +7,13 @@ def generateResponse(statusCode, outputMessage, outputErrMessage):
     responseDict = {
         "status": 'ok' if statusCode == 0 else 'error',
     }
-    if outputMessage:
-        responseDict['output'] = outputMessage
     if outputErrMessage:
         responseDict['error'] = outputErrMessage
-    return json.dumps(responseDict)
+    response = json.dumps(responseDict)
+    if outputMessage:
+        response += "\n" + outputMessage
+
+    return response
 
 
 def generateResponseFromSubprocess(sp):
@@ -69,5 +71,5 @@ def application(env, start_response):
         response = generateResponse(1, None,
                                     'Unknown command: ' + path_info[1])
 
-    start_response('200 OK', [('Content-Type', 'text/html')])
+    start_response('200 OK', [('Content-Type', 'application/json')])
     return str(response).encode('utf-8')
