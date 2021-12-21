@@ -71,5 +71,5 @@ def application(env, start_response):
         response = generateResponse(1, None,
                                     'Unknown command: ' + path_info[1])
 
-    start_response('200 OK', [('Content-Type', 'application/json')])
+    start_response('200 OK', [('Content-Type', 'text/plain')])
     return str(response).encode('utf-8')
