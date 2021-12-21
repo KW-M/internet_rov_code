@@ -37,19 +37,17 @@ def application(env, start_response):
         response = generateResponse(0, 'Rebooting...', None)
 
     elif path_info[1] == 'restart_services':
-        sp = subprocess.Popen([
-            "/bin/bash",
-            "-c '/home/pi/intenet_rov_code/update_config_files.sh'"
-        ],
-                              text=True,
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
+        sp = subprocess.Popen(
+            ["/bin/bash", "/home/pi/internet_rov_code/update_config_files.sh"],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
         out, err = sp.communicate()
         response = generateResponse(sp.returncode, out, err)
 
     elif path_info[1] == 'pull_github_code':
         sp = subprocess.Popen([
-            "/bin/bash", "-c",
+            "/bin/bash",
             "cd /home/pi/internet_rov_code/; git add .; git stash; git pull"
         ],
                               text=True,
@@ -59,12 +57,11 @@ def application(env, start_response):
         response = generateResponse(sp.returncode, out, err)
 
     elif path_info[1] == 'status':
-        sp = subprocess.Popen([
-            "/bin/bash", "-c", "/home/pi/intenet_rov_code/rov_login_message.sh"
-        ],
-                              text=True,
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
+        sp = subprocess.Popen(
+            ["/bin/bash", "/home/pi/internet_rov_code/rov_login_message.sh"],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
         out, err = sp.communicate()
         response = generateResponse(sp.returncode, out, err)
 
