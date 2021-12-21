@@ -14,10 +14,10 @@ def generateResponse(statusCode, outputMessage, outputErrMessage):
     return json.dumps(responseDict)
 
 
-def generateResponseFromSubprocess(subprocessResult):
+def generateResponseFromSubprocess(sp):
     # Generate response from subprocess
-    out, err = subprocessResult.communicate()
-    response = generateResponse(subprocessResult.returncode, out, err)
+    out, err = sp.communicate()
+    response = generateResponse(sp.returncode, out, err)
     return response
 
 
@@ -43,8 +43,9 @@ def application(env, start_response):
         ],
                               text=True,
                               stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE).wait()
-        response = generateResponseFromSubprocess(sp)
+                              stderr=subprocess.PIPE)
+        out, err = sp.communicate()
+        response = generateResponse(sp.returncode, out, err)
 
     elif path_info[1] == 'pull_github_code':
         sp = subprocess.Popen([
@@ -53,8 +54,9 @@ def application(env, start_response):
         ],
                               text=True,
                               stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE).wait()
-        response = generateResponseFromSubprocess(sp)
+                              stderr=subprocess.PIPE)
+        out, err = sp.communicate()
+        response = generateResponse(sp.returncode, out, err)
 
     elif path_info[1] == 'status':
         sp = subprocess.Popen([
@@ -62,8 +64,9 @@ def application(env, start_response):
         ],
                               text=True,
                               stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE).wait()
-        response = generateResponseFromSubprocess(sp)
+                              stderr=subprocess.PIPE)
+        out, err = sp.communicate()
+        response = generateResponse(sp.returncode, out, err)
 
     else:
         response = generateResponse(1, None,
