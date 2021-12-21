@@ -1,7 +1,7 @@
 // this
 function makeJsonApiRequest(url) {
     return fetch(url).then((response) => {
-        response.json()
+        return json.parse(response.text().split('\n')[0])
     }).then((result) => {
         if (!result) {
             throw Error("Got no response from rov")
@@ -10,39 +10,51 @@ function makeJsonApiRequest(url) {
         }
     }).catch((e) => {
         console.error(e)
-        showToastMessage("Error: " + e.toString())
+        showToastMessage("Click this message to view full error...", () => {
+            window.open().document.write(e.toString())
+        })
+        showToastMessage("Error: " + e.toString().substring(0, 60))
         throw Error(e);
     })
 }
 
 function shutdownROV() {
+    showToastMessage("Sending Shutdown Request...")
     makeJsonApiRequest("/uwsgi/shutdown").then((result) => {
         console.log(result)
         showToastMessage("Please wait 20 seconds before unplugging")
-        showToastMessage("ROV Shutting Down...")
+        showToastMessage("ROV:" + result['message'])
     })
 }
 
 function rebootROV() {
+    showToastMessage("Sending Reboot Request...")
     makeJsonApiRequest("/uwsgi/reboot").then((result) => {
         console.log(result)
         showToastMessage("Press Connect again in ~30 seconds")
-        showToastMessage("ROV Rebooting...")
+        showToastMessage("ROV:" + result['message'])
     })
 }
 
 function restartROVServices() {
+    showToastMessage("Sending Service Restart Request (Please Wait)...")
     makeJsonApiRequest("/uwsgi/restart_services").then((result) => {
         console.log(result)
-        showToastMessage("Press Connect button again in about 8 seconds")
-        showToastMessage("ROV Restarting Services...")
+        showToastMessage("Click this message to view full output...", () => {
+            window.open().document.write(result['message'])
+        })
+        showToastMessage("ROV Services have Restarted...")
     })
 }
 
 function rePullROVGithubCode() {
+    showToastMessage("Sending Pull Request (Please Wait)...")
     makeJsonApiRequest("/uwsgi/pull_github_code").then((result) => {
         console.log(result)
         showToastMessage("Make sure to click restart ROV services in about 30 seconds")
-        showToastMessage("Pulling latest code changes from main branch...")
+        showToastMessage("Click this message to view full output...", () => {
+            window.open().document.write(result['message'])
+        })
+        showToastMessage("Code changes pulled from main branch...")
     })
 }

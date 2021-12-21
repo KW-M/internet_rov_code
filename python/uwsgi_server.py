@@ -9,11 +9,10 @@ def generateResponse(statusCode, outputMessage, outputErrMessage):
     }
     if outputErrMessage:
         responseDict['error'] = outputErrMessage
-    response = json.dumps(responseDict)
     if outputMessage:
-        response += "\n" + outputMessage
+        responseDict['message'] = outputMessage
 
-    return response
+    return json.dumps(responseDict)
 
 
 def generateResponseFromSubprocess(sp):
@@ -65,7 +64,7 @@ def application(env, start_response):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         out, err = sp.communicate()
-        response = generateResponse(sp.returncode, out, err)
+        response = out
 
     else:
         response = generateResponse(1, None,
