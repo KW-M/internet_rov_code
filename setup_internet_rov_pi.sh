@@ -22,17 +22,18 @@ sudo timedatectl set-ntp true # enable network time sync
 
 echo -e "$Cyan Setting Locale (Language & keyboard to English US layout)... $Color_Off"
 # https://www.jaredwolff.com/raspberry-pi-setting-your-locale/
-# check if the loaded locales contains machine-info file:
+# check if the loaded locales contains US english utf-8:
 if ! locale -a | grep -i -q 'en_US.utf8' || locale -a | grep -i -q 'en_US.utf-8'; then
  	echo -e "$Green en_US.utf8 local not generated, loading it now ... $Color_Off"
 	sudo perl -pi -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
-	sudo locale-gen en_US.UTF-8
+	sudo perl -pi -e 's/en_GB.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/g' /etc/locale.gen
+	sudo locale-gen --purge en_US.UTF-8
 fi
-sudo dpkg-reconfigure locales
-sudo localectl set-locale en_US.UTF-8
+# sudo dpkg-reconfigure locales
 sudo update-locale LANGUAGE=en_US.UTF-8
 sudo update-locale LANG=en_US.UTF-8
 sudo update-locale LC_ALL=en_US.UTF-8
+sudo localectl set-locale en_US.UTF-8
 sudo localectl set-keymap us
 
 # From: https://raspberrypi.stackexchange.com/questions/28907/how-could-one-automate-the-raspbian-raspi-config-setup

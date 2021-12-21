@@ -1,7 +1,7 @@
 // this
 function makeJsonApiRequest(url) {
     return fetch(url).then((response) => {
-        return json.parse(response.text().split('\n')[0])
+        return JSON.parse(response.text().split('\n')[0])
     }).then((result) => {
         if (!result) {
             throw Error("Got no response from rov")
