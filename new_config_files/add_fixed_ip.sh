@@ -9,12 +9,14 @@
 
 ip monitor link | awk -W interactive -F ': ' '{if ($2) print $2;}' | while read -r iface; do
     # check if we don't have a dynamically (dchp) assigned IP address:
-    if ip addr list "${iface}" | grep 'inet ' | grep 'dynamic'; then
-        echo "Adding fixed IP 192.168.0.88/24 to ${iface}."
-        sudo ip address add 192.168.0.88/24 dev "${iface}" broadcast +
-    else
-        echo "No dynamic IP address assigned to ${iface}. Assigning one now."
-        echo "rebinding dchp assinged ip on ${iface}."
-        sudo dhcpcd --rebind "${iface}"
+    if ip addr list "${iface}" | grep 'state UP'; then
+        if ip addr list "${iface}" | grep 'inet ' | grep 'dynamic'; then
+            echo "Adding fixed IP 192.168.0.88/24 to ${iface}."
+            sudo ip address add 192.168.0.88/24 dev "${iface}" broadcast +
+        else
+            echo "No dynamic IP address assigned to ${iface}. Assigning one now."
+            echo "rebinding dchp assinged ip on ${iface}."
+            sudo dhcpcd --rebind "${iface}"
+        fi
     fi
 done
