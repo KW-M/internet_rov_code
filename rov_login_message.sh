@@ -35,48 +35,57 @@ if systemctl -q is-active uv4l_raspicam.service; then
 else
     systemctl status --no-pager uv4l_raspicam.service
 fi
+echo "=========="
 if systemctl -q is-active rov_bluetooth_terminal.service; then
     echo "rov_bluetooth_terminal.service is active"
 else
     systemctl status --no-pager rov_bluetooth_terminal.service
 fi
+echo "=========="
 if systemctl -q is-active save_rov_logs.service; then
     echo "save_rov_logs.service is active"
 else
     systemctl status --no-pager save_rov_logs.service
 fi
+echo "=========="
 if systemctl -q is-active netdata.service; then
     echo "netdata.service is active"
 else
     systemctl status --no-pager netdata.service
 fi
+echo "=========="
 if systemctl -q is-active add_fixed_ip.service; then
     echo "add_fixed_ip.service is active"
 else
     systemctl status --no-pager add_fixed_ip.service
 fi
+echo "=========="
 if systemctl -q is-active ngrok.service; then
     echo "ngrok.service is active"
 else
     systemctl status --no-pager ngrok.service
 fi
+echo "=========="
 if systemctl -q is-active bluetooth.service; then
     echo "bluetooth.service is active"
 else
     systemctl status --no-pager bluetooth.service
 fi
+echo "=========="
 if systemctl -q is-active nginx.service; then
     echo "nginx.service is active"
 else
     systemctl status --no-pager nginx.service
 fi
+echo "=========="
 if systemctl -q is-active rov_python_code.service; then
     echo "rov_python_code.service is active"
 else
     systemctl status --no-pager rov_python_code.service
 fi
+echo "=========="
 if systemctl -q is-active rov_uwsgi_server.service; then
-    echo "rov_uwsgi_server.service is active"
+    echo "rov_python_code_2.service is active"
 else
     systemctl status --no-pager rov_uwsgi_server.service
 fi
