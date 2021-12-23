@@ -5,8 +5,8 @@ Description=redirect journalctl output for ROV relevant systemd services to the 
 ExecStartPre=mkdir -p /var/log/rov/
 ExecStartPre=/usr/bin/bash -c 'echo > /var/log/rov/rov_logs.log'
 ExecStart=/usr/bin/bash -c 'journalctl --unit=rov_python_code --unit=nginx --unit=ngrok --unit=uv4l --no-pager --follow -n 300 >> /var/log/rov/rov_logs.log'
-Restart=always
-RestartSec=3
+Restart=on-failure
+RestartSec=2s
 Type=simple
 
 [Install]

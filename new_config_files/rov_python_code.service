@@ -8,6 +8,7 @@ ExecReload=/bin/kill -HUP $MAINPID
 ExecStop=/bin/kill -HUP $MAINPID
 KillMode=process
 Restart=on-failure
+RestartSec=2s
 Type=simple
 
 [Install]
