@@ -83,7 +83,7 @@ else
 fi
 echo "------------------------"
 if systemctl -q is-active rov_uwsgi_server.service; then
-    echo "rov_python_code_2.service is active"
+    echo "rov_uwsgi_server.service is active"
 else
     systemctl status --no-pager rov_uwsgi_server.service
 fi
