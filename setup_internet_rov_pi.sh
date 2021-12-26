@@ -39,14 +39,8 @@ sudo update-locale LC_ALL=en_US.UTF-8
 sudo localectl set-locale en_US.UTF-8
 
 # set keyboard layout to US
-sudo localectl set-keymap us
-cat >/etc/default/keyboard <<'KBEOF'
-XKBMODEL="pc105"
-XKBLAYOUT="us"
-XKBVARIANT=""
-XKBOPTIONS=""
-KBEOF
-dpkg-reconfigure -f noninteractive keyboard-configuration
+sudo localectl set-keymap us &&
+dpkg-reconfigure -f noninteractive keyboard-configuration &&
 
 echo -e "$Cyan Removing the 'setup your raspberrypi' startup popup window wizard $Color_Off"
 rm -f /etc/xdg/autostart/piwiz.desktop
