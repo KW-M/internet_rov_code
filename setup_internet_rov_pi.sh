@@ -17,9 +17,9 @@ echo -e "$Cyan This scripts sets up a raspberry pi install as an internet rov, (
 echo -e "$Green It should be fine if it gets run twice or more anyway, it just takes a while."
 
 echo -e "$Cyan Setting Timezone to America/Los_Angeles ... $Color_Off"
-rm -f /etc/localtime
-echo "America/Los_Angeles" >/etc/timezone
-dpkg-reconfigure -f noninteractive tzdata
+sudo rm -f /etc/localtime
+sudo /bin/bash -c 'echo "America/Los_Angeles" >/etc/timezone'
+sudo dpkg-reconfigure -f noninteractive tzdata
 sudo timedatectl set-timezone America/Los_Angeles
 sudo timedatectl set-ntp true # enable network time sync
 
