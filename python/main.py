@@ -8,6 +8,7 @@
 
 import time
 import json
+from datalog import sensor_datalog
 
 # import our python files from the same directory
 from socket_datachanel import socket_datachanel
@@ -17,6 +18,7 @@ from utilities import *
 
 msg_socket = socket_datachanel()
 sensors = sensor_ctrl()
+datalog = sensor_datalog()
 motors = motor_ctl()
 
 ######## Main Program Loop ###########
@@ -26,6 +28,7 @@ while True:
         motors.stop_gpio_and_motors()
         # ^ Keeps motors off while disconnected.
         sensors.setup_sensors()
+        datalog.setup_datalog(sensors.get_connected_sensor_column_names())
 
         print('Awaiting connection...')
         try:

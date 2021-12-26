@@ -17,6 +17,7 @@ class sensor_ctrl:
         'accel_x': 0,
         'accel_y': 0,
         'accel_z': 0,
+        'board_warnings': 0,
     }
 
     pressure_sensor = None
@@ -65,3 +66,19 @@ class sensor_ctrl:
     def get_changed_sensor_values(self):
         self.sensor_values_have_changed_flag = False
         return self.current_sensor_state
+
+    def get_connected_sensor_column_names(self):
+        output_column_names = ['date_time']
+        if self.pressure_sensor:
+            output_column_names.append('pressure')
+            output_column_names.append('temp')
+        if self.orientation_sensor:
+            output_column_names.append('yaw')
+            output_column_names.append('roll')
+            output_column_names.append('pitch')
+            output_column_names.append('accel_x')
+            output_column_names.append('accel_y')
+            output_column_names.append('accel_z')
+        if self.light_sensor:
+            output_column_names.append('light')
+        return output_column_names

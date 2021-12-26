@@ -17,6 +17,9 @@ echo -e "$Cyan This scripts sets up a raspberry pi install as an internet rov, (
 echo -e "$Green It should be fine if it gets run twice or more anyway, it just takes a while."
 
 echo -e "$Cyan Setting Timezone to America/Los_Angeles ... $Color_Off"
+rm -f /etc/localtime
+echo "America/Los_Angeles" >/etc/timezone
+dpkg-reconfigure -f noninteractive tzdata
 sudo timedatectl set-timezone America/Los_Angeles
 sudo timedatectl set-ntp true # enable network time sync
 
@@ -34,7 +37,19 @@ sudo update-locale LANGUAGE=en_US.UTF-8
 sudo update-locale LANG=en_US.UTF-8
 sudo update-locale LC_ALL=en_US.UTF-8
 sudo localectl set-locale en_US.UTF-8
+
+# set keyboard layout to US
 sudo localectl set-keymap us
+cat >/etc/default/keyboard <<'KBEOF'
+XKBMODEL="pc105"
+XKBLAYOUT="us"
+XKBVARIANT=""
+XKBOPTIONS=""
+KBEOF
+dpkg-reconfigure -f noninteractive keyboard-configuration
+
+echo -e "$Cyan Removing the 'setup your raspberrypi' startup popup window wizard $Color_Off"
+rm -f /etc/xdg/autostart/piwiz.desktop
 
 # From: https://raspberrypi.stackexchange.com/questions/28907/how-could-one-automate-the-raspbian-raspi-config-setup
 echo -e "$Cyan Setting the pi to enable different functionality.  (all of these can also be set manually by running sudo raspi-config). $Color_Off"
@@ -149,20 +164,20 @@ sudo raspi-config nonint do_bluetooth_discoverable 1 &&
 
 # check if we haven't already added the PRETTY_HOSTNAME to the machine-info file or the file doesnt exist yet:
 if grep -q "PRETTY_HOSTNAME=raspberrypi_rov" "/etc/machine-info"; then
-	echo -e "$Cyan PRETTY_HOSTNAME=raspberrypi_rov already set in /etc/machine-info $Color_Off"
+	echo -e "$Green PRETTY_HOSTNAME=raspberrypi_rov already set in /etc/machine-info $Color_Off"
 else
 	# Edit the display name of the RaspberryPi so you can distinguish
 	# your unit from others in the Bluetooth device list or console
-	echo "Setting bluetooth hostname to raspberrypi_rov"
+	echo -e "$Cyan Setting bluetooth hostname to raspberrypi_rov $Color_Off"
 	sudo touch /etc/machine-info
 	sudo bash -c 'echo "PRETTY_HOSTNAME=raspberrypi_rov" >> /etc/machine-info'
 fi
 
 # check if we haven't already added the --compat flag to the bluetooth.service file:
 if grep "bluetoothd --compat" "/lib/systemd/system/bluetooth.service"; then
-	echo "bluetoothd already has the --compat flag"
+	echo -e "$Green bluetoothd already has the --compat flag $Color_Off"
 else
-	echo "Adding bluetoothd --compat flag in /lib/systemd/system/bluetooth.service"
+	echo -e "$Cyan Adding bluetoothd --compat flag in /lib/systemd/system/bluetooth.service $Color_Off"
 	# Backup bluetooth.service file
 	mkdir -p "$HOME/original_config_file_backups"
 	sudo cp /lib/systemd/system/bluetooth.service "$HOME/original_config_file_backups/bluetooth.service"
@@ -170,10 +185,22 @@ else
 	sudo sed -i 's|/bluetoothd|/bluetoothd --compat|g' /lib/systemd/system/bluetooth.service
 fi
 
+# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/i2c-clock-stretching
+if grep "i2c_arm_baudrate" "/boot/config.txt"; then
+	echo -e "$Green i2c_arm_baudrate clock streatching already set in /boot/config.txt $Color_Off"
+else
+	echo -e "$Cyan Enabling I2C clock stretching (slowing down i2c protocol for older sensors) $Color_Off"
+	echo -e "$Green Setting i2c_arm_baudrate to 10000 (10khz) in /boot/config.txt $Color_Off"
+	sudo bash -c 'echo "i2c_arm_baudrate=10000" >> /boot/config.txt'
+fi
+
+# https://www.systutorials.com/how-to-delete-a-specific-line-from-a-text-file-in-command-line-on-linux/
+sudo sed -i 's|/#dtoverlay=vc4-fkms-v3d|/dtoverlay=vc4-fkms-v3d|g' /boot/config.txt
+
 # ----------------------------------------------------------------------------------------------------------------------
-echo "Adding line to run rov_login_message.sh whenever a terminal is oppened by adding it to the .bashrc file"
+echo -e "$Cyan Adding line to run rov_login_message.sh whenever a terminal is oppened by adding it to the .bashrc file $Color_Off"
 # the .bashrc file is the file that gets run to setup the default bash shell whenever you open a terminal session
-echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_login_message.sh" >> ~/.bashrc
+echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_message.sh" >> ~/.bashrc
 # ----------------------------------------------------------------------------------------------------------------------
 
 echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_Off"
@@ -200,7 +227,7 @@ sudo systemctl enable add_fixed_ip.service
 
 # ----------------------------------------------------------------------------------------------------------------------
 #from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
-echo "installing arducam camera driver"
+echo -e "$Cyan installing arducam camera driver $Color_Off"
 wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
 chmod +x install_pivariety_pkgs.sh
 ./install_pivariety_pkgs.sh -p kernel_driver
