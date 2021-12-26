@@ -89,6 +89,19 @@ v4l2-ctl \
         --set-ctrl=exposure_dynamic_framerate=1 \
         --set-ctrl=scene_mode=8 \
 
-https://github.com/ashellunts/ffmpeg-to-webrtc
+
 roboportal.io/
 https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/libcamera_dev_links.txt
+
+
+https://github.com/ashellunts/ffmpeg-to-webrtc
+git clone https://github.com/ashellunts/ffmpeg-to-webrtc
+cd ffmpeg-to-webrtc/
+cd src/
+go run . -rtbufsize 100M -f dshow -i video="/dev/video0" -pix_fmt yuv420p -c:v libx264 -bsf:v h264_mp4toannexb -b:v 2M -max_delay 0 -bf 0 -f h264 - < SDP.txt
+
+
+
+ ffplay udp://raspberrypi.local:8888 -vf "setpts=N/30" -fflags nobuffer -flags low_delay -framedrop
+
+ ffmpeg -f rawvideo -pix_fmt yuv420p -video_size 852x480 -use_wallclock_as_timestamps 1 -i /dev/video0 -vsync 1 -r 30 -c:v h264_v4l2m2m -an -f rtp_mpegts "udp://localhost:5004"
