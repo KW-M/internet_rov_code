@@ -90,8 +90,8 @@ sudo apt -y update
 sudo apt-get -y update && sudo apt-get -y upgrade # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 
 # From: https://www.linux-projects.org/uv4l/installation/
-echo -e "$Cyan Installing packages with apt: nginx uv4l uv4l-raspicam  uv4l-server uv4l-demos uv4l-raspidisp uv4l-raspidisp-extras uv4l-raspicam-extras $Color_Off"
-sudo apt install -y nginx uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras uv4l-raspidisp uv4l-raspidisp-extras
+echo -e "$Cyan Installing packages with apt: nginx uv4l uv4l-raspicam  uv4l-server uv4l-demos uv4l-raspicam-extras $Color_Off"
+sudo apt install -y nginx uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras
 
 echo -e "$Cyan Installing uv4l webrtc plugin with apt (package depending on raspberry pi model) $Color_Off"
 # From: https://www.highvoltagecode.com/post/webrtc-on-raspberry-pi-live-hd-video-and-audio-streaming
