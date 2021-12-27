@@ -1,6 +1,8 @@
 #!/bin/bash -e
 
-#
+# ------------------------------------------------------------------------------
+# ---- Helpful Variables -------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 PATH_TO_THIS_SCRIPT=$0
 FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
@@ -15,11 +17,17 @@ Green="\033[1;32m"  # Green color code for console text
 Cyan="\033[1;36m"   # Cyan color code for console text
 Color_Off="\033[0m" # Text color Reset code for console text
 
+# ------------------------------------------------------------------------------
+
 echo -e "$Cyan This scripts sets up a raspberry pi as an internet rov, (ideally from a fresh copy of raspberry pi os)"
 echo -e "$Green - It should be fine if this script gets run twice or more."
 echo -e "$Green - Make sure the pi has a good power source & internet connection."
 echo -e "$Green - It will take ~ 1 hour to run."
 read -p "Press [Enter] key to continue..."
+
+# ------------------------------------------------------------------------------
+# ---- Configuring System Settings ---------------------------------------------
+# ------------------------------------------------------------------------------
 
 echo -e "$Cyan Setting Timezone to America/Los_Angeles ... $Color_Off"
 sudo rm -f /etc/localtime
@@ -68,6 +76,66 @@ sudo raspi-config nonint do_boot_behaviour B4
 echo -e "$Green Setting the pi GPU Memory amount to 256mb (can also be set manually by running sudo raspi-config then, go to Performance, then GPU Memory. $Color_Off"
 sudo raspi-config nonint do_memory_split 256
 
+# from: https://raspberrypi.stackexchange.com/questions/63930/remove-uv4l-software-by-http-linux-project-org-watermark
+# https://www.raspberrypi.org/forums/viewtopic.php?t=62364
+echo -e "$Cyan Enabling built in raspberry pi camera driver: $Color_Off"
+sudo modprobe bcm2835-v4l2 || true
+v4l2-ctl --overlay=0 && # disable preview viewfinder, && catches errors, which this will throw if the raspi camera is in use or missing.
+
+# ----------------------------------------------------------------------------------------------------------------------
+# ----- Boot Config Setup -----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+
+# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/i2c-clock-stretching
+if grep "i2c_arm_baudrate" "/boot/config.txt"; then
+	echo -e "$Green i2c_arm_baudrate clock streatching already set in /boot/config.txt $Color_Off"
+else
+	echo -e "$Cyan Enabling I2C clock stretching (slowing down i2c protocol for older sensors) $Color_Off"
+	echo -e "$Green Setting i2c_arm_baudrate to 10000 (10khz) in /boot/config.txt $Color_Off"
+	sudo bash -c 'echo "i2c_arm_baudrate=10000" >> /boot/config.txt'
+fi
+
+# https://www.systutorials.com/how-to-delete-a-specific-line-from-a-text-file-in-command-line-on-linux/
+sudo sed -i 's|/#dtoverlay=vc4-fkms-v3d|/dtoverlay=vc4-fkms-v3d|g' /boot/config.txt
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+echo -e "$Cyan Adding line to run rov_login_message.sh whenever a terminal is oppened by adding it to the .bashrc file $Color_Off"
+# the .bashrc file is the file that gets run to setup the default bash shell whenever you open a terminal session
+echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_message.sh" >> ~/.bashrc
+
+# ----------------------------------------------------------------------------------------------------------------------
+# ----- Bluetooth Serial Setup -----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+
+# enables the bluetooth serial port for the pi
+echo -e "$Cyan Enabling Bluetooth... $Color_Off"
+sudo raspi-config nonint do_bluetooth 1 || true
+sudo raspi-config nonint do_bluetooth_discoverable 1 || true
+
+# check if we haven't already added the PRETTY_HOSTNAME to the machine-info file or the file doesnt exist yet:
+if grep -q "PRETTY_HOSTNAME=raspberrypi_rov" "/etc/machine-info"; then
+	echo -e "$Green PRETTY_HOSTNAME=raspberrypi_rov already set in /etc/machine-info $Color_Off"
+else
+	# Edit the display name of the RaspberryPi so you can distinguish
+	# your unit from others in the Bluetooth device list or console
+	echo -e "$Cyan Setting bluetooth hostname to raspberrypi_rov $Color_Off"
+	sudo touch /etc/machine-info
+	sudo bash -c 'echo "PRETTY_HOSTNAME=raspberrypi_rov" >> /etc/machine-info'
+fi
+
+# check if we haven't already added the --compat flag to the bluetooth.service file:
+if grep "bluetoothd --compat" "/lib/systemd/system/bluetooth.service"; then
+	echo -e "$Green bluetoothd already has the --compat flag $Color_Off"
+else
+	echo -e "$Cyan Adding bluetoothd --compat flag in /lib/systemd/system/bluetooth.service $Color_Off"
+	# Backup bluetooth.service file
+	mkdir -p "$HOME/original_config_file_backups"
+	sudo cp /lib/systemd/system/bluetooth.service "$HOME/original_config_file_backups/bluetooth.service"
+	# add the --compat flag to the bluetooth.service file by find & replace /bluetoothd with /bluetoothd --compat
+	sudo sed -i 's|/bluetoothd|/bluetoothd --compat|g' /lib/systemd/system/bluetooth.service
+fi
+
 # From: https://raspberrypi.stackexchange.com/a/66939
 # check if ssl key or certificate files don't exists, if so, generate them.
 # This allows use to use https on the webserver
@@ -110,8 +178,10 @@ fi
 # From: https://www.youtube.com/watch?v=Q-m4i7LFxLA
 echo -e "$Cyan Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils $Color_Off"
 echo -e "$Green These packages enable the pi to do usb internet teathering with an iphone... $Color_Off"
-sudo apt install usbmuxd ipheth-utils libimobiledevice-utils
+sudo apt install -y usbmuxd ipheth-utils libimobiledevice-utils
 
+# ----------------------------------------------------------------------------------------------------------------------
+# From: https://ngrok.com/docs
 echo -e "$Cyan Downloading and updating Ngrok $Color_Off"
 echo -e "$Green This download url might break, so if it does just get the latest from https://ngrok.com/download, unzip it and put it in the home folder - might need to mark it as executable with chmod +x too. $Color_Off"
 cd ~/
@@ -124,90 +194,28 @@ echo -e "$Green Updating ngrok $Color_Off"
 ~/ngrok update
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ----- Python Setup -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-echo -e "$Cyan Installing python3 pip $Color_Off"
-sudo apt install -y python3-pip
-
-# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
-echo -e "$Cyan Downloading Adafruit circuit python $Color_Off"
-sudo python3 -m pip install --upgrade setuptools
-sudo python3 -m pip install --upgrade adafruit-python-shell
-
-# from: https://learn.adafruit.com/adafruit-dc-and-stepper-motor-hat-for-raspberry-pi/installing-software
-echo -e "$Cyan Downloading Adafruit motor controller python libraries... $Color_Off"
-sudo python3 -m pip install --upgrade adafruit-circuitpython-motorkit
-
-# from: https://github.com/NickCrews/ms5803py
-echo -e "$Cyan Downloading pressure sensor python libraries... $Color_Off"
-sudo python3 -m pip install --upgrade ms5803py
-
-# From: https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html
-echo -e "$Cyan Installing uWSGI python3 library (tiny server handler) and python c bindings for it $Color_Off"
-sudo apt install -y build-essential python-dev
-sudo python3 -m pip install --upgrade uwsgi
-
-# from: https://raspberrypi.stackexchange.com/questions/63930/remove-uv4l-software-by-http-linux-project-org-watermark
-# https://www.raspberrypi.org/forums/viewtopic.php?t=62364
-echo -e "$Cyan Enabling built in raspberry pi camera driver: $Color_Off"
-sudo modprobe bcm2835-v4l2 || true
-v4l2-ctl --overlay=0 && # disable preview viewfinder, && catches errors, which this will throw if the raspi camera is in use or missing.
-
 # ----------------------------------------------------------------------------------------------------------------------
-# ----- Bluetooth Serial Setup -----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------------------
-
-# enables the bluetooth serial port for the pi
-echo -e "$Cyan Enabling Bluetooth... $Color_Off"
-sudo raspi-config nonint do_bluetooth 1 || true
-sudo raspi-config nonint do_bluetooth_discoverable 1 || true
-
-# check if we haven't already added the PRETTY_HOSTNAME to the machine-info file or the file doesnt exist yet:
-if grep -q "PRETTY_HOSTNAME=raspberrypi_rov" "/etc/machine-info"; then
-	echo -e "$Green PRETTY_HOSTNAME=raspberrypi_rov already set in /etc/machine-info $Color_Off"
-else
-	# Edit the display name of the RaspberryPi so you can distinguish
-	# your unit from others in the Bluetooth device list or console
-	echo -e "$Cyan Setting bluetooth hostname to raspberrypi_rov $Color_Off"
-	sudo touch /etc/machine-info
-	sudo bash -c 'echo "PRETTY_HOSTNAME=raspberrypi_rov" >> /etc/machine-info'
-fi
-
-# check if we haven't already added the --compat flag to the bluetooth.service file:
-if grep "bluetoothd --compat" "/lib/systemd/system/bluetooth.service"; then
-	echo -e "$Green bluetoothd already has the --compat flag $Color_Off"
-else
-	echo -e "$Cyan Adding bluetoothd --compat flag in /lib/systemd/system/bluetooth.service $Color_Off"
-	# Backup bluetooth.service file
-	mkdir -p "$HOME/original_config_file_backups"
-	sudo cp /lib/systemd/system/bluetooth.service "$HOME/original_config_file_backups/bluetooth.service"
-	# add the --compat flag to the bluetooth.service file by find & replace /bluetoothd with /bluetoothd --compat
-	sudo sed -i 's|/bluetoothd|/bluetoothd --compat|g' /lib/systemd/system/bluetooth.service
+#from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
+if ! command -v libcamera-hello &> /dev/null || ! dmesg | grep arducam; then
+	echo -e "$Cyan Installing arducam pivariety camera driver $Color_Off"
+	wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
+	chmod +x install_pivariety_pkgs.sh
+	echo "n" | ./install_pivariety_pkgs.sh -p kernel_driver
+	./install_pivariety_pkgs.sh -p libcamera_dev
+	./install_pivariety_pkgs.sh -p libcamera_apps
 fi
 
 # ----------------------------------------------------------------------------------------------------------------------
-# ----- Boot Config Setup -----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------------------
-
-# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/i2c-clock-stretching
-if grep "i2c_arm_baudrate" "/boot/config.txt"; then
-	echo -e "$Green i2c_arm_baudrate clock streatching already set in /boot/config.txt $Color_Off"
-else
-	echo -e "$Cyan Enabling I2C clock stretching (slowing down i2c protocol for older sensors) $Color_Off"
-	echo -e "$Green Setting i2c_arm_baudrate to 10000 (10khz) in /boot/config.txt $Color_Off"
-	sudo bash -c 'echo "i2c_arm_baudrate=10000" >> /boot/config.txt'
+# from: https://learn.netdata.cloud/docs/agent/packaging/installer/methods/kickstart
+# check if the netdata command already exists:
+if ! command -v netdata &> /dev/null; then
+	echo -e "$Cyan Installing netdata... $Color_Off"
+ 	bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive --disable-cloud --disable-telemetry
 fi
 
-# https://www.systutorials.com/how-to-delete-a-specific-line-from-a-text-file-in-command-line-on-linux/
-sudo sed -i 's|/#dtoverlay=vc4-fkms-v3d|/dtoverlay=vc4-fkms-v3d|g' /boot/config.txt
+# clean up any packages that were installed to aid installing anything else, but are no longer needed
+sudo apt autoremove -y
 
-# ----------------------------------------------------------------------------------------------------------------------
-
-echo -e "$Cyan Adding line to run rov_login_message.sh whenever a terminal is oppened by adding it to the .bashrc file $Color_Off"
-# the .bashrc file is the file that gets run to setup the default bash shell whenever you open a terminal session
-echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_message.sh" >> ~/.bashrc
 # ----------------------------------------------------------------------------------------------------------------------
 
 echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_Off"
@@ -232,27 +240,30 @@ sudo systemctl enable rov_uwsgi_server.service
 echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
 sudo systemctl enable add_fixed_ip.service
 
-# ----------------------------------------------------------------------------------------------------------------------
-# from: https://learn.netdata.cloud/docs/agent/packaging/installer/methods/kickstart
-# check if the netdata command already exists:
-if ! command -v netdata &> /dev/null; then
-	echo -e "$Cyan Installing netdata... $Color_Off"
- 	bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive --disable-cloud --disable-telemetry
-fi
+# --------------------------------------------------------------------------
+# ----- Python Library Setup -------------------------------------------------------
+# --------------------------------------------------------------------------
 
-# ----------------------------------------------------------------------------------------------------------------------
-#from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
-if ! command -v libcamera-hello &> /dev/null || ! dmesg | grep arducam; then
-	echo -e "$Cyan Installing arducam pivariety camera driver $Color_Off"
-	wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
-	chmod +x install_pivariety_pkgs.sh
-	echo "n" | ./install_pivariety_pkgs.sh -p kernel_driver
-	./install_pivariety_pkgs.sh -p libcamera_dev
-	./install_pivariety_pkgs.sh -p libcamera_apps
-fi
+echo -e "$Cyan Installing python3 pip $Color_Off"
+sudo apt install -y python3-pip
 
-# clean up any packages that were installed to aid installing anything else, but are no longer needed
-sudo apt autoremove -y
+# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+echo -e "$Cyan Downloading Adafruit circuit python $Color_Off"
+sudo python3 -m pip install --upgrade setuptools
+sudo python3 -m pip install --upgrade adafruit-python-shell
+
+# from: https://learn.adafruit.com/adafruit-dc-and-stepper-motor-hat-for-raspberry-pi/installing-software
+echo -e "$Cyan Downloading Adafruit motor controller python libraries... $Color_Off"
+sudo python3 -m pip install --upgrade adafruit-circuitpython-motorkit
+
+# from: https://github.com/NickCrews/ms5803py
+echo -e "$Cyan Downloading pressure sensor python libraries... $Color_Off"
+sudo python3 -m pip install --upgrade ms5803py
+
+# From: https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html
+echo -e "$Cyan Installing uWSGI python3 library (tiny server handler) and python c bindings for it $Color_Off"
+sudo apt install -y build-essential python-dev
+sudo python3 -m pip install --upgrade uwsgi
 
 # ----------------------------------------------------------------------------------------------------------------------
 # from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
