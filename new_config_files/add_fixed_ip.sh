@@ -22,7 +22,7 @@ ip monitor link | awk -W interactive -F ': ' '{if ($2) print $2;}' | while read 
         # chek if we don't have a dynamically (dchp) assigned IP address:
         if ip addr list "${iface}" | grep 'inet ' | grep 'dynamic'; then
             # check if we have our desired static IP address assigned to the interface
-            if ip addr list "${iface}" | grep '192.168.0.88' then
+            if ip addr list "${iface}" | grep '192.168.0.88'; then
                 # do nothing, we already have the static IP address we want
             else
                 # otherwise e can add our fixed IP address to it.

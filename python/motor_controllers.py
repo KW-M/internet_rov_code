@@ -90,19 +90,22 @@ class motor_ctl:
               self.VERTICAL_MOTOR.throttle)
 
     def stop_gpio_and_motors(self):
-        self.FORWARD_LEFT_MOTOR.throttle = 0
-        self.FORWARD_RIGHT_MOTOR.throttle = 0
-        self.VERTICAL_MOTOR.throttle = 0
-        self.STRAFING_MOTOR.throttle = 0
-        print("All motors and PWM now STOPPED")
-        # pi.write(FL_in1_pin, 0)
-        # pi.write(FL_in2_pin, 0)
-        # pi.write(FR_in1_pin, 0)
-        # pi.write(FR_in2_pin, 0)
-        # pi.write(V_in1_pin, 0)
-        # pi.write(V_in2_pin, 0)
-        # pi.write(S_in1_pin, 0)
-        # pi.write(S_in2_pin, 0)
+        try:
+            self.FORWARD_LEFT_MOTOR.throttle = 0
+            self.FORWARD_RIGHT_MOTOR.throttle = 0
+            self.VERTICAL_MOTOR.throttle = 0
+            self.STRAFING_MOTOR.throttle = 0
+            print("All motors and PWM now STOPPED")
+            # pi.write(FL_in1_pin, 0)
+            # pi.write(FL_in2_pin, 0)
+            # pi.write(FR_in1_pin, 0)
+            # pi.write(FR_in2_pin, 0)
+            # pi.write(V_in1_pin, 0)
+            # pi.write(V_in2_pin, 0)
+            # pi.write(S_in1_pin, 0)
+            # pi.write(S_in2_pin, 0)
+        except Exception as e:
+            print("Error stopping motors: ", e)
 
     def cleanup_gpio():
         """ Function to shut down the current pigpio.pi() instance. useful when turning off / exiting the rov program"""
