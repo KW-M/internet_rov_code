@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+#
+
 PATH_TO_THIS_SCRIPT=$0
 FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
@@ -13,8 +15,11 @@ Green="\033[1;32m"  # Green color code for console text
 Cyan="\033[1;36m"   # Cyan color code for console text
 Color_Off="\033[0m" # Text color Reset code for console text
 
-echo -e "$Cyan This scripts sets up a raspberry pi install as an internet rov, (from a fresh install of raspbian.)"
-echo -e "$Green It should be fine if it gets run twice or more anyway, it just takes a while."
+echo -e "$Cyan This scripts sets up a raspberry pi as an internet rov, (ideally from a fresh copy of raspberry pi os)"
+echo -e "$Green - It should be fine if this script gets run twice or more."
+echo -e "$Green - Make sure the pi has a good power source & internet connection."
+echo -e "$Green - It will take ~ 1 hour to run."
+read -p "Press [Enter] key to continue..."
 
 echo -e "$Cyan Setting Timezone to America/Los_Angeles ... $Color_Off"
 sudo rm -f /etc/localtime
@@ -38,8 +43,8 @@ if ! locale -a | grep -i -q 'en_US.utf8' || locale -a | grep -i -q 'en_US.utf-8'
 fi
 
 # set keyboard layout to US
-sudo localectl set-keymap us &&
-dpkg-reconfigure -f noninteractive keyboard-configuration &&
+sudo localectl set-keymap us || true
+dpkg-reconfigure -f noninteractive keyboard-configuration || true
 
 echo -e "$Cyan Removing the 'setup your raspberrypi' startup popup window wizard $Color_Off"
 rm -f /etc/xdg/autostart/piwiz.desktop
@@ -47,15 +52,15 @@ rm -f /etc/xdg/autostart/piwiz.desktop
 # From: https://raspberrypi.stackexchange.com/questions/28907/how-could-one-automate-the-raspbian-raspi-config-setup
 echo -e "$Cyan Setting the pi to enable different functionality.  (all of these can also be set manually by running sudo raspi-config). $Color_Off"
 echo -e "$Green Enabling I2C $Color_Off"
-sudo raspi-config nonint do_i2c 0 # zero here means "enable"
+sudo raspi-config nonint do_i2c 0 || true # zero here means "enable"
 echo -e "$Green Enabling SPI $Color_Off"
-sudo raspi-config nonint do_spi 0 #  zero here means "enable"
+sudo raspi-config nonint do_spi 0 || true #  zero here means "enable"
 echo -e "$Green Enabling Serial $Color_Off"
-sudo raspi-config nonint do_serial 0 # zero here means "enable"
+sudo raspi-config nonint do_serial 0 || true # zero here means "enable"
 # echo -e "$Green Enabling SSH $Color_Off"
-# sudo raspi-config nonint do_ssh 0 # zero here means "enable"
+# sudo raspi-config nonint do_ssh 0 || true # zero here means "enable"
 echo -e "$Green Enabling Camera $Color_Off"
-sudo raspi-config nonint do_camera 0 # zero here means "enable"
+sudo raspi-config nonint do_camera 0 || true # zero here means "enable"
 echo -e "$Green Enabling VNC remote desktop $Color_Off"
 sudo raspi-config nonint do_vnc 0 # zero here means "enable"
 echo -e "$Green Setting the pi to automatically login and boot to the desktop (can also be set manually by running sudo raspi-config then, go to System, then Auto Boot / Login. $Color_Off"
@@ -119,6 +124,10 @@ echo -e "$Green Updating ngrok $Color_Off"
 ~/ngrok update
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----- Python Setup -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 echo -e "$Cyan Installing python3 pip $Color_Off"
 sudo apt install -y python3-pip
 
@@ -138,12 +147,12 @@ sudo python3 -m pip install --upgrade ms5803py
 # From: https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html
 echo -e "$Cyan Installing uWSGI python3 library (tiny server handler) and python c bindings for it $Color_Off"
 sudo apt install -y build-essential python-dev
-sudo python3 -m pip install --upgrade uwsg
+sudo python3 -m pip install --upgrade uwsgi
 
 # from: https://raspberrypi.stackexchange.com/questions/63930/remove-uv4l-software-by-http-linux-project-org-watermark
 # https://www.raspberrypi.org/forums/viewtopic.php?t=62364
-echo -e "$Cyan enabling built in raspicam driver: $Color_Off"
-sudo modprobe bcm2835-v4l2 &&
+echo -e "$Cyan Enabling built in raspberry pi camera driver: $Color_Off"
+sudo modprobe bcm2835-v4l2 || true
 v4l2-ctl --overlay=0 && # disable preview viewfinder, && catches errors, which this will throw if the raspi camera is in use or missing.
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -152,8 +161,8 @@ v4l2-ctl --overlay=0 && # disable preview viewfinder, && catches errors, which t
 
 # enables the bluetooth serial port for the pi
 echo -e "$Cyan Enabling Bluetooth... $Color_Off"
-sudo raspi-config nonint do_bluetooth 1 &&
-sudo raspi-config nonint do_bluetooth_discoverable 1 &&
+sudo raspi-config nonint do_bluetooth 1 || true
+sudo raspi-config nonint do_bluetooth_discoverable 1 || true
 
 # check if we haven't already added the PRETTY_HOSTNAME to the machine-info file or the file doesnt exist yet:
 if grep -q "PRETTY_HOSTNAME=raspberrypi_rov" "/etc/machine-info"; then
@@ -178,6 +187,10 @@ else
 	sudo sed -i 's|/bluetoothd|/bluetoothd --compat|g' /lib/systemd/system/bluetooth.service
 fi
 
+# ----------------------------------------------------------------------------------------------------------------------
+# ----- Boot Config Setup -----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+
 # from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/i2c-clock-stretching
 if grep "i2c_arm_baudrate" "/boot/config.txt"; then
 	echo -e "$Green i2c_arm_baudrate clock streatching already set in /boot/config.txt $Color_Off"
@@ -191,6 +204,7 @@ fi
 sudo sed -i 's|/#dtoverlay=vc4-fkms-v3d|/dtoverlay=vc4-fkms-v3d|g' /boot/config.txt
 
 # ----------------------------------------------------------------------------------------------------------------------
+
 echo -e "$Cyan Adding line to run rov_login_message.sh whenever a terminal is oppened by adding it to the .bashrc file $Color_Off"
 # the .bashrc file is the file that gets run to setup the default bash shell whenever you open a terminal session
 echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_message.sh" >> ~/.bashrc
@@ -219,16 +233,26 @@ echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
 sudo systemctl enable add_fixed_ip.service
 
 # ----------------------------------------------------------------------------------------------------------------------
-#from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
-echo -e "$Cyan installing arducam camera driver $Color_Off"
-wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
-chmod +x install_pivariety_pkgs.sh
-./install_pivariety_pkgs.sh -p kernel_driver
+# from: https://learn.netdata.cloud/docs/agent/packaging/installer/methods/kickstart
+# check if the netdata command already exists:
+if ! command -v netdata &> /dev/null; then
+	echo -e "$Cyan Installing netdata... $Color_Off"
+ 	bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive --disable-cloud --disable-telemetry
+fi
 
 # ----------------------------------------------------------------------------------------------------------------------
-# from: https://learn.netdata.cloud/docs/agent/packaging/installer/methods/kickstart
- echo -e "$Cyan Installing Netdata for  $Color_Off"
- bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive --disable-cloud --disable-telemetry
+#from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
+if ! command -v libcamera-hello &> /dev/null || ! dmesg | grep arducam; then
+	echo -e "$Cyan Installing arducam pivariety camera driver $Color_Off"
+	wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
+	chmod +x install_pivariety_pkgs.sh
+	echo "n" | ./install_pivariety_pkgs.sh -p kernel_driver
+	./install_pivariety_pkgs.sh -p libcamera_dev
+	./install_pivariety_pkgs.sh -p libcamera_apps
+fi
+
+# clean up any packages that were installed to aid installing anything else, but are no longer needed
+sudo apt autoremove -y
 
 # ----------------------------------------------------------------------------------------------------------------------
 # from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
