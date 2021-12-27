@@ -24,6 +24,7 @@ ip monitor link | awk -W interactive -F ': ' '{if ($2) print $2;}' | while read 
             # check if we have our desired static IP address assigned to the interface
             if ip addr list "${iface}" | grep '192.168.0.88'; then
                 # do nothing, we already have the static IP address we want
+                continue
             else
                 # otherwise e can add our fixed IP address to it.
                 echo "Adding fixed IP 192.168.0.88/24 to ${iface}."
