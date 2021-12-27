@@ -112,7 +112,7 @@ echo "$(tput setaf 2)
        '~'
 $(tput sgr0)"
 
-
+/bin/bash ./show_system_warnings.sh
 
 
 

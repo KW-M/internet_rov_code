@@ -100,7 +100,7 @@ sudo sed -i 's|/#dtoverlay=vc4-fkms-v3d|/dtoverlay=vc4-fkms-v3d|g' /boot/config.
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-echo -e "$Cyan Adding line to run rov_login_message.sh whenever a terminal is oppened by adding it to the .bashrc file $Color_Off"
+echo -e "$Cyan Adding command to run rov_status_message.sh whenever a terminal is oppened by adding it to the .bashrc file $Color_Off"
 # the .bashrc file is the file that gets run to setup the default bash shell whenever you open a terminal session
 echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_message.sh" >> ~/.bashrc
 
@@ -270,4 +270,4 @@ sudo python3 -m pip install --upgrade uwsgi
 cd ~/ # go to home directory
 echo -e "$Cyan Installing Adafruit circuit python (May ask to reboot, say yes) $Color_Off"
 wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
-sudo python3 raspi-blinka.py
+echo "y" | sudo python3 raspi-blinka.py
