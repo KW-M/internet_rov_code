@@ -49,18 +49,20 @@ def application(env, start_response):
         response = generateResponse(sp.returncode, out, err)
 
     elif action == 'start_netdata':
-        sp = subprocess.Popen(["/bin/bash", "-c", "systemctl start netdata"],
-                              text=True,
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
+        sp = subprocess.Popen(
+            ["/bin/bash", "-c", "sudo systemctl start netdata"],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
         out, err = sp.communicate()
         response = generateResponse(sp.returncode, out, err)
 
     elif action == 'stop_netdata':
-        sp = subprocess.Popen(["/bin/bash", "-c", "systemctl stop netdata"],
-                              text=True,
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
+        sp = subprocess.Popen(
+            ["/bin/bash", "-c", "sudo systemctl stop netdata"],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
         out, err = sp.communicate()
         response = generateResponse(sp.returncode, out, err)
 
