@@ -63,75 +63,74 @@ if [[ $throttle_state_bin =~ $binpattern ]]; then
   afc=${throttle_state_bin:18:1}
   tr=${throttle_state_bin:19:1}
 
-  # Note: first field, do not start with a ,
-  if (( uv:-0 == 1 )); then echo "under_volted=${uv:-0}"; fi
-if (( uvb:-0 == 1 )); then echo "under_volted_boot=${uvb:-0}"; fi
-if (( afc:-0 == 1 )); then echo "arm_freq_capped=${afc:-0}"; fi
-if (( afcb:-0 == 1 )); then echo "arm_freq_capped_boot=${afcb:-0}"; fi
-if (( tr:-0 == 1 )); then echo "throttled=${tr:-0}"; fi
-if (( trb:-0 == 1 )); then echo "throttled_boot=${trb:-0}"; fi
-if (( str:-0 == 1 )); then echo "soft_temp_limit=${str:-0}"; fi
-if (( strb:-0 == 1 )); then echo "soft_temp_limit_boot=${strb:-0}"; fi
+if (( "${uv:-0}" > 0 )); then echo "under_volted=${uv:-0}"; fi
+if (( "${uvb:-0}" > 0 )); then echo "under_volted_since_boot=${uvb:-0}"; fi
+if (( "${afc:-0}" > 0 )); then echo "arm_freq_capped=${afc:-0}"; fi
+if (( "${afcb:-0}" > 0 )); then echo "arm_freq_capped_since_boot=${afcb:-0}"; fi
+if (( "${tr:-0}" > 0 )); then echo "throttled=${tr:-0}"; fi
+if (( "${trb:-0}" > 0 )); then echo "throttled_since_boot=${trb:-0}"; fi
+if (( "${str:-0}" > 0 )); then echo "soft_temp_limit=${str:-0}"; fi
+if (( "${strb:-0}" > 0 )); then echo "soft_temp_limit_since_boot=${strb:-0}"; fi
 
 fi
 # ---------------------------------------------------------------
 
 # SOC temp
 # soc_temp=$(/opt/vc/bin/vcgencmd measure_temp | sed -e "s/temp=//" -e "s/'C//")
-# if (( soc_temp == 1 )); then echo "soc_temp=${soc_temp}"; fi
+# if (( soc_temp}" > 0 )); then echo "soc_temp=${soc_temp}"; fi
 
 
 # Clock speeds
 # arm_f=$(/opt/vc/bin/vcgencmd measure_clock arm | sed -e "s/^.*=//")
-# if (( arm_f == 1 )); then echo "arm_freq=${arm_f}"; fi
+# if (( arm_f}" > 0 )); then echo "arm_freq=${arm_f}"; fi
 
 # core_f=$(/opt/vc/bin/vcgencmd measure_clock core | sed -e "s/^.*=//")
-# if (( core_f == 1 )); then echo "core_freq=${core_f}"; fi
+# if (( core_f}" > 0 )); then echo "core_freq=${core_f}"; fi
 
 #h264_f=$(/opt/vc/bin/vcgencmd measure_clock h264 | sed -e "s/^.*=//")
-#if (( h264_f == 1 )); then echo "h264_freq=${h264_f}"; fi
+#if (( h264_f}" > 0 )); then echo "h264_freq=${h264_f}"; fi
 
 #isp_f=$(/opt/vc/bin/vcgencmd measure_clock isp | sed -e "s/^.*=//")
-#if (( isp_f == 1 )); then echo "isp_freq=${isp_f}"; fi
+#if (( isp_f}" > 0 )); then echo "isp_freq=${isp_f}"; fi
 
 #v3d_f=$(/opt/vc/bin/vcgencmd measure_clock v3d | sed -e "s/^.*=//")
-#if (( v3d_f == 1 )); then echo "v3d_freq=${v3d_f}"; fi
+#if (( v3d_f}" > 0 )); then echo "v3d_freq=${v3d_f}"; fi
 
 # uart_f=$(/opt/vc/bin/vcgencmd measure_clock uart | sed -e "s/^.*=//")
-# if (( uart_f == 1 )); then echo "uart_freq=${uart_f}"; fi
+# if (( uart_f}" > 0 )); then echo "uart_freq=${uart_f}"; fi
 
 #pwm_f=$(/opt/vc/bin/vcgencmd measure_clock pwm | sed -e "s/^.*=//")
-#if (( pwm_f == 1 )); then echo "pwm_freq=${pwm_f}"; fi
+#if (( pwm_f}" > 0 )); then echo "pwm_freq=${pwm_f}"; fi
 
 #emmc_f=$(/opt/vc/bin/vcgencmd measure_clock emmc | sed -e "s/^.*=//")
-#if (( emmc_f == 1 )); then echo "emmc_freq=${emmc_f}"; fi
+#if (( emmc_f}" > 0 )); then echo "emmc_freq=${emmc_f}"; fi
 
 #pixel_f=$(/opt/vc/bin/vcgencmd measure_clock pixel | sed -e "s/^.*=//")
-#if (( pixel_f == 1 )); then echo "pixel_freq=${pixel_f}"; fi
+#if (( pixel_f}" > 0 )); then echo "pixel_freq=${pixel_f}"; fi
 
 #vec_f=$(/opt/vc/bin/vcgencmd measure_clock vec | sed -e "s/^.*=//")
-#if (( vec_f == 1 )); then echo "vec_freq=${vec_f}"; fi
+#if (( vec_f}" > 0 )); then echo "vec_freq=${vec_f}"; fi
 
 #hdmi_f=$(/opt/vc/bin/vcgencmd measure_clock hdmi | sed -e "s/^.*=//")
-#if (( hdmi_f == 1 )); then echo "hdmi_freq=${hdmi_f}"; fi
+#if (( hdmi_f}" > 0 )); then echo "hdmi_freq=${hdmi_f}"; fi
 
 #dpi_f=$(/opt/vc/bin/vcgencmd measure_clock dpi | sed -e "s/^.*=//")
-#if (( dpi_f == 1 )); then echo "dpi_freq=${dpi_f}"; fi
+#if (( dpi_f}" > 0 )); then echo "dpi_freq=${dpi_f}"; fi
 
 
 # --- Voltages ---
 # ---- ( these will all be much lower than the supply volatage and should remain constant, because they messure the voltage inside the individual chips )
 # core_v=$(/opt/vc/bin/vcgencmd measure_volts core | sed -e "s/volt=//" -e "s/0*V//")
-# if (( core_v == 1 )); then echo "core_volt=${core_v}"; fi
+# if (( core_v}" > 0 )); then echo "core_volt=${core_v}"; fi
 
 #sdram_c_v=$(/opt/vc/bin/vcgencmd measure_volts sdram_c | sed -e "s/volt=//" -e "s/0*V//")
-#if (( sdram_c_v == 1 )); then echo "sdram_c_volt=${sdram_c_v}"; fi
+#if (( sdram_c_v}" > 0 )); then echo "sdram_c_volt=${sdram_c_v}"; fi
 
 #sdram_i_v=$(/opt/vc/bin/vcgencmd measure_volts sdram_i | sed -e "s/volt=//" -e "s/0*V//")
-#if (( sdram_i_v == 1 )); then echo "sdram_i_volt=${sdram_i_v}"; fi
+#if (( sdram_i_v}" > 0 )); then echo "sdram_i_volt=${sdram_i_v}"; fi
 
 #sdram_p_v=$(/opt/vc/bin/vcgencmd measure_volts sdram_p | sed -e "s/volt=//" -e "s/0*V//")
-#if (( sdram_p_v == 1 )); then echo "sdram_p_volt=${sdram_p_v}"; fi
+#if (( sdram_p_v}" > 0 )); then echo "sdram_p_volt=${sdram_p_v}"; fi
 
 
 # Memory
@@ -143,28 +142,28 @@ fi
 # echo "gpu_mem=${gpu_m}";
 
 #malloc_total_m=$(($(/opt/vc/bin/vcgencmd get_mem malloc_total | sed -e "s/malloc_total=//" -e "s/M//")*1000000))
-#if (( malloc_total_m == 1 )); then echo "malloc_total_mem=${malloc_total_m}"; fi
+#if (( malloc_total_m}" > 0 )); then echo "malloc_total_mem=${malloc_total_m}"; fi
 
 #malloc_m=$(($(/opt/vc/bin/vcgencmd get_mem malloc | sed -e "s/malloc=//" -e "s/M//")*1000000))
-#if (( malloc_m == 1 )); then echo "malloc_mem=${malloc_m}"; fi
+#if (( malloc_m}" > 0 )); then echo "malloc_mem=${malloc_m}"; fi
 
 #reloc_total_m=$(($(/opt/vc/bin/vcgencmd get_mem reloc_total | sed -e "s/reloc_total=//" -e "s/M//")*1000000))
-#if (( reloc_total_m == 1 )); then echo "reloc_total_mem=${reloc_total_m}"; fi
+#if (( reloc_total_m}" > 0 )); then echo "reloc_total_mem=${reloc_total_m}"; fi
 
 #reloc_m=$(($(/opt/vc/bin/vcgencmd get_mem reloc | sed -e "s/reloc=//" -e "s/M//")*1000000))
-#if (( reloc_m == 1 )); then echo "reloc_men=${reloc_m}"; fi
+#if (( reloc_m}" > 0 )); then echo "reloc_men=${reloc_m}"; fi
 
 
 # Config
 # Note: this data is static; there are more options available
 #config_arm_f=$(($(/opt/vc/bin/vcgencmd get_config arm_freq | sed -e "s/arm_freq=//")*1000000))
-#if (( config_arm_f == 1 )); then echo "config_arm_freq=${config_arm_f}"; fi
+#if (( config_arm_f}" > 0 )); then echo "config_arm_freq=${config_arm_f}"; fi
 
 #config_core_f=$(($(/opt/vc/bin/vcgencmd get_config core_freq | sed -e "s/core_freq=//")*1000000))
-#if (( config_core_f == 1 )); then echo "config_core_freq=${config_core_f}"; fi
+#if (( config_core_f}" > 0 )); then echo "config_core_freq=${config_core_f}"; fi
 
 #config_gpu_f=$(($(/opt/vc/bin/vcgencmd get_config gpu_freq | sed -e "s/gpu_freq=//")*1000000))
-#if (( config_gpu_f == 1 )); then echo "config_gpu_freq=${config_gpu_f}"; fi
+#if (( config_gpu_f}" > 0 )); then echo "config_gpu_freq=${config_gpu_f}"; fi
 
 
 # Out Of Memory events in VC4 memory space
@@ -181,18 +180,16 @@ if (( oom_max_t > 0 )); then echo "Out of memory event max time: ${oom_max_t}ms"
 
 # Relocatable memory allocator on the VC4
 #mem_reloc_alloc_fail_c=$(/opt/vc/bin/vcgencmd mem_reloc_stats | grep "alloc failures" | sed -e "s/^.*:[^0-9]*//")
-#if (( mem_reloc_alloc_fail_c == 1 )); then echo "mem_reloc_alloc_fail_c=${mem_reloc_alloc_fail_c}"; fi
+#if (( mem_reloc_alloc_fail_c}" > 0 )); then echo "mem_reloc_alloc_fail_c=${mem_reloc_alloc_fail_c}"; fi
 
 #mem_reloc_compact_c=$(/opt/vc/bin/vcgencmd mem_reloc_stats | grep "compactions" | sed -e "s/^.*:[^0-9]*//")
-#if (( mem_reloc_compact_c == 1 )); then echo "mem_reloc_compact_c=${mem_reloc_compact_c}"; fi
+#if (( mem_reloc_compact_c}" > 0 )); then echo "mem_reloc_compact_c=${mem_reloc_compact_c}"; fi
 
 #mem_reloc_leg_blk_fail_c=$(/opt/vc/bin/vcgencmd mem_reloc_stats | grep "legacy block fails" | sed -e "s/^.*:[^0-9]*//")
-#if (( mem_reloc_leg_blk_fail_c == 1 )); then echo "mem_reloc_leg_blk_fail_c=${mem_reloc_leg_blk_fail_c}"; fi
+#if (( mem_reloc_leg_blk_fail_c}" > 0 )); then echo "mem_reloc_leg_blk_fail_c=${mem_reloc_leg_blk_fail_c}"; fi
 
 
 # Ring oscillator
 # Indicates how slow/fast the silicone the this particalar RPi is.
 # https://www.raspberrypi.org/forums/viewtopic.php?p=582078
 #osc_output=$(/opt/vc/bin/vcgencmd read_ring_osc)
-
-time_stamp=$(date +%s%N)

@@ -19,13 +19,15 @@ fi
 # list all local ip addresses
 hostname --all-ip-addresses | xargs echo | sed 's/ /\n/g'
 echo "`hostname`.local - This is the pi's mDNS name, it might work."
-
+echo "";
 echo "========================="
+echo "";
 echo "Bluetooth status: `rfkill list bluetooth`"
 echo "WIFI status: `rfkill list wlan`"
 echo "NOTE: Run 'rfkill unblock wlan' to enable wifi or 'rfkill block wlan' to disable wifi"
-
+echo "";
 echo "========================="
+echo "";
 echo "Systemd Services Status:"
 echo "------------------------"
 #check if services are active, if not, show their status:
@@ -82,7 +84,7 @@ if systemctl -q is-active rov_uwsgi_server.service; then
 else
     systemctl status --no-pager rov_uwsgi_server.service
 fi
-
+echo "";
 echo "========================="
 let upSeconds=$(/usr/bin/cut -d. -f1 /proc/uptime)
 let secs=$((${upSeconds}%60))
@@ -106,9 +108,15 @@ echo "$(tput setaf 2)
    '~ .~~~. ~'    Disk Space.........: `df -h | grep /dev/root | awk {'print $5'}` full (`df -h | grep /dev/root | awk {'print $3'}` used of `df -h | grep /dev/root | awk {'print $2'}`)
        '~'
 $(tput sgr0)"
+echo "";
+echo "========================="
+echo "";
+echo "Internet ROV Code on this Pi vs on Github:";
 cd /home/pi/internet_rov_code/
 git status;
+echo "";
 echo "========================="
+echo "";
 /bin/bash /home/pi/internet_rov_code/show_system_warnings.sh
 
 
