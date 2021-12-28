@@ -227,6 +227,7 @@ cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 if ! command -v netdata &> /dev/null; then
 	echo -e "$Cyan Installing netdata... $Color_Off"
  	bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive --disable-cloud --disable-telemetry
+	sudo systemctl disable netdata
 fi
 
 # clean up any packages that were installed to aid installing anything else, but are no longer needed
@@ -284,4 +285,4 @@ sudo python3 -m pip install --upgrade uwsgi
 cd ~/ # go to home directory
 echo -e "$Cyan Installing Adafruit circuit python (May ask to reboot, say yes) $Color_Off"
 wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
-echo "y" | sudo python3 raspi-blinka.py
+sudo python3 raspi-blinka.py

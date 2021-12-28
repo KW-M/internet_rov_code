@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ROV Cockpit</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body style="margin: 0;padding: 0">
+    <button onclick="startNetdata()">Start netdata</button>
+    <button onclick="stopNetdata()">Stop netdata</button>
+    <iframe id="netdata_frm" style="width: 100%; height: 100%; border: none; display: none;"></iframe>
+    <script>
+        function startNetdata() {
+            fetch('/uwsgi/start_netdata').then((r) => r.json()).then((r) => {
+                if (r.status == 'ok') {
+                    document.getElementById('netdata_frm').src = '/netdata_dash/';
+                    document.getElementById('netdata_frm').style.display = 'block';
+                } else {
+                    alert(r);
+                }
+            }).catch(alert);
+        }
+
+        function stopNetdata() {
+            fetch('/uwsgi/stop_netdata').then((r) => r.json()).then((r) => {
+                if (r.status == 'ok') {
+                    document.getElementById('netdata_frm').src = '';
+                    document.getElementById('netdata_frm').style.display = 'none';
+                } else {
+                    alert(r);
+                }
+            }).catch(alert);
+        }
+
+        startNetdata();
+    </script>
+</body>
