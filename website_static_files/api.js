@@ -19,32 +19,38 @@ function makeJsonApiRequest(url) {
 }
 
 function shutdownROV() {
-    showToastMessage("Sending Shutdown Request...")
-    makeJsonApiRequest("/uwsgi/shutdown").then((result) => {
-        console.log(result)
-        showToastMessage("Please wait 20 seconds before unplugging")
-        showToastMessage("ROV:" + result['message'])
-    })
+    if (confirm("Are you sure you want to shutdown the ROV? - The ROV will be on a different ngrok url when rebooted.")) {
+        showToastMessage("Sending Shutdown Request...")
+        makeJsonApiRequest("/uwsgi/shutdown").then((result) => {
+            console.log(result)
+            showToastMessage("Please wait 20 seconds before unplugging")
+            showToastMessage("ROV:" + result['message'])
+        })
+    }
 }
 
 function rebootROV() {
-    showToastMessage("Sending Reboot Request...")
-    makeJsonApiRequest("/uwsgi/reboot").then((result) => {
-        console.log(result)
-        showToastMessage("Press Connect again in ~30 seconds")
-        showToastMessage("ROV:" + result['message'])
-    })
+    if (confirm("Are you sure you want to reboot the ROV? - The ROV will be on a different ngrok url when rebooted.")) {
+        showToastMessage("Sending Reboot Request...")
+        makeJsonApiRequest("/uwsgi/reboot").then((result) => {
+            console.log(result)
+            showToastMessage("Press Connect again in ~30 seconds")
+            showToastMessage("ROV:" + result['message'])
+        })
+    }
 }
 
 function restartROVServices() {
-    showToastMessage("Sending Service Restart Request (Please Wait)...")
-    makeJsonApiRequest("/uwsgi/restart_services").then((result) => {
-        console.log(result)
-        showToastMessage("Click this message to view full output...", () => {
-            window.open().document.write(result['message'] + "|" + (result['error'] || ""))
+    if (confirm("Are you sure you want to restart services? - The ROV will be on a different ngrok url when done.")) {
+        showToastMessage("Sending Service Restart Request (Please Wait)...")
+        makeJsonApiRequest("/uwsgi/restart_services").then((result) => {
+            console.log(result)
+            showToastMessage("Click this message to view full output...", () => {
+                window.open().document.write(result['message'] + "|" + (result['error'] || ""))
+            })
+            showToastMessage("ROV Services have Restarted...")
         })
-        showToastMessage("ROV Services have Restarted...")
-    })
+    }
 }
 
 function rePullROVGithubCode() {
