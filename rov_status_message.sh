@@ -26,7 +26,8 @@ echo "WIFI status: `rfkill list wlan`"
 echo "NOTE: Run 'rfkill unblock wlan' to enable wifi or 'rfkill block wlan' to disable wifi"
 
 echo "========================="
-echo "Systemd Service Statuses:"
+echo "Systemd Services Status:"
+echo "------------------------"
 #check if services are active, if not, show their status:
 if systemctl -q is-active uv4l_raspicam.service; then
     echo "uv4l_raspicam.service is active"
@@ -111,8 +112,11 @@ echo "$(tput setaf 2)
    '~ .~~~. ~'    Disk Space.........: `df -h | grep /dev/root | awk {'print $5'}` full (`df -h | grep /dev/root | awk {'print $3'}` used of `df -h | grep /dev/root | awk {'print $2'}`)
        '~'
 $(tput sgr0)"
+cd /home/pi/internet_rov_code/
+git status;
+echo "========================="
+/bin/bash /home/pi/internet_rov_code/show_system_warnings.sh
 
-/bin/bash ./show_system_warnings.sh
 
 
 
