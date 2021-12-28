@@ -24,20 +24,22 @@ def generateResponseFromSubprocess(sp):
 
 # https://yuluyan.com/posts/uwsgi-server/
 def application(env, start_response):
-    path_info = env.get('PATH_INFO', '').strip('/').split('/')
-    # query_string = parse_qs(env.get('QUERY_STRING', ''))
 
-    if path_info[1] == 'shutdown':
+    # get the "action" string asuming it's the second part of the path in a url like this: /uwsgi/action
+    path_info = env.get('PATH_INFO', '').strip('/').split('/')
+    action = path_info[1]
+
+    if action == 'shutdown':
         subprocess.Popen(["/bin/bash", "-c", "sleep 3; sudo poweroff"],
                          text=True)
         response = generateResponse(0, 'Shutting Down...', None)
 
-    elif path_info[1] == 'reboot':
+    elif action == 'reboot':
         subprocess.Popen(["/bin/bash", "-c", "sleep 3; sudo reboot"],
                          text=True)
         response = generateResponse(0, 'Rebooting...', None)
 
-    elif path_info[1] == 'restart_services':
+    elif action == 'restart_services':
         sp = subprocess.Popen(
             ["/bin/bash", "/home/pi/internet_rov_code/update_config_files.sh"],
             text=True,
@@ -46,7 +48,7 @@ def application(env, start_response):
         out, err = sp.communicate()
         response = generateResponse(sp.returncode, out, err)
 
-    elif path_info[1] == 'pull_github_code':
+    elif action == 'pull_github_code':
         sp = subprocess.Popen([
             "/bin/bash",
             "cd /home/pi/internet_rov_code/; git add .; git stash; git pull"
@@ -57,7 +59,7 @@ def application(env, start_response):
         out, err = sp.communicate()
         response = generateResponse(sp.returncode, out, err)
 
-    elif path_info[1] == 'status':
+    elif action == 'status':
         sp = subprocess.Popen(
             ["/bin/bash", "/home/pi/internet_rov_code/rov_login_message.sh"],
             text=True,
@@ -66,7 +68,7 @@ def application(env, start_response):
         out, err = sp.communicate()
         response = out + err
 
-    elif path_info[1] == 'rov_logs':
+    elif action == 'rov_logs':
         sp = subprocess.Popen([
             "/bin/bash", "-c",
             "journalctl --unit=rov_python_code --unit=rov_uwsgi_server --unit=add_fixed_ip --unit=nginx --unit=ngrok --unit=uv4l_raspicam --no-pager -n 500"
@@ -78,8 +80,7 @@ def application(env, start_response):
         response = out + err
 
     else:
-        response = generateResponse(1, None,
-                                    'Unknown command: ' + path_info[1])
+        response = generateResponse(1, None, 'Unknown command: ' + action)
 
     start_response('200 OK', [('Content-Type', 'text/plain')])
     return str(response).encode('utf-8')
