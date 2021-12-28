@@ -17,7 +17,7 @@ function calculateDesiredMotion(axes) {
 Note that we must include prefixes for different browsers, as they don't support the requestFullscreen method yet */
 function toggleFullscreen(e, elem) {
     elem = elem || document.documentElement;
-
+    if (e && e.initialTarget) e.initialTarget.classList.toggle('fullscreen-open');
     if (!document.fullscreenElement && !document.mozFullScreenElement &&
         !document.webkitFullscreenElement && !document.msFullscreenElement) {
         if (elem.requestFullscreen) {
@@ -29,7 +29,7 @@ function toggleFullscreen(e, elem) {
         } else if (elem.webkitRequestFullscreen) {
             elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
         }
-        e.initialTarget.classList.toggle('fullscreen-open');
+
     } else {
         if (document.exitFullscreen) {
             document.exitFullscreen();
