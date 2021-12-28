@@ -61,7 +61,7 @@ def application(env, start_response):
 
     elif action == 'status':
         sp = subprocess.Popen(
-            ["/bin/bash", "/home/pi/internet_rov_code/rov_login_message.sh"],
+            ["/bin/bash", "/home/pi/internet_rov_code/rov_status_message.sh"],
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)

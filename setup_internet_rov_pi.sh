@@ -146,7 +146,10 @@ else
 	echo -e "$Cyan Setting Logrotate to run and trim system log files every 30 minutes in /etc/crontab $Color_Off"
 	sudo bash -c 'echo "*/30 * * * * /etc/cron.daily/logrotate" >> /etc/crontab'
 	echo "$Green Setting the max size of all system log files to 100kb (times x number of kept log rotations) $Color_Off"
+	# add "size 100k" to the end of the file logrotate.conf:
 	sudo bash -c 'echo "size 100k" >> /etc/logrotate.conf'
+	# also add "size 100k" to the begining of the file logrotate.conf, becuz I'm not sure which side of the included configs takes priority:
+	sudo bash -c 'echo -e "size 100k\n$(cat /etc/logrotate.conf)" > /etc/logrotate.conf'
 fi
 
 # From: https://raspberrypi.stackexchange.com/a/66939
@@ -209,14 +212,14 @@ cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 
 # ----------------------------------------------------------------------------------------------------------------------
 #from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
-if ! command -v libcamera-hello &> /dev/null || ! dmesg | grep arducam; then
-	echo -e "$Cyan Installing arducam pivariety camera driver $Color_Off"
-	wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
-	chmod +x install_pivariety_pkgs.sh
-	echo "n" | ./install_pivariety_pkgs.sh -p kernel_driver
-	./install_pivariety_pkgs.sh -p libcamera_dev
-	./install_pivariety_pkgs.sh -p libcamera_apps
-fi
+# if ! command -v libcamera-hello &> /dev/null || ! dmesg | grep arducam; then
+# 	echo -e "$Cyan Installing arducam pivariety camera driver $Color_Off"
+# 	wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
+# 	chmod +x install_pivariety_pkgs.sh
+# 	echo "n" | ./install_pivariety_pkgs.sh -p kernel_driver
+# 	./install_pivariety_pkgs.sh -p libcamera_dev
+# 	./install_pivariety_pkgs.sh -p libcamera_apps
+# fi
 
 # ----------------------------------------------------------------------------------------------------------------------
 # from: https://learn.netdata.cloud/docs/agent/packaging/installer/methods/kickstart
