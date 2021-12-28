@@ -28,8 +28,6 @@ while True:
             motors.init_motor_controllers()
             motors.stop_gpio_and_motors()
             # ^ Keeps motors off while disconnected.
-            sensors.setup_sensors()
-            datalog.setup_datalog(sensors.get_connected_sensor_column_names())
         except Exception as e:
             is_important = type(e) != ValueError
             pretty_print_exception(e,
@@ -37,6 +35,9 @@ while True:
                                    msg_socket=None)
             time.sleep(3)
             continue
+
+        sensors.setup_sensors()
+        datalog.setup_datalog(sensors.get_connected_sensor_column_names())
 
         try:
             print('Awaiting connection...')
