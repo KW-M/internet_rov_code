@@ -15,7 +15,7 @@ function calculateDesiredMotion(axes) {
 
 /* When the openFullscreen() function is executed, open the passed element in fullscreen.
 Note that we must include prefixes for different browsers, as they don't support the requestFullscreen method yet */
-function toggleFullscreen(e, elem) {
+function toggleFullscreen(elem) {
     elem = elem || document.documentElement;
 
     if (!document.fullscreenElement && !document.mozFullScreenElement &&

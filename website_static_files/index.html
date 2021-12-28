@@ -27,7 +27,7 @@
     </div>
 
     <div class="top-right-corner">
-        <button class="fullscreen-btn icon-btn transparent-btn" onclick="toggleFullscreen(event)"></button>
+        <button class="fullscreen-btn icon-btn transparent-btn" onclick="toggleFullscreen()"></button>
         <button class="power-menu-btn icon-btn top-btn"></button>
         <div class="power-menu dropdown-menu-list" tabindex="0">
             <ul tabindex="0">
@@ -85,7 +85,7 @@
         </a>
     </nav> -->
     <div class="livestream-container">
-        <video id='video-livestream'></video>
+        <video id='video-livestream' onclick="toggleFullscreen(this)"></video>
     </div>
     <div id="gamepad-container">
         <!-- Gamepad Connected/Disconned Feedback -->

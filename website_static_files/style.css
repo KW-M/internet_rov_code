@@ -416,6 +416,7 @@ button:active {
 
   display: block;
 
+  width: fit-content;
   margin: auto;
 
   cursor: zoom-in;
