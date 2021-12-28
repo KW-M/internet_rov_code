@@ -20,7 +20,6 @@ setupConnectDisconnectButtonEvents(() => {
         }, 1000);
 
     });
-    openFullscreen(document.body);
 }, () => {
     // disconnect button clicked:
     if (signalObj) {
