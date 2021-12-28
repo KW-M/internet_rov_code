@@ -7,16 +7,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
-<body style="margin: 0;padding: 0">
+<body style="margin: 0;padding: 0;height: 100vh;">
     <button onclick="startNetdata()">Start netdata</button>
     <button onclick="stopNetdata()">Stop netdata</button>
+    <span> - Netdata will keep logging (& using cpu) after you close this page, unless you stop it.</span>
     <iframe id="netdata_frm" style="width: 100%; height: 100%; border: none; display: none;"></iframe>
     <script>
         function startNetdata() {
             fetch('/uwsgi/start_netdata').then((r) => r.json()).then((r) => {
                 if (r.status == 'ok') {
-                    document.getElementById('netdata_frm').src = '/netdata_dash/';
-                    document.getElementById('netdata_frm').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('netdata_frm').src = '/netdata_dash/';
+                        document.getElementById('netdata_frm').style.display = 'block';
+                    }, 1000);
                 } else {
                     alert(r);
                 }

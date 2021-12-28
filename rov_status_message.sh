@@ -20,6 +20,7 @@ fi
 # list all local ip addresses
 hostname --all-ip-addresses | xargs echo | sed 's/ /\n/g'
 echo "`hostname`.local - This is the pi's mDNS name, it might work."
+echo ""
 echo "========================="
 echo "";
 echo " * Networking Status: *";
@@ -27,6 +28,7 @@ echo ip link list;
 echo "Bluetooth status: `rfkill list bluetooth`"
 echo "WIFI status: `rfkill list wlan`"
 echo "NOTE: Run 'rfkill unblock wlan' to enable wifi or 'rfkill block wlan' to disable wifi"
+echo ""
 echo "========================="
 echo "";
 echo " * Systemd Services Status: *"
