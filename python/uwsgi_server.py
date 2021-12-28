@@ -48,6 +48,22 @@ def application(env, start_response):
         out, err = sp.communicate()
         response = generateResponse(sp.returncode, out, err)
 
+    elif action == 'start_netdata':
+        sp = subprocess.Popen(["/bin/bash", "-c", "systemctl start netdata"],
+                              text=True,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
+        out, err = sp.communicate()
+        response = generateResponse(sp.returncode, out, err)
+
+    elif action == 'stop_netdata':
+        sp = subprocess.Popen(["/bin/bash", "-c", "systemctl stop netdata"],
+                              text=True,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
+        out, err = sp.communicate()
+        response = generateResponse(sp.returncode, out, err)
+
     elif action == 'pull_github_code':
         sp = subprocess.Popen([
             "/bin/bash", "-c",
