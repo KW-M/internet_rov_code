@@ -55,9 +55,6 @@ backup_then_overwrite_file "/etc/uv4l/uv4l-raspicam.conf" "./new_config_files/uv
 echo "Copying over nginx config file to /etc/nginx.conf"
 backup_then_overwrite_file "/etc/nginx/nginx.conf" "./new_config_files/nginx.conf"
 
-echo "Copying over save_rov_logs startup service file..."
-backup_then_overwrite_file "/lib/systemd/system/save_rov_logs.service" "./new_config_files/save_rov_logs.service"
-
 echo "Copying over add_fixed_ip.service startup service file..."
 backup_then_overwrite_file "/etc/systemd/system/add_fixed_ip.service" "./new_config_files/add_fixed_ip.service"
 
@@ -78,8 +75,6 @@ sudo systemctl daemon-reload
 
 echo "restarting nginx.service..."
 sudo systemctl restart nginx.service
-echo "restarting save_rov_logs.service..."
-sudo systemctl restart save_rov_logs.service
 echo "restarting rov_uwsgi_server.service..."
 sudo systemctl restart rov_uwsgi_server.service
 echo "restarting rov_python_code.service..."

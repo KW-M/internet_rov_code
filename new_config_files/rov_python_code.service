@@ -2,7 +2,10 @@
 Description=Runs the main.py python code on boot, and restarts it if it crashes from the /home/pi/internet_rov_code/python folder
 
 [Service]
+# This "PYTHONUNBUFFERED=1" is so python will spit out print messages to the system log instantly instead of waiting to in batches
 Environment=PYTHONUNBUFFERED=1
+# sometimes python will spit out a LOT of log / print messages, which can fill up the sd card, so we call logrotate to trim the system log before python starts.
+ExecPre=logrotate -f -v /etc/logrotate.conf
 ExecStart=python3 /home/pi/internet_rov_code/python/main.py
 ExecReload=/bin/kill -HUP $MAINPID
 ExecStop=/bin/kill -HUP $MAINPID

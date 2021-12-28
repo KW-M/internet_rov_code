@@ -64,7 +64,18 @@ def application(env, start_response):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         out, err = sp.communicate()
-        response = out
+        response = out + err
+
+    elif path_info[1] == 'rov_logs':
+        sp = subprocess.Popen([
+            "/bin/bash", "-c",
+            "journalctl --unit=rov_python_code --unit=rov_uwsgi_server --unit=add_fixed_ip --unit=nginx --unit=ngrok --unit=uv4l_raspicam --no-pager -n 500"
+        ],
+                              text=True,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
+        out, err = sp.communicate()
+        response = out + err
 
     else:
         response = generateResponse(1, None,

@@ -110,10 +110,10 @@ echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_message.sh" >> ~/.bash
 
 # enables the bluetooth serial port for the pi
 echo -e "$Cyan Enabling Bluetooth... $Color_Off"
-sudo raspi-config nonint do_bluetooth 1 || true
-sudo raspi-config nonint do_bluetooth_discoverable 1 || true
+sudo raspi-config nonint do_bluetooth 0 || true
+sudo raspi-config nonint do_bluetooth_discoverable 0 || true
 
-# check if we haven't already added the PRETTY_HOSTNAME to the machine-info file or the file doesnt exist yet:
+# check if we haven't already added the PRETTY_HOSTNAME to the machine-info file:
 if grep -q "PRETTY_HOSTNAME=raspberrypi_rov" "/etc/machine-info"; then
 	echo -e "$Green PRETTY_HOSTNAME=raspberrypi_rov already set in /etc/machine-info $Color_Off"
 else
@@ -124,8 +124,9 @@ else
 	sudo bash -c 'echo "PRETTY_HOSTNAME=raspberrypi_rov" >> /etc/machine-info'
 fi
 
-# check if we haven't already added the --compat flag to the bluetooth.service file:
+
 if grep "bluetoothd --compat" "/lib/systemd/system/bluetooth.service"; then
+	# ^checks if we have already added words "bluetoothd --compat" to the bluetooth.service file:
 	echo -e "$Green bluetoothd already has the --compat flag $Color_Off"
 else
 	echo -e "$Cyan Adding bluetoothd --compat flag in /lib/systemd/system/bluetooth.service $Color_Off"
@@ -134,6 +135,18 @@ else
 	sudo cp /lib/systemd/system/bluetooth.service "$HOME/original_config_file_backups/bluetooth.service"
 	# add the --compat flag to the bluetooth.service file by find & replace /bluetoothd with /bluetoothd --compat
 	sudo sed -i 's|/bluetoothd|/bluetoothd --compat|g' /lib/systemd/system/bluetooth.service
+fi
+
+# ------- Setup System Logfile Max size and Trimming Rate -------
+if grep "*/30 * * * * /etc/cron.daily/logrotate" /etc/crontab; then
+	# ^checks if we have already added words "*/30 * * * * /etc/cron.daily/logrotate" to the /etc/crontab file:
+	echo -e "$Green Logrotate already set to trim system log files every 30 minutes in /etc/crontab $Color_Off"
+else
+	# from: https://stackoverflow.com/questions/20162176/centos-linux-setting-logrotate-to-maximum-file-size-for-all-logs
+	echo -e "$Cyan Setting Logrotate to run and trim system log files every 30 minutes in /etc/crontab $Color_Off"
+	sudo bash -c 'echo "*/30 * * * * /etc/cron.daily/logrotate" >> /etc/crontab'
+	echo "$Green Setting the max size of all system log files to 100kb (times x number of kept log rotations) $Color_Off"
+	sudo bash -c 'echo "size 100k" >> /etc/logrotate.conf'
 fi
 
 # From: https://raspberrypi.stackexchange.com/a/66939
@@ -225,8 +238,6 @@ cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 echo -e "$Cyan Enabling systemd (systemctl) services so they start at boot (or whenever configured too)... $Color_Off"
 echo -e "$Green enabling rov_python_code.service ... $Color_Off"
 sudo systemctl enable rov_python_code.service # enable the new rov_python_code service
-echo -e "$Green enabling save_rov_logs.service ... $Color_Off"
-sudo systemctl enable save_rov_logs.service
 echo -e "$Green enabling rov_bluetooth_terminal.service ... $Color_Off"
 sudo systemctl enable rov_bluetooth_terminal.service # enable the new rfcomm service
 echo -e "$Green enabling ngrok.service ... $Color_Off"

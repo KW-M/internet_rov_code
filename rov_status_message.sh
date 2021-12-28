@@ -41,12 +41,6 @@ else
     systemctl status --no-pager rov_bluetooth_terminal.service
 fi
 echo "------------------------"
-if systemctl -q is-active save_rov_logs.service; then
-    echo "save_rov_logs.service is active"
-else
-    systemctl status --no-pager save_rov_logs.service
-fi
-echo "------------------------"
 if systemctl -q is-active netdata.service; then
     echo "netdata.service is active"
 else

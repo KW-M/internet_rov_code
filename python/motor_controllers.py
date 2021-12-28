@@ -42,11 +42,15 @@ class motor_ctl:
     def init_motor_controllers(self):
         # Initilize the library for adafruit I2C 4 motor controller pi hat:
         print("Initializing motor controllers...")
-        kit = MotorKit(i2c=board.I2C())
-        self.FORWARD_RIGHT_MOTOR = kit.motor1
-        self.FORWARD_LEFT_MOTOR = kit.motor2
-        self.STRAFING_MOTOR = kit.motor3
-        self.VERTICAL_MOTOR = kit.motor4
+        try:
+            kit = MotorKit(i2c=board.I2C())
+            self.FORWARD_RIGHT_MOTOR = kit.motor1
+            self.FORWARD_LEFT_MOTOR = kit.motor2
+            self.STRAFING_MOTOR = kit.motor3
+            self.VERTICAL_MOTOR = kit.motor4
+        except ValueError as e:
+            print("Error initializing motor controllers: ", e)
+            raise e
 
     def drivePwmMotor(self, in1_pin, in2_pin, speed):
         """ for the adafruit drv8871 single motor controllers
