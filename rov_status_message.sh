@@ -6,9 +6,10 @@
 echo "========================="
 echo "Welcome to Raspberry ROV!"
 echo "========================="
+echo ""
 
 # from: https://stackoverflow.com/questions/8529181/which-terminal-command-to-get-just-ip-address-and-nothing-else
-echo "The ROV's IP addresses are:"
+echo " * ROV's IP addresses are: * "
 # from
 PUBLIC_IP=$(wget -q -O - http://icanhazip.com/ | tail)
 if [ $PUBLIC_IP ]; then
@@ -19,16 +20,16 @@ fi
 # list all local ip addresses
 hostname --all-ip-addresses | xargs echo | sed 's/ /\n/g'
 echo "`hostname`.local - This is the pi's mDNS name, it might work."
-echo "";
 echo "========================="
 echo "";
+echo " * Networking Status: *";
+echo ip link list;
 echo "Bluetooth status: `rfkill list bluetooth`"
 echo "WIFI status: `rfkill list wlan`"
 echo "NOTE: Run 'rfkill unblock wlan' to enable wifi or 'rfkill block wlan' to disable wifi"
-echo "";
 echo "========================="
 echo "";
-echo "Systemd Services Status:"
+echo " * Systemd Services Status: *"
 echo "------------------------"
 #check if services are active, if not, show their status:
 if systemctl -q is-active uv4l_raspicam.service; then
@@ -108,10 +109,9 @@ echo "$(tput setaf 2)
    '~ .~~~. ~'    Disk Space.........: `df -h | grep /dev/root | awk {'print $5'}` full (`df -h | grep /dev/root | awk {'print $3'}` used of `df -h | grep /dev/root | awk {'print $2'}`)
        '~'
 $(tput sgr0)"
-echo "";
 echo "========================="
 echo "";
-echo "Internet ROV Code on this Pi vs on Github:";
+echo " * git status of the Internet ROV Code from Github: * ";
 cd /home/pi/internet_rov_code/
 git status;
 echo "";

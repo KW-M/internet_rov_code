@@ -1,7 +1,7 @@
 // this
 function makeJsonApiRequest(url) {
     return fetch(url).then((response) => {
-        return JSON.parse(response.text().split('\n')[0])
+        response.json()
     }).then((result) => {
         if (!result) {
             throw Error("Got no response from rov")
@@ -41,7 +41,7 @@ function restartROVServices() {
     makeJsonApiRequest("/uwsgi/restart_services").then((result) => {
         console.log(result)
         showToastMessage("Click this message to view full output...", () => {
-            window.open().document.write(result['message'])
+            window.open().document.write(result['message'] + "|" + (result['error'] || ""))
         })
         showToastMessage("ROV Services have Restarted...")
     })
@@ -53,7 +53,7 @@ function rePullROVGithubCode() {
         console.log(result)
         showToastMessage("Make sure to click restart ROV services in about 30 seconds")
         showToastMessage("Click this message to view full output...", () => {
-            window.open().document.write(result['message'])
+            window.open().document.write(result['message'] + " | " + (result['error'] || ""))
         })
         showToastMessage("Code changes pulled from main branch...")
     })
