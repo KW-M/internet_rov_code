@@ -77,8 +77,8 @@ echo -e "$Green Enabling VNC remote desktop $Color_Off"
 sudo raspi-config nonint do_vnc 0 # zero here means "enable"
 echo -e "$Green Setting the pi to automatically login and boot to the desktop (can also be set manually by running sudo raspi-config then, go to System, then Auto Boot / Login. $Color_Off"
 sudo raspi-config nonint do_boot_behaviour B4
-echo -e "$Green Setting the pi GPU Memory amount to 256mb (can also be set manually by running sudo raspi-config then, go to Performance, then GPU Memory. $Color_Off"
-sudo raspi-config nonint do_memory_split 256
+echo -e "$Green Setting the pi GPU Memory amount to 128mb (can also be set manually by running sudo raspi-config then, go to Performance, then GPU Memory. $Color_Off"
+sudo raspi-config nonint do_memory_split 128
 
 # from: https://raspberrypi.stackexchange.com/questions/63930/remove-uv4l-software-by-http-linux-project-org-watermark
 # https://www.raspberrypi.org/forums/viewtopic.php?t=62364
@@ -103,11 +103,13 @@ fi
 sudo sed -i 's|/#dtoverlay=vc4-fkms-v3d|/dtoverlay=vc4-fkms-v3d|g' /boot/config.txt
 
 # ----------------------------------------------------------------------------------------------------------------------
-
-echo -e "$Cyan Adding command to run rov_status_message.sh whenever a terminal is oppened by adding it to the .bashrc file $Color_Off"
-# the .bashrc file is the file that gets run to setup the default bash shell whenever you open a terminal session
-echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_message.sh" >> ~/.bashrc
-
+if grep "rov_status_message.sh" ~/.profile; then
+	echo -e "$Green rov_status_message already set to run every time a terminal/cmd prompt is opened in ~/.profile $Color_Off"
+else
+	echo -e "$Cyan Adding command to run rov_status_message.sh whenever a terminal is oppened by adding it to the .profile file $Color_Off"
+	# the .profile file is the file that gets run to setup the default terminal/command shell whenever you open a terminal or ssh session
+	echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_message.sh" >> ~/.profile
+fi
 # ----------------------------------------------------------------------------------------------------------------------
 # ----- Bluetooth Serial Setup -----------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
