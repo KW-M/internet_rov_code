@@ -36,9 +36,11 @@ ip monitor link | awk -W interactive -F ': ' '{if ($2) print $2;}' | while read 
                 echo "Adding fixed IP 192.168.0.88/24 to ${iface}."
                 sudo ip address add 192.168.0.88/24 dev "${iface}" broadcast +
             fi
-        else
+        elif ip addr list "${iface}" | grep '192.168.0.88'; then
             echo "No dynamic IP address assigned to ${iface}. Adding a dynamic one."
-            echo "rebinding dchp assinged ip on ${iface}."
+            echo "Attempting to delete fixed ip 192.168.0.88 from ${iface}."
+            sudo ip address del 192.168.0.88/24 dev "${iface}" broadcast + || true
+            echo "Rebinding dchp assinged ip on ${iface}."
             sudo dhcpcd --rebind "${iface}"
         fi
     fi
