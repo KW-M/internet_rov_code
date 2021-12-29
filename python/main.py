@@ -37,7 +37,7 @@ while True:
             continue
 
         sensors.setup_sensors()
-        datalog.setup_datalog(sensors.get_connected_sensor_column_names())
+        # datalog.setup_datalog(sensors.get_connected_sensor_column_names())
 
         try:
             print('Awaiting connection...')

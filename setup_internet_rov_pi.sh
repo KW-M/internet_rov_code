@@ -28,19 +28,15 @@ read -p "Press [Enter] key to continue..."
 # ------------------------------------------------------------------------------
 # ---- Configuring System Settings ---------------------------------------------
 # ------------------------------------------------------------------------------
-
-echo -e "$Cyan Setting Timezone to America/Los_Angeles ... $Color_Off"
-sudo rm -f /etc/localtime
-sudo /bin/bash -c 'echo "America/Los_Angeles" >/etc/timezone'
-sudo dpkg-reconfigure -f noninteractive tzdata
-sudo timedatectl set-timezone America/Los_Angeles
-sudo timedatectl set-ntp true # enable network time sync
-
-echo -e "$Cyan Setting Locale (Language & keyboard to English US layout)... $Color_Off"
+echo -e "$Cyan Setting Locale (Language to English US utf8)... $Color_Off"
 # https://www.jaredwolff.com/raspberry-pi-setting-your-locale/
 # check if the loaded locales contains US english utf-8:
 if ! locale -a | grep -i -q 'en_US.utf8' || locale -a | grep -i -q 'en_US.utf-8'; then
  	echo -e "$Green en_US.utf8 local not generated, loading it now ... $Color_Off"
+	export LANGUAGE=en_US.UTF-8
+	export LC_ALL=en_US.UTF-8
+	export LANG=en_US.UTF-8
+	export LC_CTYPE=en_US.UTF-8
 	sudo perl -pi -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
 	sudo perl -pi -e 's/en_GB.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/g' /etc/locale.gen
 	sudo touch /etc/default/locale
@@ -51,7 +47,14 @@ if ! locale -a | grep -i -q 'en_US.utf8' || locale -a | grep -i -q 'en_US.utf-8'
 	sudo dpkg-reconfigure -f noninteractive locales
 fi
 
-# set keyboard layout to US
+echo -e "$Cyan Setting Timezone to America/Los_Angeles ... $Color_Off"
+sudo rm -f /etc/localtime
+sudo /bin/bash -c 'echo "America/Los_Angeles" >/etc/timezone'
+sudo dpkg-reconfigure -f noninteractive tzdata
+sudo timedatectl set-timezone America/Los_Angeles
+sudo timedatectl set-ntp true # enable network time sync
+
+echo -e "$Cyan Setting keyboard layout to US... $Color_Off"
 sudo localectl set-keymap us || true
 sudo dpkg-reconfigure -f noninteractive keyboard-configuration || true
 
