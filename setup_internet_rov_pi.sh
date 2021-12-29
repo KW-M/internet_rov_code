@@ -52,10 +52,10 @@ fi
 
 # set keyboard layout to US
 sudo localectl set-keymap us || true
-dpkg-reconfigure -f noninteractive keyboard-configuration || true
+sudo dpkg-reconfigure -f noninteractive keyboard-configuration || true
 
 echo -e "$Cyan Removing the 'setup your raspberrypi' startup popup window wizard $Color_Off"
-rm -f /etc/xdg/autostart/piwiz.desktop
+sudo rm -f /etc/xdg/autostart/piwiz.desktop
 
 # From: https://raspberrypi.stackexchange.com/questions/28907/how-could-one-automate-the-raspbian-raspi-config-setup
 echo -e "$Cyan Setting the pi to enable different functionality.  (all of these can also be set manually by running sudo raspi-config). $Color_Off"
