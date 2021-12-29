@@ -43,6 +43,7 @@ if ! locale -a | grep -i -q 'en_US.utf8' || locale -a | grep -i -q 'en_US.utf-8'
  	echo -e "$Green en_US.utf8 local not generated, loading it now ... $Color_Off"
 	sudo perl -pi -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
 	sudo perl -pi -e 's/en_GB.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/g' /etc/locale.gen
+	sudo touch /etc/default/locale
 	sudo /bin/bash -c 'echo "LANG=en_US.UTF-8" > /etc/default/locale'
 	sudo /bin/bash -c 'echo "LANGUAGE=en_US.UTF-8" >> /etc/default/locale'
 	sudo /bin/bash -c 'echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale'
