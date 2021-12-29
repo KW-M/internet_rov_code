@@ -7,11 +7,11 @@ After=network.target
 
 [Service]
 ExecStart=/home/pi/ngrok http 80
-ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
 IgnoreSIGPIPE=true
 Restart=always
-RestartSec=2s
+TimeoutStopSec=10s
+RestartSec=5s
 Type=simple
 User=pi
 Group=sudo

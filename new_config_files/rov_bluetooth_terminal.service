@@ -20,7 +20,8 @@ ExecStartPre=-sudo rfcomm release rfcomm0
 ExecStart=rfcomm watch hci0 1 getty rfcomm0 115200 vt100 -a pi
 
 Restart=always
-RestartSec=2s
+TimeoutStopSec=10s
+RestartSec=5s
 Type=simple
 
 [Install]

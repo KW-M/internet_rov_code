@@ -10,8 +10,9 @@ ExecStart=/usr/bin/uv4l -f -k --sched-fifo --mem-lock --config-file=/etc/uv4l/uv
 # ExecStart=/usr/bin/uv4l -f -k --sched-fifo --mem-lock --config-file=/etc/uv4l/uv4l-raspicam.conf  –driver raspidisp --driver-config-file=/etc/uv4l/uv4l-raspicam.conf
 
 Type=simple
-Restart=on-abnormal
-RestartSec=2s
+Restart=always
+TimeoutStopSec=10s
+RestartSec=5s
 LimitNOFILE=65536
 
 [Install]

@@ -7,8 +7,9 @@ After=network.target
 [Service]
 Environment=PYTHONUNBUFFERED=1
 ExecStart=uwsgi --socket 127.0.0.1:3031 --wsgi-file /home/pi/internet_rov_code/python/uwsgi_server.py --master --processes 1 --threads 2 --harakiri 60
-Restart=on-failure
-RestartSec=2s
+Restart=always
+TimeoutStopSec=10s
+RestartSec=5s
 User=pi
 KillSignal=SIGQUIT
 Type=notify
