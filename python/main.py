@@ -18,7 +18,7 @@ from utilities import *
 
 msg_socket = socket_datachanel()
 sensors = sensor_ctrl()
-datalog = sensor_datalog()
+# datalog = sensor_datalog()
 motors = motor_ctl()
 
 ######## Main Program Loop ###########
