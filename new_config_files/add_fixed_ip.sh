@@ -14,25 +14,25 @@ ip monitor link | awk -W interactive -F ': ' '{if ($2) print $2;}' | while read 
         continue
     fi
 
-    echo "Waiting 10 seconds for interface ${iface} to settle:"
-    ip addr list "${iface}"
+    # echo "Waiting 10 seconds for interface ${iface} to settle:"
+    # ip addr list "${iface}"
 
     # wait a delay to make sure the interface has gotten fully connected.
     sleep 10s
 
-    echo "Now checking interface ${iface}:"
-    ip addr list "${iface}"
+    # echo "Now checking interface ${iface}:"
+    # ip addr list "${iface}"
 
     # check if the network interface is connected / "up"
     if ip addr list "${iface}" | grep 'state UP'; then
-        # chek if we don't have a dynamically (dchp) assigned IP address:
+        # chek if have a dynamically (dchp) assigned IP address:
         if ip addr list "${iface}" | grep 'inet ' | grep 'dynamic'; then
-            # check if we have our desired static IP address assigned to the interface
+            # check if we have our desired static IP address assigned to the interface as well
             if ip addr list "${iface}" | grep '192.168.0.88'; then
                 # do nothing, we already have the static IP address we want
                 continue
             else
-                # otherwise e can add our fixed IP address to it.
+                # otherwise we can add our fixed IP address to this interface.
                 echo "Adding fixed IP 192.168.0.88/24 to ${iface}."
                 sudo ip address add 192.168.0.88/24 dev "${iface}" broadcast +
             fi
