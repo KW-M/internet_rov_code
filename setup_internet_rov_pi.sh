@@ -224,11 +224,11 @@ cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 # ----------------------------------------------------------------------------------------------------------------------
 # from: https://learn.netdata.cloud/docs/agent/packaging/installer/methods/kickstart
 # check if the netdata command already exists:
-if ! command -v netdata &> /dev/null; then
-	echo -e "$Cyan Installing netdata... $Color_Off"
- 	bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive --disable-cloud --disable-telemetry
-	sudo systemctl disable netdata
-fi
+# if ! command -v netdata &> /dev/null; then
+# 	echo -e "$Cyan Installing netdata... $Color_Off"
+#  	bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive --disable-cloud --disable-telemetry
+# 	sudo systemctl disable netdata
+# fi
 
 # clean up any packages that were installed to aid installing anything else, but are no longer needed
 sudo apt autoremove -y
