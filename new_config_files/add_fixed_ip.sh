@@ -14,14 +14,14 @@ ip monitor link | awk -W interactive -F ': ' '{if ($2) print $2;}' | while read 
         continue
     fi
 
-    # echo "Waiting 10 seconds for interface ${iface} to settle:"
+    # echo "Waiting 20 seconds for interface ${iface} to settle:"
     # ip addr list "${iface}"
+    echo "Interface ${iface} changed. Checking it in 20 seconds..."
 
-    # wait a delay to make sure the interface has gotten fully connected.
+    # wait a delay to make sure the interface has a chance to get fully connected.
     sleep 20s
 
-    echo "Now checking interface ${iface}:"
-    ip addr list "${iface}"
+    echo "Now checking interface ${iface}"
 
     # check if the network interface is connected / "up"
     if ip addr list "${iface}" | grep 'LOWER_UP' > /dev/null; then

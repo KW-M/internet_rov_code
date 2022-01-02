@@ -11,7 +11,7 @@ echo ""
 # from: https://stackoverflow.com/questions/8529181/which-terminal-command-to-get-just-ip-address-and-nothing-else
 echo " * ROV's IP addresses are: * "
 # from
-PUBLIC_IP=$(wget -q -O - http://icanhazip.com/ | tail)
+PUBLIC_IP=$(wget --timeout=2 --quiet -O - http://icanhazip.com/ | tail)
 if [ $PUBLIC_IP ]; then
     echo "Public IP: $PUBLIC_IP"
 else

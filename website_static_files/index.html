@@ -23,7 +23,7 @@
         <p>Net Ping: <span id="ping_value">--</span>ms</p>
         <p>Battery: <span id="battery_value">--</span></p>
         <p>Pressure: <span id="pressure_value">--</span>mPa</p>
-        <p>Temp: <span id="temp_value">--</span>mPa</p>
+        <p>Temp: <span id="temp_value">--</span>C</p>
     </div>
 
     <div class="top-right-corner">
@@ -33,57 +33,40 @@
             <ul tabindex="0">
                 <li onclick="shutdownROV()" tabindex="0">Shutdown ROV</li>
                 <li onclick="rebootROV()" tabindex="0">Reboot ROV</li>
-                <li onclick="restartROVServices()" tabindex="0">Restart ROV Services</li>
                 <!-- <li onclick="disconnect()">Disconnect</li> -->
             </ul>
         </div>
-        <button class="gamepad-menu-btn icon-btn middle-btn"></button>
+        <!-- <button class="gamepad-menu-btn icon-btn middle-btn"></button>
         <div class="dropdown-menu-list">
             <ul>
                 <a href="/status/" target="_blank" tabindex="0">
-                    <li>System Status</li>
+                    <li>To Be Implemented...</li>
                 </a>
             </ul>
-        </div>
+        </div> -->
         <button class="debug-menu-btn icon-btn bottom-btn"></button>
         <div class="dropdown-menu-list">
             <ul>
                 <a href="/uwsgi/status/" target="_blank" tabindex="0">
                     <li>System Status</li>
                 </a>
-                <a href="/netdata/" target="_blank" tabindex="0">
+                <a href="/netdata.html" target="_blank" tabindex="0">
                     <li>System Performance Dashboard</li>
                 </a>
-                <a href="/log/rov/" target="_blank" tabindex="0">
+                <a href="/uwsgi/rov_logs" target="_blank" tabindex="0">
                     <li>ROV Logs</li>
                 </a>
                 <a href="/log/nginx/" target="_blank" tabindex="0">
                     <li>Server Logs</li>
                 </a>
-                <a href="/ngrok_dashboard/" target="_blank" tabindex="0">
-                    <li>Ngrok Dashboard</li>
-                </a>
                 <a href="/uv4l_dashboard/" target="_blank" tabindex="0">
                     <li>Streaming Server Dashboard</li>
                 </a>
                 <li onclick="rePullROVGithubCode()" tabindex="0">Pull ROV Code from Github</li>
+                <li onclick="restartROVServices()" tabindex="0">Restart ROV Services</li>
             </ul>
         </div>
     </div>
-    <!-- the circle menu in the upper left -->
-    <!-- <nav id="circle_corner_menu">
-        <div class="icon-links-hover-hint">+</div>
-        <a style="bottom: 0px;left: 70px;" title="Streaming Server Dashboard" href="#"
-            onclick="open(location.protocol + '\/\/' + location.hostname + ':8080');"><img
-                src="./ui-elements/resume.svg"></a>
-        <a href="https://github.com/KW-M" style="bottom: 43px;left: 43px;" title="Visit my Github">
-            <img src="./ui-elements/more-code-icon.svg">
-        </a>
-        <a href="https://www.linkedin.com/in/kyle-worcester-moore/" title="Visit my Linkedin"
-            style="left: 0px;bottom: 70px;">
-            <img src="./ui-elements/down_arrow.svg">
-        </a>
-    </nav> -->
     <div class="livestream-container">
         <video id='video-livestream' onclick="toggleFullscreen(event,this)"></video>
     </div>
