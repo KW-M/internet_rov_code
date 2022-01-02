@@ -24,7 +24,7 @@ ip monitor link | awk -W interactive -F ': ' '{if ($2) print $2;}' | while read 
     ip addr list "${iface}"
 
     # check if the network interface is connected / "up"
-    if ip addr list "${iface}" | grep 'state UP' > /dev/null; then
+    if ip addr list "${iface}" | grep 'LOWER_UP' > /dev/null; then
          echo "${iface} is up"
         # chek if have a dynamically (dchp) assigned IP address:
         if ip addr list "${iface}" | grep 'inet ' | grep 'dynamic' > /dev/null; then
