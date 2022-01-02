@@ -1,4 +1,5 @@
 // Note: this file was written by me (Kyle), and is not a library found on the web.
+// We are not using this lib, but it is helpful.
 
 var DEFAULT_GAMEPAD_HELP_MSG = "Press any button on your controller or onscreen."
 var GAME_CONTROLLER_BUTTONS = [

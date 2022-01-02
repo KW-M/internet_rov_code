@@ -8,6 +8,7 @@ from utilities import *
 ############################################
 ############### Motor / GPIO Stuff ################
 
+
 class motor_ctl:
 
     ### ---- PWM Motor Pinouts ------
@@ -46,8 +47,8 @@ class motor_ctl:
             kit = MotorKit(i2c=board.I2C())
             self.FORWARD_RIGHT_MOTOR = kit.motor1
             self.FORWARD_LEFT_MOTOR = kit.motor2
-            self.STRAFING_MOTOR = kit.motor3
-            self.VERTICAL_MOTOR = kit.motor4
+            self.UP_LEFT_MOTOR = kit.motor3
+            self.UP_RIGHT_MOTOR = kit.motor4
         except ValueError as e:
             print("Error initializing motor controllers: ", e)
             raise e
@@ -80,25 +81,41 @@ class motor_ctl:
         thrust_vector: a vector of the form [x,y,z] where x is strafe, y is forward, and z is vertical (all components should be between -1 & 1)
         turn_speed: a number between -1 & 1 coresponding to the amount of opposing thrust to apply on the two forward thrusters to turn the ROV at some rate (full clockwise = 1, full counterclokwise = -1).
         """
-        turn_rate = float(turn_rate)
-        self.STRAFING_MOTOR.throttle = clamp(-1, float(thrust_vector[0]), 1)
-        self.VERTICAL_MOTOR.throttle = clamp(-1, float(thrust_vector[2]), 1)
-        self.FORWARD_LEFT_MOTOR.throttle = clamp(-1, float(thrust_vector[1]),
-                                                 1)  # + turn_rate
-        self.FORWARD_RIGHT_MOTOR.throttle = clamp(-1, float(thrust_vector[1]),
-                                                  1)  # - turn_rate
+        turn_rate = float(turn_rate)  # make sure it's a float
+        strafe_amt = float(thrust_vector[0])
+        forward_amt = float(thrust_vector[1])
+        vertical_amt = float(thrust_vector[2])
+
+        vertical_thruster_angle = math.radians(45)  # 45deg angle in radians
+        sqrt_one_half = math.sqrt(0.5)
+
+        # https://www.desmos.com/calculator/64b6jlzsk4
+        up_left_thrust_amt = -1 * (
+            vertical_amt * math.sin(vertical_thruster_angle) -
+            strafe_amt * math.cos(vertical_thruster_angle))
+        up_right_thrust_amt = -1 * (
+            vertical_amt * math.sin(vertical_thruster_angle) +
+            strafe_amt * math.cos(vertical_thruster_angle))
+        forward_left_thrust_amt = forward_amt + turn_rate
+        forward_right_thrust_amt = forward_amt - turn_rate
+        self.UP_LEFT_MOTOR.throttle = clamp(-1, up_left_thrust_amt, 1)
+        self.UP_RIGHT_MOTOR.throttle = clamp(-1, up_right_thrust_amt, 1)
+        self.FORWARD_LEFT_MOTOR.throttle = clamp(-1, forward_left_thrust_amt,
+                                                 1)
+        self.FORWARD_RIGHT_MOTOR.throttle = clamp(-1, forward_right_thrust_amt,
+                                                  1)
 
         print("ThrustVec ", thrust_vector, "TurnRate ", turn_rate,
-              " -> Motors ", self.FORWARD_RIGHT_MOTOR.throttle,
-              self.FORWARD_LEFT_MOTOR.throttle, self.STRAFING_MOTOR.throttle,
-              self.VERTICAL_MOTOR.throttle)
+              " -> Motors ", self.FORWARD_LEFT_MOTOR.throttle,
+              self.FORWARD_RIGHT_MOTOR.throttle, self.UP_LEFT_MOTOR.throttle,
+              self.UP_RIGHT_MOTOR.throttle)
 
     def stop_gpio_and_motors(self):
         try:
             self.FORWARD_LEFT_MOTOR.throttle = 0
             self.FORWARD_RIGHT_MOTOR.throttle = 0
-            self.VERTICAL_MOTOR.throttle = 0
-            self.STRAFING_MOTOR.throttle = 0
+            self.UP_RIGHT_MOTOR.throttle = 0
+            self.UP_LEFT_MOTOR.throttle = 0
             print("All motors and PWM now STOPPED")
             # pi.write(FL_in1_pin, 0)
             # pi.write(FL_in2_pin, 0)
@@ -112,5 +129,6 @@ class motor_ctl:
             print("Error stopping motors: ", e)
 
     def cleanup_gpio():
+        # no longer used
         """ Function to shut down the current pigpio.pi() instance. useful when turning off / exiting the rov program"""
         # pi.stop()

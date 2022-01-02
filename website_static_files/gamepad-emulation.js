@@ -36,7 +36,7 @@ const gamepadEmulator = {
         }
         this.emulatedGamepads.push(gpad);
 
-        // trigger the gamepad connected event on the window object
+        // trigger the (system) gamepad connected event on the window object
         const event = new Event("gamepadconnected");
         event.gamepad = gpad;
         window.dispatchEvent(event);
@@ -47,13 +47,16 @@ const gamepadEmulator = {
     */
     disconnectEmulatedGamepad: function (gpadIndex) {
         var gpad = this.emulatedGamepads[gpadIndex];
-        if (!gpad)
-            return disconnectEmulatedGamepad(gpadIndex);
-        const event = new Event("gamepaddisconnected");
-        gpad.connected = false;
-        gpad.timestamp = Math.floor(Date.now() / 1000);
-        event.gamepad = gpad;
-        window.dispatchEvent(event);
+        if (gpad) {
+            this.emulatedGamepads.splice(gpadIndex, 1);
+            if (!window.getGamepads()[gpadIndex]) {
+                const event = new Event("gamepaddisconnected");
+                gpad.connected = false;
+                gpad.timestamp = Math.floor(Date.now() / 1000);
+                event.gamepad = gpad;
+                window.dispatchEvent(event);
+            }
+        }
     },
 
 
@@ -112,9 +115,6 @@ const gamepadEmulator = {
 
 
     registerOnScreenGamepadAxisEvents: function (gpadIndex, joysticksTouchDetails) {
-        var gpad = this.emulatedGamepads[gpadIndex];
-        if (!gpad) gpad = this.addEmulatedGamepad(gpadIndex, this.DEFAULT_BUTTON_COUNT, this.DEFAULT_AXIS_COUNT);
-
         var axisTouchRadius = 100;
         var self = this
         var pointerToJoystickMapping = {};
@@ -172,6 +172,7 @@ const gamepadEmulator = {
         navigator.getGamepads = function () {
             var nativeGamepads = getNativeGamepads != undefined ? getNativeGamepads() : [];
             nativeGamepads = Array.from(nativeGamepads)
+            // console.log("nativeGamepads:", nativeGamepads)
             for (var i = 0; i < self.emulatedGamepads.length; i++) {
                 var n_gpad = nativeGamepads[i];
                 var e_gpad = self.emulatedGamepads[i];
@@ -195,16 +196,18 @@ const gamepadEmulator = {
                     for (let axisIndex = 0; axisIndex < e_gpad.axes.length; axisIndex++) {
                         const e_axis = e_gpad.axes[axisIndex];
                         const n_axis = n_gpad.axes[axisIndex];
-                        n_gpad.axes[axisIndex] = Math.max(e_axis, n_axis) || 0;
+                        nativeGamepads[i].axes[axisIndex] = Math.max(e_axis, n_axis) || 0;
                     }
+
+                    // console.log("mixedGamepad:", nativeGamepads[i])
                 } else if (e_gpad) {
                     // if only the emulated gamepad is available, use it
                     e_gpad.emulated = true;
                     e_gpad.timestamp = Math.floor(Date.now() / 1000);
                     nativeGamepads[i] = e_gpad;
+                    // console.log("eGamepad:", nativeGamepads[i])
                 }
             }
-            // console.log("nativeGhamepads", nativeGamepads);
             return nativeGamepads;
         }
     },
