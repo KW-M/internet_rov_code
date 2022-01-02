@@ -20,13 +20,15 @@ ip monitor link | awk -W interactive -F ': ' '{if ($2) print $2;}' | while read 
     # wait a delay to make sure the interface has gotten fully connected.
     sleep 20s
 
-    # echo "Now checking interface ${iface}:"
-    # ip addr list "${iface}"
+    echo "Now checking interface ${iface}:"
+    ip addr list "${iface}"
 
     # check if the network interface is connected / "up"
-    if ip addr list "${iface}" | grep 'state UP'; then
+    if ip addr list "${iface}" | grep 'state UP' > /dev/null; then
+         echo "${iface} is up"
         # chek if have a dynamically (dchp) assigned IP address:
-        if ip addr list "${iface}" | grep 'inet ' | grep 'dynamic'; then
+        if ip addr list "${iface}" | grep 'inet ' | grep 'dynamic' > /dev/null; then
+            echo "${iface} has dynamic ip"
             # we must only add a second fixed (so not really static) ip address with the same first parts of the ip as the dynamic ip given by the phone, otherwise android will reject the new ip.
             # modified from: https://unix.stackexchange.com/questions/329083/how-to-replace-the-last-octet-of-a-valid-network-address-with-the-number-2
             current_dynamic_ip=$(ip addr list "${iface}" | grep 'inet ' | grep 'dynamic' | awk -W interactive -F ' ' '{if ($2) print $2;}')
@@ -34,7 +36,7 @@ ip monitor link | awk -W interactive -F ': ' '{if ($2) print $2;}' | while read 
             desired_fixed_ip=$(echo $current_dynamic_ip | awk -W interactive -F '.' '{print $1"."$2"."$3".88"}')
 
             # check if we have our desired fixed IP address assigned to the interface as well
-            if ip addr list "${iface}" | grep "$desired_fixed_ip"; then
+            if ip addr list "${iface}" | grep "$desired_fixed_ip" > /dev/null; then
                 # do nothing, we already have the fixed IP address we want
                 continue
             else
@@ -46,7 +48,7 @@ ip monitor link | awk -W interactive -F ': ' '{if ($2) print $2;}' | while read 
             echo "No dynamic IP address assigned to ${iface}."
 
             # check if we ended up with a fixed ip (even though we don't have a dynamic one)
-            if ip addr list "${iface}" | grep 'inet ' | grep ".88/24"; then
+            if ip addr list "${iface}" | grep 'inet ' | grep ".88/24" > /dev/null; then
                 current_fixed_ip=$(ip addr list "${iface}" | grep 'inet ' | grep ".88/24" | awk -W interactive -F ' ' '{if ($2) print $2;}')
                 echo "Attempting to delete fixed ip ${current_fixed_ip} from ${iface}."
                 sudo ip address del "${current_fixed_ip}" dev "${iface}" broadcast + || true

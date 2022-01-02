@@ -30,12 +30,12 @@ def application(env, start_response):
     action = path_info[1]
 
     if action == 'shutdown':
-        subprocess.Popen(["/bin/bash", "-c", "sleep 3; sudo poweroff"],
+        subprocess.Popen(["/bin/bash", "-c", "sleep 8; sudo poweroff"],
                          text=True)
         response = generateResponse(0, 'Shutting Down...', None)
 
     elif action == 'reboot':
-        subprocess.Popen(["/bin/bash", "-c", "sleep 3; sudo reboot"],
+        subprocess.Popen(["/bin/bash", "-c", "sleep 8; sudo reboot"],
                          text=True)
         response = generateResponse(0, 'Rebooting...', None)
 
