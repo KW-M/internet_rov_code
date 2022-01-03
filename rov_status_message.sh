@@ -115,7 +115,9 @@ echo "========================="
 echo "";
 echo " * git status of the Internet ROV Code from Github: * ";
 cd /home/pi/internet_rov_code/
+GIT_HTTP_CONNECT_TIMEOUT=2 git fetch > /dev/null
 git status;
+echo "Last git commit: `git log -1 --pretty=format:"%h %s"`";
 echo "";
 echo "========================="
 echo "";

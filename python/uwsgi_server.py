@@ -85,7 +85,7 @@ def application(env, start_response):
     elif action == 'pull_github_code':
         sp = subprocess.Popen([
             "/bin/bash", "-c",
-            "cd /home/pi/internet_rov_code/; git add .; git stash; git pull"
+            "GIT_HTTP_CONNECT_TIMEOUT=4 cd /home/pi/internet_rov_code/; git add .; git stash; git pull"
         ],
                               text=True,
                               stdout=subprocess.PIPE,
