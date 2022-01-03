@@ -66,6 +66,22 @@ def application(env, start_response):
         out, err = sp.communicate()
         response = generateResponse(sp.returncode, out, err)
 
+    elif action == 'disable_wifi':
+        sp = subprocess.Popen(["/bin/bash", "-c", "sudo rfkill block wlan0"],
+                              text=True,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
+        out, err = sp.communicate()
+        response = generateResponse(sp.returncode, out, err)
+
+    elif action == 'enable_wifi':
+        sp = subprocess.Popen(["/bin/bash", "-c", "sudo rfkill unblock wlan0"],
+                              text=True,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
+        out, err = sp.communicate()
+        response = generateResponse(sp.returncode, out, err)
+
     elif action == 'pull_github_code':
         sp = subprocess.Popen([
             "/bin/bash", "-c",

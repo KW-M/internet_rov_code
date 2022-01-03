@@ -64,3 +64,23 @@ function rePullROVGithubCode() {
         showToastMessage("Code changes pulled from main branch...")
     })
 }
+
+function enableWifi() {
+    showToastMessage("Sending Enable Wifi Command...")
+    makeJsonApiRequest("/uwsgi/enable_wifi").then((result) => {
+        showToastMessage("Done. Click to view full output...", () => {
+            window.open().document.write(result['message'] + " | " + (result['error'] || ""))
+        })
+    })
+}
+
+function disableWifi() {
+    if (confirm("Are you sure you want to disable wifi? - Make sure you are connected via the teather or some other method.")) {
+        showToastMessage("Sending Disable Wifi Command...")
+        makeJsonApiRequest("/uwsgi/disable_wifi").then((result) => {
+            showToastMessage("Done. Click to view full output...", () => {
+                window.open().document.write(result['message'] + " | " + (result['error'] || ""))
+            })
+        })
+    }
+}
