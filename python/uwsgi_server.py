@@ -160,10 +160,10 @@ def application(environ, start_response):
             ('Content-Length', str(len(body))),
         ]
         start_response('200 OK', response_headers)
-        yield body
+        yield str(body).encode('utf-8')
     else:
         response_headers = [('Content-Type', 'text/plain')]
         start_response('200 OK', response_headers)
         for bit in ['Each ', 'bit ', 'should ', 'be a ', 'chunk.']:
-            yield bit
+            yield str(bit).encode('utf-8')
             time.sleep(1)
