@@ -71,7 +71,6 @@ def application(env, start_response):
     elif action == 'enable_wifi':
         return generateJsonResponseFromBashCommand("sudo rfkill unblock wlan0",
                                                    start_response)
-
     elif action == 'status':
         return generateTextResponseFromBashCommand(
             "/home/pi/internet_rov_code/rov_status_message.sh", start_response)
@@ -88,7 +87,7 @@ def application(env, start_response):
 
     elif action == 'rov_logs':
         return generateTextResponseFromBashCommand(
-            "journalctl --unit=rov_python_code --unit=rov_uwsgi_server --unit=add_fixed_ip --unit=nginx --unit=ngrok --unit=uv4l_raspicam --no-pager -n 500",
+            "journalctl --unit=rov_python_code --unit=rov_uwsgi_server --unit=add_fixed_ip --unit=nginx --unit=ngrok --unit=uv4l_raspicam --no-pager --follow -n 500",
             start_response)
 
     elif action == 'shutdown':
