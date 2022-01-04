@@ -26,7 +26,7 @@ def readBashCommandOutputAsync(bashCommand):
         line = sp.stdout.readline()
         if not line:
             break
-        yield line
+        yield str(line).encode('utf-8')
 
 
 def generateJson(statusCode, outputMessage):
@@ -34,7 +34,7 @@ def generateJson(statusCode, outputMessage):
         "status": 'ok' if statusCode == 0 else 'error',
         "message": outputMessage
     }
-    return json.dumps(responseDict)
+    return str(json.dumps(responseDict)).encode('utf-8')
 
 
 def generateTextResponseFromBashCommand(bashCommand, start_response):
@@ -108,5 +108,3 @@ def application(env, start_response):
     else:
         start_response('200 OK', [('Content-Type', 'application/json')])
         return generateJson(1, 'Unknown command: ' + action)
-
-    # str(response).encode('utf-8')
