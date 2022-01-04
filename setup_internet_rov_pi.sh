@@ -158,6 +158,18 @@ else
 	sudo bash -c 'echo -e "size 100k\n$(cat /etc/logrotate.conf)" > /etc/logrotate.conf'
 fi
 
+# --------- Setup System Logs to Be stored to a temporary filesystem in ram (tmpfs) ---------
+# this is to save the sd card from unneccesary writes, that could kill it.
+# from: https://www.zdnet.com/article/raspberry-pi-extending-the-life-of-the-sd-card/
+# and: https://durdle.com/2017/01/04/how-not-to-kill-your-pis-sd-card/
+if grep "tmpfs   /var/log" /etc/fstab; then
+	# ^checks if we have already added words "tmpfs   /var/log" to the /etc/fstab file:
+	echo -e "$Green Already setup in memory filesystem (tmpfs) for system log file folder /var/log $Color_Off"
+else
+	echo "$Green Setting up in memory filesystem for system log file folder /var/log $Color_Off"
+	sudo bash -c 'echo "tmpfs   /var/log    tmpfs    defaults,noatime,nosuid,mode=0755,size=100m    0 0" >> /etc/fstab'
+fi
+
 # From: https://raspberrypi.stackexchange.com/a/66939
 # check if ssl key or certificate files don't exists, if so, generate them.
 # This allows use to use https on the webserver
@@ -216,6 +228,8 @@ echo -e "$Green Updating ngrok $Color_Off"
 ~/ngrok update
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 #from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
 # if ! command -v libcamera-hello &> /dev/null || ! dmesg | grep arducam; then
@@ -230,11 +244,11 @@ cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 # ----------------------------------------------------------------------------------------------------------------------
 # from: https://learn.netdata.cloud/docs/agent/packaging/installer/methods/kickstart
 # check if the netdata command already exists:
-# if ! command -v netdata &> /dev/null; then
-# 	echo -e "$Cyan Installing netdata... $Color_Off"
-#  	bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive --disable-cloud --disable-telemetry
-# 	sudo systemctl disable netdata
-# fi
+if ! command -v netdata &> /dev/null; then
+	echo -e "$Cyan Installing netdata... $Color_Off"
+ 	bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive --disable-cloud --disable-telemetry
+	sudo systemctl disable netdata
+fi
 
 # clean up any packages that were installed to aid installing anything else, but are no longer needed
 sudo apt autoremove -y
