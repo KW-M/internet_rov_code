@@ -1,25 +1,52 @@
-from urllib.parse import parse_qs
+# from urllib.parse import parse_qs # for parsing url query string
 import json
 import subprocess
 
 
-def generateResponse(statusCode, outputMessage, outputErrMessage):
+def runBashCommand(bashCommand):
+    sp = subprocess.Popen(
+        ["/bin/bash", "-c", bashCommand],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+    )  # send stderr (standard error) to stdout (standard output)
+    return sp
+
+
+def readBashCommandOutput(bashCommand):
+    sp = runBashCommand(bashCommand)
+    out, err = sp.communicate()
+    return (out, err, sp.returncode)
+
+
+def readBashCommandOutputAsync(bashCommand):
+    # from https://rhodesmill.org/brandon/2013/chunked-wsgi/
+    sp = runBashCommand(bashCommand)
+    while True:
+        line = sp.stdout.readline()
+        if not line:
+            break
+        yield line
+
+
+def generateJson(statusCode, outputMessage):
     responseDict = {
         "status": 'ok' if statusCode == 0 else 'error',
+        "message": outputMessage
     }
-    if outputErrMessage:
-        responseDict['error'] = outputErrMessage
-    if outputMessage:
-        responseDict['message'] = outputMessage
-
     return json.dumps(responseDict)
 
 
-def generateResponseFromSubprocess(sp):
-    # Generate response from subprocess
-    out, err = sp.communicate()
-    response = generateResponse(sp.returncode, out, err)
-    return response
+def generateTextResponseFromBashCommand(bashCommand, start_response):
+    start_response('200 OK', [('Content-Type', 'text/plain')])
+    return readBashCommandOutputAsync(bashCommand)
+
+
+def generateJsonResponseFromBashCommand(bashCommand, start_response):
+    start_response('200 OK', [('Content-Type', 'application/json')])
+    (outputMessage, outputErrMessage,
+     statusCode) = readBashCommandOutput(bashCommand)
+    return generateJson(statusCode, outputMessage)
 
 
 # https://yuluyan.com/posts/uwsgi-server/
@@ -29,92 +56,57 @@ def application(env, start_response):
     path_info = env.get('PATH_INFO', '').strip('/').split('/')
     action = path_info[1]
 
-    if action == 'shutdown':
-        subprocess.Popen(["/bin/bash", "-c", "sleep 8; sudo poweroff"],
-                         text=True)
-        response = generateResponse(0, 'Shutting Down...', None)
-
-    elif action == 'reboot':
-        subprocess.Popen(["/bin/bash", "-c", "sleep 8; sudo reboot"],
-                         text=True)
-        response = generateResponse(0, 'Rebooting...', None)
-
-    elif action == 'restart_services':
-        sp = subprocess.Popen(
-            ["/bin/bash", "/home/pi/internet_rov_code/update_config_files.sh"],
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
-        out, err = sp.communicate()
-        response = generateResponse(sp.returncode, out, err)
-
-    elif action == 'start_netdata':
-        sp = subprocess.Popen(
-            ["/bin/bash", "-c", "sudo systemctl start netdata"],
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
-        out, err = sp.communicate()
-        response = generateResponse(sp.returncode, out, err)
+    if action == 'start_netdata':
+        return generateJsonResponseFromBashCommand(
+            "sudo systemctl start netdata", start_response)
 
     elif action == 'stop_netdata':
-        sp = subprocess.Popen(
-            ["/bin/bash", "-c", "sudo systemctl stop netdata"],
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
-        out, err = sp.communicate()
-        response = generateResponse(sp.returncode, out, err)
+        return generateJsonResponseFromBashCommand(
+            "sudo systemctl stop netdata", start_response)
 
     elif action == 'disable_wifi':
-        sp = subprocess.Popen(["/bin/bash", "-c", "sudo rfkill block wlan0"],
-                              text=True,
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
-        out, err = sp.communicate()
-        response = generateResponse(sp.returncode, out, err)
+        return generateJsonResponseFromBashCommand("sudo rfkill block wlan0",
+                                                   start_response)
 
     elif action == 'enable_wifi':
-        sp = subprocess.Popen(["/bin/bash", "-c", "sudo rfkill unblock wlan0"],
-                              text=True,
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
-        out, err = sp.communicate()
-        response = generateResponse(sp.returncode, out, err)
-
-    elif action == 'pull_github_code':
-        sp = subprocess.Popen([
-            "/bin/bash", "-c",
-            "GIT_HTTP_CONNECT_TIMEOUT=4 cd /home/pi/internet_rov_code/; git add .; git stash; git pull"
-        ],
-                              text=True,
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
-        out, err = sp.communicate()
-        response = generateResponse(sp.returncode, out, err)
+        return generateJsonResponseFromBashCommand("sudo rfkill unblock wlan0",
+                                                   start_response)
 
     elif action == 'status':
-        sp = subprocess.Popen(
-            ["/bin/bash", "/home/pi/internet_rov_code/rov_status_message.sh"],
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
-        out, err = sp.communicate()
-        response = out + err
+        return generateTextResponseFromBashCommand(
+            "/home/pi/internet_rov_code/rov_status_message.sh", start_response)
+
+    elif action == 'restart_services':
+        return generateTextResponseFromBashCommand(
+            "/home/pi/internet_rov_code/update_config_files.sh",
+            start_response)
+
+    elif action == 'pull_github_code':
+        return generateTextResponseFromBashCommand(
+            "GIT_HTTP_CONNECT_TIMEOUT=4 cd /home/pi/internet_rov_code/; git add .; git stash; git pull",
+            start_response)
 
     elif action == 'rov_logs':
-        sp = subprocess.Popen([
-            "/bin/bash", "-c",
-            "journalctl --unit=rov_python_code --unit=rov_uwsgi_server --unit=add_fixed_ip --unit=nginx --unit=ngrok --unit=uv4l_raspicam --no-pager -n 500"
-        ],
-                              text=True,
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
-        out, err = sp.communicate()
-        response = out + err
+        return generateTextResponseFromBashCommand(
+            "journalctl --unit=rov_python_code --unit=rov_uwsgi_server --unit=add_fixed_ip --unit=nginx --unit=ngrok --unit=uv4l_raspicam --no-pager -n 500",
+            start_response)
+
+    elif action == 'shutdown':
+        runBashCommand(
+            "sleep 8; sudo poweroff"
+        )  # sleep 8 seconds to give time for the response to be sent
+        start_response('200 OK', [('Content-Type', 'application/json')])
+        return generateJson(0, 'Shutting Down...')
+
+    elif action == 'reboot':
+        runBashCommand(
+            "sleep 8; sudo reboot"
+        )  # sleep 8 to give time for the shutdown message to be sent
+        start_response('200 OK', [('Content-Type', 'application/json')])
+        return generateJson(0, 'Rebooting...')
 
     else:
-        response = generateResponse(1, None, 'Unknown command: ' + action)
+        start_response('200 OK', [('Content-Type', 'application/json')])
+        return generateJson(1, 'Unknown command: ' + action)
 
-    start_response('200 OK', [('Content-Type', 'text/plain')])
-    return str(response).encode('utf-8')
+    # str(response).encode('utf-8')
