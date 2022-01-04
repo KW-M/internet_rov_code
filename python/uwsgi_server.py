@@ -117,9 +117,9 @@ body = r"""\
         <title>Streaming response demo</title>
         <script type="text/javascript">
             function fetch() {
-                var req = new XMLHttpRequest();
+                 var req = new XMLHttpRequest();
                 var elem = document.getElementById('buffer');
-                req.open('post', '/', true);
+                req.open('post', '/uwsgi/', true);
                 var toCaptureFrom = 0;
                 req.onreadystatechange = function() {
                     switch (req.readyState) {
