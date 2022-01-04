@@ -5,8 +5,8 @@ function makeJsonApiRequest(url) {
     }).then((result) => {
         if (!result) {
             throw Error("Got no response from rov")
-        } else if (result['error']) {
-            throw Error(result['error'])
+        } else if (result['status'] != 'ok') {
+            throw Error(result['message'])
         }
     }).catch((e) => {
         console.error(e)
@@ -54,15 +54,16 @@ function restartROVServices() {
 }
 
 function rePullROVGithubCode() {
-    showToastMessage("Sending Pull Request (Please Wait)...")
-    makeJsonApiRequest("/uwsgi/pull_github_code").then((result) => {
-        console.log(result)
-        showToastMessage("Make sure to click restart ROV services in about 30 seconds")
-        showToastMessage("Click this message to view full output...", () => {
-            window.open().document.write(result['message'] + " | " + (result['error'] || ""))
-        })
-        showToastMessage("Code changes pulled from main branch...")
-    })
+    alert("Make sure to click restart ROV services about 30 seconds after it finishes to fully apply any code changes.")
+    window.open("/uwsgi/pull_github_code")
+    // .then((result) => {
+    //     console.log(result)
+    //     showToastMessage("Make sure to click restart ROV services in about 30 seconds")
+    //     showToastMessage("Click this message to view full output...", () => {
+    //         window.open().document.write(result['message'] + " | " + (result['error'] || ""))
+    //     })
+    //     showToastMessage("Code changes pulled from main branch...")
+    // })
 }
 
 function enableWifi() {

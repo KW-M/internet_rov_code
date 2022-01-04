@@ -23,7 +23,9 @@
                 } else {
                     alert(r);
                 }
-            }).catch(alert);
+            }).catch((r) => {
+                alert(json.stringify(r));
+            });
         }
 
         function stopNetdata() {
@@ -34,7 +36,9 @@
                 } else {
                     alert(r);
                 }
-            }).catch(alert);
+            }).catch((r) => {
+                alert(json.stringify(r));
+            });
         }
 
         startNetdata();
