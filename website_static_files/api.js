@@ -1,6 +1,7 @@
 // this
 function makeJsonApiRequest(url) {
     return fetch(url).then((response) => {
+        console.log(response)
         return response.text()
     }).then((responseText) => {
         if (!responseText) {
@@ -95,5 +96,5 @@ function disableWifi() {
 }
 
 function takePhoto() {
-    download("/stream/download_photo")
+    download("/uv4l_dashboard/stream/snapshot.jpeg")
 }

@@ -65,11 +65,11 @@ def application(env, start_response):
             "sudo systemctl stop netdata", start_response)
 
     elif action == 'disable_wifi':
-        return generateJsonResponseFromBashCommand("sudo rfkill block wlan0",
+        return generateJsonResponseFromBashCommand("sudo rfkill block wlan",
                                                    start_response)
 
     elif action == 'enable_wifi':
-        return generateJsonResponseFromBashCommand("sudo rfkill unblock wlan0",
+        return generateJsonResponseFromBashCommand("sudo rfkill unblock wlan",
                                                    start_response)
     elif action == 'status':
         return generateTextResponseFromBashCommand(
