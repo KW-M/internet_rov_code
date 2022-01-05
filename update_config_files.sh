@@ -72,11 +72,6 @@ echo "Restarting systemd (systemctl) Services..."
 # daemon-reload makes the system load any new/changed services in the /lib/systemd/system/ directory
 sudo systemctl daemon-reload
 
-
-echo "restarting nginx.service..."
-sudo systemctl restart nginx.service
-echo "restarting rov_uwsgi_server.service..."
-sudo systemctl restart rov_uwsgi_server.service
 echo "restarting rov_python_code.service..."
 sudo systemctl restart rov_python_code.service
 echo "restarting uv4l_raspicam.service..."
@@ -89,6 +84,10 @@ echo "restarting rov_bluetooth_terminal.service..."
 sudo systemctl restart rov_bluetooth_terminal.service
 echo "restarting add_fixed_ip.service..."
 sudo systemctl restart add_fixed_ip.service
+echo "restarting nginx.service..."
+sudo systemctl restart nginx.service
+echo "restarting rov_uwsgi_server.service..."
+sudo systemctl restart rov_uwsgi_server.service
 # echo "restarting pigpiod..."
 # sudo systemctl restart pigpiod.service # no longer using pigpiod
 
