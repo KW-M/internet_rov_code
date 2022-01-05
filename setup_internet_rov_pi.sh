@@ -178,29 +178,8 @@ if grep " -e '/var/log/nginx_error.log'" "/lib/systemd/system/nginx.service"; th
 else
 	echo -e "$Cyan Adding nginx error log location specified as  -e '/var/log/nginx_error.log' in /lib/systemd/system/nginx.service $Color_Off"
 	sudo sed -i "s|/nginx |/nginx -e '/var/log/nginx_error.log' |g" /lib/systemd/system/nginx.service
+	ExecStartPre=/bin/bash -c 'mkdir -p /var/log/nginx/'
 fi
-
-if ; then
-	# ^checks if we have already added words " -e '/var/log/nginx_error.log'" to the nginx.service file:
-	echo -e "$Green nginx already installed $Color_Off"
-else
-	echo -e "$Cyan Installing nginx latest version, alternatively just run  $Color_Off"
-	sudo apt install curl gnupg2 ca-certificates lsb-release debian-archive-keyring
-    curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor \
-        | sudo tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
-    gpg --dry-run --quiet --import --import-options import-show /usr/share/keyrings/nginx-archive-keyring.gpg
-	echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
-    http://nginx.org/packages/debian `lsb_release -cs` nginx" \
-        | sudo tee /etc/apt/sources.list.d/nginx.list
-	echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
-    http://nginx.org/packages/mainline/debian `lsb_release -cs` nginx" \
-        | sudo tee /etc/apt/sources.list.d/nginx.list
-    echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" \
-        | sudo tee /etc/apt/preferences.d/99nginx
-	sudo apt update
-    sudo apt install nginx
-fi
-
 
 # --------- generate ssl certificate --------------------------------
 # From: https://raspberrypi.stackexchange.com/a/66939

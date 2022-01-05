@@ -193,3 +193,6 @@ if (( oom_max_t > 0 )); then echo "Out of memory event max time: ${oom_max_t}ms"
 # Indicates how slow/fast the silicone the this particalar RPi is.
 # https://www.raspberrypi.org/forums/viewtopic.php?p=582078
 #osc_output=$(/opt/vc/bin/vcgencmd read_ring_osc)
+
+
+# Raspi A defaults: vcgencmd,host=raspberrypi under_volted=0i,under_volted_boot=0i,arm_freq_capped=0i,arm_freq_capped_boot=0i,throttled=0i,throttled_boot=0i,soft_temp_limit=0i,soft_temp_limit_boot=0i,soc_temp=52.6,arm_freq=1400000000i,core_freq=400000000i,uart_freq=47999000i,core_volt=1.3438,oom_count=0i,oom_total_time=0i,oom_max_time=0i
