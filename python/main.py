@@ -35,8 +35,12 @@ while True:
                                    msg_socket=None)
             time.sleep(3)
             continue
-
-        # sensors.setup_sensors()
+        try:
+            sensors.setup_sensors()
+        except Exception as e:
+            pretty_print_exception(e,
+                                   show_traceback=is_important,
+                                   msg_socket=None)
         # datalog.setup_datalog(sensors.get_connected_sensor_column_names())
 
         try:
@@ -77,10 +81,10 @@ while True:
                 if 'toggleLights' in recived_data:
                     pass
 
-            # sensor_values_did_change = sensors.update_all_sensors()
-            # if sensor_values_did_change:
-            #     reply_data[
-            #         "sensor_update"] = sensors.get_changed_sensor_values()
+            sensor_values_did_change = sensors.update_all_sensors()
+            if sensor_values_did_change:
+                reply_data[
+                    "sensor_update"] = sensors.get_changed_sensor_values()
 
             # finally, send the reply_data as a json string if it has any data in it.
             if len(reply_data) > 0:
