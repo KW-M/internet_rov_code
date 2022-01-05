@@ -385,37 +385,6 @@
         </div>
     </div>
 
-    <script>
-        if (location.protocol != 'https:') {
-            var sslCertTrusted = false;
-
-            var sslTestCallback = function () {
-                if (!sslCertTrusted) {
-                    if (confirm(`To use game controllers in some browsers, you'll need to have a secure connection (https://).
-            Your browser will say a warning message about insecure connection because of a self-signed certificate.
-            In firefox: Click advanced, then 'accept risk' or 'proceede anyway'.
-            In Chrome: type 'thisisunsafe' on the warning page (without quotes))`)) {
-                        location.protocol = 'https:';
-                    }
-                } else if (confirm("Game controller support may only work if this page is accessed over an ssl (aka: https://) secure connection. Switch to secure connection?")) {
-                    // redirect to https:// (ie secure ssl)
-                    location.protocol = 'https:'
-                }
-            }
-
-            try {
-                var sslTestScript = document.createElement('script');
-                sslTestScript.src = 'https://' + window.location.host + '/sslTest.js';
-                document.body.appendChild(sslTestScript);
-                sslTestScript.addEventListener('load', sslTestCallback);
-                sslTestScript.addEventListener('error', sslTestCallback);
-            } catch (e) {
-                console.log(e);
-                sslTestCallback()
-            }
-        }
-    </script>
-
     <!-- load scripts at end so the page is fully loaded beforehand -->
     <!-- <script type="text/javascript" src="./libraries/joypad.min.js"></script> -->
     <script type="text/javascript" src="./libraries/webrtc-signaling.js"></script>

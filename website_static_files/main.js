@@ -96,3 +96,34 @@ function handleGamepadInput(buttonStates, axisState) {
     }
 }
 
+// test for ssl
+if (location.protocol != 'https:') {
+    var sslCertTrusted = false;
+    var sslTestCallback = function () {
+        if (confirm("Game controller support may only work if this page is accessed over an ssl (aka: https://) secure connection. Switch to secure connection?")) {
+            if (sslCertTrusted) {
+                // redirect to https:// (ie secure ssl)
+                location.protocol = 'https:'
+            } else {
+                var m = `Your browser will say a warning message about insecure connection because of a self-signed certificate.
+                        In firefox: Click advanced, then 'accept risk' or 'proceede anyway'.
+                        In Chrome: type 'thisisunsafe' on the warning page (without quotes)`
+                if (confirm()) {
+                    // redirect to https:// (ie secure ssl)
+                    location.protocol = 'https:';
+                }
+            }
+        }
+    }
+
+    try {
+        var sslTestScript = document.createElement('script');
+        sslTestScript.src = 'https://' + window.location.host + '/sslTest.js';
+        document.body.appendChild(sslTestScript);
+        sslTestScript.addEventListener('load', sslTestCallback);
+        sslTestScript.addEventListener('error', sslTestCallback);
+    } catch (e) {
+        console.log(e);
+        sslTestCallback()
+    }
+}
