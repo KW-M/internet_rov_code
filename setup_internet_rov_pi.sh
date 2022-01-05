@@ -23,7 +23,7 @@ echo -e "$Cyan This scripts sets up a raspberry pi as an internet rov, (ideally 
 echo -e "$Green - It should be fine if this script gets run twice or more."
 echo -e "$Green - Make sure the pi has a good power source & internet connection."
 echo -e "$Green - It will take ~ 1 hour to run."
-read -p "Press [Enter] key to continue..."
+read -p "Press [Enter] key to continue (or [Control] + [c] keys to exit - this works on any terminal command)..."
 
 # ------------------------------------------------------------------------------
 # ---- Configuring System Settings ---------------------------------------------
@@ -167,9 +167,42 @@ if grep "tmpfs   /var/log" /etc/fstab; then
 	echo -e "$Green Already setup in memory filesystem (tmpfs) for system log file folder /var/log $Color_Off"
 else
 	echo "$Green Setting up in memory filesystem for system log file folder /var/log $Color_Off"
-	sudo bash -c 'echo "tmpfs   /var/log    tmpfs    defaults,noatime,nosuid,mode=0755,size=100m    0 0" >> /etc/fstab'
+	sudo bash -c 'echo "tmpfs   /var/log    tmpfs    defaults,noatime,nosuid,mode=0755,size=30m    0 0" >> /etc/fstab'
 fi
 
+# --------- Setup nginx to log to the file nginx_error.log ---------
+# this solves the problem of missing the nginx log folder when the temp filesystem first starts up.
+if grep " -e '/var/log/nginx_error.log'" "/lib/systemd/system/nginx.service"; then
+	# ^checks if we have already added words " -e '/var/log/nginx_error.log'" to the nginx.service file:
+	echo -e "$Green nginx.service already has the error log location specified as  -e '/var/log/nginx_error.log'$Color_Off"
+else
+	echo -e "$Cyan Adding nginx error log location specified as  -e '/var/log/nginx_error.log' in /lib/systemd/system/nginx.service $Color_Off"
+	sudo sed -i "s|/nginx |/nginx -e '/var/log/nginx_error.log' |g" /lib/systemd/system/nginx.service
+fi
+
+if ; then
+	# ^checks if we have already added words " -e '/var/log/nginx_error.log'" to the nginx.service file:
+	echo -e "$Green nginx already installed $Color_Off"
+else
+	echo -e "$Cyan Installing nginx latest version, alternatively just run  $Color_Off"
+	sudo apt install curl gnupg2 ca-certificates lsb-release debian-archive-keyring
+    curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor \
+        | sudo tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
+    gpg --dry-run --quiet --import --import-options import-show /usr/share/keyrings/nginx-archive-keyring.gpg
+	echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
+    http://nginx.org/packages/debian `lsb_release -cs` nginx" \
+        | sudo tee /etc/apt/sources.list.d/nginx.list
+	echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
+    http://nginx.org/packages/mainline/debian `lsb_release -cs` nginx" \
+        | sudo tee /etc/apt/sources.list.d/nginx.list
+    echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" \
+        | sudo tee /etc/apt/preferences.d/99nginx
+	sudo apt update
+    sudo apt install nginx
+fi
+
+
+# --------- generate ssl certificate --------------------------------
 # From: https://raspberrypi.stackexchange.com/a/66939
 # check if ssl key or certificate files don't exists, if so, generate them.
 # This allows use to use https on the webserver
