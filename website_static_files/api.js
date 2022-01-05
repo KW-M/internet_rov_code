@@ -1,7 +1,7 @@
 // this
 function makeJsonApiRequest(url) {
     return fetch(url).then((response) => {
-        response.text()
+        return response.text()
     }).then((responseText) => {
         if (!responseText) {
             throw Error("Got no response from rov")
@@ -49,7 +49,7 @@ function rebootROV() {
 
 function restartROVServices() {
     if (confirm("Are you sure you want to restart services? - The ROV may appear to stop responding and be on a different ngrok url when done.")) {
-        window.open("/uwsgi/pull_github_code")
+        window.open("/uwsgi/restart_services")
         // showToastMessage("Sending Service Restart Request (Please Wait)...")
         // makeJsonApiRequest("/uwsgi/restart_services").then((result) => {
         //     console.log(result)
