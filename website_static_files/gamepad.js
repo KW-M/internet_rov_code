@@ -22,6 +22,7 @@ const DEFUALT_BUTTON_ORDER = [
 // Gamepad help section
 
 var gamepadHelpVisible = false;
+var gamepadHelpText = document.getElementById("gamepad-help-text")
 function setupGamepadHelp() {
     var gamepadContainer = document.getElementById("gamepad-container")
     var gamepadHelpToggleButton = document.getElementById("gamepad-help-button")

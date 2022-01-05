@@ -76,6 +76,9 @@ function handleGamepadInput(buttonStates, axisState) {
             // otherwise, send the function name of the button to the ROV with the current button value
             messageToRov[btnFunctionName] = btnState.value;
         }
+        if (gamepadHelpVisible && btnState.justChanged && btnState.pressed) {
+            gamepadHelpText.innerText = buttonMappingNames[btnName].desc
+        }
     }
 
     var rawAxies = [];

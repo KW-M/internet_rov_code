@@ -379,6 +379,8 @@ button:active {
   height: 60vh;
   min-height: 9cm;
   max-height: 14cm;
+
+  pointer-events: none;
 }
 
 #gamepad-container.help-open {
