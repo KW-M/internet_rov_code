@@ -479,8 +479,7 @@ button:active {
   height: 10cm;
 
   pointer-events: all;
-
-  background-color: #0c61d860;
+  /* background-color: #0c61d860; */
 
   touch-action: none;
 }

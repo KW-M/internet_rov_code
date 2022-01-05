@@ -1,5 +1,6 @@
-
-const DEFUALT_BUTTON_ORDER = ["A",
+var DEFAULT_GAMEPAD_HELP_MSG = "Press any button on your controller or onscreen."
+const DEFUALT_BUTTON_ORDER = [
+    "A",
     "B",
     "X",
     "Y",
@@ -14,7 +15,28 @@ const DEFUALT_BUTTON_ORDER = ["A",
     "dpadUp",
     "dpadDown",
     "dpadLeft",
-    "dpadRight"]
+    "dpadRight"
+]
+
+
+// Gamepad help section
+
+var gamepadHelpVisible = false;
+function setupGamepadHelp() {
+    var gamepadContainer = document.getElementById("gamepad-container")
+    var gamepadHelpToggleButton = document.getElementById("gamepad-help-button")
+    gamepadHelpToggleButton.onclick = () => {
+        if (gamepadHelpVisible == false) {
+            gamepadContainer.classList.add("help-open")
+            gamepadHelpToggleButton.innerText = "Close Help"
+            gamepadHelpText.innerText = 'Press or click any button to see help'
+        } else {
+            gamepadContainer.classList.remove("help-open")
+            gamepadHelpToggleButton.innerText = "Gamepad Help"
+        }
+        gamepadHelpVisible = !gamepadHelpVisible // toggle it
+    }
+}
 
 function initGamepadSupport(gamepadUi, gamepadEmulator, gamepadUpdatedCallback) {
 
@@ -42,6 +64,8 @@ function initGamepadSupport(gamepadUi, gamepadEmulator, gamepadUpdatedCallback) 
         yAxisGpadAxis: 3,
         elem: document.getElementById("gamepad-joystick-touch-area-right"),
     }]);
+
+    setupGamepadHelp();
 
     // otherwise gamepad support is available. so initilize the joymap library
     var lastGamepadCount = 0;

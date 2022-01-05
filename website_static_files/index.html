@@ -389,7 +389,7 @@
         if (location.protocol != 'https:') {
             var sslCertTrusted = false;
 
-            function s slTestCallback() {
+            var sslTestCallback = function () {
                 if (!sslCertTrusted) {
                     if (confirm(`To use game controllers in some browsers, you'll need to have a secure connection (https://).
             Your browser will say a warning message about insecure connection because of a self-signed certificate.

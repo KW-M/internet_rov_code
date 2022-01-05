@@ -177,6 +177,8 @@ if grep " -e '/var/log/nginx_error.log'" "/lib/systemd/system/nginx.service"; th
 	echo -e "$Green nginx.service already has the error log location specified as  -e '/var/log/nginx_error.log'$Color_Off"
 else
 	echo -e "$Cyan Adding nginx error log location specified as  -e '/var/log/nginx_error.log' in /lib/systemd/system/nginx.service $Color_Off"
+	# https://stackoverflow.com/questions/148451/how-to-use-sed-to-replace-only-the-first-occurrence-in-a-file
+	sudo sed -i '0,|ExecStartPre=|{s|ExecStartPre=|ExecStartPre=mkdir -p "/var/log/nginx/"\nExecStartPre=|}' input_filename
 	sudo sed -i "s|/nginx |/nginx -e '/var/log/nginx_error.log' |g" /lib/systemd/system/nginx.service
 	ExecStartPre=/bin/bash -c 'mkdir -p /var/log/nginx/'
 fi

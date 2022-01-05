@@ -42,3 +42,13 @@ function toggleFullscreen(e, elem) {
         }
     }
 }
+
+// Downloads the given link, with an optional filename for the download
+function download(url, filename) {
+    const a = document.createElement('a') // Create <a> hyperlink element
+    a.href = url // Set the hyperlink URL
+    a.download = filename || "" // if left blank the browser will guess the filename for the downloaded file
+    document.body.appendChild(a) // Append the hyperlink to the document body
+    a.click() // Click the hyperlink
+    document.body.removeChild(a) // Remove the hyperlink from the document body
+}

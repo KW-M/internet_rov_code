@@ -34,6 +34,17 @@ setupConnectDisconnectButtonEvents(() => {
 // ------------ Gamepad Related ------------------------
 // -----------------------------------------------------
 
+var handleButtonPressBrowserSide = function (buttonFunction, buttonValue) {
+    if (buttonFunction == "photo") {
+        takePhoto();
+        return true;
+    } else if (buttonFunction == "video") {
+        // toggleVideo();
+        return true;
+    }
+    return false
+}
+
 var buttonMappingNames = {
     'A': { func: 'photo', desc: 'Take Photo' },
     'B': { func: 'record', desc: 'Start/Stop Recording' },
@@ -53,15 +64,16 @@ var buttonMappingNames = {
 var lastROVMotionMessage = {};
 initGamepadSupport(gamepadUi, gamepadEmulator, handleGamepadInput);
 function handleGamepadInput(buttonStates, axisState) {
-    // console.clear();
     var messageToRov = {}
-    // console.log("Button States: " + buttonStates);
     for (const btnName in buttonMappingNames) {
         const btnState = buttonStates[btnName]
         if (btnState == undefined) continue;
         const btnFunctionName = buttonMappingNames[btnName].func;
         const btnFunctionMode = buttonMappingNames[btnName].mode;
         if (btnState.pressed && (btnState.justChanged || btnFunctionMode == "btn_hold_allowed")) {
+            // if this button action is performed in the browser (not on the rov), this function will take care of it, and return true:
+            if (handleButtonPressBrowserSide(btnFunctionName, btnState.value)) continue;
+            // otherwise, send the function name of the button to the ROV with the current button value
             messageToRov[btnFunctionName] = btnState.value;
         }
     }
@@ -84,34 +96,3 @@ function handleGamepadInput(buttonStates, axisState) {
     }
 }
 
-
-// initilizeGamepadInterface({
-
-
-//     // handleGamepadStateChange: function (gamepadState, stateChangesMask) {
-//     //     // console.log(gamepadState, stateChangesMask)
-
-//     //     var updatesPacket = {}
-
-//     //     if (stateChangesMask.buttonsDidChange) {
-//     //         for (let btnNum = 0; btnNum < gamepadState.buttons.length; btnNum++) {
-//     //             if (stateChangesMask.changedButtons[btnNum] != true) continue;
-//     //             if (gamepadState.buttons[btnNum].value >= 0.2) {
-//     //                 // showToastMessage(`Button ${btnNum} pressed`); // [${this.GAME_CONTROLLER_BUTTONS[i].btnName}]
-//     //                 if (btnNum == 0) updatesPacket.toggleLights = true;
-//     //             } else {
-//     //                 // showToastMessage(`Button ${btnNum} released`);
-//     //             }
-//     //         }
-//     //     }
-
-//     //     if (stateChangesMask.axesDidChange) updatesPacket.move = calculateDesiredMotion(gamepadState.axes)
-
-//     //     // send the data packet object as a json string
-//     //     if (Object.keys(updatesPacket).length > 0) {
-//     //         console.log("Sending Updates Message:", updatesPacket)
-//     //         sendUpdateToROV(updatesPacket);
-//     //     }
-//     // }
-
-// })

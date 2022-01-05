@@ -1,13 +1,20 @@
 // this
 function makeJsonApiRequest(url) {
     return fetch(url).then((response) => {
-        response.json()
-    }).then((result) => {
-        if (!result) {
+        response.text()
+    }).then((responseText) => {
+        if (!responseText) {
             throw Error("Got no response from rov")
-        } else if (result['status'] != 'ok') {
+        }
+        try {
+            responseObject = JSON.parse(responseText)
+        } catch (e) {
+            throw Error("Got invalid JSON from rov: " + responseText)
+        }
+        if (responseObject['status'] != 'ok') {
             throw Error(result['message'])
         }
+        return responseObject
     }).catch((e) => {
         console.error(e)
         showToastMessage("Click this message to view full error...", () => {
@@ -41,20 +48,21 @@ function rebootROV() {
 }
 
 function restartROVServices() {
-    if (confirm("Are you sure you want to restart services? - The ROV will be on a different ngrok url when done.")) {
-        showToastMessage("Sending Service Restart Request (Please Wait)...")
-        makeJsonApiRequest("/uwsgi/restart_services").then((result) => {
-            console.log(result)
-            showToastMessage("Click this message to view full output...", () => {
-                window.open().document.write(result['message'] + "|" + (result['error'] || ""))
-            })
-            showToastMessage("ROV Services have Restarted...")
-        })
+    if (confirm("Are you sure you want to restart services? - The ROV may appear to stop responding and be on a different ngrok url when done.")) {
+        window.open("/uwsgi/pull_github_code")
+        // showToastMessage("Sending Service Restart Request (Please Wait)...")
+        // makeJsonApiRequest("/uwsgi/restart_services").then((result) => {
+        //     console.log(result)
+        //     showToastMessage("Click this message to view full output...", () => {
+        //         window.open().document.write(result['message'] + "|" + (result['error'] || ""))
+        //     })
+        //     showToastMessage("ROV Services have Restarted...")
+        // })
     }
 }
 
 function rePullROVGithubCode() {
-    alert("Make sure to click restart ROV services about 30 seconds after it finishes to fully apply any code changes.")
+    alert("Make sure to choose 'Restart ROV Services' from this menu after the pull completes to fully apply any code changes.")
     window.open("/uwsgi/pull_github_code")
     // .then((result) => {
     //     console.log(result)
@@ -84,4 +92,8 @@ function disableWifi() {
             })
         })
     }
+}
+
+function takePhoto() {
+    download("/stream/download_photo")
 }
