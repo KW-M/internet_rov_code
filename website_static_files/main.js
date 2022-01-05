@@ -7,6 +7,7 @@ handleROVMessage = function (message) {
         lastTimeRecvdPong = Date.now();
         networkPingDelay = lastTimeRecvdPong - Number.parseFloat(msgData['pong']) // since the rpi replies with the ms time we sent in the ping in the pong message
         updatePingDisplay(networkPingDelay);
+        if (msgData["sensor_update"]) updateDisplayedSensorValues(msgData["sensor_update"]);
     }
 }
 
