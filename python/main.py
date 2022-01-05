@@ -36,13 +36,13 @@ while True:
             time.sleep(3)
             continue
 
-        sensors.setup_sensors()
+        # sensors.setup_sensors()
         # datalog.setup_datalog(sensors.get_connected_sensor_column_names())
 
         try:
             print('Awaiting connection...')
             msg_socket.setup_socket(socket_path='/tmp/uv4l.socket',
-                                    socket_timeout=3)
+                                    socket_timeout=5)
         except Exception as e:
             is_important = type(e) != TimeoutError and type(
                 e) != FileNotFoundError
@@ -77,10 +77,10 @@ while True:
                 if 'toggleLights' in recived_data:
                     pass
 
-            sensor_values_did_change = sensors.update_all_sensors()
-            if sensor_values_did_change:
-                reply_data[
-                    "sensor_update"] = sensors.get_changed_sensor_values()
+            # sensor_values_did_change = sensors.update_all_sensors()
+            # if sensor_values_did_change:
+            #     reply_data[
+            #         "sensor_update"] = sensors.get_changed_sensor_values()
 
             # finally, send the reply_data as a json string if it has any data in it.
             if len(reply_data) > 0:
