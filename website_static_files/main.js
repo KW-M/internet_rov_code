@@ -108,7 +108,7 @@ if (location.protocol != 'https:') {
                 var m = `Your browser will say a warning message about insecure connection because of a self-signed certificate.
                         In firefox: Click advanced, then 'accept risk' or 'proceede anyway'.
                         In Chrome: type 'thisisunsafe' on the warning page (without quotes)`
-                if (confirm()) {
+                if (confirm(m)) {
                     // redirect to https:// (ie secure ssl)
                     location.protocol = 'https:';
                 }
