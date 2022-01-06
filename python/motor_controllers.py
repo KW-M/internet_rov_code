@@ -96,8 +96,8 @@ class motor_ctl:
         up_right_thrust_amt = -1 * (
             vertical_amt * math.sin(vertical_thruster_angle) +
             strafe_amt * math.cos(vertical_thruster_angle))
-        forward_left_thrust_amt = forward_amt + turn_rate
-        forward_right_thrust_amt = forward_amt - turn_rate
+        forward_left_thrust_amt = forward_amt - turn_rate
+        forward_right_thrust_amt = forward_amt + turn_rate
         self.UP_LEFT_MOTOR.throttle = clamp(-1, up_left_thrust_amt, 1)
         self.UP_RIGHT_MOTOR.throttle = clamp(-1, up_right_thrust_amt, 1)
         self.FORWARD_LEFT_MOTOR.throttle = clamp(-1, forward_left_thrust_amt,
