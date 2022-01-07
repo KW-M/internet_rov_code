@@ -24,6 +24,7 @@ motors = Motion_Controller()
 ######## Main Program Loop ###########
 while True:
     try:
+        # MOTORS
         try:
             motors.init_motor_controllers()
             motors.stop_gpio_and_motors()
@@ -35,15 +36,17 @@ while True:
                                    msg_socket=None)
             time.sleep(3)
             continue
-        # ^ Keeps motors off while disconnected.
-        try:
-            sensors.setup_sensors()
-        except Exception as e:
-            pretty_print_exception(e,
-                                   show_traceback=is_important,
-                                   msg_socket=None)
+
+        # SENSORS
+        # try:
+        #     sensors.setup_sensors()
+        # except Exception as e:
+        #     pretty_print_exception(e,
+        #                            show_traceback=is_important,
+        #                            msg_socket=None)
         # datalog.setup_datalog(sensors.get_connected_sensor_column_names())
 
+        # SOCKET DATACHANEL
         try:
             print('Awaiting connection...')
             msg_socket.setup_socket(socket_path='/tmp/uv4l.socket',
