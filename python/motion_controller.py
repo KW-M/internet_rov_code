@@ -9,8 +9,8 @@ from utilities import *
 
 class pwm_motor:
     """ for the adafruit drv8871 single motor controllers
-    in1_pin: the raspberry pi pin going to in1 pin on the motor controller
-    in2_pin: the raspberry pi pin going to in2 pin on the motor controller
+    pin_in1: the raspberry pi pin going to in1 pin on the motor controller
+    pin_in2: the raspberry pi pin going to in2 pin on the motor controller
     pigpio_instance: the pigpio instance to use to drive the pwm
     """
     def __init__(self, pigpio_instance, pin_in1, pin_in2):
@@ -29,19 +29,19 @@ class pwm_motor:
         # https://abyz.me.uk/rpi/pigpio/python.html#set_PWM_dutycycle
         if (speed > 0):
             speed = math.min(speed, 1)  # cap speed at 1 (max)
-            self.pigpio_instance.write(self.in1_pin, 0)  # PWM off
+            self.pigpio_instance.write(self.pin_in1, 0)  # PWM off
             # for real motor conrol these should be 1 not 0
             # 254 because 255 means breaking mode on the drv8871
-            self.pigpio_instance.set_PWM_dutycycle(self.in2_pin, speed * 254)
+            self.pigpio_instance.set_PWM_dutycycle(self.pin_in2, speed * 254)
         elif (speed < 0):
             speed = -speed  # cancel out negative speed value
             speed = math.min(speed, 1)  # cap speed at 1 (max)
-            self.pigpio_instance.set_PWM_dutycycle(self.in1_pin, speed * 254)
-            self.pigpio_instance.write(self.in2_pin, 0)  # PWM off
+            self.pigpio_instance.set_PWM_dutycycle(self.pin_in1, speed * 254)
+            self.pigpio_instance.write(self.pin_in2, 0)  # PWM off
             # for real motor conroll these should be 1 not 0
         else:
-            self.pigpio_instance.write(self.in1_pin, 0)  # PWM off
-            self.pigpio_instance.write(self.in2_pin, 0)  # PWM off
+            self.pigpio_instance.write(self.pin_in1, 0)  # PWM off
+            self.pigpio_instance.write(self.pin_in2, 0)  # PWM off
 
 
 class Motion_Controller:
