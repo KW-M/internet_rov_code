@@ -28,14 +28,14 @@ class pwm_motor:
         """
         # https://abyz.me.uk/rpi/pigpio/python.html#set_PWM_dutycycle
         if (speed > 0):
-            speed = math.min(speed, 1)  # cap speed at 1 (max)
+            speed = min(speed, 1)  # cap speed at 1 (max)
             self.pigpio_instance.write(self.pin_in1, 0)  # PWM off
             # for real motor conrol these should be 1 not 0
             # 254 because 255 means breaking mode on the drv8871
             self.pigpio_instance.set_PWM_dutycycle(self.pin_in2, speed * 254)
         elif (speed < 0):
             speed = -speed  # cancel out negative speed value
-            speed = math.min(speed, 1)  # cap speed at 1 (max)
+            speed = min(speed, 1)  # cap speed at 1 (max)
             self.pigpio_instance.set_PWM_dutycycle(self.pin_in1, speed * 254)
             self.pigpio_instance.write(self.pin_in2, 0)  # PWM off
             # for real motor conroll these should be 1 not 0
