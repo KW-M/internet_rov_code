@@ -12,29 +12,20 @@ from datalog import sensor_datalog
 
 # import our python files from the same directory
 from socket_datachanel import socket_datachanel
-from motor_controllers import motor_ctl
+from motion_controller import Motion_Controller
 from sensors import sensor_ctrl
 from utilities import *
 
 msg_socket = socket_datachanel()
 sensors = sensor_ctrl()
 # datalog = sensor_datalog()
-motors = motor_ctl()
+motors = Motion_Controller()
 
 ######## Main Program Loop ###########
 while True:
     try:
-        try:
-            motors.init_motor_controllers()
-            motors.stop_gpio_and_motors()
-            # ^ Keeps motors off while disconnected.
-        except Exception as e:
-            is_important = type(e) != ValueError
-            pretty_print_exception(e,
-                                   show_traceback=is_important,
-                                   msg_socket=None)
-            time.sleep(3)
-            continue
+        motors.stop_gpio_and_motors()
+        # ^ Keeps motors off while disconnected.
         try:
             sensors.setup_sensors()
         except Exception as e:
@@ -81,10 +72,10 @@ while True:
                 if 'toggleLights' in recived_data:
                     pass
 
-            sensor_values_did_change = sensors.update_all_sensors()
-            if sensor_values_did_change:
-                reply_data[
-                    "sensor_update"] = sensors.get_changed_sensor_values()
+            # sensor_values_did_change = sensors.update_all_sensors()
+            # if sensor_values_did_change:
+            #     reply_data[
+            #         "sensor_update"] = sensors.get_changed_sensor_values()
 
             # finally, send the reply_data as a json string if it has any data in it.
             if len(reply_data) > 0:
@@ -99,5 +90,6 @@ while True:
         # Clean up the connection
         print('Closing connection...')
         motors.stop_gpio_and_motors()
+        motors.cleanup_gpio()
         msg_socket.close_socket()
         time.sleep(3)
