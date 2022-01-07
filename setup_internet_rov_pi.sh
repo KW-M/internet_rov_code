@@ -272,6 +272,8 @@ cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 /bin/bash ./update_config_files.sh # run the update config files script in this folder.
 
 echo -e "$Cyan Enabling systemd (systemctl) services so they start at boot (or whenever configured too)... $Color_Off"
+echo -e "$Green enabling pigpiod.service ... $Color_Off"
+sudo systemctl enable pigpiod.service
 echo -e "$Green enabling rov_python_code.service ... $Color_Off"
 sudo systemctl enable rov_python_code.service # enable the new rov_python_code service
 echo -e "$Green enabling rov_bluetooth_terminal.service ... $Color_Off"

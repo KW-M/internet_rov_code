@@ -73,8 +73,7 @@ echo "Restarting systemd (systemctl) Services..."
 sudo systemctl daemon-reload
 
 echo "Restarting pigpiod.service..."
-sudo systemctl enable pigpiod.service
-sudo systemctl restart pigpio
+sudo systemctl restart pigpiod
 echo "restarting rov_python_code.service..."
 sudo systemctl restart rov_python_code.service
 echo "restarting uv4l_raspicam.service..."
