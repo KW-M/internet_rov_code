@@ -24,7 +24,17 @@ motors = Motion_Controller()
 ######## Main Program Loop ###########
 while True:
     try:
-        motors.stop_gpio_and_motors()
+        try:
+            motors.init_motor_controllers()
+            motors.stop_gpio_and_motors()
+            # ^ Keeps motors off while disconnected.
+        except Exception as e:
+            is_important = type(e) != ValueError
+            pretty_print_exception(e,
+                                   show_traceback=is_important,
+                                   msg_socket=None)
+            time.sleep(3)
+            continue
         # ^ Keeps motors off while disconnected.
         try:
             sensors.setup_sensors()
@@ -51,17 +61,6 @@ while True:
             print('Connected!')
 
         while True:
-            try:
-                motors.init_motor_controllers()
-                motors.stop_gpio_and_motors()
-                # ^ Keeps motors off while disconnected.
-            except Exception as e:
-                is_important = type(e) != ValueError
-                pretty_print_exception(e,
-                                       show_traceback=is_important,
-                                       msg_socket=None)
-                time.sleep(3)
-                continue
 
             reply_data = {}
 
