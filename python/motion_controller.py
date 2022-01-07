@@ -17,10 +17,11 @@ class pwm_motor:
         self.pigpio_instance = pigpio_instance
         self.pin_in1 = pin_in1
         self.pin_in2 = pin_in2
-        self.pi.set_mode(self.pin_in1, pigpio.OUTPUT)
-        self.pi.set_mode(self.pin_in2, pigpio.OUTPUT)
-        # self.pi.set_PWM_frequency(self.pin_pwm, 500)
-        self.pi.set_PWM_dutycycle(self.pin_pwm, 0)  # Halt pwm / motor
+        self.pigpio_instance.set_mode(self.pin_in1, pigpio.OUTPUT)
+        self.pigpio_instance.set_mode(self.pin_in2, pigpio.OUTPUT)
+        # self.pigpio_instance.set_PWM_frequency(self.pin_pwm, 500)
+        self.pigpio_instance.set_PWM_dutycycle(self.pin_pwm,
+                                               0)  # Halt pwm / motor
 
     def set_speed(self, speed):
         """
