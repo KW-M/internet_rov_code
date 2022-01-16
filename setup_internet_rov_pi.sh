@@ -171,15 +171,16 @@ else
 fi
 
 # --------- Setup nginx to log to the file nginx_error.log ---------
-# this solves the problem of missing the nginx log folder when the temp filesystem first starts up.
-if grep "/var/log/nginx" "/lib/systemd/system/nginx.service"; then
-	# ^checks if we have already added words " -e '/var/log/nginx_error.log'" to the nginx.service file:
-	echo -e "$Green nginx.service already has the nginx error log folder '/var/log/nginx' already added in /lib/systemd/system/nginx.service$Color_Off"
-else
-	echo -e "$Cyan Adding nginx error log folder '/var/log/nginx' in /lib/systemd/system/nginx.service $Color_Off"
-	# https://stackoverflow.com/questions/148451/how-to-use-sed-to-replace-only-the-first-occurrence-in-a-file
-	sudo sed -i '0,/ExecStartPre=/s//ExecStartPre=mkdir -p "\/var\/log\/nginx\/"\nExecStartPre=/' /lib/systemd/system/nginx.service
-fi
+sudo apt install -y nginx
+# # this solves the problem of missing the nginx log folder when the temp filesystem first starts up.
+# if grep "/var/log/nginx" "/lib/systemd/system/nginx.service"; then
+# 	# ^checks if we have already added words " -e '/var/log/nginx_error.log'" to the nginx.service file:
+# 	echo -e "$Green nginx.service already has the nginx error log folder '/var/log/nginx' already added in /lib/systemd/system/nginx.service$Color_Off"
+# else
+# 	echo -e "$Cyan Adding nginx error log folder '/var/log/nginx' in /lib/systemd/system/nginx.service $Color_Off"
+# 	# https://stackoverflow.com/questions/148451/how-to-use-sed-to-replace-only-the-first-occurrence-in-a-file
+# 	sudo sed -i '0,/ExecStartPre=/s//ExecStartPre=mkdir -p "\/var\/log\/nginx\/"\nExecStartPre=/' /lib/systemd/system/nginx.service
+# fi
 
 # --------- generate ssl certificate --------------------------------
 # From: https://raspberrypi.stackexchange.com/a/66939
@@ -210,6 +211,7 @@ sudo apt-get -y update && sudo apt-get -y upgrade # https://learn.adafruit.com/c
 # # From: https://www.linux-projects.org/uv4l/installation/
 # echo -e "$Cyan Installing packages with apt: nginx uv4l uv4l-raspicam  uv4l-server uv4l-demos $Color_Off"
 # sudo apt install -y nginx uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras
+
 
 # echo -e "$Cyan Installing uv4l webrtc plugin with apt (package depending on raspberry pi model) $Color_Off"
 # # From: https://www.highvoltagecode.com/post/webrtc-on-raspberry-pi-live-hd-video-and-audio-streaming
