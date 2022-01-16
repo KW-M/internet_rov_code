@@ -58,10 +58,10 @@ apt-get update \
 # sudo modprobe v4l2loopback video_nr=3
 # (trap 'kill 0' SIGINT; v4l2compress_omx /dev/video0 /dev/video3 & ./webrtc-streamer -n my -u v4l2:///dev/video3)
 # /usr/lib/arm-linux-gnueabihf/v4l2-compat.so
-sudo apt install -y git wget
-wget https://dl.google.com/go/go1.16.5.linux-armv6l.tar.gz
-sudo tar -C /usr/local -xzf go1.16.5.linux-armv6l.tar.gz
-rm go1.16.5.linux-armv6l.tar.gz
+
+
+
+
 # https://github.com/roboportal/bot_box
 go run . -rtbufsize 100M -f dshow -i video="/dev/video0" -pix_fmt yuv420p -c:v libx264 -bsf:v h264_mp4toannexb -b:v 2M -max_delay 0 -bf 0 -f h264
 # https://github.com/pion/mediadevices
@@ -93,15 +93,49 @@ v4l2-ctl \
 roboportal.io/
 https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/libcamera_dev_links.txt
 
-
+# ffmpeg option
 https://github.com/ashellunts/ffmpeg-to-webrtc
 git clone https://github.com/ashellunts/ffmpeg-to-webrtc
 cd ffmpeg-to-webrtc/
 cd src/
 go run . -rtbufsize 100M -f dshow -i video="/dev/video0" -pix_fmt yuv420p -c:v libx264 -bsf:v h264_mp4toannexb -b:v 2M -max_delay 0 -bf 0 -f h264 - < SDP.txt
 
+# ALTERNATIVE
+# https://github.com/dwoja22/ffmpeg-webrtc
+sudo apt install v4l-utils -y
+sudo apt install ffmpeg -y
+git clone https://github.com/KW-M/ffmpeg-webrtc.git
+cd ffmpeg-webrtc/
+go build
+./ffmpeg-webrtc
+
+
+
+
 
 
  ffplay udp://raspberrypi.local:8888 -vf "setpts=N/30" -fflags nobuffer -flags low_delay -framedrop
 
  ffmpeg -f rawvideo -pix_fmt yuv420p -video_size 852x480 -use_wallclock_as_timestamps 1 -i /dev/video0 -vsync 1 -r 30 -c:v h264_v4l2m2m -an -f rtp_mpegts "udp://localhost:5004"
+
+
+# ----- how to install go ---
+if grep "GOPATH=" ~/.profile; then
+	# ^checks if we have already added words "GOPATH=" to the  ~/.profile file:
+	echo -e "$Green Go path already setup in ~/.profile $Color_Off"
+else
+# https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/
+    echo -e "$Cyan Installing GO and adding GOPATH to ~/.profile $Color_Off"
+    sudo rm -r /usr/local/go | true # remove any old version of go
+    sudo apt install -y git wget
+    wget https://dl.google.com/go/go1.17.6.linux-armv6l.tar.gz
+
+    sudo tar -C /usr/local -xzf go1.17.6.linux-armv6l.tar.gz
+    rm go1.17.6.linux-armv6l.tar.gz
+    echo 'PATH=$PATH:/usr/local/go/bin' | sudo tee -a ~/.profile
+    echo 'GOPATH=$HOME/golang' | sudo tee -a ~/.profile
+    source ~/.profile
+fi
+
+
+https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/

@@ -193,13 +193,13 @@ if [ ! -e "$HOME/webserver_ssl_cert/selfsigned.key" ] || [ ! -e "$HOME/webserver
 	sudo openssl req -x509 -nodes -newkey rsa:2048 -keyout "$HOME/webserver_ssl_cert/selfsigned.key" -out "$HOME/webserver_ssl_cert/selfsigned.cert" -sha256 -days 365 -subj "/C=US/ST=California/L=Monterey/O=SSROV/CN=internet_rov"
 fi
 
-# From: https://www.linux-projects.org/uv4l/installation/
-echo -e "$Cyan Adding uv4l repository key to apt... $Color_Off"
-curl https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo apt-key add -
-# The above command is depricated, the one bellow should probably work in the future (see: https://suay.site/?p=526)
-curl -s https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/uv4l.gpg --import
-sudo chmod 644 /etc/apt/trusted.gpg.d/uv4l.gpg
-echo -e "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | sudo tee /etc/apt/sources.list.d/uv4l.list
+# # From: https://www.linux-projects.org/uv4l/installation/
+# echo -e "$Cyan Adding uv4l repository key to apt... $Color_Off"
+# curl https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo apt-key add -
+# # The above command is depricated, the one bellow should probably work in the future (see: https://suay.site/?p=526)
+# curl -s https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/uv4l.gpg --import
+# sudo chmod 644 /etc/apt/trusted.gpg.d/uv4l.gpg
+# echo -e "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | sudo tee /etc/apt/sources.list.d/uv4l.list
 
 echo -e "$Cyan Making sure all system & package updates are installed... $Color_Off"
 sudo apt -y full-upgrade
@@ -207,19 +207,46 @@ sudo apt -y dist-upgrade
 sudo apt -y update
 sudo apt-get -y update && sudo apt-get -y upgrade # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 
-# From: https://www.linux-projects.org/uv4l/installation/
-echo -e "$Cyan Installing packages with apt: nginx uv4l uv4l-raspicam  uv4l-server uv4l-demos $Color_Off"
-sudo apt install -y nginx uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras
+# # From: https://www.linux-projects.org/uv4l/installation/
+# echo -e "$Cyan Installing packages with apt: nginx uv4l uv4l-raspicam  uv4l-server uv4l-demos $Color_Off"
+# sudo apt install -y nginx uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras
 
-echo -e "$Cyan Installing uv4l webrtc plugin with apt (package depending on raspberry pi model) $Color_Off"
-# From: https://www.highvoltagecode.com/post/webrtc-on-raspberry-pi-live-hd-video-and-audio-streaming
-if [[ $PI_CPU_ARCHITECTURE == "armv6l" ]]; then
-	echo -e "$Green PI with ARMv6 cpu detected (Pi Zero or similar), installing uv4l-webrtc-armv6 $Color_Off"
-	sudo apt install -y uv4l-webrtc-armv6
+# echo -e "$Cyan Installing uv4l webrtc plugin with apt (package depending on raspberry pi model) $Color_Off"
+# # From: https://www.highvoltagecode.com/post/webrtc-on-raspberry-pi-live-hd-video-and-audio-streaming
+# if [[ $PI_CPU_ARCHITECTURE == "armv6l" ]]; then
+# 	echo -e "$Green PI with ARMv6 cpu detected (Pi Zero or similar), installing uv4l-webrtc-armv6 $Color_Off"
+# 	sudo apt install -y uv4l-webrtc-armv6
+# else
+# 	echo -e "$Green PI with non ARMv6 (v7 or higher) cpu detected, installing uv4l-webrtc $Color_Off"
+# 	sudo apt install -y uv4l-webrtc
+# fi
+
+# ---- INSTALL GO ----
+if grep "GOPATH=" ~/.profile; then
+	# ^checks if we have already added words "GOPATH=" to the  ~/.profile file:
+	echo -e "$Green Go path already setup in ~/.profile $Color_Off"
 else
-	echo -e "$Green PI with non ARMv6 (v7 or higher) cpu detected, installing uv4l-webrtc $Color_Off"
-	sudo apt install -y uv4l-webrtc
+# https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/
+    echo -e "$Cyan Installing GO and adding GOPATH to ~/.profile $Color_Off"
+    sudo rm -r /usr/local/go | true # remove any old version of go
+    sudo apt install -y git wget
+    wget https://dl.google.com/go/go1.17.6.linux-armv6l.tar.gz
+
+    sudo tar -C /usr/local -xzf go1.17.6.linux-armv6l.tar.gz
+    rm go1.17.6.linux-armv6l.tar.gz
+    echo 'PATH=$PATH:/usr/local/go/bin' | sudo tee -a ~/.profile
+    echo 'GOPATH=$HOME/golang' | sudo tee -a ~/.profile
+    source ~/.profile
 fi
+
+# UV4L ALTERNATIVE
+# https://github.com/dwoja22/ffmpeg-webrtc
+sudo apt install v4l-utils -y
+sudo apt install ffmpeg -y
+git clone https://github.com/KW-M/ffmpeg-webrtc.git
+cd ffmpeg-webrtc/
+go build
+./ffmpeg-webrtc
 
 # From: https://www.youtube.com/watch?v=Q-m4i7LFxLA
 echo -e "$Cyan Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils $Color_Off"
@@ -240,27 +267,25 @@ echo -e "$Green Updating ngrok $Color_Off"
 ~/ngrok update
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 
-
-
 # ----------------------------------------------------------------------------------------------------------------------
-#from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
-# if ! command -v libcamera-hello &> /dev/null || ! dmesg | grep arducam; then
-# 	echo -e "$Cyan Installing arducam pivariety camera driver $Color_Off"
-# 	wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
-# 	chmod +x install_pivariety_pkgs.sh
-# 	echo "n" | ./install_pivariety_pkgs.sh -p kernel_driver
-# 	./install_pivariety_pkgs.sh -p libcamera_dev
-# 	./install_pivariety_pkgs.sh -p libcamera_apps
-# fi
+# from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
+if ! command -v libcamera-hello &> /dev/null || ! dmesg | grep arducam; then
+	echo -e "$Cyan Installing arducam pivariety camera driver $Color_Off"
+	wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
+	chmod +x install_pivariety_pkgs.sh
+	echo "n" | ./install_pivariety_pkgs.sh -p kernel_driver
+	./install_pivariety_pkgs.sh -p libcamera_dev
+	./install_pivariety_pkgs.sh -p libcamera_apps
+fi
 
 # ----------------------------------------------------------------------------------------------------------------------
 # from: https://learn.netdata.cloud/docs/agent/packaging/installer/methods/kickstart
 # check if the netdata command already exists:
-if ! command -v netdata &> /dev/null; then
-	echo -e "$Cyan Installing netdata... $Color_Off"
- 	bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive --disable-cloud --disable-telemetry
-	sudo systemctl disable netdata
-fi
+# if ! command -v netdata &> /dev/null; then
+# 	echo -e "$Cyan Installing netdata... $Color_Off"
+#  	bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive --disable-cloud --disable-telemetry
+# 	sudo systemctl disable netdata
+# fi
 
 # clean up any packages that were installed to aid installing anything else, but are no longer needed
 sudo apt autoremove -y
