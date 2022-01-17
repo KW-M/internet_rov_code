@@ -172,6 +172,7 @@ fi
 
 # --------- Setup nginx to log to the file nginx_error.log ---------
 sudo apt install -y nginx
+sudo apt autoremove -y
 # # this solves the problem of missing the nginx log folder when the temp filesystem first starts up.
 # if grep "/var/log/nginx" "/lib/systemd/system/nginx.service"; then
 # 	# ^checks if we have already added words " -e '/var/log/nginx_error.log'" to the nginx.service file:
@@ -203,11 +204,12 @@ fi
 # echo -e "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | sudo tee /etc/apt/sources.list.d/uv4l.list
 
 echo -e "$Cyan Making sure all system & package updates are installed... $Color_Off"
+sudo apt -y autoremove
+sudo apt -y update
 sudo apt -y full-upgrade
 sudo apt -y dist-upgrade
-sudo apt -y update
-sudo apt-get -y update && sudo apt-get -y upgrade # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
-
+# sudo apt-get -y update && sudo apt-get -y upgrade # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+sudo apt -y autoremove
 # # From: https://www.linux-projects.org/uv4l/installation/
 # echo -e "$Cyan Installing packages with apt: nginx uv4l uv4l-raspicam  uv4l-server uv4l-demos $Color_Off"
 # sudo apt install -y nginx uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras
