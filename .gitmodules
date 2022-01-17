@@ -1,3 +1,0 @@
-[submodule "ffmpeg-webrtc"]
-	path = ffmpeg-webrtc
-	url = https://github.com/KW-M/ffmpeg-webrtc.git
