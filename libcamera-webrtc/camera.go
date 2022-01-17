@@ -53,7 +53,7 @@ func (c *Camera) Stream(videoTrack *webrtc.Track) error {
 
 	// log.Println("Done Waiting")
 
-	time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 5)
 	fmt.Println("Hello, playground")
 
 	// connect to site
@@ -65,7 +65,7 @@ func (c *Camera) Stream(videoTrack *webrtc.Track) error {
 
 	fmt.Printf("connected\n")
 
-	conn.SetDeadline(time.Second * 0)
+	// conn.SetDeadline(time.zero)
 
 	framebuffer := make(chan []byte, 60)
 
