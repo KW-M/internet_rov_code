@@ -29,7 +29,7 @@ func (c *Camera) Stream(videoTrack *webrtc.Track) error {
 	// cmd := exec.Command("ffmpeg -framerate 30 -f v4l2 -input_format h264 -video_size 640x480 -i pipe:0 -c copy -f h264 pipe:1")
 	// // cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "24", "--codec", "h264", "--inline", "1", "--flush", "1", "-t","0", "-o", "-")
 	// cmd := exec.Command("libcamera-vid --width 640 --height 480 --framerate 24 --codec h264 --inline 1 --flush 1 -t 0 -o -")
-	cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "24", "--codec", "h264", "--inline", "1", "--flush", "1", "-t", "0", "--listen", "-o", "udp://0.0.0.0:8585")
+	cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "24", "--codec", "h264", "--inline", "1", "--flush", "1", "-t", "0", "-o", "udp://0.0.0.0:8585")
 
 	fmt.Println(cmd.Args)
 
