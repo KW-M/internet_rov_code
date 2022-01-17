@@ -86,7 +86,7 @@ func (c *Camera) Stream(videoTrack *webrtc.Track) error {
 					fmt.Printf("failed to read from socket: %s\n", err)
 					return
 				}
-				fmt.Printf("bytes read: %d, content: %s\n", nread, framebytes)
+				fmt.Printf("bytes read: %d\n", nread)
 
 				framebuffer <- framebytes[:nread]
 			}
