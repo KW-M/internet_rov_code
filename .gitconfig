@@ -1,0 +1,5 @@
+[status]
+	submodulesummary = 1
+
+[submodule]
+	recurse = true
