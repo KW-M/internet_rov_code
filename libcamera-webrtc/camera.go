@@ -43,7 +43,7 @@ func (c *Camera) Stream(videoTrack *webrtc.Track) error {
 		framebytes := make([]byte, 600000)
 		n, err := dataPipe.Read(framebytes)
 		myString := string(framebytes[:n])
-		log.Println(myString)
+		log.Println(myString,err)
 	}
 
 	log.Println("Done Waiting")
