@@ -65,7 +65,7 @@ func (c *Camera) Stream(videoTrack *webrtc.Track) error {
 
 	fmt.Printf("connected\n")
 
-	conn.SetDeadline(time.Now().Add(time.Second * 5))
+	conn.SetDeadline(0)
 
 	framebuffer := make(chan []byte, 60)
 
