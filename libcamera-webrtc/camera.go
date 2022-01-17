@@ -37,16 +37,16 @@ func (c *Camera) Stream(videoTrack *webrtc.Track) error {
 		return err
 	}
 
-	log.Println("Waiting for 600 frames to pass ", err)
+	log.Println("Waiting for 600 frames to pass ")
 
 	for i := 0; i < 600; i++ {
 		framebytes := make([]byte, 600000)
 		n, err := dataPipe.Read(framebytes)
-		myString := string(framebytes[:])
-		log.Println(myString, err)
+		myString := string(framebytes[:n])
+		log.Println(myString)
 	}
 
-	log.Println("Done Waiting", err)
+	log.Println("Done Waiting")
 
 	framebuffer := make(chan []byte, 60)
 
