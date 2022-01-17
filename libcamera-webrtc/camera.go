@@ -53,6 +53,7 @@ func (c *Camera) Stream(videoTrack *webrtc.Track) error {
 
 	// log.Println("Done Waiting")
 
+	time.Sleep(time.Second * 10)
 	fmt.Println("Hello, playground")
 
 	// connect to site
