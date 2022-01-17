@@ -56,7 +56,7 @@ func (c *Camera) Stream(videoTrack *webrtc.Track) error {
 	fmt.Println("Hello, playground")
 
 	// connect to site
-	conn, err := net.Dial("tcp", "127.0.0.1:8585:http")
+	conn, err := net.Dial("tcp", "127.0.0.1:8585")
 	if err != nil {
 		fmt.Printf("failed to connect: %s\n", err)
 		return err
