@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"log"
+	"time"
 	"os"
 	"os/exec"
 	"syscall"
@@ -58,7 +59,7 @@ func (c *Camera) Stream(videoTrack *webrtc.Track) error {
 	conn, err := net.Dial("tcp", "127.0.0.1:8585:http")
 	if err != nil {
 		fmt.Printf("failed to connect: %s\n", err)
-		return
+		return err
 	}
 
 	fmt.Printf("connected\n")
@@ -84,7 +85,7 @@ func (c *Camera) Stream(videoTrack *webrtc.Track) error {
 					fmt.Printf("failed to read from socket: %s\n", err)
 					return
 				}
-				fmt.Printf("bytes read: %d, content: %s\n", nread, buffer)
+				fmt.Printf("bytes read: %d, content: %s\n", nread, framebytes)
 
 				framebuffer <- framebytes[:nread]
 			}
