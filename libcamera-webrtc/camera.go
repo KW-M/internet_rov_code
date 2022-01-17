@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net"
 	"log"
 	"os"
 	"os/exec"
@@ -23,30 +24,46 @@ type Camera struct {
 }
 
 func (c *Camera) Stream(videoTrack *webrtc.Track) error {
-	// cmd := exec.Command("ffmpeg", "-framerate", "30", "-f", "v4l2", "-input_format", "h264", "-video_size", fmt.Sprintf("%vx%v", c.Width, c.Height), "-i", c.DevicePath, "-c", "copy", "-f", "h264", "pipe:1")
-	cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "24", "--codec", "h264", "--inline", "1", "--flush", "1", "-t","0", "-o", "-")
+	// // cmd := exec.Command("ffmpeg", "-framerate", "30", "-f", "v4l2", "-input_format", "h264", "-video_size", fmt.Sprintf("%vx%v", c.Width, c.Height), "-i", c.DevicePath, "-c", "copy", "-f", "h264", "pipe:1")
+	// cmd := exec.Command("ffmpeg -framerate 30 -f v4l2 -input_format h264 -video_size 640x480 -i pipe:0 -c copy -f h264 pipe:1")
+	// // cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "24", "--codec", "h264", "--inline", "1", "--flush", "1", "-t","0", "-o", "-")
+	// cmd := exec.Command("libcamera-vid --width 640 --height 480 --framerate 24 --codec h264 --inline 1 --flush 1 -t 0 -o -")
+	cmd := exec.Command("libcamera-vid  --width 640 --height 480 --framerate 24 --codec h264 --inline 1 --flush 1 -t 0 --listen -o tcp://0.0.0.0:8585")
 
 	fmt.Println(cmd.Args)
 
-	dataPipe, err := cmd.StdoutPipe()
-	if err != nil {
-		log.Fatal("could not create named pipe. ", err)
-	}
+	// dataPipe, err := cmd.StdoutPipe()
+	// if err != nil {
+	// 	log.Fatal("could not create named pipe. ", err)
+	// }
 
 	if err := execCmd(cmd); err != nil {
 		return err
 	}
 
-	log.Println("Waiting for 600 frames to pass ")
+	// log.Println("Waiting for 600 frames to pass ")
 
-	for i := 0; i < 6; i++ {
-		framebytes := make([]byte, 600000)
-		n, err := dataPipe.Read(framebytes)
-		myString := string(framebytes[:n])
-		log.Println(myString,err)
+	// for i := 0; i < 6; i++ {
+	// 	framebytes := make([]byte, 600000)
+	// 	n, err := dataPipe.Read(framebytes)
+	// 	myString := string(framebytes[:n])
+	// 	log.Println(myString,err)
+	// }
+
+	// log.Println("Done Waiting")
+
+	fmt.Println("Hello, playground")
+
+	// connect to site
+	conn, err := net.Dial("tcp", "127.0.0.1:8585:http")
+	if err != nil {
+		fmt.Printf("failed to connect: %s\n", err)
+		return
 	}
 
-	log.Println("Done Waiting")
+	fmt.Printf("connected\n")
+
+	conn.SetDeadline(time.Now().Add(time.Second * 5))
 
 	framebuffer := make(chan []byte, 60)
 
@@ -57,12 +74,19 @@ func (c *Camera) Stream(videoTrack *webrtc.Track) error {
 				return
 			default:
 				framebytes := make([]byte, 600000)
-				n, err := dataPipe.Read(framebytes)
-				if err != nil {
-					log.Println("could not read pipe. ", err)
-				}
+				// n, err := dataPipe.Read(framebytes)
+				// if err != nil {
+				// 	log.Println("could not read pipe. ", err)
+				// }
 
-				framebuffer <- framebytes[:n]
+				nread, err := conn.Read(framebytes)
+				if err != nil {
+					fmt.Printf("failed to read from socket: %s\n", err)
+					return
+				}
+				fmt.Printf("bytes read: %d, content: %s\n", nread, buffer)
+
+				framebuffer <- framebytes[:nread]
 			}
 		}
 	}()
