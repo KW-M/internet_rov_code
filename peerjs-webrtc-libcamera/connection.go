@@ -164,7 +164,7 @@ func setupWebrtcConnection(done chan bool) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		_, err := rovWebsocketPeer.Call("SPilot", videoTrack, peerjs.NewConnectionOptions());
+		_, err = rovWebsocketPeer.Call("SPilot", videoTrack, peerjs.NewConnectionOptions());
 		if err != nil {
 			log.Fatal(err)
 		}
