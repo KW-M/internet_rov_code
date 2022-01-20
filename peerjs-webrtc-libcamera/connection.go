@@ -160,7 +160,10 @@ func setupWebrtcConnection(done chan bool) {
 		}
 	})
 
-	select {}
+	select {
+		case <-done: // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
+			return
+	}
 
 	// setup peerjs-go
 	peerjsOpts := peerjs.NewOptions()
@@ -173,9 +176,9 @@ func setupWebrtcConnection(done chan bool) {
 	peerjsOpts.Key = "peerjs"
 
 	rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
-	defer rovWebsocketpeerjs.Close() // close the websocket connection when this function exits
+	defer rovWebsocketpeer.Close() // close the websocket connection when this function exits
 
-	rovWebsocketpeerjs.On("connection", func(dataConn interface{}) {
+	rovWebsocketpeer.On("connection", func(dataConn interface{}) {
 
 		log.Println("Got connection!")
 
@@ -193,7 +196,7 @@ func setupWebrtcConnection(done chan bool) {
 		// if err != nil {
 		// 	log.Fatal(err)
 		// }
-		// _, err = rovWebsocketpeerjs.Call("SPilot", videoTrack, peerjs.NewConnectionOptions());
+		// _, err = rovWebsocketpeer.Call("SPilot", videoTrack, peerjs.NewConnectionOptions());
 		// if err != nil {
 		// 	log.Fatal(err)
 		// }
