@@ -5,7 +5,7 @@ package main
 import (
 	// "encoding/json"
 	// "io/ioutil"
-	"errors"
+	// "errors"
 	"log"
 	// "flag"
 	"fmt"
@@ -61,7 +61,7 @@ var (
 
 
 
-func pipeVideoToStream(done chan bool, videoTrack *webrtc.Track) error {
+func pipeVideoToStream(done chan bool, videoTrack *webrtc.TrackLocalStaticSample) error {
 	// Startup libcamera-vid command to get the video data from the camera exposed (locally) on a http/tcp port
 	cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "20", "--bitrate", "8000000", "--codec", "h264",  "--inline", "1", "--flush", "1", "--timeout", "0", "--listen", "1",  "--output", "tcp://0.0.0.0:8585")
 	fmt.Println(cmd.Args)
@@ -163,7 +163,7 @@ func setupWebrtcConnection(done chan bool) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		var call = rovWebsocketPeer.call("SPilot", videoTrack);
+		var call = rovWebsocketPeer.Call("SPilot", videoTrack);
 		pipeVideoToStream(done, videoTrack)
 	})
 }
