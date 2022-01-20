@@ -178,7 +178,7 @@ func setupWebrtcConnection(done chan bool) {
 	rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
 	defer rovWebsocketPeer.Close() // close the websocket connection when this function exits
 
-	conn1, _ := rovWebsocketPeer.Connect("peer2", nil)
+	conn1, _ := rovWebsocketPeer.Connect("SPilot", nil)
 	conn1.On("open", func(data interface{}) {
 		for {
 			conn1.Send([]byte("hi!"), false)
