@@ -168,6 +168,6 @@ func setupWebrtcConnection(done chan bool) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		pipeVideoToStream(done, videoTrack)
+		pipeVideoToStream(done)
 	})
 }
