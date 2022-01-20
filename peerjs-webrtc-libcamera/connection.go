@@ -165,41 +165,41 @@ func setupWebrtcConnection(done chan bool) {
 			return
 	}
 
-	// setup peerjs-go
-	peerjsOpts := peerjs.NewOptions()
-	peerjsOpts.Debug = 3
-	// peerjsOpts.Host = "0.peerjs.com"
-	// peerjsOpts.Port = 9000
-	// peerjsOpts.Path = "/"
-	// peerjsOpts.reliable = true // < this option may change from "reliable" to "ordered" in a future version
-	peerjsOpts.Secure = true
-	peerjsOpts.Key = "peerjs"
+	// // setup peerjs-go
+	// peerjsOpts := peerjs.NewOptions()
+	// peerjsOpts.Debug = 3
+	// // peerjsOpts.Host = "0.peerjs.com"
+	// // peerjsOpts.Port = 9000
+	// // peerjsOpts.Path = "/"
+	// // peerjsOpts.reliable = true // < this option may change from "reliable" to "ordered" in a future version
+	// peerjsOpts.Secure = true
+	// peerjsOpts.Key = "peerjs"
 
-	rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
-	defer rovWebsocketpeer.Close() // close the websocket connection when this function exits
+	// rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
+	// defer rovWebsocketPeer.Close() // close the websocket connection when this function exits
 
-	rovWebsocketpeer.On("connection", func(dataConn interface{}) {
+	// rovWebsocketPeer.On("connection", func(dataConn interface{}) {
 
-		log.Println("Got connection!")
+	// 	log.Println("Got connection!")
 
-		// handle the datachannel
-		dataChannelConnection := dataConn.(*peerjs.DataConnection)
-		dataChannelConnection.On("data", func(data interface{}) {
-			// Will print recived message like 'hi!'
-			log.Printf("Received: %#v: %s\n", data, data)
-		})
+	// 	// handle the datachannel
+	// 	dataChannelConnection := dataConn.(*peerjs.DataConnection)
+	// 	dataChannelConnection.On("data", func(data interface{}) {
+	// 		// Will print recived message like 'hi!'
+	// 		log.Printf("Received: %#v: %s\n", data, data)
+	// 	})
 
-		dataChannelConnection.Send([]byte("Hello from rov!"), false)
+	// 	dataChannelConnection.Send([]byte("Hello from rov!"), false)
 
-		// var err error
-		// videoTrack, err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/h264"}, "rov-front-cam", "rov-front-cam-stream")
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// _, err = rovWebsocketpeer.Call("SPilot", videoTrack, peerjs.NewConnectionOptions());
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// pipeVideoToStream(done)
-	})
+	// 	// var err error
+	// 	// videoTrack, err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/h264"}, "rov-front-cam", "rov-front-cam-stream")
+	// 	// if err != nil {
+	// 	// 	log.Fatal(err)
+	// 	// }
+	// 	// _, err = rovWebsocketPeer.Call("SPilot", videoTrack, peerjs.NewConnectionOptions());
+	// 	// if err != nil {
+	// 	// 	log.Fatal(err)
+	// 	// }
+	// 	// pipeVideoToStream(done)
+	// })
 }
