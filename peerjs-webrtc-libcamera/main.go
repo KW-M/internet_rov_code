@@ -3,11 +3,11 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
+	// "encoding/json"
+	// "io/ioutil"
 	"log"
 	"flag"
-	"os"
+	// "os"
 	"os/signal"
 	"sync"
 	"syscall"
@@ -21,7 +21,7 @@ func main() {
 	// flag.StringVar(&videoShellCommand, "", "Shell command that will start generating h264 stream", "", "path to the media file you want to playback")
 	// flag.StringVar(&httpListenAddress, "udp-video-listen-address", "http://localhost:8080", "Port number to pull the video stream from. Default is http://localhost:8080")
 	// flag.StringVar(&httpListenAddress, "websocket-listen-port", ":8181", "Port number for websocket HTTP server to listen on. Default is :8181")
-	// flag.Parse()
+	flag.Parse()
 
 	// Create a simple boolean "channel" that go subroutine functions can use to signal that they are done processing:
 	done := make(chan bool)
