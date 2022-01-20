@@ -138,14 +138,14 @@ func pipeVideoToStream(done chan bool) error {
 
 func setupWebrtcConnection(done chan bool) {
 
-	peer1, _ := peer.NewPeer("peer1", peer.NewOptions())
+	peer1, _ := peerjs.NewPeer("peer1", peerjs.NewOptions())
 	defer peer1.Close()
 
-	peer2, _ := peer.NewPeer("peer2", peer.NewOptions())
+	peer2, _ := peerjs.NewPeer("peer2", peerjs.NewOptions())
 	defer peer2.Close()
 
 	peer2.On("connection", func(data interface{}) {
-		conn2 := data.(*peer.DataConnection)
+		conn2 := data.(*peerjs.DataConnection)
 		conn2.On("data", func(data interface{}) {
 			// Will print 'hi!'
 			log.Printf("Received: %#v: %s\n", data, data)
@@ -173,9 +173,9 @@ func setupWebrtcConnection(done chan bool) {
 	peerjsOpts.Key = "peerjs"
 
 	rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
-	defer rovWebsocketPeer.Close() // close the websocket connection when this function exits
+	defer rovWebsocketpeerjs.Close() // close the websocket connection when this function exits
 
-	rovWebsocketPeer.On("connection", func(dataConn interface{}) {
+	rovWebsocketpeerjs.On("connection", func(dataConn interface{}) {
 
 		log.Println("Got connection!")
 
@@ -193,7 +193,7 @@ func setupWebrtcConnection(done chan bool) {
 		// if err != nil {
 		// 	log.Fatal(err)
 		// }
-		// _, err = rovWebsocketPeer.Call("SPilot", videoTrack, peerjs.NewConnectionOptions());
+		// _, err = rovWebsocketpeerjs.Call("SPilot", videoTrack, peerjs.NewConnectionOptions());
 		// if err != nil {
 		// 	log.Fatal(err)
 		// }
