@@ -152,6 +152,8 @@ func setupWebrtcConnection(done chan bool) {
 
 	rovWebsocketPeer.On("connection", func(dataConn interface{}) {
 
+		log.Println("Got connection!")
+
 		// handle the datachannel
 		dataChannelConnection := dataConn.(*peerjs.DataConnection)
 		dataChannelConnection.On("data", func(data interface{}) {
