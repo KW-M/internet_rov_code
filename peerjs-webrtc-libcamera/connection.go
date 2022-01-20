@@ -61,7 +61,7 @@ var (
 
 
 
-func pipeVideoToStream(done chan bool, videoTrack *webrtc.TrackLocal) error {
+func pipeVideoToStream(done chan bool) error {
 	// Startup libcamera-vid command to get the video data from the camera exposed (locally) on a http/tcp port
 	cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "20", "--bitrate", "8000000", "--codec", "h264",  "--inline", "1", "--flush", "1", "--timeout", "0", "--listen", "1",  "--output", "tcp://0.0.0.0:8585")
 	fmt.Println(cmd.Args)
@@ -143,7 +143,7 @@ func setupWebrtcConnection(done chan bool) {
 	// peerjsOpts.Host = "0.peerjs.com"
 	// peerjsOpts.Port = 9000
 	// peerjsOpts.Path = "/"
-	peerjsOpts.reliable = true // < this option may change from "reliable" to "ordered" in a future version
+	// peerjsOpts.reliable = true // < this option may change from "reliable" to "ordered" in a future version
 	peerjsOpts.Secure = true
 	peerjsOpts.Key = "peerjs"
 
@@ -164,7 +164,7 @@ func setupWebrtcConnection(done chan bool) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		call, err = rovWebsocketPeer.Call("SPilot", videoTrack, peerjs.NewOptions());
+		call, err := rovWebsocketPeer.Call("SPilot", videoTrack, peerjs.NewConnectionOptions());
 		if err != nil {
 			log.Fatal(err)
 		}
