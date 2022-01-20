@@ -159,7 +159,7 @@ func setupWebrtcConnection(done chan bool) {
 			log.Printf("Received: %#v: %s\n", data, data)
 		})
 
-		dataChannelConnection.Send("Hello from rov!");
+		dataChannelConnection.Send([]byte("Hello from rov!"), false)
 
 		// var err error
 		// videoTrack, err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/h264"}, "rov-front-cam", "rov-front-cam-stream")
