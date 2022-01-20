@@ -138,45 +138,45 @@ func pipeVideoToStream(done chan bool) error {
 
 func setupWebrtcConnection(done chan bool) {
 
-	peer1, _ := peerjs.NewPeer("peer1", peerjs.NewOptions())
-	defer peer1.Close()
+	// peer1, _ := peerjs.NewPeer("peer1", peerjs.NewOptions())
+	// defer peer1.Close()
 
-	peer2, _ := peerjs.NewPeer("peer2", peerjs.NewOptions())
-	defer peer2.Close()
+	// peer2, _ := peerjs.NewPeer("peer2", peerjs.NewOptions())
+	// defer peer2.Close()
 
-	peer2.On("connection", func(data interface{}) {
-		conn2 := data.(*peerjs.DataConnection)
-		conn2.On("data", func(data interface{}) {
-			// Will print 'hi!'
-			log.Printf("Received: %#v: %s\n", data, data)
-		})
-	})
+	// peer2.On("connection", func(data interface{}) {
+	// 	conn2 := data.(*peerjs.DataConnection)
+	// 	conn2.On("data", func(data interface{}) {
+	// 		// Will print 'hi!'
+	// 		log.Printf("Received: %#v: %s\n", data, data)
+	// 	})
+	// })
 
-	conn1, _ := peer1.Connect("peer2", nil)
-	conn1.On("open", func(data interface{}) {
-		for {
-			conn1.Send([]byte("hi!"), false)
-			<-time.After(time.Millisecond * 1000)
-		}
-	})
+	// conn1, _ := peer1.Connect("peer2", nil)
+	// conn1.On("open", func(data interface{}) {
+	// 	for {
+	// 		conn1.Send([]byte("hi!"), false)
+	// 		<-time.After(time.Millisecond * 1000)
+	// 	}
+	// })
 
-	select {
-		case <-done: // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
-			return
-	}
+	// select {
+	// 	case <-done: // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
+	// 		return
+	// }
 
-	// // setup peerjs-go
-	// peerjsOpts := peerjs.NewOptions()
-	// peerjsOpts.Debug = 3
-	// // peerjsOpts.Host = "0.peerjs.com"
-	// // peerjsOpts.Port = 9000
-	// // peerjsOpts.Path = "/"
-	// // peerjsOpts.reliable = true // < this option may change from "reliable" to "ordered" in a future version
-	// peerjsOpts.Secure = true
-	// peerjsOpts.Key = "peerjs"
+	// setup peerjs-go
+	peerjsOpts := peerjs.NewOptions()
+	peerjsOpts.Debug = 3
+	// peerjsOpts.Host = "0.peerjs.com"
+	// peerjsOpts.Port = 9000
+	// peerjsOpts.Path = "/"
+	// peerjsOpts.reliable = true // < this option may change from "reliable" to "ordered" in a future version
+	peerjsOpts.Secure = true
+	peerjsOpts.Key = "peerjs"
 
-	// rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
-	// defer rovWebsocketPeer.Close() // close the websocket connection when this function exits
+	rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
+	defer rovWebsocketPeer.Close() // close the websocket connection when this function exits
 
 	// rovWebsocketPeer.On("connection", func(dataConn interface{}) {
 
