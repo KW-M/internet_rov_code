@@ -5,19 +5,26 @@ package main
 import (
 	// "encoding/json"
 	// "io/ioutil"
+	"errors"
 	"log"
 	// "flag"
 	"fmt"
+	"net"
 	// "strconv"
 	// "os"
 	// "os/signal"
 	// "sync"
+	"os/exec"
 	"syscall"
 	"time"
 
 	peerjs "github.com/muka/peerjs-go"
-	"github.com/pion/webrtc/v3"
+	webrtc "github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media"
+)
+
+var (
+	videoTrack = &webrtc.TrackLocalStaticSample{}
 )
 
 // func handleMediaCall(remoteSDP) {
@@ -116,13 +123,9 @@ func pipeVideoToStream(done chan bool, videoTrack *webrtc.Track) error {
 					log.Println("Failed to kill camera process. ", err)
 				}
 				return
-			case f := <-framebuffer: // if new data is in the framebuffer, grab it, (delete from buffer?), and use it in the media sample
-				sample := media.Sample{
-					Data:    f,
-					Samples: 90000,
-				}
+			case frame := <-framebuffer: // if new data is in the framebuffer, grab it, (delete from buffer?), and use it in the media sample
 
-				if err := videoTrack.WriteSample(sample); err != nil {
+				if err := videoTrack.WriteSample(media.Sample{ Data: frame, Duration: time.Second }); err != nil {
 					log.Fatal("could not write rtp sample. ", err)
 					return
 				}
