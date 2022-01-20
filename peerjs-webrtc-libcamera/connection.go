@@ -159,15 +159,17 @@ func setupWebrtcConnection(done chan bool) {
 			log.Printf("Received: %#v: %s\n", data, data)
 		})
 
-		var err error
-		videoTrack, err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/h264"}, "rov-front-cam", "rov-front-cam-stream")
-		if err != nil {
-			log.Fatal(err)
-		}
-		_, err = rovWebsocketPeer.Call("SPilot", videoTrack, peerjs.NewConnectionOptions());
-		if err != nil {
-			log.Fatal(err)
-		}
-		pipeVideoToStream(done)
+		dataChannelConnection.send("Hello from rov!");
+
+		// var err error
+		// videoTrack, err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/h264"}, "rov-front-cam", "rov-front-cam-stream")
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// _, err = rovWebsocketPeer.Call("SPilot", videoTrack, peerjs.NewConnectionOptions());
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// pipeVideoToStream(done)
 	})
 }
