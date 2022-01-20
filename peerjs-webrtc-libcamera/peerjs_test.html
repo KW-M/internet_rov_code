@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <title>SSROV PEERJS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+</head>
+
+<body>
+    <h1>Simple peer to peer video chat.</h1>
+    <video id="livestream"></video>
+    <script src="peer.min.js"></script>
+    <script>
+        var peer = new Peer('SPilot', {
+            // host: '0.peerjs.com',
+            // path: '/',
+            // key: null,
+            // secure: true,
+            // port: 9000,
+            // debug: 3
+        });
+
+        peer.on('open', function (id) {
+            console.log('My peer ID is: ' + id);
+        });
+
+        peer.on('error', function (err) {
+            console.log('Self Peerjs Error: ', err);
+        });
+
+        peer.on('disconnected', function () {
+            console.log('Self Peerjs disconnected.');
+        });
+
+        peer.on('close', function () {
+            console.log('Self Peerjs connection closed.');
+        });
+
+        peer.on('call', function (call) {
+            console.log('Received call from: ' + call.peer, call);
+            call.answer(null, {
+                sdpTransform: function (sdp) {
+                    console.log('answer sdp: ', sdp);
+                    return sdp;
+                }
+            });
+            call.on('stream', function (remoteStream) {
+                var video = document.getElementById('livestream');
+                video.src = URL.createObjectURL(remoteStream);
+                video.play();
+            });
+        });
+
+        conn = peer.connect('SSROV');
+        conn.on('open', function () {
+            // Receive messages
+            conn.on('data', function (data) {
+                console.log('Received', data);
+            });
+
+            // Send messages
+            conn.send('Hello!');
+        });
+
+        conn.on('error', function (err) {
+            console.log('Remote Peerjs Error: ', err);
+        });
+
+        conn.on('disconnected', function () {
+            console.log('Remote Peerjs disconnected.');
+        });
+
+        conn.on('close', function () {
+            console.log('Remote Peerjs connection closed.');
+        });
+
+
+    </script>
+</body>
