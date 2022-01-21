@@ -223,7 +223,7 @@ func setupWebrtcConnection(done chan bool) {
 		// // pipeVideoToStream(done)
 	})
 
-	rovWebsocketPeer.On("call",func(mediaConn interface{}) {
+	rovWebsocketPeer.On("call", func(mediaConn interface{}) {
 		mediaConnection := mediaConn.(*peerjs.MediaConnection)
 		log.Println("Got Call!")
 
@@ -235,11 +235,11 @@ func setupWebrtcConnection(done chan bool) {
 		log.Println("Answering call")
 		var answerOptss interface{}
 		answerOpts := answerOptss.(*peerjs.AnswerOption)
-		_, err = mediaConnection.Answer(videoTrack,answerOpts);
-		if err != nil {
-			log.Println("error answering SPilot")
-			log.Fatal(err)
-		}
+		mediaConnection.Answer(videoTrack,answerOpts);
+		// if err != nil {
+		// 	log.Println("error answering SPilot")
+		// 	log.Fatal(err)
+		// }
 
 		pipeVideoToStream(done)
 
