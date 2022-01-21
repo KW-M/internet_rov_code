@@ -178,20 +178,20 @@ func setupWebrtcConnection(done chan bool) {
 	}
 
 
-	rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
-	defer rovWebsocketPeer.Close() // close the websocket connection when this function exits
+	// rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
+	// defer rovWebsocketPeer.Close() // close the websocket connection when this function exits
 
-	time.Sleep(time.Second * 10)
+	// time.Sleep(time.Second * 10)
 
-	log.Println("Done Waiting")
+	// log.Println("Done Waiting")
 
-	conn1, _ := rovWebsocketPeer.Connect("SPilot", nil)
-	conn1.On("open", func(data interface{}) {
-		for {
-			conn1.Send([]byte("hi B!"), false)
-			<-time.After(time.Millisecond * 1000)
-		}
-	})
+	// conn1, _ := rovWebsocketPeer.Connect("SPilot", nil)
+	// conn1.On("open", func(data interface{}) {
+	// 	for {
+	// 		conn1.Send([]byte("hi B!"), false)
+	// 		<-time.After(time.Millisecond * 1000)
+	// 	}
+	// })
 
 	// rovWebsocketPeer.On("connection", func(dataConn interface{}) {
 
