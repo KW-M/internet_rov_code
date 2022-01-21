@@ -40,6 +40,18 @@ peer.on('open', function (id) {
     conn.on('close', function () {
         console.log('Remote Peerjs connection closed.');
     });
+
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    navigator.getUserMedia({ video: true, audio: true }, function (stream) {
+        var call = peer.call('another-peers-id', stream);
+        call.on('stream', function (remoteStream) {
+            var video = document.getElementById('livestream');
+            video.src = URL.createObjectURL(remoteStream);
+            video.play();
+        });
+    }, function (err) {
+        console.log('Failed to get local stream', err);
+    });
 });
 
 peer.on('connection', function (dataChannel) {
