@@ -150,40 +150,40 @@ func setupWebrtcConnection(done chan bool) {
 	peerjsOpts.Secure = true
 	// peerjsOpts.Key = "peerjs"
 
-	peer1, _ := peerjs.NewPeer("peer1", peerjsOpts)
-	defer peer1.Close()
+	// peer1, _ := peerjs.NewPeer("peer1", peerjsOpts)
+	// defer peer1.Close()
 
-	peer2, _ := peerjs.NewPeer("peer2", peerjsOpts)
-	defer peer2.Close()
+	// peer2, _ := peerjs.NewPeer("peer2", peerjsOpts)
+	// defer peer2.Close()
 
-	peer2.On("connection", func(data interface{}) {
-		conn2 := data.(*peerjs.DataConnection)
-		conn2.On("data", func(data interface{}) {
-			// Will print 'hi!'
-			log.Printf("Received: %#v: %s\n", data, data)
-		})
-	})
+	// peer2.On("connection", func(data interface{}) {
+	// 	conn2 := data.(*peerjs.DataConnection)
+	// 	conn2.On("data", func(data interface{}) {
+	// 		// Will print 'hi!'
+	// 		log.Printf("Received: %#v: %s\n", data, data)
+	// 	})
+	// })
 
-	conn1, _ := peer1.Connect("peer2", nil)
-	conn1.On("open", func(data interface{}) {
-		for {
-			conn1.Send([]byte("hi!"), false)
-			<-time.After(time.Millisecond * 1000)
-		}
-	})
+	// conn1, _ := peer1.Connect("peer2", nil)
+	// conn1.On("open", func(data interface{}) {
+	// 	for {
+	// 		conn1.Send([]byte("hi!"), false)
+	// 		<-time.After(time.Millisecond * 1000)
+	// 	}
+	// })
 
-	select {
-		case <-done: // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
-			return
-	}
+	// select {
+	// 	case <-done: // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
+	// 		return
+	// }
 
 
-	// rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
-	// defer rovWebsocketPeer.Close() // close the websocket connection when this function exits
+	rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
+	defer rovWebsocketPeer.Close() // close the websocket connection when this function exits
 
-	// time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 3)
 
-	// log.Println("Done Waiting")
+	log.Println("Done Waiting")
 
 	// conn1, _ := rovWebsocketPeer.Connect("SPilot", nil)
 	// conn1.On("open", func(data interface{}) {
@@ -193,28 +193,28 @@ func setupWebrtcConnection(done chan bool) {
 	// 	}
 	// })
 
-	// rovWebsocketPeer.On("connection", func(dataConn interface{}) {
+	rovWebsocketPeer.On("connection", func(dataConn interface{}) {
 
-	// 	log.Println("Got connection!")
+		log.Println("Got connection!")
 
-	// 	// handle the datachannel
-	// 	dataChannelConnection := dataConn.(*peerjs.DataConnection)
-	// 	dataChannelConnection.On("data", func(data interface{}) {
-	// 		// Will print recived message like 'hi!'
-	// 		log.Printf("Received: %#v: %s\n", data, data)
-	// 	})
+		// handle the datachannel
+		dataChannelConnection := dataConn.(*peerjs.DataConnection)
+		dataChannelConnection.On("data", func(data interface{}) {
+			// Will print recived message like 'hi!'
+			log.Printf("Received: %#v: %s\n", data, data)
+		})
 
-	// 	dataChannelConnection.Send([]byte("Hello from rov!"), false)
+		dataChannelConnection.Send([]byte("Hello from rov!"), false)
 
-	// 	// var err error
-	// 	// videoTrack, err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/h264"}, "rov-front-cam", "rov-front-cam-stream")
-	// 	// if err != nil {
-	// 	// 	log.Fatal(err)
-	// 	// }
-	// 	// _, err = rovWebsocketPeer.Call("SPilot", videoTrack, peerjs.NewConnectionOptions());
-	// 	// if err != nil {
-	// 	// 	log.Fatal(err)
-	// 	// }
-	// 	// pipeVideoToStream(done)
-	// })
+		var err error
+		videoTrack, err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/h264"}, "rov-front-cam", "rov-front-cam-stream")
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = rovWebsocketPeer.Call("SPilot", videoTrack, peerjs.NewConnectionOptions());
+		if err != nil {
+			log.Fatal(err)
+		}
+		pipeVideoToStream(done)
+	})
 }
