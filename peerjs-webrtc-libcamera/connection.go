@@ -181,6 +181,8 @@ func setupWebrtcConnection(done chan bool) {
 
 	time.Sleep(time.Second * 10)
 
+	log.Println("Done Waiting")
+
 	conn1, _ := rovWebsocketPeer.Connect("SPilot", nil)
 	conn1.On("open", func(data interface{}) {
 		for {
