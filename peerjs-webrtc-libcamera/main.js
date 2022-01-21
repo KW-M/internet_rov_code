@@ -11,39 +11,39 @@ console.log("created peer:", peer);
 
 peer.on('open', function (id) {
     console.log('My peer ID is: ' + id);
-    conn = peer.connect('SROV', {
-        reliable: true,
-        serialization: 'none',
-        metadata: { message: 'hi i am spilot' }
-    });
+    // conn = peer.connect('SROV', {
+    //     reliable: true,
+    //     serialization: 'none',
+    //     metadata: { message: 'hi i am spilot' }
+    // });
 
-    console.log("connecting to: ", conn);
-    conn.on('open', function () {
-        console.log("connected to: ", conn);
-        // Receive messages
-        conn.on('data', function (data) {
-            console.log('Received', data);
-        });
+    // console.log("connecting to: ", conn);
+    // conn.on('open', function () {
+    //     console.log("connected to: ", conn);
+    //     // Receive messages
+    //     conn.on('data', function (data) {
+    //         console.log('Received', data);
+    //     });
 
-        // Send messages
-        conn.send('Hello from pilot!');
-    });
+    //     // Send messages
+    //     conn.send('Hello from pilot!');
+    // });
 
-    conn.on('error', function (err) {
-        console.log('Remote Peerjs Error: ', err);
-    });
+    // conn.on('error', function (err) {
+    //     console.log('Remote Peerjs Error: ', err);
+    // });
 
-    conn.on('disconnected', function () {
-        console.log('Remote Peerjs disconnected.');
-    });
+    // conn.on('disconnected', function () {
+    //     console.log('Remote Peerjs disconnected.');
+    // });
 
-    conn.on('close', function () {
-        console.log('Remote Peerjs connection closed.');
-    });
+    // conn.on('close', function () {
+    //     console.log('Remote Peerjs connection closed.');
+    // });
 
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
     navigator.getUserMedia({ video: true, audio: true }, function (stream) {
-        var call = peer.call('another-peers-id', stream);
+        var call = peer.call('SROV', stream);
         call.on('stream', function (remoteStream) {
             var video = document.getElementById('livestream');
             video.src = URL.createObjectURL(remoteStream);

@@ -233,9 +233,7 @@ func setupWebrtcConnection(done chan bool) {
 			log.Fatal(err)
 		}
 		log.Println("Answering call")
-		var answerOptss interface{}
-		answerOpts := answerOptss.(*peerjs.AnswerOption)
-		mediaConnection.Answer(videoTrack,answerOpts);
+		mediaConnection.Answer(videoTrack,newAnswerOptions());
 		// if err != nil {
 		// 	log.Println("error answering SPilot")
 		// 	log.Fatal(err)
