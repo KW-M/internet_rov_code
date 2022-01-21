@@ -225,6 +225,7 @@ func setupWebrtcConnection(done chan bool) {
 
 	rovWebsocketPeer.On("call",func(mediaConn interface{}) {
 
+		dataChannelConnection := mediaConn.(*peerjs.MediaConnection)
 		log.Println("Got Call!")
 
 		var err error
