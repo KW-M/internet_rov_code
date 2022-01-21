@@ -145,13 +145,21 @@ func setupWebrtcConnection(done chan bool) {
 	// setup peerjs-go
 	peerjsOpts := peerjs.NewOptions()
 	peerjsOpts.Debug = 3
-	peerjsOpts.Host = "/"
+
+	// FOR CLOUD HOSTED PEERJS SERVER:
 	// peerjsOpts.Host = "0.peerjs.com"
-	// peerjsOpts.Port = 9000
-	peerjsOpts.Port = 443
+	// peerjsOpts.Port = 443
+	// peerjsOpts.Secure = true
+	// peerjsOpts.Path = "/"
+
+	// FOR LOCAL PEERJS SERVER:
+	peerjsOpts.Host = "/"
+	peerjsOpts.Port = 9000
 	peerjsOpts.Path = "/"
+	peerjsOpts.Secure = false
+
 	// peerjsOpts.reliable = true // < this option may change from "reliable" to "ordered" in a future version
-	peerjsOpts.Secure = true
+
 	// peerjsOpts.Key = "peerjs"
 
 	// peer1, _ := peerjs.NewPeer("peer1", peerjsOpts)
