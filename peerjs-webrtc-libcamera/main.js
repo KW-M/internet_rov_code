@@ -5,11 +5,11 @@ var peer = new Peer('SPilot', {
     // secure: true,
     // path: '/',
     // port: 443,
-    // host: 'raspberrypi.local',
-    // path: '/',
-    // secure: false,
-    // port: 9000,
-    // debug: 3
+    host: 'raspberrypi.local',
+    path: '/',
+    secure: false,
+    port: 9000,
+    debug: 3
 });
 console.log("created peer:", peer);
 
