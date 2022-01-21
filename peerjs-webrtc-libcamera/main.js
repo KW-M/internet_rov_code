@@ -1,7 +1,8 @@
 
 console.log("starting...");
 var peer = new Peer('SPilot', {
-    host: '0.peerjs.com',
+    // host: '0.peerjs.com',
+    host: 'raspberrypi.local',
     path: '/',
     secure: true,
     port: 443,

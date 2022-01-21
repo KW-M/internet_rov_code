@@ -145,8 +145,8 @@ func setupWebrtcConnection(done chan bool) {
 	// setup peerjs-go
 	peerjsOpts := peerjs.NewOptions()
 	peerjsOpts.Debug = 3
-	// peerjsOpts.Host = "/"
-	peerjsOpts.Host = "0.peerjs.com"
+	peerjsOpts.Host = "/"
+	// peerjsOpts.Host = "0.peerjs.com"
 	// peerjsOpts.Port = 9000
 	peerjsOpts.Port = 443
 	peerjsOpts.Path = "/"
@@ -239,7 +239,7 @@ func setupWebrtcConnection(done chan bool) {
 		// 	log.Fatal(err)
 		// }
 
-		pipeVideoToStream(done)
+		// pipeVideoToStream(done)
 
 	})
 
