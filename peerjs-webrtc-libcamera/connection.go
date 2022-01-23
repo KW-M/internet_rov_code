@@ -159,28 +159,6 @@ func setupWebrtcConnection(done chan bool) {
 
 	// peerjsOpts.Key = "peerjs"
 
-	peer1, _ := peerjs.NewPeer("peer1", peerjsOpts)
-	defer peer1.Close()
-
-	peer2, _ := peerjs.NewPeer("peer2", peerjsOpts)
-	defer peer2.Close()
-
-	peer2.On("connection", func(data interface{}) {
-		conn2 := data.(*peerjs.DataConnection)
-		conn2.On("data", func(data interface{}) {
-			// Will print 'hi!'
-			log.Printf("Receuuuived: %#v: %s\n", data, data)
-		})
-	})
-
-	conn1, _ := peer1.Connect("peer2", nil)
-	conn1.On("open", func(data interface{}) {
-		for {
-			conn1.Send([]byte("huuui!"), false)
-			<-time.After(time.Millisecond * 1000)
-		}
-	})
-
 	// Create the video track for the video stream data to go in.
 	var err error
 	videoTrack, err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/h264"}, "rov-front-cam", "rov-front-cam-stream")
@@ -198,10 +176,15 @@ func setupWebrtcConnection(done chan bool) {
 			log.Printf("Received: %#v: %s\n", data, data)
 		})
 
-		for {
-			pilotDataConnection.Send([]byte("hi!"), false)
-			<-time.After(time.Millisecond * 1000)
-		}
+		go func() {
+			for {
+				pilotDataConnection.Send([]byte("hi!"), false)
+				<-time.After(time.Millisecond * 1000)
+				if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
+					return
+				}
+			}
+		}()
 
 		var pilotPeerId string = pilotDataConnection.GetPeerID()
 		_, err = rovWebsocketPeer.Call(pilotPeerId, videoTrack, peerjs.NewConnectionOptions())
@@ -212,21 +195,6 @@ func setupWebrtcConnection(done chan bool) {
 
 		pipeVideoToStream(done)
 	})
-
-	// rovWebsocketPeer.On("connection", func(dataConn interface{}) {
-
-	// 	log.Println("Got connection!")
-
-	// 	// handle the datachannel
-	// 	dataChannelConnection := dataConn.(*peerjs.DataConnection)
-	// 	dataChannelConnection.On("data", func(data interface{}) {
-	// 		// Will print recived message like 'hi!'
-	// 		log.Printf("Received: %#v: %s\n", data, data)
-	// 	})
-
-	// 	dataChannelConnection.Send([]byte("Hello from rov!"), false)
-
-	// })
 
 	// rovWebsocketPeer.On("call", func(mediaConn interface{}) {
 	// 	mediaConnection := mediaConn.(*peerjs.MediaConnection)
@@ -248,6 +216,29 @@ func setupWebrtcConnection(done chan bool) {
 
 	// })
 
+	// ---------------------------------------------------------------------------------------------------------------------
+	// peer1, _ := peerjs.NewPeer("peer1", peerjsOpts)
+	// defer peer1.Close()
+
+	// peer2, _ := peerjs.NewPeer("peer2", peerjsOpts)
+	// defer peer2.Close()
+
+	// peer2.On("connection", func(data interface{}) {
+	// 	conn2 := data.(*peerjs.DataConnection)
+	// 	conn2.On("data", func(data interface{}) {
+	// 		// Will print 'hi!'
+	// 		log.Printf("Receuuuived: %#v: %s\n", data, data)
+	// 	})
+	// })
+
+	// conn1, _ := peer1.Connect("peer2", nil)
+	// conn1.On("open", func(data interface{}) {
+	// 	for {
+	// 		conn1.Send([]byte("huuui!"), false)
+	// 		<-time.After(time.Millisecond * 1000)
+	// 	}
+	// })
+	// ---------------------------------------------------------------------------------------------------------------------
 	for { // endless loop to keep the program running
 		if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
 			return
