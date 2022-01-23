@@ -55,21 +55,6 @@ func pipeVideoToStream(done chan bool) error {
     }
 
 
-	fmt.Println("Waiting for libcamera-vid to start")
-	cmdOuputBufferArray := make([]byte, 600000)
-	//
-	for i := 0; i < 50; i++ {
-		_, err := dataPipe.Read(cmdOuputBufferArray)
-		if err != nil {
-			log.Println("Could not read libcamera-vid command ouput pipe: ", err)
-		} else {
-			log.Print(cmdOuputBufferArray)
-		}
-	}
-
-
-
-
 	// framebuffer := make(chan []byte, 60)
 
 	h264, h264Err := h264reader.NewReader(dataPipe)
