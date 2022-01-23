@@ -4,6 +4,7 @@ import (
 	// "encoding/json"
 	// "io/ioutil"
 	// "errors"
+	"bufio"
 	"io"
 	"log"
 	"os"
@@ -46,6 +47,14 @@ func pipeVideoToStream(done chan bool) error {
 		return err
 	}
 
+	// print out the initial 50 lines of stdout output of the command
+	scanner := bufio.NewScanner(dataPipe)
+	for i := 0; i < 50; i++ {
+		scanner.Scan()
+        fmt.Printf("\t > %s\n", scanner.Text())
+    }
+
+
 	fmt.Println("Waiting for libcamera-vid to start")
 	cmdOuputBufferArray := make([]byte, 600000)
 	//
@@ -56,7 +65,6 @@ func pipeVideoToStream(done chan bool) error {
 		} else {
 			log.Print(cmdOuputBufferArray)
 		}
-		time.Sleep(time.Millisecond * 50)
 	}
 
 
