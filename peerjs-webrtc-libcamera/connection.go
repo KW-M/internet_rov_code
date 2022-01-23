@@ -133,10 +133,6 @@ func pipeVideoToStream(done chan bool) error {
 	return nil
 }
 
-func newAnswerOptions() *peerjs.AnswerOption {
-	return &peerjs.AnswerOption{}
-}
-
 func setupWebrtcConnection(done chan bool) {
 
 	// setup peerjs-go
@@ -196,6 +192,10 @@ func setupWebrtcConnection(done chan bool) {
 		// 	// }
 		// }
 	})
+
+	// func newAnswerOptions() *peerjs.AnswerOption {
+	// 	return &peerjs.AnswerOption{}
+	// }
 
 	// rovWebsocketPeer.On("call", func(mediaConn interface{}) {
 	// 	mediaConnection := mediaConn.(*peerjs.MediaConnection)
