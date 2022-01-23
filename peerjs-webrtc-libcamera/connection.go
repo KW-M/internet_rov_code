@@ -37,30 +37,19 @@ func pipeVideoToStream(done chan bool) error {
 	cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "16", "--bitrate", "8000000", "--codec", "h264", "--profile", "baseline", "--level", "4", "--inline", "1", "--flush", "1", "--timeout", "0","--nopreview", "1", "--listen", "1", "--output", "tcp://0.0.0.0:8585")
 	fmt.Println(cmd.Args)
 
+	dataPipe, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Fatal("could not create named pipe. ", err)
+	}
+
 	// print out the stdout output of the command in a seperate go routine
 	go func() {
-		dataPipe, err := cmd.StdoutPipe()
-		if err != nil {
-			log.Fatal("could not create named pipe. ", err)
-		}
 		scanner := bufio.NewScanner(dataPipe)
 		for scanner.Scan() {
 			fmt.Printf("[libcamera-vid] > %s\n", scanner.Text())
 		}
 	}()
 
-
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-
-
-	fmt.Println(cmd.Args)
-
-	// dataPipe, err := cmd.StdoutPipe()
-	// if err != nil {
-	// 	log.Fatal("could not create named pipe. ", err)
-	// }
 
 	if err := cmd.Start(); err != nil {
 		return err
