@@ -66,7 +66,7 @@ func pipeVideoToStream(done chan bool) error {
 
 	h264, h264Err := h264reader.NewReader(dataPipe)
 	if h264Err != nil {
-		log.Println("h264reader Error")
+		log.Println("h264reader Initilization Error")
 		panic(h264Err)
 	}
 
@@ -86,6 +86,7 @@ func pipeVideoToStream(done chan bool) error {
 				os.Exit(0)
 			}
 			if h264Err != nil {
+				log.Println("h264reader Decode Error")
 				panic(h264Err)
 			}
 
