@@ -29,8 +29,9 @@ peer.on('open', function (id) {
             console.log('Received', data);
         });
         // Send messages
+        var enc = new TextEncoder(); // always utf-8
         setInterval(function () {
-            conn.send(utf8.encode('Hello from pilot!'));
+            conn.send(enc.encode('Hello from pilot!'));
         }, 1000);
     });
     conn.on('error', function (err) {
