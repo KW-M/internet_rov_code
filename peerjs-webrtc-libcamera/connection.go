@@ -183,43 +183,36 @@ func setupWebrtcConnection(done chan bool) {
 	// 	}
 	// })
 
-	rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
-	defer rovWebsocketPeer.Close() // close the websocket connection when this function exits
-
-	// conn1, _ := rovWebsocketPeer.Connect("SPilot", nil)
-	// conn1.On("open", func(data interface{}) {
 
 
-	// 	for {
-	// 		conn1.Send([]byte("hi B!"), false)
-	// 		<-time.After(time.Millisecond * 1000)
-	// 	}
-	// })
 
 
-	// handle the video stream
+	// Create the video track for the video stream data to go in.
 	var err error
 	videoTrack, err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/h264"}, "rov-front-cam", "rov-front-cam-stream")
 	if err != nil {
 		log.Fatal(err)
 	}
-	// var mediaConn *peerjs.MediaConnection
-	_, err = rovWebsocketPeer.Call("SPilot", videoTrack, peerjs.NewConnectionOptions());
-	if err != nil {
-		log.Println("error calling SPilot")
-		log.Fatal(err)
-	}
-	// for ;!mediaConn.Open; {
-	// 	time.Sleep(time.Millisecond * 100)
-	// }
-	pipeVideoToStream(done)
-	// rovWebsocketPeer.On("connection", func(data interface{}) {
-	// 	conn2 := data.(*peerjs.DataConnection)
-	// 	conn2.On("data", func(data interface{}) {
-	// 		// Will print 'hi!'
-	// 		log.Printf("Received: %#v: %s\n", data, data)
-	// 	})
-	// })
+
+	rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
+	defer rovWebsocketPeer.Close() // close the websocket connection when this whole outer function exits
+
+	rovWebsocketPeer.On("connection", func(data interface{}) {
+		pilotDataConnection := data.(*peerjs.DataConnection)
+		pilotDataConnection.On("data", func(data interface{}) {
+			// Will print 'hi!'
+			log.Printf("Received: %#v: %s\n", data, data)
+		})
+
+		var pilotPeerId string = pilotDataConnection.GetPeerID()
+		_, err = rovWebsocketPeer.Call(pilotPeerId, videoTrack, peerjs.NewConnectionOptions());
+		if err != nil {
+			log.Println("Error calling pilot peer with id: ", pilotPeerId)
+			log.Fatal(err)
+		}
+
+		pipeVideoToStream(done)
+	})
 
 	// rovWebsocketPeer.On("connection", func(dataConn interface{}) {
 
