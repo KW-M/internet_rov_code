@@ -44,8 +44,7 @@ func pipeVideoToStream(done chan bool) error {
 			log.Fatal("could not create named pipe. ", err)
 		}
 		scanner := bufio.NewScanner(dataPipe)
-		for {
-			scanner.Scan()
+		for scanner.Scan() {
 			fmt.Printf("[libcamera-vid] > %s\n", scanner.Text())
 		}
 	}()
@@ -89,10 +88,6 @@ func pipeVideoToStream(done chan bool) error {
 				return
 			default:
 				framebytes := make([]byte, 600000)
-				// n, err := dataPipe.Read(framebytes)
-				// if err != nil {
-				// 	log.Println("could not read pipe. ", err)
-				// }
 
 				nread, err := conn.Read(framebytes)
 				if err != nil {
