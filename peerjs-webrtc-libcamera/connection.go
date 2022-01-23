@@ -34,7 +34,7 @@ var (
 
 func pipeVideoToStream(done chan bool) error {
 	// Startup libcamera-vid command to get the video data from the camera exposed (locally) on a http/tcp port
-	cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "16", "--bitrate", "8000000", "--codec", "h264", "--profile", "high", "--level", "4.2", "--inline", "1", "--flush", "1", "--timeout", "0","--nopreview", "1", "--output", "-") //"--listen", "1", "--output", "tcp://0.0.0.0:8585")
+	cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "16", "--bitrate", "8000000", "--codec", "h264", "--profile", "high", "--level", "4", "--inline", "1", "--flush", "1", "--timeout", "0","--nopreview", "1", "--output", "-") //"--listen", "1", "--output", "tcp://0.0.0.0:8585")
 	fmt.Println(cmd.Args)
 
 	dataPipe, err := cmd.StdoutPipe()
