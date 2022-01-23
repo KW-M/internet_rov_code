@@ -1,12 +1,10 @@
-// +build linux
-
 package main
 
 import (
 	// "encoding/json"
 	// "io/ioutil"
-	"log"
 	"flag"
+	"log"
 	"os"
 	"os/signal"
 	"sync"
