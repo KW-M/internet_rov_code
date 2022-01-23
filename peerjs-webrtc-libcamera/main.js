@@ -29,7 +29,9 @@ peer.on('open', function (id) {
             console.log('Received', data);
         });
         // Send messages
-        conn.send('Hello from pilot!');
+        setInterval(function () {
+            conn.send(utf8.encode('Hello from pilot!'));
+        }, 1000);
     });
     conn.on('error', function (err) {
         console.log('Remote Peerjs Error: ', err);

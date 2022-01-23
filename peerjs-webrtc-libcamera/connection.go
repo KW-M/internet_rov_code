@@ -171,6 +171,7 @@ func setupWebrtcConnection(done chan bool) {
 
 	rovWebsocketPeer.On("connection", func(data interface{}) {
 		pilotDataConnection := data.(*peerjs.DataConnection)
+		time.Sleep(time.Second * 1)
 
 		var pilotPeerId string = pilotDataConnection.GetPeerID()
 		_, err = rovWebsocketPeer.Call(pilotPeerId, videoTrack, peerjs.NewConnectionOptions())
@@ -189,9 +190,9 @@ func setupWebrtcConnection(done chan bool) {
 		for {
 			pilotDataConnection.Send([]byte("hi!"), false)
 			<-time.After(time.Millisecond * 1000)
-			if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
-				return
-			}
+			// if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
+			// 	return
+			// }
 		}
 	})
 
