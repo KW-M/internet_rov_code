@@ -1,6 +1,6 @@
 
 console.log("starting...");
-var peer = new Peer('SPilot', {
+var peer = new Peer({
     debug: 3,
 
     host: '0.peerjs.com',

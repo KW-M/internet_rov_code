@@ -58,11 +58,9 @@ var (
 // 	}
 // }
 
-
-
 func pipeVideoToStream(done chan bool) error {
 	// Startup libcamera-vid command to get the video data from the camera exposed (locally) on a http/tcp port
-	cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "20", "--bitrate", "8000000", "--codec", "h264",  "--inline", "1", "--flush", "1", "--timeout", "0", "--listen", "1",  "--output", "tcp://0.0.0.0:8585")
+	cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "20", "--bitrate", "8000000", "--codec", "h264", "--inline", "1", "--flush", "1", "--timeout", "0", "--listen", "1", "--output", "tcp://0.0.0.0:8585")
 	fmt.Println(cmd.Args)
 
 	// dataPipe, err := cmd.StdoutPipe()
@@ -124,7 +122,7 @@ func pipeVideoToStream(done chan bool) error {
 				return
 			case frame := <-framebuffer: // if new data is in the framebuffer, grab it, (delete from buffer?), and use it in the media sample
 
-				if err := videoTrack.WriteSample(media.Sample{ Data: frame, Duration: time.Second }); err != nil {
+				if err := videoTrack.WriteSample(media.Sample{Data: frame, Duration: time.Second}); err != nil {
 					log.Fatal("could not write rtp sample. ", err)
 					return
 				}
@@ -136,7 +134,7 @@ func pipeVideoToStream(done chan bool) error {
 }
 
 func newAnswerOptions() *peerjs.AnswerOption {
-		return &peerjs.AnswerOption{}
+	return &peerjs.AnswerOption{}
 }
 
 func setupWebrtcConnection(done chan bool) {
@@ -161,31 +159,27 @@ func setupWebrtcConnection(done chan bool) {
 
 	// peerjsOpts.Key = "peerjs"
 
-	// peer1, _ := peerjs.NewPeer("peer1", peerjsOpts)
-	// defer peer1.Close()
+	peer1, _ := peerjs.NewPeer("peer1", peerjsOpts)
+	defer peer1.Close()
 
-	// peer2, _ := peerjs.NewPeer("peer2", peerjsOpts)
-	// defer peer2.Close()
+	peer2, _ := peerjs.NewPeer("peer2", peerjsOpts)
+	defer peer2.Close()
 
-	// peer2.On("connection", func(data interface{}) {
-	// 	conn2 := data.(*peerjs.DataConnection)
-	// 	conn2.On("data", func(data interface{}) {
-	// 		// Will print 'hi!'
-	// 		log.Printf("Received: %#v: %s\n", data, data)
-	// 	})
-	// })
+	peer2.On("connection", func(data interface{}) {
+		conn2 := data.(*peerjs.DataConnection)
+		conn2.On("data", func(data interface{}) {
+			// Will print 'hi!'
+			log.Printf("Receuuuived: %#v: %s\n", data, data)
+		})
+	})
 
-	// conn1, _ := peer1.Connect("peer2", nil)
-	// conn1.On("open", func(data interface{}) {
-	// 	for {
-	// 		conn1.Send([]byte("hi!"), false)
-	// 		<-time.After(time.Millisecond * 1000)
-	// 	}
-	// })
-
-
-
-
+	conn1, _ := peer1.Connect("peer2", nil)
+	conn1.On("open", func(data interface{}) {
+		for {
+			conn1.Send([]byte("huuui!"), false)
+			<-time.After(time.Millisecond * 1000)
+		}
+	})
 
 	// Create the video track for the video stream data to go in.
 	var err error
@@ -204,8 +198,13 @@ func setupWebrtcConnection(done chan bool) {
 			log.Printf("Received: %#v: %s\n", data, data)
 		})
 
+		for {
+			pilotDataConnection.Send([]byte("hi!"), false)
+			<-time.After(time.Millisecond * 1000)
+		}
+
 		var pilotPeerId string = pilotDataConnection.GetPeerID()
-		_, err = rovWebsocketPeer.Call(pilotPeerId, videoTrack, peerjs.NewConnectionOptions());
+		_, err = rovWebsocketPeer.Call(pilotPeerId, videoTrack, peerjs.NewConnectionOptions())
 		if err != nil {
 			log.Println("Error calling pilot peer with id: ", pilotPeerId)
 			log.Fatal(err)
@@ -229,8 +228,6 @@ func setupWebrtcConnection(done chan bool) {
 
 	// })
 
-
-
 	// rovWebsocketPeer.On("call", func(mediaConn interface{}) {
 	// 	mediaConnection := mediaConn.(*peerjs.MediaConnection)
 	// 	log.Println("Got Call!")
@@ -251,8 +248,9 @@ func setupWebrtcConnection(done chan bool) {
 
 	// })
 
-	select {
-		case <-done: // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
+	for { // endless loop to keep the program running
+		if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
 			return
+		}
 	}
 }
