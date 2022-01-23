@@ -79,8 +79,7 @@ func pipeVideoToStream(done chan bool) error {
 				os.Exit(0)
 			}
 			if h264Err != nil {
-				log.Println("h264reader Decode Error")
-				panic(h264Err)
+				log.Println("h264reader Decode Error",h264Err)
 			}
 
 			nal.Data = append([]byte{0x00, 0x00, 0x00, 0x01}, nal.Data...)
