@@ -179,9 +179,7 @@ func setupWebrtcConnection(done chan bool) {
 			log.Fatal(err)
 		}
 
-		go func() {
-			pipeVideoToStream(done)
-		}()
+		pipeVideoToStream(done)
 
 		pilotDataConnection.On("data", func(data interface{}) {
 			// Will print 'hi!'
