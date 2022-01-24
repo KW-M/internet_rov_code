@@ -96,13 +96,14 @@ func pipeVideoToStream(done chan bool) error {
 		// * works around latency issues with Sleep (see https://github.com/golang/go/issues/44343)
 		spsAndPpsCache := []byte{}
 		ticker := time.NewTicker(h264FrameDuration)
-		for ; true; <-ticker.C {
+		for ;true; <-ticker.C {
 			nal, h264Err := h264.NextNAL()
 			if h264Err == io.EOF {
 				fmt.Printf("SHOULD NOT HAPPEN! All video frames parsed and sent")
 			}
 			if h264Err != nil {
 				log.Println("h264reader Decode Error: ",h264Err)
+				continue
 			}
 			nal.Data = append([]byte{0x00, 0x00, 0x00, 0x01}, nal.Data...)
 
