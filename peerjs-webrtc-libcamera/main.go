@@ -24,16 +24,19 @@ func main() {
 	// Create a simple boolean "channel" that go subroutine functions can use to signal that they are done processing:
 	done := make(chan bool)
 
+	// Setup the video stream and start the camera running
+	initVideoTrack()
+	pipeVideoToStream(done, rovLivestreamVideoTrack)
+
+	// Setup the peerjs client to accept webrtc connections
 	setupWebrtcConnection(done)
 
-	// Wait for the done channel to be closed at which point the catchShutdown function will unpause the wait group:
+	// Wait for a signal on the done go channel variable or system interupt at which point the catchShutdown function will unpause the wait group:
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	catchShutdown(done, wg)
 	wg.Wait()
-
-	// sleep a Second at very end to allow everything to finish.
-	time.Sleep(time.Second)
+	time.Sleep(time.Second) // sleep a Second at very end to allow everything to finish.
 }
 
 func catchShutdown(done chan bool, wg *sync.WaitGroup) {

@@ -79,10 +79,12 @@ libcamera-vid -t 0 --inline -o - | cvlc stream:///dev/stdin --sout '#rtp{sdp=rts
 
 v4l2compress_omx /dev/video0 /dev/video21 & ./webrtc-streamer -n my -u v4l2:///dev/video21 && kill $!
 
-v4l2-ctl -v width=852,height=480,pixelformat=YU12
-
-ffmpeg -f rawvideo -pix_fmt yuv420p -video_size 852x480 -use_wallclock_as_timestamps 1 -i /dev/video0 -vsync 1 -r 30 -c:v h264_v4l2m2m -an -f rtp_mpegts "udp://localhost:5004"
+v4l2-ctl -v width=640,height=480,pixelformat=YU12
+# -b:v 3000k -maxrate 700k -bufsize 3000k
+ffmpeg -f rawvideo -pix_fmt yuv420p -video_size 640x480 -use_wallclock_as_timestamps 1 -i /dev/video0 -vsync 1 -r 30 -c:v h264_v4l2m2m -an -f rtp_mpegts "udp://localhost:5004"
+ffmpeg -f rawvideo -pix_fmt yuv420p -video_size 640x480 -use_wallclock_as_timestamps 1 -i /dev/video11 -framerate 20 -c:v h264_v4l2m2m -an -f rtp_mpegts "udp://localhost:5004"
 ffplay -sync ext -an -fast -framedrop -probesize 32 -window_title picam02 udp://raspberrypi.local:5004
+ffmpeg -f rawvideo -pix_fmt yuv420p -video_size 640x480 -i /dev/video0 -codec:v h264_v4l2m2m -b:v 2048k "tcp://localhost:5004/?listen"
 
 v4l2-ctl \
         -d /dev/video0 \
