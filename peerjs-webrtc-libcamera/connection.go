@@ -93,7 +93,7 @@ func setupWebrtcConnection(done chan bool) {
 	rovWebsocketPeer.On("open", func(peerId interface{}) {
 		fmt.Printf("This peer establised with peerId (should be SROV): %s\n", peerId)
 		for {
-			if(rovWebsocketPeer.disconnected) {
+			if(rovWebsocketPeer.Disconnected) {
 				fmt.Printf("Websocket ROV Peer Disconnected: %s\n", peerId)
 			}
 			time.Sleep(time.Second * 1)
