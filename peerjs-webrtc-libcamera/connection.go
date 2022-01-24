@@ -74,8 +74,7 @@ func setupWebrtcConnection(done chan bool) {
 		})
 
 		pilotDataConnection.On("error", func(message interface{}) {
-			messageString := message.(string)
-			println("PILOT PEER JS ERROR EVENT", messageString)
+			fmt.Printf("PILOT PEER JS ERROR EVENT: %s", message)
 		})
 
 		for {
@@ -98,8 +97,7 @@ func setupWebrtcConnection(done chan bool) {
 	})
 
 	rovWebsocketPeer.On("error", func(message interface{}) {
-		messageString := message.(string)
-		println("ROV PEER JS ERROR EVENT", messageString)
+		fmt.Printf("ROV PEER JS ERROR EVENT: %s", message)
 	})
 
 	// func newAnswerOptions() *peerjs.AnswerOption {
