@@ -49,55 +49,10 @@ func setupWebrtcConnection(done chan bool) {
 	rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
 	defer rovWebsocketPeer.Close() // close the websocket connection when this whole outer function exits
 
-	rovWebsocketPeer.On("connection", func(data interface{}) {
-		pilotDataConnection := data.(*peerjs.DataConnection)
-		time.Sleep(time.Second * 1)
-
-		log.Println("Peer connection established")
-
-		pilotDataConnection.On("close", func(message interface{}) {
-			println("PILOT PEER JS CLOSE EVENT", message)
-		})
-
-		pilotDataConnection.On("disconnected", func(message interface{}) {
-			println("PILOT PEER JS DISCONNECTED EVENT", message)
-		})
-
-		pilotDataConnection.On("error", func(message interface{}) {
-			fmt.Printf("PILOT PEER JS ERROR EVENT: %s", message)
-		})
-
-		pilotDataConnection.On("data", func(data interface{}) {
-			// Will print 'hi!'
-			log.Printf("Received: %#v: %s\n", data, data)
-		})
-
-		pilotDataConnection.On("open", func(message interface{}) {
-			var pilotPeerId string = pilotDataConnection.GetPeerID()
-			fmt.Printf("Calling Pilot Peer ID: %s\n", pilotPeerId)
-			_, err = rovWebsocketPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
-			if err != nil {
-				log.Println("Error calling pilot id: ", pilotPeerId)
-				log.Fatal(err)
-			}
-
-			// go func() {
-			// 	// send a repeating message to the pilot
-			// 	for {
-			// 		pilotDataConnection.Send([]byte("hi!"), false)
-			// 		<-time.After(time.Millisecond * 1000)
-			// 		if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
-			// 			return
-			// 		}
-			// 	}
-			// }()
-		})
-	})
 
 	rovWebsocketPeer.On("open", func(peerId interface{}) {
 		fmt.Printf("This peer established with peerId: %s (should be SROV)\n", peerId)
 		if peerId != "SROV" {
-			//
 			log.Println("This peer is not SROV")
 		}
 		// go func() {
@@ -108,6 +63,50 @@ func setupWebrtcConnection(done chan bool) {
 		// 		time.Sleep(time.Second * 1)
 		// 	}
 		// }()
+		rovWebsocketPeer.On("connection", func(data interface{}) {
+			pilotDataConnection := data.(*peerjs.DataConnection)
+			time.Sleep(time.Second * 1)
+
+			log.Println("Peer connection established")
+
+			// pilotDataConnection.On("close", func(message interface{}) {
+			// 	println("PILOT PEER JS CLOSE EVENT", message)
+			// })
+
+			// pilotDataConnection.On("disconnected", func(message interface{}) {
+			// 	println("PILOT PEER JS DISCONNECTED EVENT", message)
+			// })
+
+			// pilotDataConnection.On("error", func(message interface{}) {
+			// 	fmt.Printf("PILOT PEER JS ERROR EVENT: %s", message)
+			// })
+
+			pilotDataConnection.On("data", func(data interface{}) {
+				// Will print 'hi!'
+				log.Printf("Received: %#v: %s\n", data, data)
+			})
+
+			// pilotDataConnection.On("open", func(message interface{}) {
+			// 	var pilotPeerId string = pilotDataConnection.GetPeerID()
+			// 	fmt.Printf("Calling Pilot Peer ID: %s\n", pilotPeerId)
+			// 	_, err = rovWebsocketPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
+			// 	if err != nil {
+			// 		log.Println("Error calling pilot id: ", pilotPeerId)
+			// 		log.Fatal(err)
+			// 	}
+
+			// 	// go func() {
+			// 	// 	// send a repeating message to the pilot
+			// 	// 	for {
+			// 	// 		pilotDataConnection.Send([]byte("hi!"), false)
+			// 	// 		<-time.After(time.Millisecond * 1000)
+			// 	// 		if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
+			// 	// 			return
+			// 	// 		}
+			// 	// 	}
+			// 	// }()
+			// })
+		})
 	})
 
 	rovWebsocketPeer.On("close", func(message interface{}) {

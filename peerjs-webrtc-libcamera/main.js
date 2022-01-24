@@ -26,8 +26,6 @@ var peer = new Peer({
 console.log("Created peer:", peer);
 peer.on('open', function (id) {
     console.log('My peer ID is: ' + id);
-
-
 });
 peer.on('error', function (err) {
     console.log('Self Peerjs Error: ', err);
@@ -40,7 +38,7 @@ peer.on('close', function () {
 });
 
 conn = peer.connect('SROV', {
-    // reliable: true,
+    reliable: true,
     serialization: 'none',
 });
 console.log("Connecting to: ", conn);
@@ -65,24 +63,24 @@ conn.on('disconnected', function () {
 conn.on('close', function () {
     console.log('Remote Peerjs connection closed.');
 });
-peer.on('call', function (call) {
-    console.log('Received video call from: ' + call.peer, call);
-    call.answer(null, {
-        sdpTransform: function (sdp) {
-            console.log('answer sdp: ', sdp);
-            return sdp;
-        }
-    });
-    call.on('stream', function (remoteStream) {
-        console.log('Received stream from: ' + call.peer, remoteStream);
-        var video = document.getElementById('livestream');
-        // video.src = URL.createObjectURL(remoteStream);
-        video.srcObject = remoteStream;
-        video.autoplay = true
-        video.controls = true
-        // video.play();
-    });
-});
+// peer.on('call', function (call) {
+//     console.log('Received video call from: ' + call.peer, call);
+//     call.answer(null, {
+//         sdpTransform: function (sdp) {
+//             console.log('answer sdp: ', sdp);
+//             return sdp;
+//         }
+//     });
+//     call.on('stream', function (remoteStream) {
+//         console.log('Received stream from: ' + call.peer, remoteStream);
+//         var video = document.getElementById('livestream');
+//         // video.src = URL.createObjectURL(remoteStream);
+//         video.srcObject = remoteStream;
+//         video.autoplay = true
+//         video.controls = true
+//         // video.play();
+//     });
+// });
 
 
 
