@@ -71,22 +71,22 @@ func setupWebrtcConnection(done chan bool) {
 		})
 
 		pilotDataConnection.On("open", func(message interface{}) {
-			var pilotPeerId string = pilotDataConnection.GetPeerID()
-			fmt.Printf("Calling Pilot Peer ID: %s\n", pilotPeerId)
-			_, err = rovWebsocketPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
-			if err != nil {
-				log.Println("Error calling pilot id: ", pilotPeerId)
-				log.Fatal(err)
-			}
+			// var pilotPeerId string = pilotDataConnection.GetPeerID()
+			// fmt.Printf("Calling Pilot Peer ID: %s\n", pilotPeerId)
+			// _, err = rovWebsocketPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
+			// if err != nil {
+			// 	log.Println("Error calling pilot id: ", pilotPeerId)
+			// 	log.Fatal(err)
+			// }
 
-			// send a repeating message to the pilot
-			for {
-				pilotDataConnection.Send([]byte("hi!"), false)
-				<-time.After(time.Millisecond * 1000)
-				if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
-					return
-				}
-			}
+			// // send a repeating message to the pilot
+			// for {
+			// 	pilotDataConnection.Send([]byte("hi!"), false)
+			// 	<-time.After(time.Millisecond * 1000)
+			// 	if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
+			// 		return
+			// 	}
+			// }
 		})
 	})
 
