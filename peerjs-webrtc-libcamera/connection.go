@@ -81,23 +81,24 @@ func setupWebrtcConnection(done chan bool) {
 				log.Fatal(err)
 			}
 
-			go func() {
-				// send a repeating message to the pilot
-				for {
-					pilotDataConnection.Send([]byte("hi!"), false)
-					<-time.After(time.Millisecond * 1000)
-					if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
-						return
-					}
-				}
-			}()
+			// go func() {
+			// 	// send a repeating message to the pilot
+			// 	for {
+			// 		pilotDataConnection.Send([]byte("hi!"), false)
+			// 		<-time.After(time.Millisecond * 1000)
+			// 		if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
+			// 			return
+			// 		}
+			// 	}
+			// }()
 		})
 	})
 
 	rovWebsocketPeer.On("open", func(peerId interface{}) {
 		fmt.Printf("This peer established with peerId: %s (should be SROV)\n", peerId)
 		if peerId != "SROV" {
-			// reconnect
+			//
+			log.Println("This peer is not SROV")
 		}
 		// go func() {
 		// 	for {
@@ -170,7 +171,8 @@ func setupWebrtcConnection(done chan bool) {
 	// 	}
 	// })
 	// ---------------------------------------------------------------------------------------------------------------------
-	<-done; // when a signal is sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin, unblock this goroutine and exit.
+	<-done // when a signal is sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin, unblock this goroutine and exit.
+	log.Println("exiting setupWebrtcConnection")
 }
 
 // // connect to site
