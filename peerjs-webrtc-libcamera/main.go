@@ -29,7 +29,7 @@ func main() {
 	// pipeVideoToStream(done)
 
 	// Setup the peerjs client to accept webrtc connections
-	setupWebrtcConnection(done)
+	// setupWebrtcConnection(done)
 
 	// Wait for a signal on the done go channel variable or system interupt at which point the catchShutdown function will unpause the wait group:
 	wg := &sync.WaitGroup{}
@@ -49,6 +49,7 @@ func catchShutdown(done chan bool, wg *sync.WaitGroup) {
 				return
 			case <-ch:
 				log.Println("ctrl+c or other system interrupt received")
+				done <- true
 				close(done)
 				wg.Done()
 				return
