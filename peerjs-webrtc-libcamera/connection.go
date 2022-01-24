@@ -28,6 +28,7 @@ func setupWebrtcConnection(done chan bool) {
 	// setup peerjs-go
 	peerjsOpts := peerjs.NewOptions()
 	peerjsOpts.Debug = 3
+	peerjsOpts.PingInterval = 4000
 
 	// FOR CLOUD HOSTED PEERJS SERVER:
 	peerjsOpts.Host = "0.peerjs.com"
@@ -94,15 +95,18 @@ func setupWebrtcConnection(done chan bool) {
 	})
 
 	rovWebsocketPeer.On("open", func(peerId interface{}) {
-		fmt.Printf("This peer establised with peerId (should be SROV): %s\n", peerId)
-		go func() {
-			for {
-				if rovWebsocketPeer.Disconnected {
-					fmt.Printf("Websocket ROV Peer Disconnected: %s\n", peerId)
-				}
-				time.Sleep(time.Second * 1)
-			}
-		}()
+		fmt.Printf("This peer established with peerId: %s (should be SROV)\n", peerId)
+		if peerId != "SROV" {
+			// reconnect
+		}
+		// go func() {
+		// 	for {
+		// 		if rovWebsocketPeer.Disconnected {
+		// 			fmt.Printf("Websocket ROV Peer Disconnected: %s\n", peerId)
+		// 		}
+		// 		time.Sleep(time.Second * 1)
+		// 	}
+		// }()
 	})
 
 	rovWebsocketPeer.On("close", func(message interface{}) {
