@@ -30,10 +30,10 @@ func setupWebrtcConnection(done chan bool) {
 	peerjsOpts.Debug = 3
 
 	// FOR CLOUD HOSTED PEERJS SERVER:
-	// peerjsOpts.Host = "0.peerjs.com"
-	// peerjsOpts.Port = 443
-	// peerjsOpts.Secure = true
-	// peerjsOpts.Path = "/"
+	peerjsOpts.Host = "0.peerjs.com"
+	peerjsOpts.Port = 443
+	peerjsOpts.Secure = true
+	peerjsOpts.Path = "/"
 
 	// FOR LOCAL PEERJS SERVER:
 	// peerjsOpts.Host = "raspberrypi.local"

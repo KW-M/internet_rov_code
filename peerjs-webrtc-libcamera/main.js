@@ -3,10 +3,14 @@ console.log("starting...");
 var peer = new Peer({
     debug: 3,
 
-    // host: '0.peerjs.com',
-    // secure: true,
-    // path: '/',
-    // port: 443,
+    // FOR CLOUD HOSTED PEERJS SERVER
+    host: '0.peerjs.com',
+    secure: true,
+    path: '/',
+    port: 443,
+
+
+	// FOR ROV HOSTED PEERJS SERVER:
     // host: 'raspberrypi.local',
     // path: '/',
     // secure: false,
