@@ -26,7 +26,7 @@ func main() {
 
 	// Setup the video stream and start the camera running
 	initVideoTrack()
-	// pipeVideoToStream(done)
+	pipeVideoToStream(done)
 
 	// Setup the peerjs client to accept webrtc connections
 	setupWebrtcConnection(done)

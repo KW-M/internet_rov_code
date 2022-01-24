@@ -37,10 +37,10 @@ func setupWebrtcConnection(done chan bool) {
 	// peerjsOpts.Path = "/"
 
 	// FOR LOCAL PEERJS SERVER:
-	peerjsOpts.Host = "raspberrypi.local"
-	peerjsOpts.Port = 9000
-	peerjsOpts.Path = "/"
-	peerjsOpts.Secure = false
+	// peerjsOpts.Host = "raspberrypi.local"
+	// peerjsOpts.Port = 9000
+	// peerjsOpts.Path = "/"
+	// peerjsOpts.Secure = false
 
 	// peerjsOpts.reliable = true // < this option may change from "reliable" to "ordered" in a future version
 
