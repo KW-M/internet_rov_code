@@ -52,18 +52,6 @@ func setupWebrtcConnection(done chan bool) {
 		pilotDataConnection := data.(*peerjs.DataConnection)
 		time.Sleep(time.Second * 1)
 
-		var pilotPeerId string = pilotDataConnection.GetPeerID()
-		fmt.Printf("Calling Pilot Peer ID: %s\n", pilotPeerId)
-		_, err = rovWebsocketPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
-		if err != nil {
-			log.Println("Error calling pilot id: ", pilotPeerId)
-			log.Fatal(err)
-		}
-
-		pilotDataConnection.On("data", func(data interface{}) {
-			// Will print 'hi!'
-			log.Printf("Received: %#v: %s\n", data, data)
-		})
 
 		pilotDataConnection.On("close", func(message interface{}) {
 			println("PILOT PEER JS CLOSE EVENT", message)
@@ -77,13 +65,29 @@ func setupWebrtcConnection(done chan bool) {
 			fmt.Printf("PILOT PEER JS ERROR EVENT: %s", message)
 		})
 
-		for {
-			pilotDataConnection.Send([]byte("hi!"), false)
-			<-time.After(time.Millisecond * 1000)
-			if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
-				return
+		pilotDataConnection.On("data", func(data interface{}) {
+			// Will print 'hi!'
+			log.Printf("Received: %#v: %s\n", data, data)
+		})
+
+		pilotDataConnection.On("open", func(message interface{}) {
+			var pilotPeerId string = pilotDataConnection.GetPeerID()
+			fmt.Printf("Calling Pilot Peer ID: %s\n", pilotPeerId)
+			_, err = rovWebsocketPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
+			if err != nil {
+				log.Println("Error calling pilot id: ", pilotPeerId)
+				log.Fatal(err)
 			}
-		}
+
+			// send a repeating message to the pilot
+			for {
+				pilotDataConnection.Send([]byte("hi!"), false)
+				<-time.After(time.Millisecond * 1000)
+				if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
+					return
+				}
+			}
+		})
 	})
 
 	rovWebsocketPeer.On("close", func(message interface{}) {
