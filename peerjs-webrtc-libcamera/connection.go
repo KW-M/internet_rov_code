@@ -67,6 +67,18 @@ func setupWebrtcConnection(done chan bool) {
 			log.Printf("Received: %#v: %s\n", data, data)
 		})
 
+		pilotDataConnection.On("close", func(message interface{}) {
+			println("PILOT PEER JS CLOSE EVENT", message)
+				})
+
+				pilotDataConnection.On("disconnected", func(message interface{}) {
+			println("PILOT PEER JS DISCONNECTED EVENT", message)
+				})
+
+				pilotDataConnection.On("error", func(message interface{}) {
+			println("PILOT PEER JS ERROR EVENT", message)
+				})
+
 		for {
 			pilotDataConnection.Send([]byte("hi!"), false)
 			<-time.After(time.Millisecond * 1000)
@@ -74,6 +86,21 @@ func setupWebrtcConnection(done chan bool) {
 				return
 			}
 		}
+	})
+
+
+	rovWebsocketPeer.On("close", func(message interface{}) {
+println("ROV PEER JS CLOSE EVENT", message)
+	})
+
+	rovWebsocketPeer.On("disconnected", func(message interface{}) {
+println("ROV PEER JS DISCONNECTED EVENT", message)
+// println("reconnecting peer...")
+
+	})
+
+	rovWebsocketPeer.On("error", func(message interface{}) {
+println("ROV PEER JS ERROR EVENT", message)
 	})
 
 	// func newAnswerOptions() *peerjs.AnswerOption {

@@ -88,6 +88,7 @@ func pipeVideoToStream(done chan bool) error {
 	}
 
 	go func() {
+		// from https://github.com/ashellunts/ffmpeg-to-webrtc/blob/master/src/main.go
 		// Send our video a frame at a time. Pace our sending so we send it at the same speed it should be played back as.
 		// This isn't required since the video is timestamped, but we will such much higher loss if we send all at once.
 		//

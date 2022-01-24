@@ -7,6 +7,7 @@ import (
 )
 
 // for passing messages back and forth to the python program
+// from https://gist.github.com/hakobe/6f70d69b8c5243117787fd488ae7fbf2
 
 type rovUnixSocket struct {
 	socketOpen bool
@@ -16,7 +17,7 @@ type rovUnixSocket struct {
 	onMessageCallback func(string) error
 }
 
-// from https://gist.github.com/hakobe/6f70d69b8c5243117787fd488ae7fbf2
+
 
 func (sock *rovUnixSocket) readUnixSocketAsync() {
 	// ment to be run as a goroutine
