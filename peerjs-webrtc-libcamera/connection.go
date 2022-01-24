@@ -45,8 +45,6 @@ func setupWebrtcConnection(done chan bool) {
 
 	// peerjsOpts.Key = "peerjs"
 
-
-
 	rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
 	defer rovWebsocketPeer.Close() // close the websocket connection when this whole outer function exits
 
@@ -69,15 +67,16 @@ func setupWebrtcConnection(done chan bool) {
 
 		pilotDataConnection.On("close", func(message interface{}) {
 			println("PILOT PEER JS CLOSE EVENT", message)
-				})
+		})
 
-				pilotDataConnection.On("disconnected", func(message interface{}) {
+		pilotDataConnection.On("disconnected", func(message interface{}) {
 			println("PILOT PEER JS DISCONNECTED EVENT", message)
-				})
+		})
 
-				pilotDataConnection.On("error", func(message interface{}) {
-			println("PILOT PEER JS ERROR EVENT", message)
-				})
+		pilotDataConnection.On("error", func(message interface{}) {
+			messageString := message.(string)
+			println("PILOT PEER JS ERROR EVENT", messageString)
+		})
 
 		for {
 			pilotDataConnection.Send([]byte("hi!"), false)
@@ -88,19 +87,19 @@ func setupWebrtcConnection(done chan bool) {
 		}
 	})
 
-
 	rovWebsocketPeer.On("close", func(message interface{}) {
-println("ROV PEER JS CLOSE EVENT", message)
+		println("ROV PEER JS CLOSE EVENT", message)
 	})
 
 	rovWebsocketPeer.On("disconnected", func(message interface{}) {
-println("ROV PEER JS DISCONNECTED EVENT", message)
-// println("reconnecting peer...")
+		println("ROV PEER JS DISCONNECTED EVENT", message)
+		// println("reconnecting peer...")
 
 	})
 
 	rovWebsocketPeer.On("error", func(message interface{}) {
-println("ROV PEER JS ERROR EVENT", message)
+		messageString := message.(string)
+		println("ROV PEER JS ERROR EVENT", messageString)
 	})
 
 	// func newAnswerOptions() *peerjs.AnswerOption {
@@ -157,13 +156,12 @@ println("ROV PEER JS ERROR EVENT", message)
 	}
 }
 
-
-	// // connect to site
-	// conn, err := net.Dial("tcp", "127.0.0.1:8585")
-	// if err != nil {
-	// 	fmt.Printf("failed to connect to video tcp: %s\n", err)
-	// 	return err
-	// }
+// // connect to site
+// conn, err := net.Dial("tcp", "127.0.0.1:8585")
+// if err != nil {
+// 	fmt.Printf("failed to connect to video tcp: %s\n", err)
+// 	return err
+// }
 
 // func handleMediaCall(remoteSDP) {
 // 	mediaEngine := webrtc.MediaEngine{}
@@ -199,6 +197,5 @@ println("ROV PEER JS ERROR EVENT", message)
 
 // func runCommand(cmd string, args ...string) (string, error) {
 // 	cmdOut, err := exec.Command(cmd, args...)
-
 
 // }
