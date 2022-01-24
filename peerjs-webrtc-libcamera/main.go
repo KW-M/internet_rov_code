@@ -45,11 +45,11 @@ func catchShutdown(done chan bool, wg *sync.WaitGroup) {
 		for {
 			select {
 			case <-done:
+			 	log.Println("done channel triggered, exiting")
 				wg.Done()
 				return
 			case <-ch:
-				log.Println("ctrl+c or other system interrupt received")
-				done <- true
+				log.Println("ctrl+c or other system interrupt received, exiting")
 				close(done)
 				wg.Done()
 				return
