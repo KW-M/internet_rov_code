@@ -42,24 +42,33 @@ func initVideoTrack() *webrtc.TrackLocalStaticSample {
 	return rovLivestreamVideoTrack
 }
 
-func pipeVideoToStream(done chan bool, videoTrack *webrtc.TrackLocalStaticSample) error {
+func pipeVideoToStream(done chan bool) error {
 	// Startup libcamera-vid command to get the video data from the camera exposed (locally) on a http/tcp port
-	cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "16", "--bitrate", "8000000", "--codec", "h264", "--profile", "baseline", "--level", "4", "--inline", "1", "--flush", "1", "--timeout", "0","--nopreview", "1", "--listen", "1", "--output", "tcp://0.0.0.0:8585")
+	//  "--profile", "baseline", "--level", "4","--bitrate", "8000000",
+	cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "20", "--codec", "h264", "--inline", "1", "--flush", "1", "--timeout", "0","--nopreview", "1", "--listen", "1", "--output", "tcp://0.0.0.0:8585")
 	fmt.Println(cmd.Args)
 
-	dataPipe, err := cmd.StdoutPipe()
+	sdoutPipe, err := cmd.StdoutPipe()
+	sderrPipe, err := cmd.StderrPipe()
 	if err != nil {
-		log.Fatal("could not create named pipe. ", err)
+		log.Fatal("could not create libcamera-vid output pipe. ", err)
 	}
 
 	// print out the stdout output of the command in a seperate go routine
 	go func() {
-		scanner := bufio.NewScanner(dataPipe)
+		scanner := bufio.NewScanner(sdoutPipe)
 		for scanner.Scan() {
 			fmt.Printf("[libcamera-vid] > %s\n", scanner.Text())
 		}
 	}()
 
+	// print out the stdout output of the command in a seperate go routine
+	go func() {
+		scanner := bufio.NewScanner(sderrPipe)
+		for scanner.Scan() {
+			fmt.Printf("[libcamera-vid][ERROR] > %s\n", scanner.Text())
+		}
+	}()
 
 	if err := cmd.Start(); err != nil {
 		return err
@@ -110,7 +119,7 @@ func pipeVideoToStream(done chan bool, videoTrack *webrtc.TrackLocalStaticSample
 				}
 				return
 			case frame := <-framebuffer: // if new data is in the framebuffer, grab it, (delete from buffer?), and use it in the media sample
-				if err := videoTrack.WriteSample(media.Sample{Data: frame, Duration: time.Second}); err != nil {
+				if err := rovLivestreamVideoTrack.WriteSample(media.Sample{Data: frame, Duration: time.Second}); err != nil {
 					log.Fatal("could not write rtp sample. ", err)
 					return
 				}
