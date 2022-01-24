@@ -18,8 +18,10 @@ import (
 	"time"
 
 	peerjs "github.com/KW-M/peerjs-go"
-	webrtc "github.com/pion/webrtc/v3"
+	// webrtc "github.com/pion/webrtc/v3"
 )
+
+var err error
 
 func setupWebrtcConnection(done chan bool) {
 
@@ -42,16 +44,8 @@ func setupWebrtcConnection(done chan bool) {
 	// peerjsOpts.reliable = true // < this option may change from "reliable" to "ordered" in a future version
 
 	// peerjsOpts.Key = "peerjs"
-	var (
-		rovLivestreamVideoTrack = &webrtc.TrackLocalStaticSample{}
-	)
-	// Create the video track for the video stream data to go in.
-	var err error
-	rovLivestreamVideoTrack, err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/h264"}, "rov-front-cam", "rov-front-cam-stream")
-	if err != nil {
-		log.Fatal(err)
-	}
-	pipeVideoToStream(done)
+
+
 
 	rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
 	defer rovWebsocketPeer.Close() // close the websocket connection when this whole outer function exits
