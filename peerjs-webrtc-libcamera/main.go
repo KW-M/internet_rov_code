@@ -25,11 +25,11 @@ func main() {
 	done := make(chan bool)
 
 	// Setup the video stream and start the camera running
-	// initVideoTrack()
+	initVideoTrack()
 	// pipeVideoToStream(done)
 
 	// Setup the peerjs client to accept webrtc connections
-	setupWebrtcConnection(done)
+	go setupWebrtcConnection(done)
 
 	// Wait for a signal on the done go channel variable or system interupt at which point the catchShutdown function will unpause the wait group:
 	wg := &sync.WaitGroup{}
