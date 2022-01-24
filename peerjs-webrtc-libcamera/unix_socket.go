@@ -70,4 +70,6 @@ func (sock *rovUnixSocket) create_unix_socket(closeSocket chan bool, unix_socket
 			}
 		}
 	}()
+
+	return sock
 }
