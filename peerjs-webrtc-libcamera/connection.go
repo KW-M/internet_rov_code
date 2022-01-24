@@ -31,16 +31,16 @@ func setupWebrtcConnection(done chan bool) {
 	peerjsOpts.PingInterval = 4000
 
 	// FOR CLOUD HOSTED PEERJS SERVER:
-	peerjsOpts.Host = "0.peerjs.com"
-	peerjsOpts.Port = 443
-	peerjsOpts.Secure = true
-	peerjsOpts.Path = "/"
+	// peerjsOpts.Host = "0.peerjs.com"
+	// peerjsOpts.Port = 443
+	// peerjsOpts.Secure = true
+	// peerjsOpts.Path = "/"
 
 	// FOR LOCAL PEERJS SERVER:
-	// peerjsOpts.Host = "raspberrypi.local"
-	// peerjsOpts.Port = 9000
-	// peerjsOpts.Path = "/"
-	// peerjsOpts.Secure = false
+	peerjsOpts.Host = "raspberrypi.local"
+	peerjsOpts.Port = 9000
+	peerjsOpts.Path = "/"
+	peerjsOpts.Secure = false
 
 	// peerjsOpts.reliable = true // < this option may change from "reliable" to "ordered" in a future version
 
@@ -170,11 +170,7 @@ func setupWebrtcConnection(done chan bool) {
 	// 	}
 	// })
 	// ---------------------------------------------------------------------------------------------------------------------
-	for { // endless loop to keep the program running
-		if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
-			return
-		}
-	}
+	<-done; // when a signal is sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin, unblock this goroutine and exit.
 }
 
 // // connect to site

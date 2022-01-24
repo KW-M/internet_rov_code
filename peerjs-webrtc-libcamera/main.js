@@ -16,12 +16,11 @@ var peer = new Peer({
     path: '/',
     port: 443,
 
-
 	// FOR ROV HOSTED PEERJS SERVER:
-    // host: 'raspberrypi.local',
-    // path: '/',
-    // secure: false,
-    // port: 9000,
+    host: 'raspberrypi.local',
+    path: '/',
+    secure: false,
+    port: 9000,
 
 });
 console.log("Created peer:", peer);
