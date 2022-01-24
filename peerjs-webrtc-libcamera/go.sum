@@ -20,8 +20,6 @@ dmitri.shuralyov.com/state v0.0.0-20180228185332-28bcc343414c/go.mod h1:0PRwlb0D
 git.apache.org/thrift.git v0.0.0-20180902110319-2566ecd5d999/go.mod h1:fPE2ZNJGynbRyZ4dJvy6G277gSllfV2HJqblrnkyeyg=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/KW-M/peerjs-go v0.0.0-20220123020429-d88958d16c10 h1:NCuJtR/KEVvMxgxPEPThW+8HnSHrt1T6HwoJqv8yJTI=
-github.com/KW-M/peerjs-go v0.0.0-20220123020429-d88958d16c10/go.mod h1:EMf/1Yxwac2ehRrK8gy5VCaLeFYsQ0pNzqG9DK6lLFU=
 github.com/KW-M/peerjs-go v0.0.0-20220124053845-3365f3e69a62 h1:Yjfa8kecB7DUbHLmhlqeJCh3X+j3Bn1a6ScQqW22uFo=
 github.com/KW-M/peerjs-go v0.0.0-20220124053845-3365f3e69a62/go.mod h1:EMf/1Yxwac2ehRrK8gy5VCaLeFYsQ0pNzqG9DK6lLFU=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
