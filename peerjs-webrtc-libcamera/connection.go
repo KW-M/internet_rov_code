@@ -52,6 +52,8 @@ func setupWebrtcConnection(done chan bool) {
 		pilotDataConnection := data.(*peerjs.DataConnection)
 		time.Sleep(time.Second * 1)
 
+		log.Println("Peer connection established")
+
 
 		pilotDataConnection.On("close", func(message interface{}) {
 			println("PILOT PEER JS CLOSE EVENT", message)
@@ -71,13 +73,13 @@ func setupWebrtcConnection(done chan bool) {
 		})
 
 		pilotDataConnection.On("open", func(message interface{}) {
-			// var pilotPeerId string = pilotDataConnection.GetPeerID()
-			// fmt.Printf("Calling Pilot Peer ID: %s\n", pilotPeerId)
-			// _, err = rovWebsocketPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
-			// if err != nil {
-			// 	log.Println("Error calling pilot id: ", pilotPeerId)
-			// 	log.Fatal(err)
-			// }
+			var pilotPeerId string = pilotDataConnection.GetPeerID()
+			fmt.Printf("Calling Pilot Peer ID: %s\n", pilotPeerId)
+			_, err = rovWebsocketPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
+			if err != nil {
+				log.Println("Error calling pilot id: ", pilotPeerId)
+				log.Fatal(err)
+			}
 
 			// // send a repeating message to the pilot
 			// for {
