@@ -170,7 +170,8 @@ func setupWebrtcConnection(done chan bool) {
 	// 	}
 	// })
 	// ---------------------------------------------------------------------------------------------------------------------
-	// select <-done {
+	fmt.Println("starting sleep")
+	<-done
 		// }// when a signal is sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin, unblock this goroutine and exit.
 	log.Println("exiting setupWebrtcConnection")
 }
