@@ -44,8 +44,8 @@ func initVideoTrack() *webrtc.TrackLocalStaticSample {
 
 func pipeVideoToStream(done chan bool) error {
 	// Startup libcamera-vid command to get the video data from the camera exposed (locally) on a http/tcp port
-	//  "--profile", "baseline", "--level", "4","--bitrate", "8000000",
-	cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--framerate", "20", "--codec", "h264", "--inline", "1", "--flush", "1", "--timeout", "0","--nopreview", "1","--output", "-") //"--listen", "1", "--output", "tcp://0.0.0.0:8585")
+	//  "--profile", "baseline", "--level", "4","--bitrate", "8000000",  "--framerate", "20",
+	cmd := exec.Command("libcamera-vid", "--width", "640", "--height", "480", "--codec", "h264", "--inline", "1", "--flush", "1", "--timeout", "0","--nopreview", "1","--output", "-") //"--listen", "1", "--output", "tcp://0.0.0.0:8585")
 	fmt.Println(cmd.Args)
 
 	sdoutPipe, err := cmd.StdoutPipe()
@@ -70,15 +70,15 @@ func pipeVideoToStream(done chan bool) error {
 	}
 
 	// print out the stdout output of the command until a Long line of text is found, indicating that the video data has started flowing (most likely)
-	scanner := bufio.NewScanner(sdoutPipe)
-	scanner.Split(bufio.ScanLines)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if len(line) > 100 {
-			break
-		}
-		fmt.Printf("[libcamera-vid] > %s\n", line)
-	}
+	// scanner := bufio.NewScanner(sdoutPipe)
+	// scanner.Split(bufio.ScanLines)
+	// for scanner.Scan() {
+	// 	line := scanner.Text()
+	// 	if len(line) > 100 {
+	// 		break
+	// 	}
+	// 	fmt.Printf("[libcamera-vid] > %s\n", line)
+	// }
 
 	// Now attach the h264 reader to the output of the libcamera-vid command
 	h264, h264Err := h264reader.NewReader(sdoutPipe)
