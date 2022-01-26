@@ -88,7 +88,7 @@ func setupConnections(done chan bool) {
 		for {
 			select{
 				case <-done:
-					break
+					return
 				default:
 			}
 			setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts)
