@@ -7,6 +7,7 @@ import (
 
 	"log"
 	"strconv"
+	"time"
 
 	// "flag"
 	"fmt"
@@ -66,7 +67,14 @@ func startLocalPeerJsServer(done chan bool) {
 		fmt.Printf("Error starting local peerjs server: %s\n", err)
 		return
 	}
-	<-done // wait for the done channel to be triggered at which point this function will exit and the local peerjs server will stop
+	for { // wait for the done channel to be triggered at which point this function will exit and the local peerjs server will stop
+		select{
+			case <-done:
+				return
+			default:
+		}
+		time.Sleep(time.Microsecond * 300)
+	}
 }
 
 func setupConnections(done chan bool) {
@@ -95,7 +103,15 @@ func setupConnections(done chan bool) {
 		}
 	}()
 
-	<-done // wait for the done channel to be triggered at which point close each of the connection function channels
+	out:
+	for { // wait for the done channel to be triggered at which point close each of the connection function channels
+		select{
+			case <-done:
+				break out
+			default:
+		}
+		time.Sleep(time.Microsecond * 300)
+	}
 	// exitLocalConnection <- true
 	exitCloudConnection <- true
 }
