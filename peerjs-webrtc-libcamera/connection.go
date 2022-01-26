@@ -86,8 +86,9 @@ func setupConnections(done chan bool) {
 	exitCloudConnection := make(chan bool)
 	go func() {
 		for {
-			if signal := <-done; signal {
-				break
+			select{
+				case <-done:
+					break
 			}
 			setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts)
 		}
