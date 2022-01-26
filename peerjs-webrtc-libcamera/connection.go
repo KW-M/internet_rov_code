@@ -60,10 +60,10 @@ func startLocalPeerJsServer(done chan bool) {
 	serverOptions.Path = peerServerLocalOpts.Path
 	serverOptions.Key = peerServerLocalOpts.Key
 	server := peerjsServer.New(serverOptions)
-	err := server.Start()
+	var err = server.Start()
 	defer server.Stop()
 	if err != nil {
-		fmt.Println("Error starting local peerjs server: %s", err)
+		fmt.Printf("Error starting local peerjs server: %s\n", err)
 		return
 	}
 	<-done // wait for the done channel to be triggered at which point this function will exit and the local peerjs server will stop
