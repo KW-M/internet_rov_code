@@ -106,7 +106,7 @@ peer.on('close', function () {
 // });
 
 window.addEventListener('keypress', () => {
-    var remotePeerId = window.prompt("Remote Peer ID", "SROV")
+    var remotePeerId = window.prompt("Remote Peer ID", "SSROV_0")
     console.log("keypress,connecting to remote peer", remotePeerId);
     var conn = peer.connect(remotePeerId);
     conn.on('open', function () {
