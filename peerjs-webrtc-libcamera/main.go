@@ -89,7 +89,14 @@ func main() {
 			log.Printf("PEER ERROR EVENT: %s", message)
 		})
 
-		<-done
+		for {
+			select{
+				case <-done:
+					return
+				default:
+			}
+			time.Sleep(time.Second)
+		}
 	}()
 
 	systemExitCalled := make(chan os.Signal, 1) // Create a channel to listen for an interrupt signal from the OS.
