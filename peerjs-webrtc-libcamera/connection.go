@@ -6,6 +6,7 @@ import (
 	// "errors"
 
 	"log"
+	"strconv"
 
 	// "flag"
 	"fmt"
@@ -15,81 +16,134 @@ import (
 	// "os/signal"
 	// "sync"
 
-	"time"
-
 	peerjs "github.com/KW-M/peerjs-go"
-	// webrtc "github.com/pion/webrtc/v3"
+	peerjsServer "github.com/KW-M/peerjs-go/server"
 )
 
-var err error
+var err error // handy variable to stuff any error messages into
 
-func setupWebrtcConnection(done chan bool) {
-// should be called as a goroutine
-	// setup peerjs-go
-	peerjsOpts := peerjs.NewOptions()
-	peerjsOpts.Debug = 3
-	peerjsOpts.PingInterval = 4000
+// To handle the case where multiple rovs are running at the same time,
+// we make the PeerId of this ROV the basePeerId plus a number tacked on
+// the end (rovNumber, eg: SSROV_0) that we increment if the current peerId is already taken.
+var basePeerId string = "SSROV_"
+var rovNumber int = 0
 
-	// FOR CLOUD HOSTED PEERJS SERVER:
-	// peerjsOpts.Host = "0.peerjs.com"
-	// peerjsOpts.Port = 443
-	// peerjsOpts.Secure = true
-	// peerjsOpts.Path = "/"
+// ----- PeerJs-Go Client Settings -----
+var peerServerCloudOpts,peerServerLocalOpts peerjs.Options
+func makePeerJsOptions() {
+	// FOR CLOUD HOSTED PEERJS SERVER running on heroku (or wherever, or you could use the default server):
+	peerServerCloudOpts = peerjs.NewOptions()
+	peerServerCloudOpts.Host = "0.peerjs.com"
+	peerServerCloudOpts.Port = 443
+	peerServerCloudOpts.Path = "/"
+	peerServerCloudOpts.Key = "peerjs"
+	peerServerCloudOpts.Secure = true
+	peerServerCloudOpts.Debug = 3
+	peerServerCloudOpts.PingInterval = 3000
+	// FOR LOCAL PEERJS SERVER RUNNING ON THIS raspberrypi (not heroku):
+	peerServerLocalOpts = peerjs.NewOptions()
+	peerServerLocalOpts.Host = "localhost"
+	peerServerLocalOpts.Port = 9000
+	peerServerLocalOpts.Path = "/"
+	peerServerLocalOpts.Key = "peerjs"
+	peerServerLocalOpts.Secure = false
+	peerServerLocalOpts.Debug = 3
+	peerServerLocalOpts.PingInterval = 3000
+}
 
-	// FOR LOCAL PEERJS SERVER:
-	// peerjsOpts.Host = "raspberrypi.local"
-	// peerjsOpts.Port = 9000
-	// peerjsOpts.Path = "/"
-	// peerjsOpts.Secure = false
+func startLocalPeerJsServer(done chan bool) {
+	serverOptions := peerjsServer.NewOptions()
+	serverOptions.LogLevel = "Debug"
+	serverOptions.AllowDiscovery = true
+	serverOptions.Port = peerServerLocalOpts.Port
+	serverOptions.Host = peerServerLocalOpts.Host
+	serverOptions.Path = peerServerLocalOpts.Path
+	serverOptions.Key = peerServerLocalOpts.Key
+	server := peerjsServer.New(serverOptions)
+	err := server.Start()
+	defer server.Stop()
+	if err != nil {
+		fmt.Println("Error starting local peerjs server: %s", err)
+		return
+	}
+	<-done // wait for the done channel to be triggered at which point this function will exit and the local peerjs server will stop
+}
 
-	// peerjsOpts.reliable = true // < this option may change from "reliable" to "ordered" in a future version
+func setupConnections(done chan bool) {
+	makePeerJsOptions()
+	go startLocalPeerJsServer(done)
 
-	// peerjsOpts.Key = "peerjs"
+	// exitLocalConnection := make(chan bool)
+	// go func() {
+	// 	for {
+	// 		if signal := <-done; signal {
+	// 			break
+	// 		}
+	// 		setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts)
+	// 	}
+	// }()
 
-	rovWebsocketPeer, _ := peerjs.NewPeer("SROV", peerjsOpts)
-	defer rovWebsocketPeer.Close() // close the websocket connection when this whole outer function exits
-
-
-	rovWebsocketPeer.On("open", func(peerId interface{}) {
-		fmt.Printf("This peer established with peerId: %s (should be SROV)\n", peerId)
-		if peerId != "SROV" {
-			log.Println("This peer is not SROV")
+	exitCloudConnection := make(chan bool)
+	go func() {
+		for {
+			if signal := <-done; signal {
+				break
+			}
+			setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts)
 		}
-		// go func() {
-		// 	for {
-		// 		if rovWebsocketPeer.Disconnected {
-		// 			fmt.Printf("Websocket ROV Peer Disconnected: %s\n", peerId)
-		// 		}
-		// 		time.Sleep(time.Second * 1)
-		// 	}
-		// }()
-		rovWebsocketPeer.On("connection", func(data interface{}) {
-			pilotDataConnection := data.(*peerjs.DataConnection)
-			time.Sleep(time.Second * 1)
+	}()
 
-			log.Println("Peer connection established")
+	<-done // wait for the done channel to be triggered at which point close each of the connection function channels
+	// exitLocalConnection <- true
+	exitCloudConnection <- true
+}
 
-			// pilotDataConnection.On("close", func(message interface{}) {
-			// 	println("PILOT PEER JS CLOSE EVENT", message)
-			// })
+// should be called as a goroutine
+func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Options) {
 
-			// pilotDataConnection.On("disconnected", func(message interface{}) {
-			// 	println("PILOT PEER JS DISCONNECTED EVENT", message)
-			// })
+	var rovPeerId string = "SSROV_" + strconv.Itoa(rovNumber)
+	var rovPeer, err = peerjs.NewPeer(rovPeerId, peerServerOptions)
+	defer rovPeer.Close() // close the websocket connection when this whole outer function exits
+	if err != nil {
+		log.Println("Error creating ROV peer: ", err)
+		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
+	}
 
-			// pilotDataConnection.On("error", func(message interface{}) {
-			// 	fmt.Printf("PILOT PEER JS ERROR EVENT: %s", message)
-			// })
+	rovPeer.On("open", func(peerId interface{}) {
+		var peerID string = peerId.(string) // typecast to string
+
+		fmt.Printf("This ROV Peer established with Peer ID: %s\n", peerID)
+		if peerID[:len(basePeerId)] != basePeerId {
+			fmt.Printf("Uh oh, Peer Id %s must have been taken, switching to next rov Number\n", rovPeerId)
+			rovNumber++ // increment the rovNumber and try again
+			exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
+		}
+
+		rovPeer.On("connection", func(data interface{}) {
+			pilotDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
 
 			pilotDataConnection.On("data", func(data interface{}) {
-				// Will print 'hi!'
 				log.Printf("Received: %#v: %s\n", data, data)
 			})
+
+			pilotDataConnection.On("close", func(message interface{}) {
+				println("PILOT PEER DATACHANNEL CLOSE EVENT", message)
+			})
+
+			pilotDataConnection.On("disconnected", func(message interface{}) {
+				println("PILOT PEER DATACHANNEL DISCONNECTED EVENT", message)
+			})
+
+			pilotDataConnection.On("error", func(message interface{}) {
+				fmt.Printf("PILOT PEER DATACHANNEL ERROR EVENT: %s", message)
+			})
+
+			log.Println("Peer connection established with Pilot Peer ID: ", pilotDataConnection.GetPeerID())
 
 			// pilotDataConnection.On("open", func(message interface{}) {
 			// 	var pilotPeerId string = pilotDataConnection.GetPeerID()
 			// 	fmt.Printf("Calling Pilot Peer ID: %s\n", pilotPeerId)
-			// 	_, err = rovWebsocketPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
+			// 	_, err = rovWebsocketPeer.Call(pilotPeerId, rovLives treamVideoTrack, peerjs.NewConnectionOptions())
 			// 	if err != nil {
 			// 		log.Println("Error calling pilot id: ", pilotPeerId)
 			// 		log.Fatal(err)
@@ -109,60 +163,24 @@ func setupWebrtcConnection(done chan bool) {
 		})
 	})
 
-	rovWebsocketPeer.On("close", func(message interface{}) {
+	rovPeer.On("close", func(message interface{}) {
 		println("ROV PEER JS CLOSE EVENT", message)
+		<-exitFunction
 	})
 
-	rovWebsocketPeer.On("disconnected", func(message interface{}) {
+	rovPeer.On("disconnected", func(message interface{}) {
 		println("ROV PEER JS DISCONNECTED EVENT", message)
-		// println("reconnecting peer...")
-
+		// rovPeer.reconnect();
+		<-exitFunction
 	})
 
-	rovWebsocketPeer.On("error", func(message interface{}) {
+	rovPeer.On("error", func(message interface{}) {
 		fmt.Printf("ROV PEER JS ERROR EVENT: %s", message)
+		<-exitFunction
 	})
 
-	// func newAnswerOptions() *peerjs.AnswerOption {
-	// 	return &peerjs.AnswerOption{}
-	// }
 
-	// rovWebsocketPeer.On("call", func(mediaConn interface{}) {
-	// 	mediaConnection := mediaConn.(*peerjs.MediaConnection)
-	// 	log.Println("Got Call!")
-
-	// 	var err error
-	// 	videoTrack, err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/h264"}, "rov-front-cam", "rov-front-cam-stream")
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	log.Println("Answering call")
-	// 	mediaConnection.Answer(videoTrack,newAnswerOptions());
-	// 	// if err != nil {
-	// 	// 	log.Println("error answering SPilot")
-	// 	// 	log.Fatal(err)
-	// 	// }
-
-	// 	// pipeVideoToStream(done)
-
-	// })
-
-	// ---------------------------------------------------------------------------------------------------------------------
-	// peer1, _ := peerjs.NewPeer("peer1", peerjsOpts)
-	// defer peer1.Close()
-
-	// peer2, _ := peerjs.NewPeer("peer2", peerjsOpts)
-	// defer peer2.Close()
-
-	// peer2.On("connection", func(data interface{}) {
-	// 	conn2 := data.(*peerjs.DataConnection)
-	// 	conn2.On("data", func(data interface{}) {
-	// 		// Will print 'hi!'
-	// 		log.Printf("Receuuuived: %#v: %s\n", data, data)
-	// 	})
-	// })
-
-	// conn1, _ := peer1.Connect("peer2", nil)
+	// conn1, _ := peer1.Connect("peer287", nil)
 	// conn1.On("open", func(data interface{}) {
 	// 	for {
 	// 		conn1.Send([]byte("huuui!"), false)
@@ -171,8 +189,7 @@ func setupWebrtcConnection(done chan bool) {
 	// })
 	// ---------------------------------------------------------------------------------------------------------------------
 	fmt.Println("starting setupWebrtcConnection goroutine sleep")
-	<-done
-		// }// when a signal is sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin, unblock this goroutine and exit.
+	<-exitFunction // when a signal is sent on the 'exitFunction' channel from the main.go file to clean up because program is exiting or somthin, unblock this goroutine and exit.
 	log.Println("exiting setupWebrtcConnection")
 }
 
@@ -207,15 +224,3 @@ func setupWebrtcConnection(done chan bool) {
 // 		continue
 // 	}
 
-// 	fmt.Println("received offer")
-// 	peerConnection, err := c.NewPeerConnection(mediaEngine)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		continue
-// 	}
-// }
-
-// func runCommand(cmd string, args ...string) (string, error) {
-// 	cmdOut, err := exec.Command(cmd, args...)
-
-// }

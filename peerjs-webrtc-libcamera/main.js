@@ -37,32 +37,32 @@ peer.on('close', function () {
     console.log('Self Peerjs connection closed.');
 });
 
-conn = peer.connect('SROV', {
-    reliable: true,
-    serialization: 'none',
-});
-console.log("Connecting to: ", conn);
-conn.on('open', function () {
-    console.log("Connected to: ", conn);
-    // Receive messages
-    conn.on('data', function (data) {
-        console.log('Received', data);
-    });
-    // Send messages
-    var enc = new TextEncoder(); // always utf-8
-    setInterval(function () {
-        conn.send(enc.encode('Hello from pilot!'));
-    }, 1000);
-});
-conn.on('error', function (err) {
-    console.log('Remote Peerjs Error: ', err);
-});
-conn.on('disconnected', function () {
-    console.log('Remote Peerjs disconnected.');
-});
-conn.on('close', function () {
-    console.log('Remote Peerjs connection closed.');
-});
+// conn = peer.connect('SROV', {
+//     reliable: true,
+//     serialization: 'none',
+// });
+// console.log("Connecting to: ", conn);
+// conn.on('open', function () {
+//     console.log("Connected to: ", conn);
+//     // Receive messages
+//     conn.on('data', function (data) {
+//         console.log('Received', data);
+//     });
+//     // Send messages
+//     var enc = new TextEncoder(); // always utf-8
+//     setInterval(function () {
+//         conn.send(enc.encode('Hello from pilot!'));
+//     }, 1000);
+// });
+// conn.on('error', function (err) {
+//     console.log('Remote Peerjs Error: ', err);
+// });
+// conn.on('disconnected', function () {
+//     console.log('Remote Peerjs disconnected.');
+// });
+// conn.on('close', function () {
+//     console.log('Remote Peerjs connection closed.');
+// });
 // peer.on('call', function (call) {
 //     console.log('Received video call from: ' + call.peer, call);
 //     call.answer(null, {

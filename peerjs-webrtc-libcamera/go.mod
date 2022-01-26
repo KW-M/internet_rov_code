@@ -3,7 +3,7 @@ module peerjs-webrtc-libcamera
 go 1.13
 
 require (
-	github.com/KW-M/peerjs-go v0.0.0-20220124053845-3365f3e69a62 // indirect
+	github.com/KW-M/peerjs-go v0.0.0-20220125191521-f40fe10d02a0 // indirect
 	github.com/pion/ice/v2 v2.1.19 // indirect
 	github.com/pion/interceptor v0.1.7 // indirect
 	github.com/pion/webrtc/v3 v3.1.17
