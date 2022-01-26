@@ -5,16 +5,15 @@ if (peerjs.util.supports.audioVideo === false || peerjs.util.supports.data === f
     alert('Your browser does not support some WebRTC features, please use a different or newer browser.');
 }
 
-
 console.log("starting...");
 var peer = new Peer({
     debug: 3,
 
     // // FOR CLOUD HOSTED PEERJS SERVER
-    // host: '0.peerjs.com',
-    // secure: true,
-    // path: '/',
-    // port: 443,
+    host: '0.peerjs.com',
+    secure: true,
+    path: '/',
+    port: 443,
 
 	// // FOR ROV HOSTED PEERJS SERVER:
     // host: 'raspberrypi.local',
@@ -26,6 +25,51 @@ var peer = new Peer({
 console.log("Created peer:", peer);
 peer.on('open', function (id) {
     console.log('My peer ID is: ' + id);
+
+    conn = peer.connect('SSROV_0', {
+        reliable: true,
+        serialization: 'none',
+    });
+    console.log("Connecting to: ", conn);
+    conn.on('open', function () {
+        console.log("Connected to: ", conn);
+        // Receive messages
+        conn.on('data', function (data) {
+            console.log('Received', data);
+        });
+        // Send messages
+        var enc = new TextEncoder(); // always utf-8
+        setInterval(function () {
+            conn.send(enc.encode('Hello from pilot!'));
+        }, 1000);
+    });
+    conn.on('error', function (err) {
+        console.log('Remote Peerjs Error: ', err);
+    });
+    conn.on('disconnected', function () {
+        console.log('Remote Peerjs disconnected.');
+    });
+    conn.on('close', function () {
+        console.log('Remote Peerjs connection closed.');
+    });
+    peer.on('call', function (call) {
+        console.log('Received video call from: ' + call.peer, call);
+        call.answer(null, {
+            sdpTransform: function (sdp) {
+                console.log('answer sdp: ', sdp);
+                return sdp;
+            }
+        });
+        call.on('stream', function (remoteStream) {
+            console.log('Received stream from: ' + call.peer, remoteStream);
+            var video = document.getElementById('livestream');
+            // video.src = URL.createObjectURL(remoteStream);
+            video.srcObject = remoteStream;
+            video.autoplay = true
+            video.controls = true
+            // video.play();
+        });
+    });
 });
 peer.on('error', function (err) {
     console.log('Self Peerjs Error: ', err);
@@ -37,50 +81,6 @@ peer.on('close', function () {
     console.log('Self Peerjs connection closed.');
 });
 
-// conn = peer.connect('SROV', {
-//     reliable: true,
-//     serialization: 'none',
-// });
-// console.log("Connecting to: ", conn);
-// conn.on('open', function () {
-//     console.log("Connected to: ", conn);
-//     // Receive messages
-//     conn.on('data', function (data) {
-//         console.log('Received', data);
-//     });
-//     // Send messages
-//     var enc = new TextEncoder(); // always utf-8
-//     setInterval(function () {
-//         conn.send(enc.encode('Hello from pilot!'));
-//     }, 1000);
-// });
-// conn.on('error', function (err) {
-//     console.log('Remote Peerjs Error: ', err);
-// });
-// conn.on('disconnected', function () {
-//     console.log('Remote Peerjs disconnected.');
-// });
-// conn.on('close', function () {
-//     console.log('Remote Peerjs connection closed.');
-// });
-// peer.on('call', function (call) {
-//     console.log('Received video call from: ' + call.peer, call);
-//     call.answer(null, {
-//         sdpTransform: function (sdp) {
-//             console.log('answer sdp: ', sdp);
-//             return sdp;
-//         }
-//     });
-//     call.on('stream', function (remoteStream) {
-//         console.log('Received stream from: ' + call.peer, remoteStream);
-//         var video = document.getElementById('livestream');
-//         // video.src = URL.createObjectURL(remoteStream);
-//         video.srcObject = remoteStream;
-//         video.autoplay = true
-//         video.controls = true
-//         // video.play();
-//     });
-// });
 
 
 

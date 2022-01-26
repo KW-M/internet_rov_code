@@ -51,7 +51,7 @@ func pipeVideoToStream(done chan bool) error {
 	sdoutPipe, err := cmd.StdoutPipe()
 	sderrPipe, err := cmd.StderrPipe()
 	if err != nil {
-		log.Fatal("could not create libcamera-vid output pipe. ", err)
+		log.Fatal("could not create libcamera-vid cmd output pipes. ", err)
 	}
 
 	// print out the stderr output of the command in a seperate go routine
@@ -77,7 +77,7 @@ func pipeVideoToStream(done chan bool) error {
 		if len(line) > 100 {
 			break
 		}
-		fmt.Printf("[libcamera-vid] > %s\n", )
+		fmt.Printf("[libcamera-vid] > %s\n", line)
 	}
 
 	// Now attach the h264 reader to the output of the libcamera-vid command

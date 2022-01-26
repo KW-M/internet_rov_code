@@ -158,43 +158,43 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 
 			log.Println("Peer connection established with Pilot Peer ID: ", pilotDataConnection.GetPeerID())
 
-			// pilotDataConnection.On("open", func(message interface{}) {
-			// 	var pilotPeerId string = pilotDataConnection.GetPeerID()
-			// 	fmt.Printf("Calling Pilot Peer ID: %s\n", pilotPeerId)
-			// 	_, err = rovWebsocketPeer.Call(pilotPeerId, rovLives treamVideoTrack, peerjs.NewConnectionOptions())
-			// 	if err != nil {
-			// 		log.Println("Error calling pilot id: ", pilotPeerId)
-			// 		log.Fatal(err)
-			// 	}
+			pilotDataConnection.On("open", func(message interface{}) {
+				var pilotPeerId string = pilotDataConnection.GetPeerID()
+				fmt.Printf("Calling Pilot Peer ID: %s\n", pilotPeerId)
+				_, err = rovPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
+				if err != nil {
+					log.Println("Error calling pilot id: ", pilotPeerId)
+					log.Fatal(err)
+				}
 
-			// 	// go func() {
-			// 	// 	// send a repeating message to the pilot
-			// 	// 	for {
-			// 	// 		pilotDataConnection.Send([]byte("hi!"), false)
-			// 	// 		<-time.After(time.Millisecond * 1000)
-			// 	// 		if shouldEndProgram := <-done; shouldEndProgram { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
-			// 	// 			return
-			// 	// 		}
-			// 	// 	}
-			// 	// }()
-			// })
+				go func() {
+					// send a repeating message to the pilot
+					for {
+						pilotDataConnection.Send([]byte("hi!"), false)
+						<-time.After(time.Millisecond * 1000)
+						if shouldExit := <-exitFunction; shouldExit { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
+							return
+						}
+					}
+				}()
+			})
 		})
 	})
 
 	rovPeer.On("close", func(message interface{}) {
 		println("ROV PEER JS CLOSE EVENT", message)
-		<-exitFunction
+		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 	})
 
 	rovPeer.On("disconnected", func(message interface{}) {
 		println("ROV PEER JS DISCONNECTED EVENT", message)
-		// rovPeer.reconnect();
-		<-exitFunction
+		// rovPeer.Reconnect();
+		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 	})
 
 	rovPeer.On("error", func(message interface{}) {
 		fmt.Printf("ROV PEER JS ERROR EVENT: %s", message)
-		<-exitFunction
+		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 	})
 
 
