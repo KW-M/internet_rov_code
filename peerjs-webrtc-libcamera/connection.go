@@ -153,9 +153,10 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 			pilotDataConnection.On("open", func(message interface{}) {
 				activeDataConnectionsToThisPeer[pilotPeerId] = pilotDataConnection // add this connection to the map of active connections
 
-				pilotDataConnection.On("data", func(data interface{}) {
-					log.Printf("Received: %#v: %s\n", data, data)
-					var socketString string = pilotPeerId + "::" + data.(string)
+				pilotDataConnection.On("data", func(msgBytes interface{}) {
+					log.Printf("Received: %#v: %s\n", msgBytes, msgBytes)
+					var msgString string = string(msgBytes.([]byte))
+					var socketString string = pilotPeerId + "::" + msgString
 					uSockSendMsgChannel <- socketString
 				})
 
