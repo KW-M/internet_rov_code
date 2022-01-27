@@ -188,7 +188,9 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 				case <-exitFunction:
 					return
 				case msgFromROV := <-recievedMessageWriteChannel:
-					for _, dataChannel := range activeDataConnectionsToThisPeer {
+					log.Println("Sending Message to Pilot: ", msgFromROV)
+					for peerId, dataChannel := range activeDataConnectionsToThisPeer {
+						log.Println("Sending to PeerId: ", peerId)
 						dataChannel.Send([]byte(msgFromROV), false)
 					}
 				default:

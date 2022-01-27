@@ -48,7 +48,7 @@ function connectToPeer(peerId) {
         console.log("Connected to: ", rovConnection);
         // Receive messages
         rovConnection.on('data', function (data) {
-            document.body.appendChild(document.createTextNode(string(data)));
+            document.body.appendChild(document.createTextNode(String(data)));
         });
     });
     rovConnection.on('error', function (err) {
@@ -94,7 +94,7 @@ function setupEventListeners(params) {
             rovConnection.send(enc.encode(msg));
         }
     });
-    document.body.addEventListener('click', () => {
+    document.getElementById("connect_btn").addEventListener('click', () => {
         if (rovConnection != null) rovConnection.close()
         var remotePeerId = window.prompt("Remote Peer ID", "SSROV_0");
         connectToPeer(remotePeerId);
