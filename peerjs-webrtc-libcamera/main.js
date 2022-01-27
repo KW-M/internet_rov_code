@@ -25,32 +25,44 @@ var peer = new Peer({
 console.log("Created peer:", peer);
 peer.on('open', function (id) {
     console.log('My peer ID is: ' + id);
+    setupEventListeners();
+});
+peer.on('error', function (err) {
+    console.log('Self Peerjs Error: ', err);
+});
+peer.on('disconnected', function () {
+    console.log('Self Peerjs disconnected.');
+});
+peer.on('close', function () {
+    console.log('Self Peerjs connection closed.');
+});
 
-    conn = peer.connect('SSROV_0', {
+var rovConnection = null;
+function connectToPeer(peerId) {
+    rovConnection = peer.connect(peerId, {
         reliable: true,
         serialization: 'none',
     });
-    console.log("Connecting to: ", conn);
-    conn.on('open', function () {
-        console.log("Connected to: ", conn);
+    console.log("Connecting to: ", rovConnection);
+    rovConnection.on('open', function () {
+        console.log("Connected to: ", rovConnection);
         // Receive messages
-        conn.on('data', function (data) {
-            console.log('Received', data);
+        rovConnection.on('data', function (data) {
+            document.body.appendChild(document.createTextNode(string(data)));
         });
-        // Send messages
-        var enc = new TextEncoder(); // always utf-8
-        setInterval(function () {
-            conn.send(enc.encode('Hello from pilot!'));
-        }, 1000);
     });
-    conn.on('error', function (err) {
+    rovConnection.on('error', function (err) {
         console.log('Remote Peerjs Error: ', err);
     });
-    conn.on('disconnected', function () {
+    rovConnection.on('disconnected', function () {
         console.log('Remote Peerjs disconnected.');
+        while (true) {
+            rovConnection.reconnect();
+        }
     });
-    conn.on('close', function () {
+    rovConnection.on('close', function () {
         console.log('Remote Peerjs connection closed.');
+        rovConnection != null
     });
     peer.on('call', function (call) {
         console.log('Received video call from: ' + call.peer, call);
@@ -70,19 +82,24 @@ peer.on('open', function (id) {
             // video.play();
         });
     });
-});
-peer.on('error', function (err) {
-    console.log('Self Peerjs Error: ', err);
-});
-peer.on('disconnected', function () {
-    console.log('Self Peerjs disconnected.');
-});
-peer.on('close', function () {
-    console.log('Self Peerjs connection closed.');
-});
+}
 
-
-
+var enc = new TextEncoder();// always utf-8
+function setupEventListeners(params) {
+    window.addEventListener('keypress', () => {
+        if (rovConnection == null || rovConnection.open == false) {
+            alert("No connection to ROV");
+        } else {
+            var msg = window.prompt("Message:");
+            rovConnection.send(enc.encode(msg));
+        }
+    });
+    document.body.addEventListener('click', () => {
+        if (rovConnection != null) rovConnection.close()
+        var remotePeerId = window.prompt("Remote Peer ID", "SSROV_0");
+        connectToPeer(remotePeerId);
+    });
+}
 
 
 // peer.on('connection', function (dataChannel) {
@@ -105,19 +122,7 @@ peer.on('close', function () {
 //     });
 // });
 
-window.addEventListener('keypress', () => {
-    var remotePeerId = window.prompt("Remote Peer ID", "SSROV_0")
-    console.log("keypress,connecting to remote peer", remotePeerId);
-    var conn = peer.connect(remotePeerId);
-    conn.on('open', function () {
-        // Receive messages
-        conn.on('data', function (data) {
-            console.log('Received', data);
-        });
-        // Send messages
-        setInterval(() => conn.send('Hello!'), 1000)
-    });
-});
+
 
 
     // setTimeout(function () {

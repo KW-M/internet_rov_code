@@ -21,19 +21,31 @@ func main() {
 	// flag.StringVar(&httpListenAddress, "websocket-listen-port", ":8181", "Port number for websocket HTTP server to listen on. Default is :8181")
 	flag.Parse()
 
-	// Create a simple boolean "channel" that go subroutine functions can use to signal that they are done processing:
-	done := make(chan bool)
+	// Create a simple boolean "channel" that we can use to signal to go subroutine functions that they should stop when we close it:
+	quitProgram := make(chan bool)
 
 	// Create the unix socket to send and receive data to - from python
 
 	// CreateUnixSocket(done, uSockMsgRecivedChannel, uSockSendMsgChannel, "/tmp/go.socket")
 
+	go func() {
+		for {
+			select {
+			case <-quitProgram:
+				return
+			case msg := <-uSockSendMsgChannel:
+				log.Println("Received message from unix socket: ", msg)
+				uSockMsgRecivedChannel <- "Message received: " + msg
+			}
+		}
+	}()
+
 	// Setup the video stream and start the camera running
 	initVideoTrack()
-	go pipeVideoToStream(done)
+	go pipeVideoToStream(quitProgram)
 
 	// Setup the peerjs client to accept webrtc connections
-	go setupConnections(done)
+	go setupConnections(quitProgram)
 
 	// Wait for a signal to stop the program
 	systemExitCalled := make(chan os.Signal, 1) // Create a channel to listen for an interrupt signal from the OS.
@@ -41,12 +53,12 @@ func main() {
 	defer time.Sleep(time.Second) // sleep a Second at very end to allow everything to finish.
 	for { // Loop until a signal on the done or systemExitCalled go channel variables is received.
 		select {
-		case <-done:
-			log.Println("Done channel triggered, exiting")
+		case <-quitProgram:
+			log.Println("quitProgram channel triggered, exiting")
 			return
 		case <-systemExitCalled:
 			log.Println("ctrl+c or other system interrupt received, exiting")
-			close(done) // tell the go subroutines to exit by closing the done channel
+			close(quitProgram) // tell the go subroutines to exit by closing the quitProgram channel
 			return
 		}
 	}
