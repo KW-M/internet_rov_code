@@ -49,7 +49,7 @@ while True:
         # SOCKET DATACHANEL
         try:
             print('Awaiting connection...')
-            msg_socket.setup_socket(socket_path='/tmp/uv4l.socket',
+            msg_socket.setup_socket(socket_path='/tmp/go.socket',
                                     socket_timeout=5)
         except Exception as e:
             is_important = type(e) != TimeoutError and type(
@@ -70,22 +70,23 @@ while True:
             recived_message = str(msg_socket.recieve_socket_message())
             if (recived_message != None):
                 print('Received message: {}'.format(recived_message))
+                reply_data = {'message': recived_message}
 
                 # parse the message data as a JSON formatted string.
                 recived_data = json.loads(recived_message)
 
-                print(recived_data)
+                # print(recived_data)
 
-                if 'ping' in recived_data:
-                    reply_data['pong'] = recived_data['ping']
+                # if 'ping' in recived_data:
+                #     reply_data['pong'] = recived_data['ping']
 
-                if 'move' in recived_data:
-                    motors.set_rov_motion(
-                        thrust_vector=recived_data['move']['thrustVector'],
-                        turn_rate=recived_data['move']['turnRate'])
+                # if 'move' in recived_data:
+                #     motors.set_rov_motion(
+                #         thrust_vector=recived_data['move']['thrustVector'],
+                #         turn_rate=recived_data['move']['turnRate'])
 
-                if 'toggleLights' in recived_data:
-                    pass
+                # if 'toggleLights' in recived_data:
+                #     pass
 
             # sensor_values_did_change = sensors.update_all_sensors()
             # if sensor_values_did_change:
