@@ -17,8 +17,8 @@ import (
 	// "os/signal"
 	// "sync"
 
-	peerjs "github.com/KW-M/peerjs-go"
-	peerjsServer "github.com/KW-M/peerjs-go/server"
+	peerjs "github.com/muka/peerjs-go"
+	peerjsServer "github.com/muka/peerjs-go/server"
 )
 
 var err error // handy variable to stuff any error messages into
@@ -28,6 +28,10 @@ var err error // handy variable to stuff any error messages into
 // the end (rovNumber, eg: SSROV_0) that we increment if the current peerId is already taken.
 var basePeerId string = "SSROV_"
 var rovNumber int = 0
+
+
+
+
 
 // ----- PeerJs-Go Client Settings -----
 var peerServerCloudOpts,peerServerLocalOpts peerjs.Options
@@ -77,37 +81,42 @@ func startLocalPeerJsServer(done chan bool) {
 	}
 }
 
-func setupConnections(done chan bool) {
+func setupConnections(quitSignal chan bool) {
 	makePeerJsOptions()
-	go startLocalPeerJsServer(done)
+	go startLocalPeerJsServer(quitSignal)
 
-	// exitLocalConnection := make(chan bool)
-	// go func() {
-	// 	for {
-	// 		if signal := <-done; signal {
-	// 			break
-	// 		}
-	// 		setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts)
-	// 	}
-	// }()
+	localConnectionWriteChannel := make(chan string)
+	exitLocalConnection := make(chan bool)
+	go func() {
+		for {
+			if signal := <-quitSignal; signal {
+				break
+			}
+			setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts, localConnectionWriteChannel)
+		}
+	}()
 
+	cloudConnectionWriteChannel := make(chan string)
 	exitCloudConnection := make(chan bool)
 	go func() {
 		for {
 			select{
-				case <-done:
+				case <-quitSignal:
 					return
 				default:
 			}
-			setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts)
+			setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts, cloudConnectionWriteChannel)
 		}
 	}()
 
 	out:
 	for { // wait for the done channel to be triggered at which point close each of the connection function channels
 		select{
-			case <-done:
+			case <-quitSignal:
 				break out
+			case msgFromROVPython := <- uSockMsgRecivedChannel:
+				cloudConnectionWriteChannel <- msgFromROVPython
+				localConnectionWriteChannel <- msgFromROVPython
 			default:
 		}
 		time.Sleep(time.Microsecond * 300)
@@ -117,7 +126,7 @@ func setupConnections(done chan bool) {
 }
 
 // should be called as a goroutine
-func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Options) {
+func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Options, recievedMessageWriteChannel chan string) {
 
 	var rovPeerId string = "SSROV_" + strconv.Itoa(rovNumber)
 	var rovPeer, err = peerjs.NewPeer(rovPeerId, peerServerOptions)
@@ -137,50 +146,57 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 			exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
 		}
 
+		activeDataConnectionsToThisPeer := make(map[string]*peerjs.DataConnection) // map of the open datachannel connection Ids to this peer.
+
 		rovPeer.On("connection", func(data interface{}) {
 			pilotDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
-
-			pilotDataConnection.On("data", func(data interface{}) {
-				log.Printf("Received: %#v: %s\n", data, data)
-			})
-
-			pilotDataConnection.On("close", func(message interface{}) {
-				println("PILOT PEER DATACHANNEL CLOSE EVENT", message)
-			})
-
-			pilotDataConnection.On("disconnected", func(message interface{}) {
-				println("PILOT PEER DATACHANNEL DISCONNECTED EVENT", message)
-			})
-
-			pilotDataConnection.On("error", func(message interface{}) {
-				fmt.Printf("PILOT PEER DATACHANNEL ERROR EVENT: %s", message)
-			})
-
+			var pilotPeerId string = pilotDataConnection.GetPeerID()
 			log.Println("Peer connection established with Pilot Peer ID: ", pilotDataConnection.GetPeerID())
 
 			pilotDataConnection.On("open", func(message interface{}) {
-				var pilotPeerId string = pilotDataConnection.GetPeerID()
-				fmt.Printf("Calling Pilot Peer ID: %s\n", pilotPeerId)
+				activeDataConnectionsToThisPeer[pilotPeerId] = pilotDataConnection // add this connection to the map of active connections
+
+				pilotDataConnection.On("data", func(data interface{}) {
+					log.Printf("Received: %#v: %s\n", data, data)
+					var socketString string = pilotPeerId + "::" + data.(string)
+					uSockSendMsgChannel <- socketString
+				})
+
+				fmt.Printf("VIDEO CALLING Peer (a Pilot or Spectator) with ID: %s\n", pilotPeerId)
 				_, err = rovPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
 				if err != nil {
 					log.Println("Error calling pilot id: ", pilotPeerId)
 					log.Fatal(err)
 				}
-
-				go func() {
-					// send a repeating message to the pilot
-					for {
-						pilotDataConnection.Send([]byte("hi!"), false)
-						<-time.After(time.Millisecond * 1000)
-						if shouldExit := <-exitFunction; shouldExit { // stop the goroutine because a signal was sent on the 'done' channel from the main.go file to clean up because program is exiting or somthin.
-							return
-						}
-					}
-				}()
 			})
-		})
-	})
 
+		pilotDataConnection.On("close", func(message interface{}) {
+			println("PILOT PEER DATACHANNEL CLOSE EVENT", message)
+			delete(activeDataConnectionsToThisPeer,pilotPeerId) // remove this connection from the map of active connections
+		})
+
+		pilotDataConnection.On("disconnected", func(message interface{}) {
+			println("PILOT PEER DATACHANNEL DISCONNECTED EVENT", message)
+		})
+
+		pilotDataConnection.On("error", func(message interface{}) {
+			fmt.Printf("PILOT PEER DATACHANNEL ERROR EVENT: %s", message)
+		})
+
+		go func() {
+			for {
+				select{
+					case <-exitFunction:
+						return
+					case msgFromROV := <- recievedMessageWriteChannel:
+						for _, dataChannel := range activeDataConnectionsToThisPeer {
+							dataChannel.Send([]byte(msgFromROV),false)
+						}
+				}
+			}
+		}()
+	})
+})
 	rovPeer.On("close", func(message interface{}) {
 		println("ROV PEER JS CLOSE EVENT", message)
 		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over

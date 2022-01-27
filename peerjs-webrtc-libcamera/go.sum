@@ -20,12 +20,6 @@ dmitri.shuralyov.com/state v0.0.0-20180228185332-28bcc343414c/go.mod h1:0PRwlb0D
 git.apache.org/thrift.git v0.0.0-20180902110319-2566ecd5d999/go.mod h1:fPE2ZNJGynbRyZ4dJvy6G277gSllfV2HJqblrnkyeyg=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/KW-M/peerjs-go v0.0.0-20220124053845-3365f3e69a62 h1:Yjfa8kecB7DUbHLmhlqeJCh3X+j3Bn1a6ScQqW22uFo=
-github.com/KW-M/peerjs-go v0.0.0-20220124053845-3365f3e69a62/go.mod h1:EMf/1Yxwac2ehRrK8gy5VCaLeFYsQ0pNzqG9DK6lLFU=
-github.com/KW-M/peerjs-go v0.0.0-20220124180604-abb39663a2ca h1:GAjfEO1guTJ6vnKgMAm1kyN+u2h4FuyYyTf12sYq1a0=
-github.com/KW-M/peerjs-go v0.0.0-20220124180604-abb39663a2ca/go.mod h1:EMf/1Yxwac2ehRrK8gy5VCaLeFYsQ0pNzqG9DK6lLFU=
-github.com/KW-M/peerjs-go v0.0.0-20220125191521-f40fe10d02a0 h1:Vvml/LNQX/Uk/O7wSwj7tB3DR5z2VA9WSdid4HmYwI8=
-github.com/KW-M/peerjs-go v0.0.0-20220125191521-f40fe10d02a0/go.mod h1:EMf/1Yxwac2ehRrK8gy5VCaLeFYsQ0pNzqG9DK6lLFU=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
@@ -194,6 +188,8 @@ github.com/mitchellh/mapstructure v0.0.0-20160808181253-ca63d7c062ee/go.mod h1:F
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
+github.com/muka/peerjs-go v0.0.0-20220127055826-032344f03997 h1:+7ksdB/j0G5Rhoa5ThwduyMkLieaIwOyrrUsIkV3cDw=
+github.com/muka/peerjs-go v0.0.0-20220127055826-032344f03997/go.mod h1:D295IUOXheUk9qcKcGk4e9P88qp6WCxKZ8Si/O61bCw=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/neelance/astrewrite v0.0.0-20160511093645-99348263ae86/go.mod h1:kHJEU3ofeGjhHklVoIGuVj85JJwZ6kWPaJwCIxgnFmo=
 github.com/neelance/sourcemap v0.0.0-20151028013722-8c68805598ab/go.mod h1:Qr6/a/Q4r9LP1IltGz7tA7iOK1WonHEYhu1HRBA7ZiM=

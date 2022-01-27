@@ -9,6 +9,9 @@ import (
 	"time"
 )
 
+var uSockSendMsgChannel = make(chan string)
+var uSockMsgRecivedChannel = make(chan string)
+
 func main() {
 	// Parse the flags passed to program
 	// videoShellCommand := ""
@@ -20,6 +23,10 @@ func main() {
 
 	// Create a simple boolean "channel" that go subroutine functions can use to signal that they are done processing:
 	done := make(chan bool)
+
+	// Create the unix socket to send and receive data to - from python
+
+	CreateUnixSocket(done, uSockMsgRecivedChannel, uSockSendMsgChannel, "/tmp/go.sock")
 
 	// Setup the video stream and start the camera running
 	initVideoTrack()
@@ -53,7 +60,7 @@ func main() {
 // 	"syscall"
 // 	"time"
 
-// 	peerjs "github.com/KW-M/peerjs-go"
+// 	peerjs "github.com/muka/peerjs-go"
 // )
 
 // func main() {
