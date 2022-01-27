@@ -26,7 +26,7 @@ func main() {
 
 	// Create the unix socket to send and receive data to - from python
 
-	CreateUnixSocket(done, uSockMsgRecivedChannel, uSockSendMsgChannel, "/tmp/go.socket")
+	// CreateUnixSocket(done, uSockMsgRecivedChannel, uSockSendMsgChannel, "/tmp/go.socket")
 
 	// Setup the video stream and start the camera running
 	initVideoTrack()

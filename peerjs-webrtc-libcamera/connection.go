@@ -76,8 +76,8 @@ func startLocalPeerJsServer(done chan bool) {
 			case <-done:
 				return
 			default:
+				time.Sleep(time.Microsecond * 300)
 		}
-		time.Sleep(time.Microsecond * 300)
 	}
 }
 
@@ -118,8 +118,8 @@ func setupConnections(quitSignal chan bool) {
 				cloudConnectionWriteChannel <- msgFromROVPython
 				localConnectionWriteChannel <- msgFromROVPython
 			default:
+				time.Sleep(time.Microsecond * 300)
 		}
-		time.Sleep(time.Microsecond * 300)
 	}
 	// exitLocalConnection <- true
 	exitCloudConnection <- true
@@ -192,6 +192,8 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 						for _, dataChannel := range activeDataConnectionsToThisPeer {
 							dataChannel.Send([]byte(msgFromROV),false)
 						}
+					default:
+						time.Sleep(time.Microsecond * 300)
 				}
 			}
 		}()
