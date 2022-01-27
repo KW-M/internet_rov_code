@@ -29,12 +29,9 @@ var err error // handy variable to stuff any error messages into
 var basePeerId string = "SSROV_"
 var rovNumber int = 0
 
-
-
-
-
 // ----- PeerJs-Go Client Settings -----
-var peerServerCloudOpts,peerServerLocalOpts peerjs.Options
+var peerServerCloudOpts, peerServerLocalOpts peerjs.Options
+
 func makePeerJsOptions() {
 	// FOR CLOUD HOSTED PEERJS SERVER running on heroku (or wherever, or you could use the default server):
 	peerServerCloudOpts = peerjs.NewOptions()
@@ -72,11 +69,11 @@ func startLocalPeerJsServer(done chan bool) {
 		return
 	}
 	for { // wait for the done channel to be triggered at which point this function will exit and the local peerjs server will stop
-		select{
-			case <-done:
-				return
-			default:
-				time.Sleep(time.Microsecond * 300)
+		select {
+		case <-done:
+			return
+		default:
+			time.Sleep(time.Microsecond * 300)
 		}
 	}
 }
@@ -100,25 +97,25 @@ func setupConnections(quitSignal chan bool) {
 	exitCloudConnection := make(chan bool)
 	go func() {
 		for {
-			select{
-				case <-quitSignal:
-					return
-				default:
+			select {
+			case <-quitSignal:
+				return
+			default:
 			}
 			setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts, cloudConnectionWriteChannel)
 		}
 	}()
 
-	out:
+out:
 	for { // wait for the done channel to be triggered at which point close each of the connection function channels
-		select{
-			case <-quitSignal:
-				break out
-			case msgFromROVPython := <- uSockMsgRecivedChannel:
-				cloudConnectionWriteChannel <- msgFromROVPython
-				localConnectionWriteChannel <- msgFromROVPython
-			default:
-				time.Sleep(time.Microsecond * 300)
+		select {
+		case <-quitSignal:
+			break out
+		case msgFromROVPython := <-uSockMsgRecivedChannel:
+			cloudConnectionWriteChannel <- msgFromROVPython
+			localConnectionWriteChannel <- msgFromROVPython
+		default:
+			time.Sleep(time.Microsecond * 300)
 		}
 	}
 	// exitLocalConnection <- true
@@ -142,7 +139,7 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 		fmt.Printf("This ROV Peer established with Peer ID: %s\n", peerID)
 		if peerID[:len(basePeerId)] != basePeerId {
 			fmt.Printf("Uh oh, Peer Id %s must have been taken, switching to next rov Number\n", rovPeerId)
-			rovNumber++ // increment the rovNumber and try again
+			rovNumber++          // increment the rovNumber and try again
 			exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
 		}
 
@@ -170,35 +167,36 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 				}
 			})
 
-		pilotDataConnection.On("close", func(message interface{}) {
-			println("PILOT PEER DATACHANNEL CLOSE EVENT", message)
-			delete(activeDataConnectionsToThisPeer,pilotPeerId) // remove this connection from the map of active connections
-		})
+			pilotDataConnection.On("close", func(message interface{}) {
+				println("PILOT PEER DATACHANNEL CLOSE EVENT", message)
+				delete(activeDataConnectionsToThisPeer, pilotPeerId) // remove this connection from the map of active connections
+			})
 
-		pilotDataConnection.On("disconnected", func(message interface{}) {
-			println("PILOT PEER DATACHANNEL DISCONNECTED EVENT", message)
-		})
+			pilotDataConnection.On("disconnected", func(message interface{}) {
+				println("PILOT PEER DATACHANNEL DISCONNECTED EVENT", message)
+			})
 
-		pilotDataConnection.On("error", func(message interface{}) {
-			fmt.Printf("PILOT PEER DATACHANNEL ERROR EVENT: %s", message)
+			pilotDataConnection.On("error", func(message interface{}) {
+				fmt.Printf("PILOT PEER DATACHANNEL ERROR EVENT: %s", message)
+			})
 		})
 
 		go func() {
 			for {
-				select{
-					case <-exitFunction:
-						return
-					case msgFromROV := <- recievedMessageWriteChannel:
-						for _, dataChannel := range activeDataConnectionsToThisPeer {
-							dataChannel.Send([]byte(msgFromROV),false)
-						}
-					default:
-						time.Sleep(time.Microsecond * 300)
+				select {
+				case <-exitFunction:
+					return
+				case msgFromROV := <-recievedMessageWriteChannel:
+					for _, dataChannel := range activeDataConnectionsToThisPeer {
+						dataChannel.Send([]byte(msgFromROV), false)
+					}
+				default:
+					time.Sleep(time.Microsecond * 300)
 				}
 			}
 		}()
 	})
-})
+
 	rovPeer.On("close", func(message interface{}) {
 		println("ROV PEER JS CLOSE EVENT", message)
 		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
@@ -214,7 +212,6 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 		fmt.Printf("ROV PEER JS ERROR EVENT: %s", message)
 		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 	})
-
 
 	// conn1, _ := peer1.Connect("peer287", nil)
 	// conn1.On("open", func(data interface{}) {
@@ -259,4 +256,3 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 // 		fmt.Println("Remote peer does not support H264")
 // 		continue
 // 	}
-
