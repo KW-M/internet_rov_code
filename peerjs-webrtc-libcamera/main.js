@@ -5,6 +5,9 @@ if (peerjs.util.supports.audioVideo === false || peerjs.util.supports.data === f
     alert('Your browser does not support some WebRTC features, please use a different or newer browser.');
 }
 
+var encoder = new TextEncoder();// always utf-8
+var decoder = new TextDecoder();// always utf-8
+
 console.log("starting...");
 var peer = new Peer({
     debug: 3,
@@ -32,6 +35,8 @@ peer.on('error', function (err) {
 });
 peer.on('disconnected', function () {
     console.log('Self Peerjs disconnected.');
+    console.log("attempting to reconnect to peerjs server ..")
+    rovConnection.reconnect();
 });
 peer.on('close', function () {
     console.log('Self Peerjs connection closed.');
@@ -48,6 +53,8 @@ function connectToPeer(peerId) {
         console.log("Connected to: ", rovConnection);
         // Receive messages
         rovConnection.on('data', function (data) {
+            data = decoder.decode(data);
+            console.log("Received: ", data);
             document.body.appendChild(document.createTextNode(String(data)));
         });
     });
@@ -56,13 +63,11 @@ function connectToPeer(peerId) {
     });
     rovConnection.on('disconnected', function () {
         console.log('Remote Peerjs disconnected.');
-        while (true) {
-            rovConnection.reconnect();
-        }
+        console.log("attempting to reconnect to rov peer ..")
+        rovConnection.reconnect();
     });
     rovConnection.on('close', function () {
         console.log('Remote Peerjs connection closed.');
-        rovConnection != null
     });
     peer.on('call', function (call) {
         console.log('Received video call from: ' + call.peer, call);
@@ -84,14 +89,13 @@ function connectToPeer(peerId) {
     });
 }
 
-var enc = new TextEncoder();// always utf-8
 function setupEventListeners(params) {
     window.addEventListener('keypress', () => {
         if (rovConnection == null || rovConnection.open == false) {
             alert("No connection to ROV");
         } else {
             var msg = window.prompt("Message:");
-            rovConnection.send(enc.encode(msg));
+            rovConnection.send(encoder.encode(msg));
         }
     });
     document.getElementById("connect_btn").addEventListener('click', () => {
