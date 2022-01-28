@@ -173,15 +173,15 @@ fi
 # --------- Setup nginx to log to the file nginx_error.log ---------
 sudo apt install -y nginx
 sudo apt autoremove -y
-# # this solves the problem of missing the nginx log folder when the temp filesystem first starts up.
-# if grep "/var/log/nginx" "/lib/systemd/system/nginx.service"; then
-# 	# ^checks if we have already added words " -e '/var/log/nginx_error.log'" to the nginx.service file:
-# 	echo -e "$Green nginx.service already has the nginx error log folder '/var/log/nginx' already added in /lib/systemd/system/nginx.service$Color_Off"
-# else
-# 	echo -e "$Cyan Adding nginx error log folder '/var/log/nginx' in /lib/systemd/system/nginx.service $Color_Off"
-# 	# https://stackoverflow.com/questions/148451/how-to-use-sed-to-replace-only-the-first-occurrence-in-a-file
-# 	sudo sed -i '0,/ExecStartPre=/s//ExecStartPre=mkdir -p "\/var\/log\/nginx\/"\nExecStartPre=/' /lib/systemd/system/nginx.service
-# fi
+# this solves the problem of missing the nginx log folder when the temp filesystem first starts up.
+if grep "/var/log/nginx" "/lib/systemd/system/nginx.service"; then
+	# ^checks if we have already added words " -e '/var/log/nginx_error.log'" to the nginx.service file:
+	echo -e "$Green nginx.service already has the nginx error log folder '/var/log/nginx' already added in /lib/systemd/system/nginx.service$Color_Off"
+else
+	echo -e "$Cyan Adding nginx error log folder '/var/log/nginx' in /lib/systemd/system/nginx.service $Color_Off"
+	# https://stackoverflow.com/questions/148451/how-to-use-sed-to-replace-only-the-first-occurrence-in-a-file
+	sudo sed -i '0,/ExecStartPre=/s//ExecStartPre=mkdir -p "\/var\/log\/nginx\/"\nExecStartPre=/' /lib/systemd/system/nginx.service
+fi
 
 # --------- generate ssl certificate --------------------------------
 # From: https://raspberrypi.stackexchange.com/a/66939
