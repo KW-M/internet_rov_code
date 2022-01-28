@@ -155,9 +155,9 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 
 				pilotDataConnection.On("data", func(msgBytes interface{}) {
 					log.Printf("Received: %#v: %s\n", msgBytes, msgBytes)
-					var msgString string = string(msgBytes.([]byte))
-					var socketString string = pilotPeerId + "::" + msgString
-					uSockSendMsgChannel <- socketString
+					// var msgString string = string(msgBytes.([]byte))
+					// var socketString string = pilotPeerId + "::" + msgString
+					// uSockSendMsgChannel <- socketString
 				})
 
 				fmt.Printf("VIDEO CALLING Peer (a Pilot or Spectator) with ID: %s\n", pilotPeerId)
@@ -182,22 +182,22 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 			})
 		})
 
-		go func() {
-			for {
-				select {
-				case <-exitFunction:
-					return
-				case msgFromROV := <-recievedMessageWriteChannel:
-					log.Println("Sending Message to Pilot: ", msgFromROV)
-					for peerId, dataChannel := range activeDataConnectionsToThisPeer {
-						log.Println("Sending to PeerId: ", peerId)
-						dataChannel.Send([]byte(msgFromROV), false)
-					}
-				default:
-					time.Sleep(time.Microsecond * 300)
-				}
-			}
-		}()
+		// go func() {
+		// 	for {
+		// 		select {
+		// 		case <-exitFunction:
+		// 			return
+		// 		case msgFromROV := <-recievedMessageWriteChannel:
+		// 			log.Println("Sending Message to Pilot: ", msgFromROV)
+		// 			for peerId, dataChannel := range activeDataConnectionsToThisPeer {
+		// 				log.Println("Sending to PeerId: ", peerId)
+		// 				dataChannel.Send([]byte(msgFromROV), false)
+		// 			}
+		// 		default:
+		// 			time.Sleep(time.Microsecond * 300)
+		// 		}
+		// 	}
+		// }()
 	})
 
 	rovPeer.On("close", func(message interface{}) {

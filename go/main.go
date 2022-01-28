@@ -28,17 +28,17 @@ func main() {
 
 	// CreateUnixSocket(done, uSockMsgRecivedChannel, uSockSendMsgChannel, "/tmp/go.socket")
 
-	go func() {
-		for {
-			select {
-			case <-quitProgram:
-				return
-			case msg := <-uSockSendMsgChannel:
-				log.Println("Received message from unix socket: ", msg)
-				uSockMsgRecivedChannel <- "Message received: " + msg
-			}
-		}
-	}()
+	// go func() {
+	// 	for {
+	// 		select {
+	// 		case <-quitProgram:
+	// 			return
+	// 		case msg := <-uSockSendMsgChannel:
+	// 			log.Println("Received message from unix socket: ", msg)
+	// 			uSockMsgRecivedChannel <- "Message received: " + msg
+	// 		}
+	// 	}
+	// }()
 
 	// Setup the video stream and start the camera running
 	initVideoTrack()
