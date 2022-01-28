@@ -29,8 +29,6 @@ backup_then_overwrite_file(){
 	sudo cp -f -T "$REPLACEMENT_FILE" "$ORIGINAL_FILE_PATH"
 };
 
-rm ~/raspi-blinka.py && # clean up the adafruit circuitpython installer script if it's still around.
-
 echo "Building GO code..."
 cd ./go/
 go build -o ~/GOROV
