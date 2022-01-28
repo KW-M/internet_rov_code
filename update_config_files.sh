@@ -32,7 +32,7 @@ backup_then_overwrite_file(){
 rm ~/raspi-blinka.py && # clean up the adafruit circuitpython installer script if it's still around.
 
 echo "Building GO code..."
-cd ./peerjs-webrtc-libcamera/
+cd ./go/
 go build -o ~/GOROV
 cd ../
 
