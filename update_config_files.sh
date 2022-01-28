@@ -94,8 +94,8 @@ sudo systemctl restart rov_python_code.service
 # sudo systemctl restart rov_bluetooth_terminal.service
 echo "restarting add_fixed_ip.service..."
 sudo systemctl restart add_fixed_ip.service
-# echo "restarting nginx.service..."
-# sudo systemctl restart nginx.service
+echo "restarting nginx.service..."
+sudo systemctl restart nginx.service
 echo "restarting rov_uwsgi_server.service..."
 sudo systemctl restart rov_uwsgi_server.service
 

@@ -3,9 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <script>
-        window.parent.postMessage("ROV_IP=" + location.host)
-    </script>
+    <script>window.opener.postMessage("ROV_IP: " + location.host, "*")</script>
 </head>
 
 </html>
