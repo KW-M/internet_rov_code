@@ -10,11 +10,12 @@ import (
 // for passing messages back and forth to the python program
 // from https://go.dev/play/p/jupwWV8pdH
 type RovUnixSocket struct {
-	socketOpen bool
-	socketConnection net.Conn
-	// socketListener net.Listener
+	socketOpen         bool
+	doReconnectChannel chan bool
+	socketConnection   net.Conn
+	socketListener     net.Listener
 	socketWriteChannel chan string
-	socketReadChannel chan string
+	socketReadChannel  chan string
 }
 
 // ReadUnixSocketAsync: ment to be run as a goroutine
@@ -26,12 +27,11 @@ func (sock *RovUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
 			nr, err := sock.socketConnection.Read(buf)
 			if err != nil {
 				log.Warn("UNIX SOCKET READ ERROR: ", err)
-				time.Sleep(time.Second * 1)
-				continue
+				sock.doReconnectChannel <- true
 			}
 
 			message := string(buf[0:nr])
-			log.Debug("UNIX SOCKET got message:",message)
+			log.Debug("UNIX SOCKET got message:", message)
 			sock.socketReadChannel <- message
 		}
 	}
@@ -40,24 +40,57 @@ func (sock *RovUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
 
 func (sock *RovUnixSocket) WriteUnixSocketAsync() {
 	for {
-		msg, chanIsOpen := <-sock.socketWriteChannel
-		if sock.socketOpen && chanIsOpen &&  msg != "" {
-			sock.socketConnection.Write([]byte(msg))
+		if sock.socketOpen {
+			msg, chanIsOpen := <-sock.socketWriteChannel
+			if chanIsOpen && msg != "" {
+				_, err := sock.socketConnection.Write([]byte(msg))
+				if err != nil {
+					log.Warn("UNIX SOCKET WRITE ERROR: ", err)
+					sock.doReconnectChannel <- true
+				}
+			}
 		}
 	}
 }
 
-
 // connect starts listening on a unix domain socket at the particular address using the SOCK_SEQPACKET socket format.
 // path is the name of the unix socket to connect to (eg. "/tmp/whatever.sock").
-func (*RovUnixSocket) connect(path string) (*net.UnixConn, error) {
+func (*RovUnixSocket) createSocketListener(path string) (*net.UnixListener, error) {
 	addr, err := net.ResolveUnixAddr("unixpacket", path)
 	if err != nil {
 		return nil, err
 	}
-	conn, err := net.ListenUnixgram("unixpacket", addr)
-	return conn, err
+	listener, err := net.ListenUnix("unixpacket", addr)
+	return listener, err
 }
+
+// func listen(end chan<- bool) {
+// 	addr, err := net.ResolveUnixAddr("unix", "/tmp/foobar")
+// 	if err != nil {
+// 		fmt.Printf("Failed to resolve: %v\n", err)
+// 		os.Exit(1)
+// 	}
+
+// 	list, err := net.ListenUnix("unix", addr)
+// 	if err != nil {
+// 		fmt.Printf("failed to listen: %v\n", err)
+// 		os.Exit(1)
+// 	}
+// 	conn, _ := list.AcceptUnix()
+
+// 	buf := make([]byte, 2048)
+// 	n, uaddr, err := conn.ReadFromUnix(buf)
+// 	if err != nil {
+// 		fmt.Printf("LISTEN: Error: %v\n", err)
+// 	} else {
+// 		fmt.Printf("LISTEN: received %v bytes from %+v\n", n, uaddr)
+// 		fmt.Printf("LISTEN: %v\n", string(buf))
+// 	}
+
+// 	conn.Close()
+// 	list.Close()
+// 	end <- true
+// }
 
 // connect starts listening on a unix domain socket at the particular address using the SOCK_SEQPACKET socket format.
 // closeSocketSignal is the channel that will signal to this goroutine to close the socket.
@@ -73,18 +106,32 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 
 	go func() {
 		for {
+			sock.doReconnectChannel = make(chan bool)
 			// attempt to open socket
-			sock.socketConnection, err = sock.connect(unixSocketPath)
+			sock.socketListener, err = sock.createSocketListener(unixSocketPath)
 			if err != nil {
 				log.Error("UNIX SOCKET INITILIZATION ERROR: ", err)
+				time.Sleep(time.Second * 2)
+				continue
+			}
+			sock.socketConnection, err = sock.socketListener.Accept()
+			if err != nil {
+				log.Error("UNIX SOCKET ACCEPT ERROR: ", err)
+				sock.socketConnection.Close()
 				time.Sleep(time.Second * 2)
 				continue
 			}
 			sock.socketOpen = true
 			go sock.ReadUnixSocketAsync(1024)
 			go sock.WriteUnixSocketAsync()
-			doClose := <-closeSocketSignal
-			if doClose {
+			select {
+			case <-sock.doReconnectChannel:
+				sock.socketConnection.Close()
+				close(sock.socketWriteChannel)
+				close(sock.socketReadChannel)
+				sock.socketOpen = false
+				continue
+			case <-closeSocketSignal:
 				sock.socketConnection.Close()
 				close(sock.socketWriteChannel)
 				close(sock.socketReadChannel)
