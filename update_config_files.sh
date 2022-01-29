@@ -80,8 +80,8 @@ echo "Restarting systemd (systemctl) Services..."
 # daemon-reload makes the system load any new/changed services in the /lib/systemd/system/ directory
 sudo systemctl daemon-reload
 
-echo "Restarting pigpiod.service..."
-sudo systemctl restart pigpiod
+# echo "Restarting pigpiod.service..."
+# sudo systemctl restart pigpiod
 echo "restarting rov_python_code.service..."
 sudo systemctl restart rov_python_code.service
 # echo "restarting uv4l_raspicam.service..."
