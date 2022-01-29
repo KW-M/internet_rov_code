@@ -69,8 +69,9 @@ function connectToPeerServer(reconnect, abortConnection) {
             if (err.type == 'browser-incompatible') {
                 alert('Your browser does not support some WebRTC features, please use a different or newer browser.');
                 abortConnection()
-            } else if (err.type == "peer-unavailable" && thisPeer.open) console.info("Peer unavailable")
-            else {
+            } else if (err.type == "peer-unavailable" && thisPeer.open) {
+                console.info("ROV Peer is Not Yet Online")
+            } else {
                 console.warn('Self Peerjs Error: ', err);
                 reconnect() //loop back and try again
             }
@@ -99,7 +100,8 @@ function reliablyConnectToPeerServer() {
         // our strange way of looping in order to avoid call stack overflow / memory leak if this loop runs too much
         return reliablyConnectToPeerjsServer()
     }).catch((e) => {
-
+        console.info("Closing peer server connection.")
+        thisPeer.close()
     })
 }
 
@@ -207,9 +209,9 @@ function setupEventListeners() {
     });
     document.getElementById("connect_btn").addEventListener('click', () => {
         if (rovDataConnection != null) rovDataConnection.close()
-        // remotePeerId = window.prompt("Remote Peer ID", "SSROV_0");
-        // reliablyConnectToPeerServer(peerServerCloudOptions)
-        findRovLocalIp()
+        remotePeerId = "SSROV_0"//window.prompt("Remote Peer ID", "SSROV_0");
+        reliablyConnectToPeerServer(peerServerCloudOptions)
+        // findRovLocalIp()
     });
 }
 setupEventListeners();
@@ -268,37 +270,36 @@ setupEventListeners();
 
 
 var rovLocalIp = null;
+var thirdIpOctet = 0;
 function findRovLocalIp() {
-    // try to brute force search for raspberrypi's ip address
-    console.info("Searching for raspberrypi local ip address...")
-    var testPopup = null;
-    var i = 250;
-    var interval = setInterval(() => {
-        try {
-            testPopup.location = "http://192.168." + i + ".88/ipResponder";
-            // testPopup.document.write("Searching for ROV ip address...")
-            i = (i + 1) % 255;
-        } catch (e) {
-            console.warn(e)
-            if (testPopup) {
-                testPopup.close()
-                testPopup = null
+    // try to brute force search for raspberrypi's ip address in a popup window to get around browser local network cross origin protections
+    alert("Searching for raspberrypi local ip address...")
+    var testPopup = window.open("http://raspberrypi.local/ipResponder", 'ROV IP FINDER', 'scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=6,height=3,left=0,top=0')
+    alert("Click ok to continue")
+    var interval = null
+    setTimeout(() => {
+        interval = setInterval(() => {
+            try {
+                if (testPopup.closed) throw "popup was closed"
+                testPopup.location = "http://192.168." + thirdIpOctet + ".88/ipResponder";
+                testPopup.document.write("Searching for ROV ip address...")
+                thirdIpOctet = (thirdIpOctet + 1) % 255;
+            } catch (e) {
+                if (rovLocalIp == null) alert("ROV IP search was stopped. Click here to continue searching")
+                if (testPopup) testPopup.close()
+                clearInterval(interval)
             }
-            testPopup = window.open("http://raspberrypi.local/ipResponder", 'ROV IP FINDER', 'scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=6,height=3,left=0,top=0')
-            // window.focus();
-        }
-    }, 900);
+        }, 900);
+    }, 1000)
     window.addEventListener("message", (msg) => {
         if (typeof (msg.data) == typeof ("string")) {
             var parts = msg.data.split(": ")
             if (parts[0] == "ROV_IP") {
                 rovLocalIp = parts[1]
-                console.info("ROV IP FOUND! " + rovLocalIp)
                 clearInterval(interval)
+                testPopup.close()
+                alert("ROV IP FOUND! " + rovLocalIp)
             }
         }
     }, false)
-    // testPopup.location = "http://raspberrypi.local/ipResponder"
-    // testPopup.document.write("Searching for ROV ip address...")
-
 }

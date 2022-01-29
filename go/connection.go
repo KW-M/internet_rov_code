@@ -207,7 +207,7 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 
 	rovPeer.On("disconnected", func(message interface{}) {
 		println("ROV PEER JS DISCONNECTED EVENT", message)
-		// rovPeer.Reconnect();
+		rovPeer.Reconnect();
 		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 	})
 

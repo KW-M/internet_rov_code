@@ -47,7 +47,7 @@ cd ../
 # backup_then_overwrite_file "/lib/systemd/system/ngrok.service" "./new_config_files/ngrok.service"
 
 echo "Copying over rov_go_code startup service file..."
-backup_then_overwrite_file "/lib/systemd/system/rov_python_code.service" "./new_config_files/rov_python_code.service"
+backup_then_overwrite_file "/lib/systemd/system/rov_go_code.service" "./new_config_files/rov_go_code.service"
 
 echo "Copying over rov_python_code startup service file..."
 backup_then_overwrite_file "/lib/systemd/system/rov_python_code.service" "./new_config_files/rov_python_code.service"
@@ -82,6 +82,8 @@ sudo systemctl daemon-reload
 
 # echo "Restarting pigpiod.service..."
 # sudo systemctl restart pigpiod
+echo "restarting rov_go_code.service..."
+sudo systemctl restart rov_go_code.service
 echo "restarting rov_python_code.service..."
 sudo systemctl restart rov_python_code.service
 # echo "restarting uv4l_raspicam.service..."
