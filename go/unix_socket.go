@@ -35,6 +35,8 @@ func (sock *RovUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
 			log.Debug("UNIX SOCKET got message:", message)
 			sock.socketReadChannel <- message
 		}
+		log.Println("Panicking!")
+        panic("Hello")
 	}
 
 }
