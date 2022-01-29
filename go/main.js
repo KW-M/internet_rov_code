@@ -271,9 +271,23 @@ var rovLocalIp = null;
 function findRovLocalIp() {
     // try to brute force search for raspberrypi's ip address
     console.info("Searching for raspberrypi local ip address...")
-    var i = 255, interval = null;
-    var testPopup = window.open("", 'ROV IP FINDER', 'scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=6,height=3,left=0,top=0')
-    window.focus();
+    var testPopup = null;
+    var i = 250;
+    var interval = setInterval(() => {
+        try {
+            testPopup.location = "http://192.168." + i + ".88/ipResponder";
+            // testPopup.document.write("Searching for ROV ip address...")
+            i = (i + 1) % 255;
+        } catch (e) {
+            console.warn(e)
+            if (testPopup) {
+                testPopup.close()
+                testPopup = null
+            }
+            testPopup = window.open("http://raspberrypi.local/ipResponder", 'ROV IP FINDER', 'scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=6,height=3,left=0,top=0')
+            // window.focus();
+        }
+    }, 900);
     window.addEventListener("message", (msg) => {
         if (typeof (msg.data) == typeof ("string")) {
             var parts = msg.data.split(": ")
@@ -281,16 +295,10 @@ function findRovLocalIp() {
                 rovLocalIp = parts[1]
                 console.info("ROV IP FOUND! " + rovLocalIp)
                 clearInterval(interval)
-                testPopup.close()
             }
         }
     }, false)
     // testPopup.location = "http://raspberrypi.local/ipResponder"
     // testPopup.document.write("Searching for ROV ip address...")
-    var interval = setInterval(() => {
-        testPopup.location = "http://192.168." + i + ".88/ipResponder";
-        testPopup.document.write("Searching for ROV ip address...")
-        i -= 1;
-        if (i == -1) clearInterval(interval)
-    }, 900);
+
 }
