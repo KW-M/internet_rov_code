@@ -2,6 +2,7 @@ package main
 
 import (
 	"net"
+	"os"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -11,7 +12,7 @@ import (
 // from https://go.dev/play/p/jupwWV8pdH
 type RovUnixSocket struct {
 	socketOpen         bool
-	doReconnectChannel chan bool
+	doReconnectSignal chan bool
 	socketConnection   net.Conn
 	socketListener     net.Listener
 	socketWriteChannel chan string
@@ -27,7 +28,7 @@ func (sock *RovUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
 			nr, err := sock.socketConnection.Read(buf)
 			if err != nil {
 				log.Warn("UNIX SOCKET READ ERROR: ", err)
-				sock.doReconnectChannel <- true
+				sock.doReconnectSignal <- true
 			}
 
 			message := string(buf[0:nr])
@@ -46,7 +47,7 @@ func (sock *RovUnixSocket) WriteUnixSocketAsync() {
 				_, err := sock.socketConnection.Write([]byte(msg))
 				if err != nil {
 					log.Warn("UNIX SOCKET WRITE ERROR: ", err)
-					sock.doReconnectChannel <- true
+					sock.doReconnectSignal <- true
 				}
 			}
 		}
@@ -56,6 +57,8 @@ func (sock *RovUnixSocket) WriteUnixSocketAsync() {
 // connect starts listening on a unix domain socket at the particular address using the SOCK_SEQPACKET socket format.
 // path is the name of the unix socket to connect to (eg. "/tmp/whatever.sock").
 func (*RovUnixSocket) createSocketListener(path string) (*net.UnixListener, error) {
+	// try to remove any old socket file if it is still open
+	os.Remove(path)
 	addr, err := net.ResolveUnixAddr("unixpacket", path)
 	if err != nil {
 		return nil, err
@@ -106,7 +109,9 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 
 	go func() {
 		for {
-			sock.doReconnectChannel = make(chan bool)
+			sock.doReconnectSignal = make(chan bool)
+
+
 			// attempt to open socket
 			sock.socketListener, err = sock.createSocketListener(unixSocketPath)
 			if err != nil {
@@ -125,14 +130,14 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 			go sock.ReadUnixSocketAsync(1024)
 			go sock.WriteUnixSocketAsync()
 			select {
-			case <-sock.doReconnectChannel:
+			case <-sock.doReconnectSignal:
 				sock.socketConnection.Close()
-				close(sock.socketWriteChannel)
-				close(sock.socketReadChannel)
+				sock.socketListener.Close()
 				sock.socketOpen = false
 				continue
 			case <-closeSocketSignal:
 				sock.socketConnection.Close()
+				sock.socketListener.Close()
 				close(sock.socketWriteChannel)
 				close(sock.socketReadChannel)
 				sock.socketOpen = false
