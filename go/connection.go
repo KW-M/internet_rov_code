@@ -87,7 +87,7 @@ func setupConnections(quitSignal chan bool) {
 	cloudConnectionWriteChannel := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
 	exitCloudConnection := make(chan bool)
 	go func() {
-		for {
+		// for {
 			select {
 			case <-cloudQuitSignal:
 				println("Exiting cloud quitSignal")
@@ -95,14 +95,14 @@ func setupConnections(quitSignal chan bool) {
 			default:
 			}
 			setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts, cloudConnectionWriteChannel)
-		}
+		// }
 	}()
 
 	localQuitSignal := make(chan string)
 	localConnectionWriteChannel := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
 	exitLocalConnection := make(chan bool)
 	go func() {
-		for {
+		// for {
 			select {
 			case <-localQuitSignal:
 				println("Exiting local quitSignal")
@@ -110,13 +110,13 @@ func setupConnections(quitSignal chan bool) {
 			default:
 			}
 			setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts, localConnectionWriteChannel)
-		}
+		// }
 	}()
 
 	// send messages recived from the socket to seperate channels for both the local and cloud peers
 	msgForwarderQuitSignal := make(chan string)
 	go func() {
-		for {
+		// for {
 			select {
 			case <-msgForwarderQuitSignal:
 				println("Exiting message forwarder quitSignal")
@@ -125,7 +125,7 @@ func setupConnections(quitSignal chan bool) {
 				cloudConnectionWriteChannel <- msgFromROVPython
 				localConnectionWriteChannel <- msgFromROVPython
 			}
-		}
+		// }
 	}()
 
 	<-quitSignal // wait for the quitSignal channel to be triggered at which point close each of the local & cloud connection function channels
@@ -240,9 +240,10 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 	// ---------------------------------------------------------------------------------------------------------------------
 	fmt.Println("starting setupWebrtcConnection goroutine sleep")
 	<-exitFunction // CONTINUE when a signal is sent on the 'exitFunction' channel from the the calling function to clean up because program is exiting or somthin, unblock this goroutine and exit.
+	shouldExit = true
 	close(stopRelayingMsgs)
 	close(exitFunction)
-	shouldExit = true
+
 	log.Println("exiting setupWebrtcConnection")
 }
 
