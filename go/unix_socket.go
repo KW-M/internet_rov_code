@@ -70,6 +70,16 @@ func (*RovUnixSocket) createSocketListener(path string) (*net.UnixListener, erro
 	return listener, err
 }
 
+func (sock *RovUnixSocket) CleanupSocket() {
+	if sock.socketConnection != nil {
+		sock.socketConnection.Close()
+	}
+	if sock.socketListener != nil {
+		sock.socketListener.Close()
+	}
+	sock.socketOpen = false
+}
+
 // func listen(end chan<- bool) {
 // 	addr, err := net.ResolveUnixAddr("unix", "/tmp/foobar")
 // 	if err != nil {
@@ -112,7 +122,6 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 
 	go func() {
 		sock.doReconnectSignal = make(chan bool)
-		// defer sock.socketListener.Close()
 		for {
 			// attempt to open socket
 			sock.socketListener, err = sock.createSocketListener(unixSocketPath)
@@ -133,16 +142,12 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 			go sock.WriteUnixSocketAsync()
 			select {
 			case <-sock.doReconnectSignal:
-				sock.socketConnection.Close()
-				sock.socketListener.Close()
-				sock.socketOpen = false
+				sock.CleanupSocket()
 				continue
 			case <-closeSocketSignal:
-				sock.socketConnection.Close()
-				sock.socketListener.Close()
+				sock.CleanupSocket()
 				close(sock.socketWriteChannel)
 				close(sock.socketReadChannel)
-				sock.socketOpen = false
 				return
 			}
 		}
