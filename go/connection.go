@@ -90,6 +90,7 @@ func setupConnections(quitSignal chan bool) {
 		for {
 			select {
 			case <-cloudQuitSignal:
+				println("Exiting cloud quitSignal")
 				return
 			default:
 			}
@@ -113,11 +114,12 @@ func setupConnections(quitSignal chan bool) {
 	}()
 
 	// send messages recived from the socket to seperate channels for both the local and cloud peers
+	msgForwarderQuitSignal := make(chan string)
 	go func() {
 		for {
 			select {
-			case <-cloudQuitSignal:
-				println("Exiting cloud quitSignal")
+			case <-msgForwarderQuitSignal:
+				println("Exiting message forwarder quitSignal")
 				return
 			case msgFromROVPython := <-uSockMsgRecivedChannel:
 				cloudConnectionWriteChannel <- msgFromROVPython
@@ -129,8 +131,11 @@ func setupConnections(quitSignal chan bool) {
 	<-quitSignal // wait for the quitSignal channel to be triggered at which point close each of the local & cloud connection function channels
 	close(localQuitSignal)
 	close(cloudQuitSignal)
+	close(msgForwarderQuitSignal)
 	exitLocalConnection <- true
 	exitCloudConnection <- true
+	close(cloudConnectionWriteChannel)
+	close(localConnectionWriteChannel)
 }
 
 // should be called as a goroutine
