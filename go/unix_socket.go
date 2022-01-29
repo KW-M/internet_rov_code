@@ -140,6 +140,7 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 			sock.socketOpen = true
 			go sock.ReadUnixSocketAsync(1024)
 			go sock.WriteUnixSocketAsync()
+			log.Debug("Unix socket open! Listening for messages on: ", unixSocketPath)
 			select {
 			case <-sock.doReconnectSignal:
 				sock.CleanupSocket()
