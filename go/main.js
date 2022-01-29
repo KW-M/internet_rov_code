@@ -207,60 +207,90 @@ function setupEventListeners() {
     });
     document.getElementById("connect_btn").addEventListener('click', () => {
         if (rovDataConnection != null) rovDataConnection.close()
-        remotePeerId = window.prompt("Remote Peer ID", "SSROV_0");
-        reliablyConnectToPeerServer(peerServerCloudOptions)
+        // remotePeerId = window.prompt("Remote Peer ID", "SSROV_0");
+        // reliablyConnectToPeerServer(peerServerCloudOptions)
+        findRovLocalIp()
     });
 }
 setupEventListeners();
 
 
-//https://dmitripavlutin.com/timeout-fetch-request/
-async function fetchWithTimeout(url, options = {}) {
-    const { timeout = 5000 } = options;
+// //https://dmitripavlutin.com/timeout-fetch-request/
+// async function fetchWithTimeout(url, options = {}) {
+//     const { timeout = 5000 } = options;
 
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeout);
-    const response = await fetch(url, {
-        ...options,
-        signal: controller.signal
-    });
-    clearTimeout(id);
-    return response;
-}
+//     const controller = new AbortController();
+//     const id = setTimeout(() => controller.abort(), timeout);
+//     const response = await fetch(url, {
+//         ...options,
+//         signal: controller.signal
+//     });
+//     clearTimeout(id);
+//     return response;
+// }
 
-var rovLocalIp = null
-var rovIpFound = false;
-function rovIsAlive() {
-    rovIpFound = true;
-    console.log("ROVISALIVE!!!")
-}
+// var rovLocalIp = null
+// var rovIpFound = false;
+// function rovIsAlive() {
+//     rovIpFound = true;
+//     console.log("ROVISALIVE!!!")
+// }
+// function findRovLocalIp() {
+//     // try to brute force search for raspberrypi's ip address
+//     console.info("Searching for raspberrypi local ip address...")
+//     currentThirdOctet = -1
+//     var scriptElem = null
+//     function testIp(ipAddress) {
+//         return new Promise(function (resolve, reject) {
+//             console.info("Testing: ", ipAddress)
+//             if (scriptElem) document.body.removeChild(scriptElem)
+//             scriptElem = document.createElement("SCRIPT")
+//             scriptElem.setAttribute("src", "http://" + ipAddress)
+//             document.body.appendChild(scriptElem)
+//             setTimeout(function () {
+//                 resolve()
+//             }, 500)
+//         }).then(function () {
+//             if (rovIpFound == true) {
+//                 return ipAddress
+//             } else {
+//                 currentThirdOctet = (currentThirdOctet + 1) % 255
+//                 return testIp("192.168." + currentThirdOctet + ".88/alive")
+//             }
+//         })
+//     }
+//     testIp("192.168." + 0 + ".88/alive").then((localIp) => {
+//         rovLocalIp = localIp;
+//         console.info("ROV IP FOUND! " + rovLocalIp)
+//     })
+// }
+// // findRovLocalIp()
+
+
+var rovLocalIp = null;
 function findRovLocalIp() {
     // try to brute force search for raspberrypi's ip address
     console.info("Searching for raspberrypi local ip address...")
-    currentThirdOctet = -1
-    var scriptElem = null
-    function testIp(ipAddress) {
-        return new Promise(function (resolve, reject) {
-            console.info("Testing: ", ipAddress)
-            if (scriptElem) document.body.removeChild(scriptElem)
-            scriptElem = document.createElement("SCRIPT")
-            scriptElem.setAttribute("src", "http://" + ipAddress)
-            document.body.appendChild(scriptElem)
-            setTimeout(function () {
-                resolve()
-            }, 500)
-        }).then(function () {
-            if (rovIpFound == true) {
-                return ipAddress
-            } else {
-                currentThirdOctet = (currentThirdOctet + 1) % 255
-                return testIp("192.168." + currentThirdOctet + ".88/alive")
+    var i = 255, interval = null;
+    var testPopup = window.open("", 'ROV IP FINDER', 'scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=6,height=3,left=0,top=0')
+    window.focus();
+    window.addEventListener("message", (msg) => {
+        if (typeof (msg.data) == typeof ("string")) {
+            var parts = msg.data.split(": ")
+            if (parts[0] == "ROV_IP") {
+                rovLocalIp = parts[1]
+                console.info("ROV IP FOUND! " + rovLocalIp)
+                clearInterval(interval)
+                testPopup.close()
             }
-        })
-    }
-    testIp("192.168." + 0 + ".88/alive").then((localIp) => {
-        rovLocalIp = localIp;
-        console.info("ROV IP FOUND! " + rovLocalIp)
-    })
+        }
+    }, false)
+    // testPopup.location = "http://raspberrypi.local/ipResponder"
+    // testPopup.document.write("Searching for ROV ip address...")
+    var interval = setInterval(() => {
+        testPopup.location = "http://192.168." + i + ".88/ipResponder";
+        testPopup.document.write("Searching for ROV ip address...")
+        i -= 1;
+        if (i == -1) clearInterval(interval)
+    }, 900);
 }
-// findRovLocalIp()
