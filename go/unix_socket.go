@@ -35,8 +35,8 @@ func (sock *RovUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
 			log.Debug("UNIX SOCKET got message:", message)
 			sock.socketReadChannel <- message
 		}
-		log.Println("Panicking!")
-        panic("Hello")
+		// log.Println("Panicking!")
+        // panic("Hello")
 	}
 
 }
@@ -124,6 +124,14 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 
 	go func() {
 		sock.doReconnectSignal = make(chan bool)
+		defer func() {
+			if r := recover(); r != nil {
+				log.Println("Recovered in CreateUnixSocket", r)
+			}
+			sock.CleanupSocket()
+			close(sock.socketWriteChannel)
+			close(sock.socketReadChannel)
+		}()
 		for {
 			// attempt to open socket
 			sock.socketListener, err = sock.createSocketListener(unixSocketPath)
@@ -148,9 +156,6 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 				sock.CleanupSocket()
 				continue
 			case <-closeSocketSignal:
-				sock.CleanupSocket()
-				close(sock.socketWriteChannel)
-				close(sock.socketReadChannel)
 				return
 			}
 		}

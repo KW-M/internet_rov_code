@@ -50,7 +50,7 @@ func main() {
 
 	// Wait for a signal to stop the program
 	systemExitCalled := make(chan os.Signal, 1)                                    // Create a channel to listen for an interrupt signal from the OS.
-	signal.Notify(systemExitCalled, os.Interrupt, os.Kill, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGHUP) // tell the OS to send us a signal on the systemExitCalled go channel when it wants us to exit
+	signal.Notify(systemExitCalled, os.Interrupt, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGHUP) // tell the OS to send us a signal on the systemExitCalled go channel when it wants us to exit
 	defer time.Sleep(time.Second)                                                  // sleep a Second at very end to allow everything to finish.
 	// wait until a signal on the done or systemExitCalled go channel variables is received.
 	select {
