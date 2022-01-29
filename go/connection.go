@@ -101,17 +101,17 @@ func setupConnections(quitSignal chan bool) {
 	localQuitSignal := make(chan string)
 	localConnectionWriteChannel := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
 	exitLocalConnection := make(chan bool)
-	go func() {
-		// for {
-			select {
-			case <-localQuitSignal:
-				println("Exiting local quitSignal")
-				return
-			default:
-			}
-			setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts, localConnectionWriteChannel)
-		// }
-	}()
+	// go func() {
+	// 	// for {
+	// 		select {
+	// 		case <-localQuitSignal:
+	// 			println("Exiting local quitSignal")
+	// 			return
+	// 		default:
+	// 		}
+	// 		setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts, localConnectionWriteChannel)
+	// 	// }
+	// }()
 
 	// send messages recived from the socket to seperate channels for both the local and cloud peers
 	msgForwarderQuitSignal := make(chan string)
