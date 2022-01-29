@@ -58,7 +58,10 @@ func (sock *RovUnixSocket) WriteUnixSocketAsync() {
 // path is the name of the unix socket to connect to (eg. "/tmp/whatever.sock").
 func (*RovUnixSocket) createSocketListener(path string) (*net.UnixListener, error) {
 	// try to remove any old socket file if it is still open
-	os.Remove(path)
+	err := os.Remove(path)
+	if err != nil {
+		log.Warn("ERROR REMOVING SOCKET FILE: ",err)
+	}
 	addr, err := net.ResolveUnixAddr("unixpacket", path)
 	if err != nil {
 		return nil, err
@@ -108,10 +111,9 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 	sock.socketReadChannel = recivedMessageChannel
 
 	go func() {
+		sock.doReconnectSignal = make(chan bool)
+		defer sock.socketListener.Close()
 		for {
-			sock.doReconnectSignal = make(chan bool)
-
-
 			// attempt to open socket
 			sock.socketListener, err = sock.createSocketListener(unixSocketPath)
 			if err != nil {
@@ -136,8 +138,6 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 				sock.socketOpen = false
 				continue
 			case <-closeSocketSignal:
-				sock.socketConnection.Close()
-				sock.socketListener.Close()
 				close(sock.socketWriteChannel)
 				close(sock.socketReadChannel)
 				sock.socketOpen = false
