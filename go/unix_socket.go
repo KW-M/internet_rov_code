@@ -112,7 +112,7 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 
 	go func() {
 		sock.doReconnectSignal = make(chan bool)
-		defer sock.socketListener.Close()
+		// defer sock.socketListener.Close()
 		for {
 			// attempt to open socket
 			sock.socketListener, err = sock.createSocketListener(unixSocketPath)
@@ -138,6 +138,8 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 				sock.socketOpen = false
 				continue
 			case <-closeSocketSignal:
+				sock.socketConnection.Close()
+				sock.socketListener.Close()
 				close(sock.socketWriteChannel)
 				close(sock.socketReadChannel)
 				sock.socketOpen = false
