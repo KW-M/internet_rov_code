@@ -81,19 +81,9 @@ func startLocalPeerJsServer(done chan bool) {
 func setupConnections(quitSignal chan bool) {
 	makePeerJsOptions()
 	go startLocalPeerJsServer(quitSignal)
+	time.Sleep(time.Second * 1) // wait a bit for the local peerJs server to start up
 
-	localConnectionWriteChannel := make(chan string)
-	exitLocalConnection := make(chan bool)
-	go func() {
-		for {
-			if signal := <-quitSignal; signal {
-				break
-			}
-			setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts, localConnectionWriteChannel)
-		}
-	}()
-
-	cloudConnectionWriteChannel := make(chan string)
+	cloudConnectionWriteChannel := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
 	exitCloudConnection := make(chan bool)
 	go func() {
 		for {
@@ -106,25 +96,39 @@ func setupConnections(quitSignal chan bool) {
 		}
 	}()
 
-out:
-	for { // wait for the done channel to be triggered at which point close each of the connection function channels
-		select {
-		case <-quitSignal:
-			break out
-		case msgFromROVPython := <-uSockMsgRecivedChannel:
-			cloudConnectionWriteChannel <- msgFromROVPython
-			localConnectionWriteChannel <- msgFromROVPython
-		default:
-			time.Sleep(time.Microsecond * 300)
+	localConnectionWriteChannel := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
+	exitLocalConnection := make(chan bool)
+	go func() {
+		for {
+			select {
+			case <-quitSignal:
+				return
+			default:
+			}
+			setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts, localConnectionWriteChannel)
 		}
-	}
-	// exitLocalConnection <- true
+	}()
+
+	// send messages recived from the socket to seperate channels for both the local and cloud peers
+	go func() {
+		for {
+			select {
+			case <-quitSignal:
+				return
+			case msgFromROVPython := <-uSockMsgRecivedChannel:
+				cloudConnectionWriteChannel <- msgFromROVPython
+				localConnectionWriteChannel <- msgFromROVPython
+			}
+		}
+	}()
+
+	<-quitSignal // wait for the quitSignal channel to be triggered at which point close each of the local & cloud connection function channels
+	exitLocalConnection <- true
 	exitCloudConnection <- true
 }
 
 // should be called as a goroutine
 func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Options, recievedMessageWriteChannel chan string) {
-
 	var rovPeerId string = "SSROV_" + strconv.Itoa(rovNumber)
 	var rovPeer, err = peerjs.NewPeer(rovPeerId, peerServerOptions)
 	defer rovPeer.Close() // close the websocket connection when this whole outer function exits
@@ -155,9 +159,9 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 
 				pilotDataConnection.On("data", func(msgBytes interface{}) {
 					log.Printf("Received: %#v: %s\n", msgBytes, msgBytes)
-					// var msgString string = string(msgBytes.([]byte))
-					// var socketString string = pilotPeerId + "::" + msgString
-					// uSockSendMsgChannel <- socketString
+					var msgString string = string(msgBytes.([]byte))
+					var socketString string = pilotPeerId + "::" + msgString
+					uSockSendMsgChannel <- socketString
 				})
 
 				fmt.Printf("VIDEO CALLING Peer (a Pilot or Spectator) with ID: %s\n", pilotPeerId)
@@ -182,22 +186,22 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 			})
 		})
 
-		// go func() {
-		// 	for {
-		// 		select {
-		// 		case <-exitFunction:
-		// 			return
-		// 		case msgFromROV := <-recievedMessageWriteChannel:
-		// 			log.Println("Sending Message to Pilot: ", msgFromROV)
-		// 			for peerId, dataChannel := range activeDataConnectionsToThisPeer {
-		// 				log.Println("Sending to PeerId: ", peerId)
-		// 				dataChannel.Send([]byte(msgFromROV), false)
-		// 			}
-		// 		default:
-		// 			time.Sleep(time.Microsecond * 300)
-		// 		}
-		// 	}
-		// }()
+		go func() {
+			for {
+				select {
+				case <-exitFunction:
+					return
+				case msgFromROV := <-recievedMessageWriteChannel:
+					log.Println("Sending Message to Pilot: ", msgFromROV)
+					for peerId, dataChannel := range activeDataConnectionsToThisPeer {
+						log.Println("Sending to PeerId: ", peerId)
+						dataChannel.Send([]byte(msgFromROV), false)
+					}
+				default:
+					time.Sleep(time.Microsecond * 300)
+				}
+			}
+		}()
 	})
 
 	rovPeer.On("close", func(message interface{}) {
@@ -207,7 +211,7 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 
 	rovPeer.On("disconnected", func(message interface{}) {
 		println("ROV PEER JS DISCONNECTED EVENT", message)
-		rovPeer.Reconnect();
+		rovPeer.Reconnect()
 		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 	})
 
@@ -216,16 +220,9 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 	})
 
-	// conn1, _ := peer1.Connect("peer287", nil)
-	// conn1.On("open", func(data interface{}) {
-	// 	for {
-	// 		conn1.Send([]byte("huuui!"), false)
-	// 		<-time.After(time.Millisecond * 1000)
-	// 	}
-	// })
 	// ---------------------------------------------------------------------------------------------------------------------
 	fmt.Println("starting setupWebrtcConnection goroutine sleep")
-	<-exitFunction // when a signal is sent on the 'exitFunction' channel from the main.go file to clean up because program is exiting or somthin, unblock this goroutine and exit.
+	<-exitFunction // when a signal is sent on the 'exitFunction' channel from the the calling function to clean up because program is exiting or somthin, unblock this goroutine and exit.
 	log.Println("exiting setupWebrtcConnection")
 }
 
