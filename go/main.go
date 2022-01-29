@@ -23,6 +23,12 @@ func main() {
 
 	// Create a simple boolean "channel" that we can use to signal to go subroutine functions that they should stop when we close it:
 	quitProgram := make(chan bool)
+	defer func() {
+		if r := recover(); r != nil {
+			quitProgram <- true
+			log.Println("Recovered from panic in main, closing down...", r)
+		}
+	}()
 
 	// Create the unix socket to send and receive data to - from python
 
