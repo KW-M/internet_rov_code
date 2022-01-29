@@ -83,12 +83,13 @@ func setupConnections(quitSignal chan bool) {
 	go startLocalPeerJsServer(quitSignal)
 	time.Sleep(time.Second * 1) // wait a bit for the local peerJs server to start up
 
+	cloudQuitSignal := make(chan string)
 	cloudConnectionWriteChannel := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
 	exitCloudConnection := make(chan bool)
 	go func() {
 		for {
 			select {
-			case <-quitSignal:
+			case <-cloudQuitSignal:
 				return
 			default:
 			}
@@ -96,12 +97,14 @@ func setupConnections(quitSignal chan bool) {
 		}
 	}()
 
+	localQuitSignal := make(chan string)
 	localConnectionWriteChannel := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
 	exitLocalConnection := make(chan bool)
 	go func() {
 		for {
 			select {
-			case <-quitSignal:
+			case <-localQuitSignal:
+				println("Exiting local quitSignal")
 				return
 			default:
 			}
@@ -113,7 +116,8 @@ func setupConnections(quitSignal chan bool) {
 	go func() {
 		for {
 			select {
-			case <-quitSignal:
+			case <-cloudQuitSignal:
+				println("Exiting cloud quitSignal")
 				return
 			case msgFromROVPython := <-uSockMsgRecivedChannel:
 				cloudConnectionWriteChannel <- msgFromROVPython
@@ -123,12 +127,16 @@ func setupConnections(quitSignal chan bool) {
 	}()
 
 	<-quitSignal // wait for the quitSignal channel to be triggered at which point close each of the local & cloud connection function channels
+	close(localQuitSignal)
+	close(cloudQuitSignal)
 	exitLocalConnection <- true
 	exitCloudConnection <- true
 }
 
 // should be called as a goroutine
 func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Options, recievedMessageWriteChannel chan string) {
+	var shouldExit bool = false;
+	var stopRelayingMsgs chan bool = make(chan bool)
 	var rovPeerId string = "SSROV_" + strconv.Itoa(rovNumber)
 	var rovPeer, err = peerjs.NewPeer(rovPeerId, peerServerOptions)
 	defer rovPeer.Close() // close the websocket connection when this whole outer function exits
@@ -189,7 +197,8 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 		go func() {
 			for {
 				select {
-				case <-exitFunction:
+				case <-stopRelayingMsgs:
+					log.Println("StopSendingMsgs")
 					return
 				case msgFromROV := <-recievedMessageWriteChannel:
 					log.Println("Sending Message to Pilot: ", msgFromROV)
@@ -197,8 +206,6 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 						log.Println("Sending to PeerId: ", peerId)
 						dataChannel.Send([]byte(msgFromROV), false)
 					}
-				default:
-					time.Sleep(time.Microsecond * 300)
 				}
 			}
 		}()
@@ -211,8 +218,13 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 
 	rovPeer.On("disconnected", func(message interface{}) {
 		println("ROV PEER JS DISCONNECTED EVENT", message)
-		rovPeer.Reconnect()
-		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
+		if !shouldExit {
+			err = rovPeer.Reconnect()
+			if err != nil {
+				log.Println("ERROR RECONNECTING TO DISCONNECTED PEER SERVER: ", err)
+				exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
+			}
+		}
 	})
 
 	rovPeer.On("error", func(message interface{}) {
@@ -222,7 +234,10 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 
 	// ---------------------------------------------------------------------------------------------------------------------
 	fmt.Println("starting setupWebrtcConnection goroutine sleep")
-	<-exitFunction // when a signal is sent on the 'exitFunction' channel from the the calling function to clean up because program is exiting or somthin, unblock this goroutine and exit.
+	<-exitFunction // CONTINUE when a signal is sent on the 'exitFunction' channel from the the calling function to clean up because program is exiting or somthin, unblock this goroutine and exit.
+	close(stopRelayingMsgs)
+	close(exitFunction)
+	shouldExit = true
 	log.Println("exiting setupWebrtcConnection")
 }
 
