@@ -135,9 +135,10 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 		// attempt to open socket
 		sock.socketListener, err = sock.createSocketListener(unixSocketPath)
 		if err != nil {
-			log.Error("UNIX SOCKET INITILIZATION ERROR: ", err)
+			log.Error("UNIX SOCKET Initilization Error: ", err)
 		}
 		for {
+			log.Debug("UNIX SOCKET Listening for Connection...")
 			sock.socketConnection, err = sock.socketListener.Accept()
 			if err != nil {
 				log.Error("UNIX SOCKET ACCEPT ERROR: ", err)
@@ -146,8 +147,8 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 				continue
 			}
 			sock.socketOpen = true
-			go sock.ReadUnixSocketAsync(1024)
-			go sock.WriteUnixSocketAsync()
+			// go sock.ReadUnixSocketAsync(1024)
+			// go sock.WriteUnixSocketAsync()
 			log.Debug("Unix socket open! Listening for messages on: ", unixSocketPath)
 			select {
 			case <-sock.doReconnectSignal:
