@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net"
+	"time"
 	// log "github.com/sirupsen/logrus"
 )
 
@@ -133,6 +134,7 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 				log.Println("Exiting socket reconnect loop...")
 				break
 			}
+			time.Sleep(time.Second * 2)
 		}
 	}()
 
