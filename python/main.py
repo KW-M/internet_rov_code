@@ -66,22 +66,37 @@ while True:
         #                            msg_socket=None)
         # datalog.setup_datalog(sensors.get_connected_sensor_column_names())
 
+        import socket
+        while True:
+            try:
+                sock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+                sock.settimeout(5)
+                sock.connect('/tmp/go.sock')
+                sock.send(b'hello')
+                data = sock.recv(1024)
+                print('Got Message: {}'.format(data))
+                sock.close()
+            except Exception as e:
+                # print('Error: {}'.format(e))
+                traceback.print_exc()
+                time.sleep(5)
+
         # SOCKET DATACHANEL
-        try:
-            print('Awaiting connection...')
-            msg_socket.setup_socket(socket_path='/tmp/go.socket',
-                                    socket_timeout=5)
-        except Exception as e:
-            is_important = type(e) != TimeoutError and type(
-                e) != FileNotFoundError
-            pretty_print_exception(e,
-                                   show_traceback=is_important,
-                                   msg_socket=msg_socket)
-            msg_socket.close_socket()
-            time.sleep(3)
-            continue  # Go back to start of loop
-        else:
-            print('Connected!')
+        # try:
+        #     print('Awaiting connection...')
+        #     msg_socket.setup_socket(socket_path='/tmp/go.sock',
+        #                             socket_timeout=5)
+        # except Exception as e:
+        #     is_important = type(e) != TimeoutError and type(
+        #         e) != FileNotFoundError
+        #     pretty_print_exception(e,
+        #                            show_traceback=is_important,
+        #                            msg_socket=msg_socket)
+        #     msg_socket.close_socket()
+        #     time.sleep(3)
+        #     continue  # Go back to start of loop
+        # else:
+        #     print('Connected!')
 
         while True:
 

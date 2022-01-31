@@ -38,7 +38,7 @@ func main() {
 
 	// Create the unix socket to send and receive data to - from python
 
-	sock := CreateUnixSocket(quitProgram, uSockMsgRecivedChannel, uSockSendMsgChannel, "/tmp/go.socket")
+	sock := CreateUnixSocket(quitProgram, uSockMsgRecivedChannel, uSockSendMsgChannel, "/tmp/go.sock")
 	defer sock.CleanupSocket()
 
 	// DEBUG FOR SOCKET MESSAGES

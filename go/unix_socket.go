@@ -109,7 +109,7 @@ func (sock *RovUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketPat
 	log.Println("Unix socket open! Listening for messages on: ", unixSocketPath)
 	select {
 	case <-sock.doReconnectSignal:
-		return true
+		return false
 	case <-closeSocketSignal:
 		return true
 	}
@@ -130,7 +130,7 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 	go func() {
 		for {
 			var shouldExit bool = sock.openSocket(closeSocketSignal, unixSocketPath)
-			if shouldExit {
+			if shouldExit == true {
 				log.Println("Exiting socket reconnect loop...")
 				break
 			}
