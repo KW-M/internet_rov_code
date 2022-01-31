@@ -33,8 +33,6 @@ func (sock *RovUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
 			log.Println("UNIX SOCKET got message:", message)
 			sock.socketReadChannel <- message
 		}
-		// log.Println("Panicking!")
-		// panic("Hello")
 	}
 
 }
@@ -73,6 +71,7 @@ func (*RovUnixSocket) createSocketListener(path string) (*net.UnixListener, erro
 	return listener, err
 }
 
+/* Closes any open socket connections & removes the listener */
 func (sock *RovUnixSocket) CleanupSocket() {
 	if sock.socketConnection != nil {
 		sock.socketConnection.Close()
@@ -82,34 +81,6 @@ func (sock *RovUnixSocket) CleanupSocket() {
 	}
 	sock.socketOpen = false
 }
-
-// func listen(end chan<- bool) {
-// 	addr, err := net.ResolveUnixAddr("unix", "/tmp/foobar")
-// 	if err != nil {
-// 		fmt.Printf("Failed to resolve: %v\n", err)
-// 		os.Exit(1)
-// 	}
-
-// 	list, err := net.ListenUnix("unix", addr)
-// 	if err != nil {
-// 		fmt.Printf("failed to listen: %v\n", err)
-// 		os.Exit(1)
-// 	}
-// 	conn, _ := list.AcceptUnix()
-
-// 	buf := make([]byte, 2048)
-// 	n, uaddr, err := conn.ReadFromUnix(buf)
-// 	if err != nil {
-// 		fmt.Printf("LISTEN: Error: %v\n", err)
-// 	} else {
-// 		fmt.Printf("LISTEN: received %v bytes from %+v\n", n, uaddr)
-// 		fmt.Printf("LISTEN: %v\n", string(buf))
-// 	}
-
-// 	conn.Close()
-// 	list.Close()
-// 	end <- true
-// }
 
 func (sock *RovUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketPath string) bool {
 	// catch any errors or returns gracefully and CleanupSocket
@@ -149,7 +120,6 @@ func (sock *RovUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketPat
 // sendMessageChannel is a string channel. When a message is sent on this channel, it will be sent to the socket.
 // unixSocketPath is the path the unix socket to connect to (eg. "/tmp/whatever.sock").
 func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan string, sendMessageChannel chan string, unixSocketPath string) *RovUnixSocket {
-	log.Println("CreateUnixSocket")
 	var sock = new(RovUnixSocket)
 	sock.socketOpen = false
 	sock.socketWriteChannel = sendMessageChannel
@@ -160,6 +130,7 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 		for {
 			var shouldExit bool = sock.openSocket(closeSocketSignal, unixSocketPath)
 			if shouldExit {
+				log.Println("Exiting socket reconnect loop...")
 				break
 			}
 		}
