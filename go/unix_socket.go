@@ -151,8 +151,8 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 				continue
 			}
 			sock.socketOpen = true
-			// go sock.ReadUnixSocketAsync(1024)
-			// go sock.WriteUnixSocketAsync()
+			go sock.ReadUnixSocketAsync(1024)
+			go sock.WriteUnixSocketAsync()
 			log.Println("Unix socket open! Listening for messages on: ", unixSocketPath)
 			select {
 			case <-sock.doReconnectSignal:
