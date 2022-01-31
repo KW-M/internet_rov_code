@@ -80,12 +80,15 @@ echo "Restarting systemd (systemctl) Services..."
 # daemon-reload makes the system load any new/changed services in the /lib/systemd/system/ directory
 sudo systemctl daemon-reload
 
+
+rm "/tmp/go.socket" || true # remove the GO <-> Python unix socket file if it exists
+
 # echo "Restarting pigpiod.service..."
 # sudo systemctl restart pigpiod
 echo "restarting rov_go_code.service..."
 sudo systemctl restart rov_go_code.service
-# echo "restarting rov_python_code.service..."
-# sudo systemctl restart rov_python_code.service
+echo "restarting rov_python_code.service..."
+sudo systemctl restart rov_python_code.service
 
 # echo "restarting uv4l_raspicam.service..."
 # sudo systemctl restart uv4l_raspicam.service	# sudo service uv4l_raspicam restart
