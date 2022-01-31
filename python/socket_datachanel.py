@@ -21,21 +21,20 @@ class socket_datachanel:
 
         print('Attempting to open socket at path: {}'.format(socket_path))
 
-        # Try to unlink/free up the socket file if it already exists:
-        try:
-            os.unlink(socket_path)
-        except OSError as e:
-            if os.path.exists(socket_path):
-                raise OSError(
-                    "Error unlinking socket file {} are you root?: {}".format(
-                        socket_path, e)) from e
-            else:
-                pass
+        # # Try to unlink/free up the socket file if it already exists:
+        # try:
+        #     os.unlink(socket_path)
+        # except OSError as e:
+        #     if os.path.exists(socket_path):
+        #         raise OSError(
+        #             "Error unlinking socket file {} are you root?: {}".format(
+        #                 socket_path, e)) from e
+        #     else:
+        #         pass
 
         # try to create the socket class with the given path:
         try:
             if (self.sock == None):
-                print("Creating socket")
                 self.sock = socket.socket(socket.AF_UNIX,
                                           socket.SOCK_SEQPACKET)
                 self.sock.settimeout(socket_timeout)
