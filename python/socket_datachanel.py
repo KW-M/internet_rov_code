@@ -4,13 +4,11 @@ import socket
 
 class socket_datachanel:
     sock = None
-    connection = None
 
     def close_socket(self):
         if self.sock:
             self.sock.close()
             self.sock = None
-            self.connection = None
 
     def setup_socket(self, socket_path='/tmp/go.socket', socket_timeout=.1):
         """
@@ -44,6 +42,10 @@ class socket_datachanel:
                 self.sock.connect(socket_path)
 
         # if the socket was not opened/connected before the timeout, throw an exception:
+        except FileNotFoundError as e:
+            raise FileNotFoundError('Socket file doesn\'t exitst, retry later') from e
+
+        # if the socket file has not been created before the timeout:
         except socket.timeout as e:
             raise TimeoutError('Socket setup timed out, retry later') from e
 
@@ -69,7 +71,7 @@ class socket_datachanel:
                 print('Socket not setup')
             else:
                 # pause program while waiting for a message in utf-8 character encoding up to 1024 bytes long to appear in the socket file.
-                message = str(self.connection.recv(1024), 'utf-8')
+                message = str(self.sock.recv(1024), 'utf-8')
                 if message:
                     return message
                 else:
@@ -99,7 +101,7 @@ class socket_datachanel:
             if (self.sock == None):
                 print('Socket not setup')
             else:
-                data = self.connection.sendall(bytes(socket_message, 'utf-8'))
+                data = self.sock.send(bytes(socket_message, 'utf-8'))
                 if data:
                     return data
                 else:

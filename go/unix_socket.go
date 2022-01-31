@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net"
-	"time"
 	// log "github.com/sirupsen/logrus"
 )
 
@@ -11,7 +10,7 @@ import (
 // from https://go.dev/play/p/jupwWV8pdH
 type RovUnixSocket struct {
 	socketOpen         bool
-	doReconnectSignal chan bool
+	doReconnectSignal  chan bool
 	socketConnection   net.Conn
 	socketListener     net.Listener
 	socketWriteChannel chan string
@@ -35,7 +34,7 @@ func (sock *RovUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
 			sock.socketReadChannel <- message
 		}
 		// log.Println("Panicking!")
-        // panic("Hello")
+		// panic("Hello")
 	}
 
 }
@@ -63,14 +62,14 @@ func (*RovUnixSocket) createSocketListener(path string) (*net.UnixListener, erro
 	// if err != nil {
 	// 	log.Println("ERROR REMOVING SOCKET FILE: ",err)
 	// }
-log.Println("Creating socket listener...",path)
+	log.Println("Creating socket listener...", path)
 	addr, err := net.ResolveUnixAddr("unixpacket", path)
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Resolved addr socket listener...",path)
+	log.Println("Resolved addr socket listener...", path)
 	listener, err := net.ListenUnix("unixpacket", addr)
-	log.Println("listening to addr socket listener...",path)
+	log.Println("listening to addr socket listener...", path)
 	return listener, err
 }
 
@@ -112,6 +111,38 @@ func (sock *RovUnixSocket) CleanupSocket() {
 // 	end <- true
 // }
 
+func (sock *RovUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketPath string) bool {
+	// catch any errors or returns gracefully and CleanupSocket
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("Recovered in openSocket()...", r)
+		}
+		sock.CleanupSocket()
+	}()
+
+	// attempt to open socket
+	sock.socketListener, err = sock.createSocketListener(unixSocketPath)
+	if err != nil {
+		log.Println("UNIX SOCKET Initilization Error: ", err)
+	}
+	log.Println("UNIX SOCKET Listening for Connection...")
+	sock.socketConnection, err = sock.socketListener.Accept()
+	if err != nil {
+		log.Println("UNIX SOCKET ACCEPT ERROR: ", err)
+		return false
+	}
+	sock.socketOpen = true
+	go sock.ReadUnixSocketAsync(1024)
+	go sock.WriteUnixSocketAsync()
+	log.Println("Unix socket open! Listening for messages on: ", unixSocketPath)
+	select {
+	case <-sock.doReconnectSignal:
+		return true
+	case <-closeSocketSignal:
+		return true
+	}
+}
+
 // connect starts listening on a unix domain socket at the particular address using the SOCK_SEQPACKET socket format.
 // closeSocketSignal is the channel that will signal to this goroutine to close the socket.
 // recivedMessageChannel is a string channel When a message is recived on the socket it will be sent to this channel.
@@ -119,47 +150,17 @@ func (sock *RovUnixSocket) CleanupSocket() {
 // unixSocketPath is the path the unix socket to connect to (eg. "/tmp/whatever.sock").
 func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan string, sendMessageChannel chan string, unixSocketPath string) *RovUnixSocket {
 	log.Println("CreateUnixSocket")
-	var err error
 	var sock = new(RovUnixSocket)
 	sock.socketOpen = false
 	sock.socketWriteChannel = sendMessageChannel
 	sock.socketReadChannel = recivedMessageChannel
-
+	sock.doReconnectSignal = make(chan bool)
 
 	go func() {
-		sock.doReconnectSignal = make(chan bool)
-		defer func() {
-			if r := recover(); r != nil {
-				log.Println("Recovered in CreateUnixSocket", r)
-			}
-			sock.CleanupSocket()
-			close(sock.socketWriteChannel)
-			close(sock.socketReadChannel)
-		}()
-		// attempt to open socket
-		sock.socketListener, err = sock.createSocketListener(unixSocketPath)
-		if err != nil {
-			log.Println("UNIX SOCKET Initilization Error: ", err)
-		}
 		for {
-			log.Println("UNIX SOCKET Listening for Connection...")
-			sock.socketConnection, err = sock.socketListener.Accept()
-			if err != nil {
-				log.Println("UNIX SOCKET ACCEPT ERROR: ", err)
-				sock.socketConnection.Close()
-				time.Sleep(time.Second * 2)
-				continue
-			}
-			sock.socketOpen = true
-			go sock.ReadUnixSocketAsync(1024)
-			go sock.WriteUnixSocketAsync()
-			log.Println("Unix socket open! Listening for messages on: ", unixSocketPath)
-			select {
-			case <-sock.doReconnectSignal:
-				sock.CleanupSocket()
-				continue
-			case <-closeSocketSignal:
-				return
+			var shouldExit bool = sock.openSocket(closeSocketSignal, unixSocketPath)
+			if shouldExit {
+				break
 			}
 		}
 	}()
