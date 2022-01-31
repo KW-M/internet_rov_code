@@ -132,14 +132,12 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 			close(sock.socketWriteChannel)
 			close(sock.socketReadChannel)
 		}()
+		// attempt to open socket
+		sock.socketListener, err = sock.createSocketListener(unixSocketPath)
+		if err != nil {
+			log.Error("UNIX SOCKET INITILIZATION ERROR: ", err)
+		}
 		for {
-			// attempt to open socket
-			sock.socketListener, err = sock.createSocketListener(unixSocketPath)
-			if err != nil {
-				log.Error("UNIX SOCKET INITILIZATION ERROR: ", err)
-				time.Sleep(time.Second * 2)
-				continue
-			}
 			sock.socketConnection, err = sock.socketListener.Accept()
 			if err != nil {
 				log.Error("UNIX SOCKET ACCEPT ERROR: ", err)
