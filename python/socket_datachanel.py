@@ -41,12 +41,7 @@ class socket_datachanel:
                 self.sock = socket.socket(socket.AF_UNIX,
                                           socket.SOCK_SEQPACKET)
                 self.sock.settimeout(socket_timeout)
-                self.sock.bind(socket_path)
-                self.sock.listen(1)
-
-            # try to connect to the socket:
-            self.connection, client_address = self.sock.accept()
-            print('Established socket connection with ', client_address)
+                self.sock.connect(socket_path)
 
         # if the socket was not opened/connected before the timeout, throw an exception:
         except socket.timeout as e:
@@ -55,11 +50,11 @@ class socket_datachanel:
         # if there was some other socket error, close the socket and raise the error again:
         except socket.error as e:
             self.close_socket()
-            raise Exception("Setup Socket Socket Error") from e
+            raise Exception("Setup Socket: Socket Error") from e
 
         # if there was some other error
         except Exception as e:
-            raise Exception("Setup Socket Other Error") from e
+            raise Exception("Setup Socket: Other Error") from e
 
     def recieve_socket_message(self):
         """
