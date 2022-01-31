@@ -6,6 +6,26 @@
 
 # https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
 
+#  AttributeError: 'NoneType' object has no attribute 'send'
+# Jan 31 11:06:59 raspberrypi python3[3436]: Initializing motor controllers...
+# Jan 31 11:06:59 raspberrypi python3[3436]: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Jan 31 11:06:59 raspberrypi python3[3436]: Can't connect to pigpio at localhost(8888)
+# Jan 31 11:06:59 raspberrypi python3[3436]: Can't create callback thread.
+# Jan 31 11:06:59 raspberrypi python3[3436]: Perhaps too many simultaneous pigpio connections.
+# Jan 31 11:06:59 raspberrypi python3[3436]: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Jan 31 11:06:59 raspberrypi python3[3436]: Traceback (most recent call last):
+# Jan 31 11:06:59 raspberrypi python3[3436]:   File "/home/pi/internet_rov_code/python/main.py", line 29, in <module>
+# Jan 31 11:06:59 raspberrypi python3[3436]:     motors.init_motor_controllers()
+# Jan 31 11:06:59 raspberrypi python3[3436]:   File "/home/pi/internet_rov_code/python/motion_controller.py", line 69, in init_motor_controllers
+# Jan 31 11:06:59 raspberrypi python3[3436]:     self.FORWARD_RIGHT_MOTOR = pwm_motor(self.pigpio_instance,
+# Jan 31 11:06:59 raspberrypi python3[3436]:   File "/home/pi/internet_rov_code/python/motion_controller.py", line 20, in __init__
+# Jan 31 11:06:59 raspberrypi python3[3436]:     self.pigpio_instance.set_mode(self.pin_in1, pigpio.OUTPUT)
+# Jan 31 11:06:59 raspberrypi python3[3436]:   File "/usr/lib/python3/dist-packages/pigpio.py", line 1376, in set_mode
+# Jan 31 11:06:59 raspberrypi python3[3436]:     return _u2i(_pigpio_command(self.sl, _PI_CMD_MODES, gpio, mode))
+# Jan 31 11:06:59 raspberrypi python3[3436]:   File "/usr/lib/python3/dist-packages/pigpio.py", line 1025, in _pigpio_command
+# Jan 31 11:06:59 raspberrypi python3[3436]:     sl.s.send(struct.pack('IIII', cmd, p1, p2, 0))
+# Jan 31 11:06:59 raspberrypi python3[3436]: AttributeError: 'NoneType' object has no attribute 'send'
+
 import time
 import json
 from datalog import sensor_datalog

@@ -118,11 +118,13 @@ func (sock *RovUnixSocket) CleanupSocket() {
 // sendMessageChannel is a string channel. When a message is sent on this channel, it will be sent to the socket.
 // unixSocketPath is the path the unix socket to connect to (eg. "/tmp/whatever.sock").
 func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan string, sendMessageChannel chan string, unixSocketPath string) *RovUnixSocket {
+	log.Println("CreateUnixSocket")
 	var err error
 	var sock = new(RovUnixSocket)
 	sock.socketOpen = false
 	sock.socketWriteChannel = sendMessageChannel
 	sock.socketReadChannel = recivedMessageChannel
+
 
 	go func() {
 		sock.doReconnectSignal = make(chan bool)
