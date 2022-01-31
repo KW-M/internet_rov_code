@@ -1,10 +1,10 @@
 package main
 
 import (
+	"log"
 	"net"
 	"time"
-
-	log "github.com/sirupsen/logrus"
+	// log "github.com/sirupsen/logrus"
 )
 
 // for passing messages back and forth to the python program
@@ -26,12 +26,12 @@ func (sock *RovUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
 		if sock.socketOpen {
 			nr, err := sock.socketConnection.Read(buf)
 			if err != nil {
-				log.Warn("UNIX SOCKET READ ERROR: ", err)
+				log.Println("UNIX SOCKET READ ERROR: ", err)
 				sock.doReconnectSignal <- true
 			}
 
 			message := string(buf[0:nr])
-			log.Debug("UNIX SOCKET got message:", message)
+			log.Println("UNIX SOCKET got message:", message)
 			sock.socketReadChannel <- message
 		}
 		// log.Println("Panicking!")
@@ -47,7 +47,7 @@ func (sock *RovUnixSocket) WriteUnixSocketAsync() {
 			if chanIsOpen && msg != "" {
 				_, err := sock.socketConnection.Write([]byte(msg))
 				if err != nil {
-					log.Warn("UNIX SOCKET WRITE ERROR: ", err)
+					log.Println("UNIX SOCKET WRITE ERROR: ", err)
 					sock.doReconnectSignal <- true
 				}
 			}
@@ -61,16 +61,16 @@ func (*RovUnixSocket) createSocketListener(path string) (*net.UnixListener, erro
 	// try to remove any old socket file if it is still open
 	// err := os.Remove(path)
 	// if err != nil {
-	// 	log.Warn("ERROR REMOVING SOCKET FILE: ",err)
+	// 	log.Println("ERROR REMOVING SOCKET FILE: ",err)
 	// }
-log.Debug("Creating socket listener...",path)
+log.Println("Creating socket listener...",path)
 	addr, err := net.ResolveUnixAddr("unixpacket", path)
 	if err != nil {
 		return nil, err
 	}
-	log.Debug("Resolved addr socket listener...",path)
+	log.Println("Resolved addr socket listener...",path)
 	listener, err := net.ListenUnix("unixpacket", addr)
-	log.Debug("listening to addr socket listener...",path)
+	log.Println("listening to addr socket listener...",path)
 	return listener, err
 }
 
@@ -139,13 +139,13 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 		// attempt to open socket
 		sock.socketListener, err = sock.createSocketListener(unixSocketPath)
 		if err != nil {
-			log.Error("UNIX SOCKET Initilization Error: ", err)
+			log.Println("UNIX SOCKET Initilization Error: ", err)
 		}
 		for {
-			log.Debug("UNIX SOCKET Listening for Connection...")
+			log.Println("UNIX SOCKET Listening for Connection...")
 			sock.socketConnection, err = sock.socketListener.Accept()
 			if err != nil {
-				log.Error("UNIX SOCKET ACCEPT ERROR: ", err)
+				log.Println("UNIX SOCKET ACCEPT ERROR: ", err)
 				sock.socketConnection.Close()
 				time.Sleep(time.Second * 2)
 				continue
@@ -153,7 +153,7 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 			sock.socketOpen = true
 			// go sock.ReadUnixSocketAsync(1024)
 			// go sock.WriteUnixSocketAsync()
-			log.Debug("Unix socket open! Listening for messages on: ", unixSocketPath)
+			log.Println("Unix socket open! Listening for messages on: ", unixSocketPath)
 			select {
 			case <-sock.doReconnectSignal:
 				sock.CleanupSocket()
