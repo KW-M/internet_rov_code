@@ -12,11 +12,11 @@ class socket_datachanel:
             self.sock = None
             self.connection = None
 
-    def setup_socket(self, socket_path='/tmp/uv4l.socket', socket_timeout=.1):
+    def setup_socket(self, socket_path='/tmp/go.socket', socket_timeout=.1):
         """
-        Setup a python socket to communicate with the the datachanel socket file uv4l creates.
+        Setup a python socket to communicate with the the datachanel socket file the go rov code creates.
         This function is intended to be called in a loop so long as it returns False (indicating it was not able to connect).
-        :param socket_path: Path to the UV4L socket file (Default = '/tmp/uv4l.socket').
+        :param socket_path: Path to the UV4L socket file (Default = '/tmp/go.socket').
         :param socket_timeout: Timeout in seconds to wait to open the socket or recive data before moving on (Default = 0.1 seconds).
         Raises exceptions if the socket was not successfully created or connected within the timeout.
         """
@@ -37,9 +37,10 @@ class socket_datachanel:
         # try to create the socket class with the given path:
         try:
             if (self.sock == None):
+                print("Creating socket")
                 self.sock = socket.socket(socket.AF_UNIX,
                                           socket.SOCK_SEQPACKET)
-                # self.sock.settimeout(socket_timeout)
+                self.sock.settimeout(socket_timeout)
                 self.sock.bind(socket_path)
                 self.sock.listen(1)
 
