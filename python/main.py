@@ -66,20 +66,21 @@ while True:
         #                            msg_socket=None)
         # datalog.setup_datalog(sensors.get_connected_sensor_column_names())
 
-        import socket
-        while True:
-            try:
-                sock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
-                sock.settimeout(5)
-                sock.connect('/tmp/go.sock')
-                sock.send(b'hello')
-                data = sock.recv(1024)
-                print('Got Message: {}'.format(data))
-                sock.close()
-            except Exception as e:
-                # print('Error: {}'.format(e))
-                traceback.print_exc()
-                time.sleep(5)
+        # import socket,traceback,time
+        # sock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+        # sock.settimeout(5)
+        # sock.connect('/tmp/go.sock')
+        # sock.send(b'hello')
+        # sock.recv(1024)
+        # sock.close()
+        # time.sleep(5)
+        # sock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+        # sock.connect('/tmp/go.sock')
+        # sock.send(b'hello')
+        # sock.recv(1024)
+        # sock.close()
+        # time.sleep(5)
+        # sock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
 
         # SOCKET DATACHANEL
         # try:

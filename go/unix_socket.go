@@ -92,11 +92,12 @@ func (sock *RovUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketPat
 		sock.CleanupSocket()
 	}()
 
-	// attempt to open socket
-	sock.socketListener, err = sock.createSocketListener(unixSocketPath)
-	if err != nil {
-		log.Println("UNIX SOCKET Initilization Error: ", err)
-	}
+	// // attempt to open socket
+	// sock.socketListener, err = sock.createSocketListener(unixSocketPath)
+	// if err != nil {
+	// 	log.Println("UNIX SOCKET Initilization Error: ", err)
+	// }
+	// log.Println("UNIX SOCKET Listening for Connection...")
 	log.Println("UNIX SOCKET Listening for Connection...")
 	sock.socketConnection, err = sock.socketListener.Accept()
 	if err != nil {
@@ -129,6 +130,16 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 	sock.socketReadChannel = recivedMessageChannel
 	sock.doReconnectSignal = make(chan bool)
 
+	for {
+		// attempt to open socket
+		sock.socketListener, err = sock.createSocketListener(unixSocketPath)
+		if err != nil {
+			log.Println("UNIX SOCKET Initilization Error: ", err)
+			continue
+		}
+		break
+	}
+
 	go func() {
 		for {
 			var shouldExit bool = sock.openSocket(closeSocketSignal, unixSocketPath)
@@ -142,3 +153,33 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 
 	return sock
 }
+
+// func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan string, sendMessageChannel chan string, unixSocketPath string) *RovUnixSocket {
+// 	// l, err := net.ListenUnix("unix",  &net.UnixAddr{"/tmp/go.sock", "unix"})
+// 	addr, err := net.ResolveUnixAddr("unixpacket", unixSocketPath)
+// 	if err != nil {
+// 		log.Println("UNIX SOCKET Filepath Resolve Error: ", err)
+// 	}
+// 	log.Println("Resolved addr socket listener...")
+// 	listener, err := net.ListenUnix("unixpacket", addr)
+// 	if err != nil {
+// 		log.Println("UNIX SOCKET Listen Error: ", err)
+// 	}
+// 	log.Println("listening to addr socket listener...", unixSocketPath)
+// 	defer listener.Close()
+// 	for {
+// 		conn, err := listener.AcceptUnix()
+// 		if err != nil {
+// 			log.Println("AcceptUnix ERR", err)
+// 			continue
+// 		}
+// 		var buf [1024]byte
+// 		n, err := conn.Read(buf[:])
+// 		if err != nil {
+// 			log.Println("READ ERR", err)
+// 			continue
+// 		}
+// 		log.Printf("%s\n", string(buf[:n]));
+// 		conn.Close()
+// 	}
+// }
