@@ -28,6 +28,7 @@ func (sock *RovUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
 			if err != nil {
 				log.Println("UNIX SOCKET READ ERROR: ", err)
 				sock.doReconnectSignal <- true
+				return
 			}
 
 			message := string(buf[0:nr])
@@ -47,6 +48,7 @@ func (sock *RovUnixSocket) WriteUnixSocketAsync() {
 				if err != nil {
 					log.Println("UNIX SOCKET WRITE ERROR: ", err)
 					sock.doReconnectSignal <- true
+					return
 				}
 			}
 		}
@@ -109,8 +111,10 @@ func (sock *RovUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketPat
 	log.Println("Unix socket open! Listening for messages on: ", unixSocketPath)
 	select {
 	case <-sock.doReconnectSignal:
+		sock.socketOpen = false
 		return false
 	case <-closeSocketSignal:
+		sock.socketOpen = false
 		return true
 	}
 }
