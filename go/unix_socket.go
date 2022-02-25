@@ -92,12 +92,12 @@ func (sock *RovUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketPat
 		sock.CleanupSocket()
 	}()
 
-	// // attempt to open socket
-	// sock.socketListener, err = sock.createSocketListener(unixSocketPath)
-	// if err != nil {
-	// 	log.Println("UNIX SOCKET Initilization Error: ", err)
-	// }
-	// log.Println("UNIX SOCKET Listening for Connection...")
+	// attempt to open socket
+	sock.socketListener, err = sock.createSocketListener(unixSocketPath)
+	if err != nil {
+		log.Println("UNIX SOCKET Initilization Error: ", err)
+		return false
+	}
 	log.Println("UNIX SOCKET Listening for Connection...")
 	sock.socketConnection, err = sock.socketListener.Accept()
 	if err != nil {
@@ -129,16 +129,6 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 	sock.socketWriteChannel = sendMessageChannel
 	sock.socketReadChannel = recivedMessageChannel
 	sock.doReconnectSignal = make(chan bool)
-
-	for {
-		// attempt to open socket
-		sock.socketListener, err = sock.createSocketListener(unixSocketPath)
-		if err != nil {
-			log.Println("UNIX SOCKET Initilization Error: ", err)
-			continue
-		}
-		break
-	}
 
 	go func() {
 		for {
