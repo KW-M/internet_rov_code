@@ -26,6 +26,31 @@ function makeJsonApiRequest(url) {
     })
 }
 
+function makeJsonApiRequestThroughWebrtc(url) {
+    return alert("to be implemented");
+    then((responseText) => {
+        if (!responseText) {
+            throw Error("Got no response from rov")
+        }
+        try {
+            responseObject = JSON.parse(responseText)
+        } catch (e) {
+            throw Error("Got invalid JSON from rov: " + responseText)
+        }
+        if (responseObject['status'] != 'ok') {
+            throw Error(result['message'])
+        }
+        return responseObject
+    }).catch((e) => {
+        console.error(e)
+        showToastMessage("Click this message to view full error...", () => {
+            window.open().document.write(e.toString())
+        })
+        showToastMessage("Error: " + e.toString().substring(0, 60))
+        throw Error(e);
+    })
+}
+
 function shutdownROV() {
     if (confirm("Are you sure you want to shutdown the ROV? - The ROV will be on a different ngrok url when rebooted.")) {
         showToastMessage("Sending Shutdown Request...")
