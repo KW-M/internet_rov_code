@@ -1,4 +1,6 @@
 
+# npm & parcel
+.parcel-cache
 node_modules
 
 .vscode/*

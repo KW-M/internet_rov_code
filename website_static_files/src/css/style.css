@@ -166,26 +166,26 @@ button:active {
 }
 
 .power-menu-btn {
-  background-image: url("./ui-elements/settings_power_black_24dp.svg");
+  background-image: url("../images/ui-elements/settings_power_black_24dp.svg");
 }
 
 .gamepad-menu-btn {
-  background-image: url("./ui-elements/gamepad_black_24dp.svg");
+  background-image: url("../images/ui-elements/gamepad_black_24dp.svg");
 }
 
 .debug-menu-btn {
-  background-image: url("./ui-elements/insights_black_24dp.svg");
+  background-image: url("../images/ui-elements/insights_black_24dp.svg");
 }
 
 .fullscreen-btn {
   margin-bottom: 10px;
 
   border-radius: 100px;
-  background-image: url("./ui-elements/open_in_full_black_24dp.svg");
+  background-image: url("../images/ui-elements/open_in_full_black_24dp.svg");
 }
 
 .fullscreen-btn.fullscreen-open {
-  background-image: url("./ui-elements/close_fullscreen_black_24dp.svg");
+  background-image: url("../images/ui-elements/close_fullscreen_black_24dp.svg");
 }
 
 .dropdown-menu-list:focus-within,
@@ -401,13 +401,13 @@ button:active {
   display: block;
 }
 
-#gamepad-container.help-open #onscreen_gamepad_left {
+#gamepad-container.help-open #onscreen-gamepad-left {
   left: 50% !important;
 
   transform: translateX(-120%);
 }
 
-#gamepad-container.help-open #onscreen_gamepad_right {
+#gamepad-container.help-open #onscreen-gamepad-right {
   right: 50% !important;
 
   transform: translateX(120%);

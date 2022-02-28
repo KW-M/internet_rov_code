@@ -5,8 +5,8 @@
     <title>ROV Cockpit</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="./libraries/toastify.min.css" />
-    <link rel="stylesheet" type="text/css" href="./style.css" />
+    <link rel="stylesheet" type="text/css" href="../libraries/toastify.min.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
 </head>
 
 <body>
@@ -14,10 +14,6 @@
 
     <button id='disconnect_btn' style="display: none;">Disconnect</button>
     <button id='connect_btn'>Connect to ROV</button>
-
-    <div class="center">
-
-    </div>
 
     <div class="top-left-corner">
         <p>Net Ping: <span id="ping_value">--</span>ms</p>
@@ -47,7 +43,7 @@
         <button class="debug-menu-btn icon-btn bottom-btn"></button>
         <div class="dropdown-menu-list">
             <ul>
-                <a href="/uwsgi/status/" target="_blank" tabindex="0">
+                <!-- <a href="/uwsgi/status/" target="_blank" tabindex="0">
                     <li>System Status</li>
                 </a>
                 <a href="/netdata.html" target="_blank" tabindex="0">
@@ -65,7 +61,7 @@
                 <li onclick="rePullROVGithubCode()" tabindex="0">Pull ROV Code from Github</li>
                 <li onclick="restartROVServices()" tabindex="0">Restart ROV Services</li>
                 <li onclick="enableWifi()" tabindex="0">Enable ROV Wifi</li>
-                <li onclick="disableWifi()" tabindex="0">Disable ROV Wifi</li>
+                <li onclick="disableWifi()" tabindex="0">Disable ROV Wifi</li> -->
             </ul>
         </div>
     </div>
@@ -74,17 +70,18 @@
     </div>
     <div id="gamepad-container">
         <!-- Gamepad Connected/Disconned Feedback -->
-        <p id="gamepad-connect-notice">Plug in your game controller and press any button or use the onscreen gamepads
-        </p>
+        <p id="gamepad-connect-notice">Connect a gamepad & press any button.</p>
         <p id="too-many-gamepads-notice" style="display: none;">Multiple gamepads connected, only one will be used.</p>
 
-        <!-- Gamepad Help Area -->
+        <!-- Gamepad Help Stuff -->
         <h2 id="gamepad-help-text">Gamepad Help</h2>
         <button id="gamepad-help-button">Gamepad Help</button>
+
+        <!-- Gamepads on either side of Screen -->
         <div id="gamepad-joystick-touch-area-left" class="gamepad-joystick-touch-area"></div>
         <div id="gamepad-joystick-touch-area-right" class="gamepad-joystick-touch-area"></div>
-        <!-- id="gamepad-help-viewer-area" -->
-        <div id="onscreen_gamepad_left" style="left:0px;" class="onscreen-gamepad">
+        <!-- Gamepads on either side of Screen -->
+        <div id="onscreen-gamepad-left" style="left:0px;" class="onscreen-gamepad">
             <svg width="100%" height="100%" viewBox="40 0 120 232" version="1.1" xmlns="http://www.w3.org/2000/svg"
                 xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"
                 style="fill-rule:evenodd;clip-rule:evenodd;">
@@ -105,33 +102,40 @@
                         </g>
                         <g id="l_stick_right_direction_highlight" class="gamepad-arrow-highlight"
                             transform="matrix(0.412655,0,0,0.672778,28.1146,52.0672)">
-                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z" style="fill:#ff00bf;" />
+                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z"
+                                style="fill:#ff00bf;" />
                         </g>
                         <g id="l_stick_down_direction_highlight" class="gamepad-arrow-highlight"
                             transform="matrix(-4.80088e-16,0.412655,-0.672778,-7.82719e-16,217.563,106.165)">
-                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z" style="fill:#ff00bf;" />
+                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z"
+                                style="fill:#ff00bf;" />
                         </g>
                         <g id="l_stick_left_direction_highlight" class="gamepad-arrow-highlight"
                             transform="matrix(-0.412655,-5.05356e-17,8.23915e-17,-0.672778,163.465,295.613)">
-                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z" style="fill:#ff00bf;" />
+                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z"
+                                style="fill:#ff00bf;" />
                         </g>
                         <g id="l_stick_up_direction_highlight" class="gamepad-arrow-highlight"
                             transform="matrix(2.52678e-17,-0.412655,0.672778,4.11958e-17,-25.9828,241.515)">
-                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z" style="fill:#ff00bf;" />
+                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z"
+                                style="fill:#ff00bf;" />
                         </g>
                         <g transform="translate(95.79 173.84)">
                             <!--container for stick so it's transform can start at zero zero -->
                             <g id="stick_left">
                                 <circle id="shadow11" cx="1.86" cy="1.87" r="17.12" style="fill-opacity:0.5;" />
                                 <g id="Group-6">
-                                    <circle id="Oval-Copy" cx="0" cy="0" r="15.88" style="fill:#fff;stroke:#000;stroke-width:2.49px;" />
-                                    <circle id="Oval-Copy-2" cx="0" cy="0" r="12.14" style="fill:#fff;stroke:#000;stroke-width:1.25px;" />
-                                    </g>
-                                    </g>
-                                    </g>
+                                    <circle id="Oval-Copy" cx="0" cy="0" r="15.88"
+                                        style="fill:#fff;stroke:#000;stroke-width:2.49px;" />
+                                    <circle id="Oval-Copy-2" cx="0" cy="0" r="12.14"
+                                        style="fill:#fff;stroke:#000;stroke-width:1.25px;" />
+                                </g>
+                            </g>
+                        </g>
                     </g>
                     <g id="select_button" transform="matrix(1,0,0,1,-28.46,12.0685)">
-                        <g id="select_highlight" class="gamepad-btn-highlight" transform="matrix(1,0,0,1,28.46,-12.0685)">
+                        <g id="select_highlight" class="gamepad-btn-highlight"
+                            transform="matrix(1,0,0,1,28.46,-12.0685)">
                             <path
                                 d="M87.667,141.171c-0.355,-1.15 -0.546,-2.372 -0.546,-3.637c0,-6.809 5.528,-12.337 12.336,-12.337c6.809,0 12.337,5.528 12.337,12.337c-0,5.281 -3.326,9.792 -7.996,11.549c-4.501,-3.939 -10.03,-6.729 -16.131,-7.912Z"
                                 style="fill:#419bf3;" />
@@ -195,8 +199,10 @@
                         <g id="shoulder_trigger_back_left_highlight" class="gamepad-btn-highlight">
                             <g transform="matrix(0.717435,-0.676143,-0.529646,-0.529431,19.5736,131.211)">
                                 <g transform="matrix(0.717435,-0.916247,-0.696625,-0.943617,80.1321,145.499)">
-                                    <path d="M120.737,13.816l-1.6,20.387l-19.124,-7.244l20.724,-13.143Z" style="fill:#ff00bf;" />
-                                    <path d="M87.649,13.251c0,-0 4.707,-1.437 11.88,1.198c9.23,3.39 12.598,8.702 12.598,8.702"
+                                    <path d="M120.737,13.816l-1.6,20.387l-19.124,-7.244l20.724,-13.143Z"
+                                        style="fill:#ff00bf;" />
+                                    <path
+                                        d="M87.649,13.251c0,-0 4.707,-1.437 11.88,1.198c9.23,3.39 12.598,8.702 12.598,8.702"
                                         style="fill:none;stroke:#ff00bf;stroke-width:8.5px;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;" />
                                 </g>
                             </g>
@@ -230,7 +236,7 @@
                 </g>
             </svg>
         </div>
-        <div id="onscreen_gamepad_right" style="right:0px;" class="onscreen-gamepad">
+        <div id="onscreen-gamepad-right" style="right:0px;" class="onscreen-gamepad">
             <svg width="100%" height="100%" viewBox="170 0 80 232" version="1.1" xmlns="http://www.w3.org/2000/svg"
                 xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"
                 style="fill-rule:evenodd;clip-rule:evenodd;">
@@ -251,33 +257,40 @@
                         </g>
                         <g id="r_stick_right_direction_highlight" class="gamepad-arrow-highlight"
                             transform="matrix(0.412655,0,0,0.672778,123.96,53.3372)">
-                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z" style="fill:#ff00bf;" />
+                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z"
+                                style="fill:#ff00bf;" />
                         </g>
                         <g id="r_stick_down_direction_highlight" class="gamepad-arrow-highlight"
                             transform="matrix(-4.80088e-16,0.412655,-0.672778,-7.82719e-16,313.408,107.435)">
-                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z" style="fill:#ff00bf;" />
+                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z"
+                                style="fill:#ff00bf;" />
                         </g>
                         <g id="r_stick_left_direction_highlight" class="gamepad-arrow-highlight"
                             transform="matrix(-0.412655,-5.05356e-17,8.23915e-17,-0.672778,259.311,296.883)">
-                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z" style="fill:#ff00bf;" />
+                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z"
+                                style="fill:#ff00bf;" />
                         </g>
                         <g id="r_stick_up_direction_highlight" class="gamepad-arrow-highlight"
                             transform="matrix(2.52678e-17,-0.412655,0.672778,4.11958e-17,69.8626,242.785)">
-                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z" style="fill:#ff00bf;" />
+                            <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z"
+                                style="fill:#ff00bf;" />
                         </g>
                         <g transform="translate(191.72 175.08)">
                             <!--container for stick so it's transform can start at zero zero -->
                             <g id="stick_right">
                                 <circle id="shadow13" cx="1.86" cy="1.87" r="17.12" style="fill-opacity:0.5;" />
                                 <g id="Group-61">
-                                    <circle id="Oval-Copy1" cx="0" cy="0" r="15.88" style="fill:#fff;stroke:#000;stroke-width:2.49px;" />
-                                    <circle id="Oval-Copy-21" cx="0" cy="0" r="12.14" style="fill:#fff;stroke:#000;stroke-width:1.25px;" />
-                                    </g>
+                                    <circle id="Oval-Copy1" cx="0" cy="0" r="15.88"
+                                        style="fill:#fff;stroke:#000;stroke-width:2.49px;" />
+                                    <circle id="Oval-Copy-21" cx="0" cy="0" r="12.14"
+                                        style="fill:#fff;stroke:#000;stroke-width:1.25px;" />
+                                </g>
                             </g>
                         </g>
                     </g>
                     <g id="start_button" transform="matrix(1,0,0,1,28.0925,12.5493)">
-                        <g id="start_highlight" class="gamepad-btn-highlight" transform="matrix(1,0,0,1,-28.0925,-12.5493)">
+                        <g id="start_highlight" class="gamepad-btn-highlight"
+                            transform="matrix(1,0,0,1,-28.0925,-12.5493)">
                             <path
                                 d="M185.575,149.151c-4.767,-1.707 -8.181,-6.266 -8.181,-11.617c-0,-6.809 5.528,-12.337 12.336,-12.337c2.48,0 4.79,0.733 6.724,1.994c1.033,2.873 2.859,5.369 5.213,7.221c0.261,0.998 0.399,2.044 0.399,3.122c0,1.463 -0.255,2.868 -0.724,4.172c-5.925,1.107 -11.319,3.727 -15.767,7.445Z"
                                 style="fill:#419bf3;" />
@@ -296,25 +309,30 @@
                                 style="fill:#419bf3;" />
                         </g>
                         <g id="Group">
-                            <circle id="shadow" cx="212.35" cy="129.12" r="10.43" style="fill:#00ff04;fill-opacity:0.5;" />
-                            <circle id="Oval" cx="211.59" cy="128.37" r="9.67" style="fill:#00ff04;stroke:#000;stroke-width:1.52px;" />
-                            </g>
-                            <path id="Line" d="M208.37,125.14l6.82,6.83"
-                                style="fill:none;stroke:#000;stroke-width:1.52px;stroke-linecap:round;stroke-linejoin:round;" />
-                            <path id="Line-Copy" d="M208.37,131.97l6.82,-6.83"
-                                style="fill:none;stroke:#000;stroke-width:1.52px;stroke-linecap:round;stroke-linejoin:round;" />
-                            </g>
-                            <g id="button_2" transform="matrix(1,0,0,1,0,-7.35)">
+                            <circle id="shadow" cx="212.35" cy="129.12" r="10.43"
+                                style="fill:#00ff04;fill-opacity:0.5;" />
+                            <circle id="Oval" cx="211.59" cy="128.37" r="9.67"
+                                style="fill:#00ff04;stroke:#000;stroke-width:1.52px;" />
+                        </g>
+                        <path id="Line" d="M208.37,125.14l6.82,6.83"
+                            style="fill:none;stroke:#000;stroke-width:1.52px;stroke-linecap:round;stroke-linejoin:round;" />
+                        <path id="Line-Copy" d="M208.37,131.97l6.82,-6.83"
+                            style="fill:none;stroke:#000;stroke-width:1.52px;stroke-linecap:round;stroke-linejoin:round;" />
+                    </g>
+                    <g id="button_2" transform="matrix(1,0,0,1,0,-7.35)">
                         <g id="button_2_highlight" class="gamepad-btn-highlight" transform="matrix(1,0,0,1,0,7.35)">
                             <path
                                 d="M226.981,85.738c1.715,-0.623 3.566,-0.963 5.496,-0.963c8.894,0 16.114,7.221 16.114,16.115c0,8.894 -7.22,16.114 -16.114,16.114c-2.186,0 -4.271,-0.436 -6.173,-1.226l-8.715,-8.715c-0.79,-1.902 -1.227,-3.987 -1.227,-6.173c0,-1.93 0.34,-3.781 0.963,-5.496l9.656,-9.656Z"
                                 style="fill:#419bf3;" />
                         </g>
                         <g id="Group1">
-                            <circle id="shadow1" cx="233.2" cy="108.27" r="10.43" style="fill:#ff0009;fill-opacity:0.5;" />
-                            <circle id="Oval1" cx="232.45" cy="107.51" r="9.67" style="fill:#ff0009;stroke:#000;stroke-width:1.52px;" />
-                            </g>
-                        <circle id="Oval2" cx="232.45" cy="107.51" r="3.98" style="fill:none;stroke:#000;stroke-width:1.52px;" />
+                            <circle id="shadow1" cx="233.2" cy="108.27" r="10.43"
+                                style="fill:#ff0009;fill-opacity:0.5;" />
+                            <circle id="Oval1" cx="232.45" cy="107.51" r="9.67"
+                                style="fill:#ff0009;stroke:#000;stroke-width:1.52px;" />
+                        </g>
+                        <circle id="Oval2" cx="232.45" cy="107.51" r="3.98"
+                            style="fill:none;stroke:#000;stroke-width:1.52px;" />
                     </g>
                     <g id="button_3" transform="matrix(1,0,0,1,0,-7.35)">
                         <g id="button_3_highlight" class="gamepad-btn-highlight" transform="matrix(1,0,0,1,0,7.35)">
@@ -323,8 +341,10 @@
                                 style="fill:#419bf3;" />
                         </g>
                         <g id="Group2">
-                            <circle id="shadow2" cx="191.5" cy="108.27" r="10.43" style="fill:#48c0fb;fill-opacity:0.5;" />
-                            <circle id="Oval3" cx="190.74" cy="107.51" r="9.67" style="fill:#48c0fb;stroke:#000;stroke-width:1.52px;" />
+                            <circle id="shadow2" cx="191.5" cy="108.27" r="10.43"
+                                style="fill:#48c0fb;fill-opacity:0.5;" />
+                            <circle id="Oval3" cx="190.74" cy="107.51" r="9.67"
+                                style="fill:#48c0fb;stroke:#000;stroke-width:1.52px;" />
                         </g>
                         <path id="Rectangle"
                             d="M194.34,107.7c0,-1.873 -1.542,-3.415 -3.415,-3.415c-1.873,0 -3.415,1.542 -3.415,3.415c0,1.873 1.542,3.415 3.415,3.415c1.873,0 3.415,-1.542 3.415,-3.415Z"
@@ -337,8 +357,10 @@
                                 style="fill:#419bf3;" />
                         </g>
                         <g id="Group3">
-                            <circle id="shadow3" cx="212.35" cy="87.42" r="10.43" style="fill:#fff000;fill-opacity:0.5;" />
-                            <circle id="Oval4" cx="211.59" cy="86.66" r="9.67" style="fill:#fff000;stroke:#000;stroke-width:1.52px;" />
+                            <circle id="shadow3" cx="212.35" cy="87.42" r="10.43"
+                                style="fill:#fff000;fill-opacity:0.5;" />
+                            <circle id="Oval4" cx="211.59" cy="86.66" r="9.67"
+                                style="fill:#fff000;stroke:#000;stroke-width:1.52px;" />
                         </g>
                         <path id="Path" d="M207.61,90.2l4.1,-8.28l4.09,8.27l-8.19,0l0,0.01Z"
                             style="fill:none;stroke:#000;stroke-width:1.52px;stroke-linejoin:round;" />
@@ -361,8 +383,10 @@
                         <g id="shoulder_trigger_back_right_highlight" class="gamepad-btn-highlight">
                             <g transform="matrix(-0.872799,-0.847483,0.529646,-0.545468,293.988,156.439)">
                                 <g transform="matrix(-0.589727,0.916247,-0.572621,-0.943617,262.953,-121.747)">
-                                    <path d="M191.258,25.898l-18.796,8.056l-2.471,-20.301l21.267,12.245Z" style="fill:#ff00bf;" />
-                                    <path d="M205.127,14.32c0,-0 -5.386,-2.097 -13.074,0.038c-9.892,2.748 -13.061,8.253 -13.061,8.253"
+                                    <path d="M191.258,25.898l-18.796,8.056l-2.471,-20.301l21.267,12.245Z"
+                                        style="fill:#ff00bf;" />
+                                    <path
+                                        d="M205.127,14.32c0,-0 -5.386,-2.097 -13.074,0.038c-9.892,2.748 -13.061,8.253 -13.061,8.253"
                                         style="fill:none;stroke:#ff00bf;stroke-width:8.5px;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;" />
                                 </g>
                             </g>
@@ -386,19 +410,19 @@
     </div>
 
     <!-- load scripts at end so the page is fully loaded beforehand -->
-    <!-- <script type="text/javascript" src="./libraries/joypad.min.js"></script> -->
-    <script type="text/javascript" src="./libraries/webrtc-signaling.js"></script>
-    <script type="text/javascript" src="./libraries/toastify-js.js"></script>
-    <script type="text/javascript" src="./libraries/joymap.min.js"></script>
-    <!-- <script type="text/javascript" src="./libraries/gamepad-lib.js"></script> -->
+    <!-- <script type="text/javascript" src="../libraries/joypad.min.js"></script> -->
+    <script type="text/javascript" src="../libraries/webrtc-signaling.js"></script>
+    <script type="text/javascript" src="../libraries/toastify-js.js"></script>
+    <script type="text/javascript" src="../libraries/joymap.min.js"></script>
+    <!-- <script type="text/javascript" src="../libraries/gamepad-lib.js"></script> -->
 
-    <script type="text/javascript" src="./util.js"></script>
-    <script type="text/javascript" src="./ui.js"></script>
-    <script type="text/javascript" src="./api.js"></script>
-    <script type="text/javascript" src="./connection.js"></script>
-    <script type="text/javascript" src="./gamepad-emulation.js"></script>
-    <script type="text/javascript" src="./gamepad-ui.js"></script>
-    <script type="text/javascript" src="./gamepad.js"></script>
-    <script type="text/javascript" src="./main.js"></script>
+    <script type="text/javascript" src="../js/util.js"></script>
+    <script type="text/javascript" src="../js/ui.js"></script>
+    <script type="text/javascript" src="../js/api.js"></script>
+    <script type="text/javascript" src="../js/connection.js"></script>
+    <script type="text/javascript" src="../js/gamepad-emulation.js"></script>
+    <script type="text/javascript" src="../js/gamepad-ui.js"></script>
+    <script type="text/javascript" src="../js/gamepad.js"></script>
+    <script type="text/javascript" src="../js/main.js"></script>
 
 </body>

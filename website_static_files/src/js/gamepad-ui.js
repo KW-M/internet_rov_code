@@ -25,18 +25,18 @@ const gamepadUi = {
         }
         console.log("gamepads:", gamepads)
         if (gamepads[0] && gamepads[0].emulated == true) {
-            document.getElementById("onscreen_gamepad_left").style.opacity = "1";
-            document.getElementById("onscreen_gamepad_right").style.opacity = "1";
+            document.getElementById("onscreen-gamepad-left").style.opacity = "1";
+            document.getElementById("onscreen-gamepad-right").style.opacity = "1";
         } else {
-            document.getElementById("onscreen_gamepad_left").style.opacity = "0.5";
-            document.getElementById("onscreen_gamepad_right").style.opacity = "0.5";
+            document.getElementById("onscreen-gamepad-left").style.opacity = "0.5";
+            document.getElementById("onscreen-gamepad-right").style.opacity = "0.5";
         }
     },
 
     showNoGamepads: function () {
         document.getElementById("gamepad-connect-notice").style.display = "block";
-        document.getElementById("onscreen_gamepad_left").style.opacity = "1";
-        document.getElementById("onscreen_gamepad_right").style.opacity = "1";
+        document.getElementById("onscreen-gamepad-left").style.opacity = "1";
+        document.getElementById("onscreen-gamepad-right").style.opacity = "1";
     },
 
     showNotSupported: function () {
