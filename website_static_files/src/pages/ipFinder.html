@@ -10,83 +10,89 @@
     <h3>Searching for ROV Ip address...</h3>
     <div id="iframe_container" style="visibility: hidden; height: 10px; width: 10px;"></div>
     <script>
-        // if (window.isSecureContext) {
-        //     // downgrade to insecure connection to allow iframes from rov
-        //     window.location.protocol = 'http:'
-        // } else {
-        var rovLocalIp = null;
-        var thirdIpOctet = 0;
-        var iframe_container = document.getElementById("iframe_container")
-        // try to brute force search for raspberrypi's ip address...
-        // ... in iframes to get around browser local network cross origin protections
-        window.addEventListener("message", (msg) => {
-            if (typeof (msg.data) == typeof ("string")) {
-                alert("ROV IP FOUND! " + rovLocalIp)
-                //pass up the chain
-                parentWindow = window.opener || window.parent
-                parentWindow.postMessage(msg.data, "*")
-                // var parts = msg.data.split(": ")
-                // if (parts[0] == "ROV_IP") {
-                //     rovLocalIp = parts[1]
-                //     alert("ROV IP FOUND! " + rovLocalIp)
-                //     // window.opener.p
-                // }
-            }
-        }, false)
-        iframeTester("http://raspberrypi.local/ipResponder")
-        for (let thirdIpOctet = 0; thirdIpOctet < 255; thirdIpOctet++) {
-            iframeTester("http://192.168." + thirdIpOctet + ".88/ipResponder");
+
+
+        function findRovLocalIp() {
+            return new Promise((resolve, reject) => {
+                var interval = null
+                var testPopup = window.open("http://raspberrypi.local/ipResponder", 'ROV IP FINDER', 'scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=6,height=3,left=0,top=0')
+                window.focus()
+                window.addEventListener("message", (msg) => {
+                    if (typeof (msg.data) == typeof ("string")) {
+                        var parts = msg.data.split(": ")
+                        if (parts[0] == "ROV_IP") {
+                            rovLocalIp = parts[1]
+                            clearInterval(interval)
+                            testPopup.close()
+                            alert("ROV IP FOUND! " + rovLocalIp)
+                            resolve()
+                        }
+                    }
+                }, false)
+                setTimeout(() => { // timeout for intial popup
+                    interval = setInterval(() => {
+                        try {
+                            if (testPopup.closed) throw "popup was closed"
+                            testPopup.location = "http://192.168." + thirdIpOctet + ".88/ipResponder";
+                            testPopup.document.write("Searching for ROV ip address...")
+                            thirdIpOctet = (thirdIpOctet + 1) % 255;
+                        } catch (e) {
+                            if (testPopup) testPopup.close()
+                            clearInterval(interval)
+                            if (rovLocalIp == null) {
+                                console.info("ROV IP search was stopped.")
+                                console.info("Click this message to keep searching...", () => { findRovLocalIp().then(resolve) })
+                            }
+                        }
+                    }, 900);
+                }, 1000)
+            })
         }
+        
+        findRovLocalIp().then()
+
+
+        // ----- old iframe attempt: -------
+        // ------------------------------------
+         // function iframeTester(url) {
+        //     var iframe = document.createElement('iframe');
+        //     iframe.src = url;
+        //     iframe_container.appendChild(iframe);
+        //     document.writeln(url)
         // }
-
-        //         interval = setInterval(() => {
-
-        // }, 20000);
-
-        function iframeTester(url) {
-            var iframe = document.createElement('iframe');
-            iframe.src = url;
-            iframe_container.appendChild(iframe);
-            document.writeln(url)
-        }
-
-        //old methods:
-        // function findRovLocalIp() {
-        //     return new Promise((resolve, reject) => {
-        //         var interval = null
-        //         var testPopup = window.open("http://raspberrypi.local/ipResponder", 'ROV IP FINDER', 'scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=6,height=3,left=0,top=0')
-        //         window.focus()
-        //         window.addEventListener("message", (msg) => {
-        //             if (typeof (msg.data) == typeof ("string")) {
-        //                 var parts = msg.data.split(": ")
-        //                 if (parts[0] == "ROV_IP") {
-        //                     rovLocalIp = parts[1]
-        //                     clearInterval(interval)
-        //                     testPopup.close()
-        //                     alert("ROV IP FOUND! " + rovLocalIp)
-        //                     resolve()
-        //                 }
-        //             }
-        //         }, false)
-        //         setTimeout(() => {
-        //             interval = setInterval(() => {
-        //                 try {
-        //                     if (testPopup.closed) throw "popup was closed"
-        //                     testPopup.location = "http://192.168." + thirdIpOctet + ".88/ipResponder";
-        //                     testPopup.document.write("Searching for ROV ip address...")
-        //                     thirdIpOctet = (thirdIpOctet + 1) % 255;
-        //                 } catch (e) {
-        //                     if (testPopup) testPopup.close()
-        //                     clearInterval(interval)
-        //                     if (rovLocalIp == null) {
-        //                         console.info("ROV IP search was stopped.")
-        //                         console.info("Click this message to keep searching...", () => { findRovLocalIp().then(resolve) })
-        //                     }
-        //                 }
-        //             }, 900);
-        //         }, 1000)
-        //     })
+        //
+        // // if (window.isSecureContext) {
+        // //     // downgrade to insecure connection to allow iframes from rov
+        // //     window.location.protocol = 'http:'
+        // // } else {
+        // var rovLocalIp = null;
+        // var thirdIpOctet = 0;
+        // var iframe_container = document.getElementById("iframe_container")
+        // // try to brute force search for raspberrypi's ip address...
+        // // ... in iframes to get around browser local network cross origin protections
+        // window.addEventListener("message", (msg) => {
+        //     if (typeof (msg.data) == typeof ("string")) {
+        //         alert("ROV IP FOUND! " + rovLocalIp)
+        //         //pass up the chain
+        //         parentWindow = window.opener || window.parent
+        //         parentWindow.postMessage(msg.data, "*")
+        //         // var parts = msg.data.split(": ")
+        //         // if (parts[0] == "ROV_IP") {
+        //         //     rovLocalIp = parts[1]
+        //         //     alert("ROV IP FOUND! " + rovLocalIp)
+        //         //     // window.opener.p
+        //         // }
+        //     }
+        // }, false)
+        // iframeTester("http://raspberrypi.local/ipResponder")
+        // for (let thirdIpOctet = 0; thirdIpOctet < 255; thirdIpOctet++) {
+        //     iframeTester("http://192.168." + thirdIpOctet + ".88/ipResponder");
         // }
+        // // }
+
+        
+        // ----- old script element attempt: -------
+        // -----------------------------------------
         // var rovLocalIp = null
         // var rovIpFound = false;
         // function rovIsAlive() {
@@ -122,7 +128,6 @@
         //         console.info("ROV IP FOUND! " + rovLocalIp)
         //     })
         // }
-        // // findRovLocalIp()
     </script>
 </body>
 

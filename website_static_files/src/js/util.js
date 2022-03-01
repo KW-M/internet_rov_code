@@ -1,8 +1,8 @@
-function clamp(number, max, min) {
+export function clamp(number, max, min) {
     return Math.max(Math.min(number, max), min)
 }
 
-function calculateDesiredMotion(axes) {
+export function calculateDesiredMotion(axes) {
     var turn = axes[0].toFixed(3);
     var forward = -1 * axes[1].toFixed(3);
     var strafe = axes[2].toFixed(3);
@@ -13,9 +13,9 @@ function calculateDesiredMotion(axes) {
     }
 }
 
-/* When the openFullscreen() function is executed, open the passed element in fullscreen.
+/* When the openFullscreen() export function is executed, open the passed element in fullscreen.
 Note that we must include prefixes for different browsers, as they don't support the requestFullscreen method yet */
-function toggleFullscreen(e, elem) {
+export function toggleFullscreen(e, elem) {
     elem = elem || document.documentElement;
     if (e && e.initialTarget) e.initialTarget.classList.toggle('fullscreen-open');
     if (!document.fullscreenElement && !document.mozFullScreenElement &&
@@ -44,7 +44,7 @@ function toggleFullscreen(e, elem) {
 }
 
 // Downloads the given link, with an optional filename for the download
-function download(url, filename) {
+export function download(url, filename) {
     const a = document.createElement('a') // Create <a> hyperlink element
     a.href = url // Set the hyperlink URL
     a.download = filename || "" // if left blank the browser will guess the filename for the downloaded file

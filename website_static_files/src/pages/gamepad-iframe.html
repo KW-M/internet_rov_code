@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script>
+      const sendMessageToParentWindow = (window.opener || window.parent)
+        .postMessage;
+
+      // function objectClone(obj) {
+      //     const tmpClone = {}
+      //     for (const property in gpad) {
+      //       const value = gpad[property];
+      //     console.log(property,typeof value)
+      //       if (typeof value == "object") {
+      //           if (value.isArray && value.isArray()) {
+      //             tmpClone[property] = value.map(function(btn) {
+      //                 return objectClone(btn)
+      //             })
+      //           } else {
+      //             tmpClone[property] = objectClone(value)
+      //           }
+      //       } else {
+      //         tmpClone[property] = value
+      //       }
+      //     }
+      //     return tmpClone
+      // }
+
+      const cloneGamepad = (gamepadObj) => {
+        const tmpClone = {};
+        for (const property in gamepadObj) {
+          const value = gamepadObj[property];
+          // console.log(property, typeof value, value);
+          if (property === "buttons") {
+            tmpClone[property] = value.map((btn) => {
+              return {
+                value: btn.value,
+                pressed: btn.pressed,
+                touched: btn.touched
+              };
+            });
+          } else if (property === "vibrationActuator") {
+            tmpClone[property] = { type: value.type };
+          } else {
+            tmpClone[property] = value;
+          }
+        }
+        return tmpClone;
+      }
+
+      const startGamepadPollLoop = () => {
+        const invervalId = setInterval(() => {
+          if (gamepadCount <= 0) return clearInterval(invervalId);
+          const gpad = navigator.getGamepads()[0];
+          sendMessageToParentWindow({
+            event: "gamepadChange",
+            eventData: cloneGamepad(gpad),
+            source: "gamepad_iframe"
+          });
+        }, 2000);
+      };
+
+      try {
+        // check if gamepad support is available in this browser context / window
+        navigator.getGamepads(); // will throw an error if not permitted
+        sendMessageToParentWindow({
+          event: "iframeReady",
+          source: "gamepad_iframe"
+        }); // otherwise we are good
+
+        var gamepadCount = 0;
+        window.addEventListener("gamepadconnected", (event) => {
+          gamepadCount++;
+          console.log(event);
+          sendMessageToParentWindow({
+            event: "gamepadConnected",
+            eventData: {
+              timestamp: event.timeStamp,
+              gamepad: cloneGamepad(event.gamepad)
+            },
+            source: "gamepad_iframe"
+          });
+          startGamepadPollLoop();
+        });
+        window.addEventListener("gamepaddisconnected", (event) => {
+          gamepadCount--;
+          sendMessageToParentWindow({
+            event: "gamepadDisconnected",
+            eventData: {
+              timestamp: event.timeStamp,
+              gamepad: cloneGamepad(event.gamepad)
+            },
+            source: "gamepad_iframe"
+          });
+        });
+      } catch (e) {
+        sendMessageToParentWindow({
+          error:
+            "Cannot access gamepad api in iframe, is it an https:// page? isSecureContext: " +
+            window.isSecureContext +
+            " protocol: " +
+            window.location.protocol +
+            " error mssg: " +
+            e,
+          source: "gamepad_iframe"
+        });
+      }
+    </script>
+  </head>
+
+  <body>
+    This is the gamepad api frame, it sends gamepad events back to the cockpit
+    website<br />If you somehow found this site, go back to the home page.
+  </body>
+</html>

@@ -1,6 +1,6 @@
 
 var lastTimeRecvdPong = 0;
-handleROVMessage = function (message) {
+const handleROVMessage = function (message) {
     msgData = JSON.parse(message);
     if (msgData['pong']) {
         console.log("Ping->Pong received");
