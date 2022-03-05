@@ -1,11 +1,14 @@
+// import "toastify-js/src/toastify.css"
+import Toastify from 'toastify-js'
+
 // -------------------------------------------------------------
 // ------ UI Stuff ---------------------------------------------
 // -------------------------------------------------------------
 
-export function showToastMessage(message, callback) {
+export function showToastMessage(message, durration, callback) {
     Toastify({
         text: message,
-        duration: 5000,
+        duration: durration || 5000,
         close: true,
         gravity: "top", // `top` or `bottom`
         position: "left", // `left`, `center` or `right`
@@ -14,15 +17,39 @@ export function showToastMessage(message, callback) {
     }).showToast();
 }
 
+export function showToastDialog(message, durration, btnName, callback) {
+    const toastContent = document.createElement("div")
+    toastContent.innerHTML = message
+    const btn =  document.createElement("button")
+    btn.innerHTML = btnName;
+    toastContent.appendChild(btn)
+    Toastify({
+        node: toastContent,
+        duration: durration || 15000,
+        close: true,
+        className: "dialog-toast",
+        gravity: "top", // `top` or `bottom`
+        position: "center", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+    }).showToast();
+}
+
 export function showROVDisconnectedUI() {
     connectBtn.style.display = 'block';
     disconnectBtn.style.display = 'none';
 }
 
+export function showROVConnectingUI() {
+    connectBtn.disabled = true;
+    showToastMessage("Connecting...")
+ }
+
 export function showROVConnectedUI() {
     connectBtn.style.display = 'none';
     disconnectBtn.style.display = 'block';
 }
+
+
 
 var pingDisplay = document.getElementById('ping_value');
 export function updatePingDisplay(pingTimeMs) {
