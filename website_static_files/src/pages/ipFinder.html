@@ -12,44 +12,63 @@
     <script>
 
 
-        function findRovLocalIp() {
-            return new Promise((resolve, reject) => {
-                var interval = null
-                var testPopup = window.open("http://raspberrypi.local/ipResponder", 'ROV IP FINDER', 'scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=6,height=3,left=0,top=0')
-                window.focus()
-                window.addEventListener("message", (msg) => {
-                    if (typeof (msg.data) == typeof ("string")) {
-                        var parts = msg.data.split(": ")
-                        if (parts[0] == "ROV_IP") {
-                            rovLocalIp = parts[1]
-                            clearInterval(interval)
-                            testPopup.close()
-                            alert("ROV IP FOUND! " + rovLocalIp)
-                            resolve()
-                        }
+var rovLocalIp = null;
+      var rovIpFound = false;
+      var thirdIpOctet = 0;
+      function findRovLocalIp() {
+        return new Promise((resolve, reject) => {
+          var interval = null;
+          var testPopup = window.open(
+            "http://raspberrypi.local/ipResponder",
+            "ROV IP FINDER",
+            "scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=6,height=3,left=0,top=0"
+          );
+          window.focus();
+          window.addEventListener(
+            "message",
+            (msg) => {
+              if (typeof msg.data == typeof "string") {
+                var parts = msg.data.split(": ");
+                if (parts[0] == "ROV_IP") {
+                  rovLocalIp = parts[1];
+                  clearInterval(interval);
+                  testPopup.close();
+                  alert("ROV IP FOUND! " + rovLocalIp);
+                  resolve();
+                }
+              }
+            },
+            false
+          );
+          setTimeout(() => {
+            // timeout for intial popup
+            interval = setInterval(() => {
+              try {
+                if (testPopup.closed) throw "popup was closed";
+                testPopup.location =
+                  "http://192.168." + thirdIpOctet + ".88/ipResponder";
+                testPopup.document.write("Searching for ROV ip address...");
+                thirdIpOctet = (thirdIpOctet + 1) % 255;
+              } catch (e) {
+                if (testPopup) testPopup.close();
+                clearInterval(interval);
+                if (rovLocalIp == null) {
+                  console.info("ROV IP search was stopped.");
+                  console.info(
+                    "Click this message to keep searching...",
+                    () => {
+                      findRovLocalIp().then(resolve);
                     }
-                }, false)
-                setTimeout(() => { // timeout for intial popup
-                    interval = setInterval(() => {
-                        try {
-                            if (testPopup.closed) throw "popup was closed"
-                            testPopup.location = "http://192.168." + thirdIpOctet + ".88/ipResponder";
-                            testPopup.document.write("Searching for ROV ip address...")
-                            thirdIpOctet = (thirdIpOctet + 1) % 255;
-                        } catch (e) {
-                            if (testPopup) testPopup.close()
-                            clearInterval(interval)
-                            if (rovLocalIp == null) {
-                                console.info("ROV IP search was stopped.")
-                                console.info("Click this message to keep searching...", () => { findRovLocalIp().then(resolve) })
-                            }
-                        }
-                    }, 900);
-                }, 1000)
-            })
-        }
-        
-        findRovLocalIp().then()
+                  );
+                }
+              }
+            }, 900);
+          }, 1000);
+        });
+      }
+      document.onclick = () => {
+        findRovLocalIp().then().catch(console.warn);
+      };
 
 
         // ----- old iframe attempt: -------
