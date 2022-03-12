@@ -1,5 +1,5 @@
 // FOR A PEERJS SERVER RUNNING IN THE CLOUD (Heroku, but could also be peerjs cloud or elsewhere)
-const peerServerCloudOptions = {
+export const peerServerCloudOptions = {
     host: '0.peerjs.com',
     secure: true,
     path: '/',
@@ -7,7 +7,7 @@ const peerServerCloudOptions = {
 }
 
 // FOR A PEERJS SERVER RUNNING ON THE ROV Raspberry Pi:
-const peerServerLocalOptions = {
+export const peerServerLocalOptions = {
     host: 'raspberrypi.local', // or whatever ip the raspberrypi is at
     path: '/',
     secure: false,
@@ -15,8 +15,8 @@ const peerServerLocalOptions = {
 }
 
 // FOR CONVERTING TEXT TO/FROM BINARY FOR SENDING OVER THE WEBRTC DATACHANNEL
-const messageEncoder = new TextEncoder(); // always utf-8
-const messageDecoder = new TextDecoder(); // always utf-8
+export const messageEncoder = new TextEncoder(); // always utf-8
+export const messageDecoder = new TextDecoder(); // always utf-8
 
 
 

@@ -1,3 +1,5 @@
+
+
 export function clamp(number, max, min) {
     return Math.max(Math.min(number, max), min)
 }
@@ -11,6 +13,19 @@ export function calculateDesiredMotion(axes) {
         thrustVector: [strafe, forward, vertical], // vector in the form [x,y,z]
         turnRate: turn,
     }
+}
+
+export function isInternetAvailable(urlToCheck) {
+    return new Promise((resolve) => {
+        try {
+            fetch(urlToCheck).then(() => { resolve(true) }).catch(() => { resolve(false) });
+            setTimeout(() => {
+                resolve(false)
+            }, 5000)
+        } catch (e) {
+            resolve(false)
+        }
+    })
 }
 
 /* When the openFullscreen() export function is executed, open the passed element in fullscreen.

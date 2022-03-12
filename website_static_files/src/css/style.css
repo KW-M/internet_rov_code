@@ -53,7 +53,9 @@ body {
 }
 
 #connect_btn,
-#disconnect_btn {
+#disconnect_btn,
+#site_loading_indicator,
+#scan_for_ip_btn {
   position: absolute;
   z-index: 2;
   top: 6px;
@@ -65,8 +67,30 @@ body {
   background: linear-gradient(135deg, #0c61d8, #661ca7);
 }
 
-#connect_btn {
+#connect_btn, #scan_for_ip_btn {
   transform: translate(-50%, 20vh) scale(2);
+
+}
+
+#site_loading_indicator {
+  padding: 10px 30px 10px 20px;
+
+  transform: translate(-50%, 20vh);
+
+  border-radius: 11px;
+  background: #000000b5;
+}
+
+#site_loading_indicator #site_loading_text {
+  display: inline-block;
+
+vertical-align: top;
+
+color: white;
+
+font-size: larger;
+font-weight: bold;
+line-height: 80px;
 }
 
 button {
@@ -493,3 +517,38 @@ button:active {
 .gamepad-joystick-touch-area#gamepad-joystick-touch-area-right {
   right: 0;
 }
+
+/* Site loading "spinning circle" indicator */
+
+  .lds-circle {
+    display: inline-block;
+
+    transform: translateZ(1px);
+  }
+  .lds-circle > div {
+    display: inline-block;
+
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+
+    animation: lds-circle 2.4s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+
+    border-radius: 50%;
+    background: #fff;
+  }
+  @keyframes lds-circle {
+    0%, 100% {
+      animation-timing-function: cubic-bezier(0.5, 0, 1, 0.5);
+    }
+    0% {
+      transform: rotateY(0deg);
+    }
+    50% {
+      transform: rotateY(1800deg);
+      animation-timing-function: cubic-bezier(0, 0.5, 0.5, 1);
+    }
+    100% {
+      transform: rotateY(3600deg);
+    }
+  }

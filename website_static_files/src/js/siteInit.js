@@ -1,7 +1,11 @@
 import { createMachine, assign, send, interpret } from "xstate";
 import { pure } from "xstate/lib/actions";
 
+import { isInternetAvailable } from "./util"
+import { showToastMessage, showScanIpBtn, hideScanIpButton, showLoadingUi, hideLoadingUi } from "./ui";
+
 import { peerServerCloudOptions, peerServerLocalOptions } from "./consts"
+import { runRovConnectionMachine } from "./rovConnStateMachine";
 
 export const runSiteInitMachine = () => {
 
@@ -24,38 +28,54 @@ export const runSiteInitMachine = () => {
           return "192.168.1.1.11.1";
         },
       }),
+      showIpScanButton: () => {
+        showToastMessage("Click scan to find the ROV locally.");
+        showToastMessage("No internet connection.");
+        showScanIpBtn();
+      },
+      hideIpScanButton: () => {
+        hideScanIpButton();
+      },
+      hideLoadingUi: () => {
+        hideLoadingUi();
+      },
+      showIpScanningUi: () => {
+        showLoadingUi("Scanning for ROV IP address...");
+      },
       redirectBrowserToRovIp: (context, event) => {
         // window.location = "http://" + event.data
       },
-      showHttpGamepadSupportDisabledAlert: (context,event) => {
-        
+      siteReady: (context, event) => {
+        console.log(context)
+        runRovConnectionMachine(context)
       }
+      // showHttpGamepadSupportDisabledAlert: (context, event) => {
+
+      // }
+
     },
     services: {
       checkInternetAvailable: (context, event) => {
+        showLoadingUi("Checking internet connection...")
         return (callback, onReceive) => {
-          // // check if we are viewing this site at an IP ADDRESS or .local domain
-          // // indicating this page was served directly from the rov (presumably)
-          // const urlHostParts = window.location.host.split(".");
-          // if (
-          //   (urlHostParts.length == 4 && parseInt(urlHostParts[3]) != NaN) ||
-          //   (urlHostParts.length == 2 && urlHostParts[1] == "local")
-          // ) {
-          //   callback("URL_IS_ROV_IP");
-          // } else {
-          // checkInternetAvailable().then(()=>{
-          //   callback("INTERNET_AVAILABLE");
-          // }).catch((e)=>{
-          //   console.warn("Internet Offline, starting switch to local mode", e)
-          //   callback("INTERNET_OFFLINE");
-          // })
-          // }
 
-          setTimeout(() => {
+          // check if we are viewing this site at an IP ADDRESS or .local domain
+          // indicating this page was served directly from the rov (presumably)
+          const urlHostParts = window.location.host.split(".");
+          if (
+            (urlHostParts.length == 4 && parseInt(urlHostParts[3]) != NaN) ||
+            (urlHostParts.length == 2 && urlHostParts[1] == "local")
+          ) {
             callback("URL_IS_ROV_IP");
-            // INTERNET_OFFLINE
-            // URL_IS_ROV_IP
-          }, 3000);
+          } else {
+            isInternetAvailable("https://" + peerServerCloudOptions.host).then((internetOnline) => {
+              if (internetOnline) {
+                callback("INTERNET_AVAILABLE");
+              } else {
+                callback("INTERNET_OFFLINE");
+              }
+            })
+          }
         };
       },
       setupWaitForUserScanButtonPress: (context, event) => {
@@ -63,11 +83,11 @@ export const runSiteInitMachine = () => {
           const onBtnClick = () => {
             callback("SCAN_BUTTON_CLICKED");
           };
-          // btnElem = makeButtonElem()
+
           // btnElem.addEventListener("click",onBtnClick)
-          setTimeout(() => {
-            onBtnClick();
-          }, 3000);
+          // setTimeout(() => {
+          //   onBtnClick();
+          // }, 3000);
 
           // cleanup function on state exit:
           return () => {
@@ -95,7 +115,7 @@ export const runSiteInitMachine = () => {
       id: "siteInit",
       initial: "Checking_Internet_Access",
       context: machineContext,
-    states: {
+      states: {
         Checking_Internet_Access: {
           invoke: {
             src: "checkInternetAvailable",
@@ -112,6 +132,7 @@ export const runSiteInitMachine = () => {
             },
             INTERNET_OFFLINE: {
               target: "#siteInit.Waiting_For_User_Scan_Button_Press",
+              actions: ["showIpScanButton", "hideLoadingUi"],
             },
           },
         },
@@ -126,6 +147,7 @@ export const runSiteInitMachine = () => {
           on: {
             SCAN_BUTTON_CLICKED: {
               target: "#siteInit.Scanning_For_ROV_IP",
+              actions: ["showIpScanningUi", "hideIpScanButton"],
             },
           },
         },
@@ -141,6 +163,7 @@ export const runSiteInitMachine = () => {
             },
             IP_SCANNING_ERROR: {
               target: "#siteInit.Waiting_For_User_Scan_Button_Press",
+              actions: ["showIpScanButton", "hideLoadingUi"],
             },
           },
         },
@@ -163,10 +186,13 @@ export const runSiteInitMachine = () => {
         // },
         Site_Ready: {
           type: "final",
+          entry: ["siteReady"]
         },
       },
     }, machineFunctions);
 
+  const siteInitService = interpret(siteInitMachine)
+  siteInitService.start();
 }
 
 // const machineFunctionsMock = {

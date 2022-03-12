@@ -42,11 +42,30 @@ export function showROVDisconnectedUI() {
 export function showROVConnectingUI() {
     connectBtn.disabled = true;
     showToastMessage("Connecting...")
- }
+}
 
 export function showROVConnectedUI() {
     connectBtn.style.display = 'none';
     disconnectBtn.style.display = 'block';
+}
+
+export function showScanIpBtn() {
+    document.getElementById("scan_for_ip_btn").style.display = "block";
+}
+
+export function hideScanIpButton() {
+    document.getElementById("scan_for_ip_btn").style.display = "none";
+}
+
+const loadingIndicator = document.getElementById("site_loading_indicator")
+const loadingIndicatorText = document.getElementById("site_loading_text")
+export function showLoadingUi(loadingMessage) {
+    loadingIndicator.style.display = 'block';
+    loadingIndicatorText.innerHTML = loadingMessage;
+}
+
+export function hideLoadingUi() {
+    loadingIndicator.style.display = 'none';
 }
 
 

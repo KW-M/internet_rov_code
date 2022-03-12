@@ -12,8 +12,14 @@
 <body>
     <noscript>Please enable JavaScript to run this app.</noscript>
 
+    <div id="site_loading_indicator" class="lds-circle" style="display: none;">
+        <div></div>
+        <span id="site_loading_text">Checking Internet Access...</span>
+    </div>
+    <button id='connect_btn' style="display: none;">Connect to ROV</button>
     <button id='disconnect_btn' style="display: none;">Disconnect</button>
-    <button id='connect_btn'>Connect to ROV</button>
+    <button id='scan_for_ip_btn' style="display: none;">Scan for ROV IP</button>
+
 
     <div class="top-left-corner">
         <p>Net Ping: <span id="ping_value">--</span>ms</p>
@@ -410,6 +416,6 @@
     </div>
 
     <!-- load scripts at end so the page is fully loaded beforehand -->
-    <script type="text/javascript" src="../js/main.js"></script>
+    <script type="module" src="../js/main.js"></script>
 
 </body>

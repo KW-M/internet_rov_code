@@ -1,30 +1,12 @@
 class PeerServerConnection {
-    peerServerConnOptions = null;
-    peer = null;
-    serverConectionOpenCallback = null;
+    // peerServerConnOptions = null;
+    // peer = null;
+    // serverConectionOpenCallback = null;
 
-    startConnection() {
-        console.log(this)
-        checkInternetConnection().then((internetAvailable) => {
-            if (internetAvailable) {
-                console.info("Internet Connection OK!")
-                this.peerServerConnOptions = peerServerCloudOptions
-                this.reliablyConnectToPeerServer()
-            } else {
-                console.info("You are Offline. Switching to local mode.")
-                this.peerServerConnOptions = peerServerLocalOptions
-                // findRovLocalIp().then(
-                //     //            reliablyConnectToPeerServer()
-                // )
-                this.reliablyConnectToPeerServer()
-            }
-        })
-    }
-
-    cleanupConnection() {
-        if (this.peer) {
-            this.peer.destroy()
-            this.peer = null
+    cleanupConnection(context) {
+        if (context.thisPeer) {
+            context.thisPeer.destroy()
+            context.thisPeer = null
         }
     }
 

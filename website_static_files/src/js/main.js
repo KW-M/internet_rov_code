@@ -5,15 +5,17 @@
 // import {} from "./libraries/toastify-js.js";
 // import {} from "./libraries/joymap.min.js";
 
-// import {} from "./js/util.js";
-// import {} from "./js/ui.js";
-// import {} from "./js/api.js";
-// import {} from "./js/connection.js";
-// import {} from "./js/gamepad-emulation.js";
-// import {} from "./js/gamepad-ui.js";
-// import {} from "./js/gamepad.js";
+// import { } from "./util.js";
+// import {} from "./ui.js";
+// import {} from "./api.js";
+// import {} from "./connection.js";
+// import {} from "./gamepad-emulation.js";
+// import {} from "./gamepad-ui.js";
+// import {} from "./gamepad.js";
 
+import { runSiteInitMachine } from "./siteInit";
 
+runSiteInitMachine();
 
 // var lastTimeRecvdPong = 0;
 // const handleROVMessage = function (message) {
