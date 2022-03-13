@@ -85,10 +85,10 @@ sudo rm "/tmp/go.sock" || true # remove the GO <-> Python unix socket file if it
 
 # echo "Restarting pigpiod.service..."
 # sudo systemctl restart pigpiod
-echo "restarting rov_go_code.service..."
-sudo systemctl restart rov_go_code.service
-echo "restarting rov_python_code.service..."
-sudo systemctl restart rov_python_code.service
+# echo "restarting rov_go_code.service..."
+# sudo systemctl restart rov_go_code.service
+# echo "restarting rov_python_code.service..."
+# sudo systemctl restart rov_python_code.service
 
 # echo "restarting uv4l_raspicam.service..."
 # sudo systemctl restart uv4l_raspicam.service	# sudo service uv4l_raspicam restart

@@ -6,6 +6,7 @@ After=network.target
 
 [Service]
 # User=pi
+ExecStartPre=rm /tmp/go.sock
 ExecStart=/home/pi/GOROV
 Restart=always
 TimeoutStopSec=10s

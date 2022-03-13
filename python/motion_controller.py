@@ -133,4 +133,5 @@ class Motion_Controller:
 
     def cleanup_gpio(self):
         """ Function to shut down the current pigpio.pi() instance. useful when turning off / exiting the rov program"""
-        self.pigpio_instance.stop()
+        # self.pigpio_instance.stop()
+        pass
