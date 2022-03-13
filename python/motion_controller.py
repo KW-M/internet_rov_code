@@ -122,6 +122,7 @@ class Motion_Controller:
               up_left_thrust_amt, up_right_thrust_amt)
 
     def stop_gpio_and_motors(self):
+        return
         try:
             self.FORWARD_LEFT_MOTOR.set_speed(0)
             self.FORWARD_RIGHT_MOTOR.set_speed(0)
