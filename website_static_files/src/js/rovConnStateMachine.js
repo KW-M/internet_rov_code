@@ -237,7 +237,7 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
     const peerServerConfig = siteInitMachineContext.peerServerConfig;
 
     const rovConnectionMachine =
-        /** @xstate-layout N4IgpgJg5mDOIC5QCUDyA1AwgewHa7AGMAXASzwDpkBXfU3KCgBTDACcB9AZXYDd2OOfETKUActmKC8BEpA4AVbBxbsAVrG592AYiYBRfcgBSXbkfRHBqMWP2YFASRsd9XBQEEAQgBlHXAAl9ABFEUAAHbFhSUVwwkAAPRABWAAYANgoATmSADgB2ZPSsgBZUtNyAZmSAGhAAT0RirIpU1IBGAuTStoAmXsqAX0G6tCwZEXJcKlpcekZVTh42fk4hWViKCSl1kXklFVY2DS0V3QMjU1dkNGR4yOjY+KSENMycruKyiuq6xoRcslktk2iV2j0Cr0qsNRhhdiQpjM6AxmEdTqtpMIEZR4cR9spFidlqs9IYTGYjLd7lEYlNnoh2p1KhRevlKlkCvlGSUSskSn9EPkoRR0qlciUqllKlzxTCQGNcYiaMiFmjiQJFZRkEQJgiGBxiASjkTtGxSZczFwLFZMDY7A5nGJXO5vH5AiFqY86UhEikMtk8oUvuUxb8Gk1qhQwYU8sl2mCSll0nKFbrNsq5ijFuiNWmlTqsWR9YbDupNOqzRdydcqT6HrS8PTXv6PkGej9auHXlyKFVKiV0iVKr0k+lclkU3C81rZvMqNheKW1tPpttMRt8UuTWdK2SrlbkJZkNZbPYnC43J5fP4gqE6zSnj6Xm8A5926HO-92mL8hQKp10ihLJ+l6ZJJ3GQslVnFFkAXJd10mSgPFgABreYVFIAAbSQDQJUhCBQjgADE2GwABbDhUFwTD6DADhYN4WAdDGDhHDEYJ9AADRURxMAAaQ9e8vUbJ9EDBVIKEqKT+0KSUSl6fkuwU3pMlA6V8nSKT2iBdohhGeUp0gmcVXnRds01VccNxTcGOYjAT3tc8nUvV0b0EiIH29UAXiFX92g07TUnyDTUh5LIBQQAZ8haCpAS03lNOTfTUyM6YMznBj4IsrYrLTGyFx0ABZABVHwnCYHx9HojAzBsPw7E9Bs4lEhBxMk6SSlk9l5MU-4FPHXtKlyVIpUKfIer02EII2KCTMy8yVwoayIEUZQGIoYIAENiE2zAAAtNuETCcqkVBwjAXAdGCDxPEwAIPFPHxnSvN1b0ax9vLEyN2l6DJh2-MVEyqCL2kHYFcjHRM2SC8UfvA7L0pguCFtSpa8pWg51q2nb9sOghjuxzbBAOo6OGCUhYEIdGrpujw7oeuwnpc693TvDzhOaz6EG-UUKGi4cshG0HcnjEHRUyTq2VZQEsileN4cWxHGHmtFsuW1b6IXDbtt2kn8e1nbibxsBMLJimqcLSAadu+7HsURxCv0VBioUd6vN9bmRokj5-LjQpfsAkHeRKKMpXZaKxVFDIFdRpXTKyxb1cxrXCdxo6DaJtP8co87Luum2Gf0J7gn8W1TwcN2RK5nmJM6iH+lSVkyk0sX8gkjJ4wbnkwX6GOZuMzNleR1XE-RjX1sKyBSF143jrXM6LqKkJHDp23Gee1zWcrzmPeSSpveC4bkihCUMl6hkw9aGH0mSIUFKC9o+8QtLoKHsyR9RpO1q1yeIGnrOTYUF-tPI2pNlo6HQI4DiqBuAKGQPoDwhV6IIOCAATW3k2H6PZugJi5GOYKx8QaXzaPkCGt9+hlC5E-bEL85rD1zJ-MeydeDmmrCxMujlHQ1lQHcISTVMFVGBMFaUClj7fAHEHXIvQ+ayxCoyUKGlqHplfvHFG-dphf01iwjhZ4QiKBgQAdTQGIAA4tVdAGCWpMiEWyIUvJ758nSCDaKmQKjlDZLkEWtilGzUHjoAx+gvDIAUJgYitMmY3B4ZY6ujcQ7skqPg-e-U+QRX7MCSoPM75jk0r0R+yVDLqKRH4qsVwFD6EKkwHhHhkCoO4bw9m-CrGgj-ONEW0ppTggKBFKE7Q+YqWqBKeShRSjDH0rgbAEA4DxBSoUuO2YKwIRoSdRZeIMZGjLDmNg0SPbfnyBFYa7cRbimlOkUhWRwQ+IHnOeZpoVmIk0YScspptkvEFu3UCoMxQdCyONCK0MozaXOVFP6-ZLm0MHqiAQCyEYFhmsWdZxwnk7heYgAOLIhQ-O-AUcOEoIrdHSeyU5Uoz59jBUU65apbnZQCIdCANF9T6DYKRLZfCPo7IScyIowFBwJNBjfSoEV8GSQof2bSQ5BZ5KmgjFRNydx3KriAesbKXjAy7EDXsg5+htx+pHCc+TprP3JUjd+DDClrgecaJFqwUWez2V2b8x8WT+U6CpUGulQX6ulXQk1y5UbITQvqJgWEcIliDQRYipEKJUXpXRBi8BWXuxeDfTIGQJVskTEObpvIJLdCkrLcofIkyTQMgapZccVamsNeaph39eA2p+iHHmP096dQ5NpAVSkeS5FaGHfNQJEyaTJeW+hvrCmaKxjrABc8cILx3kqxNDJTli1ChQH67JQYaX7EOMCnrFYqIraOw146U6Tr1oAwmoDs7k0pujet-YJJ5vSKKWWw0fogyKL+YoWDhrBV0uNId+6R3yo0TWrRGcp0Z0vSbHOF0bVchDk+rkqQEn9rFMukOeQVJsn3sOKWAHvUJ0YZbNZYHU5nswvWzN9qpLeyGkUeSxQxQQ3wxCg9wG0bEfHj-KeM907z1zvWpd9rzktBHNKNoxQoR8hYxlIDatQMTx4xB4BmdyMrMgDagoIchyJk6AOfet9z7c1KN2tdEMOiSmPvkGTxrCNjoU9xv+vH9boFIJM5QXBiBsDAJtKNAmE0KpeNpNIkkRYhmQ0M3kRC2QAqfXkLd5zSE2bfnZo9DneBAKU+RyjHavzRSEUNCGbc979l6Ml1RH97OceYfW8EINfq-iGsOWGA5ooKXK2xiymncuIB+aJ1t9iOQ6RKMlm13QIryXBqUDkSZShpAlMWmZhqDFgAAEZsGIIQYiOtTaMuZTa+S3TNISXjEVxLwVgI7qlYtDwAB3TatJ9TsLTBwLw1BiCGlwCobzsB40NOVWJXoEVBbZEY-GIK6RwSgjBfW3IINu1tER0jpH8tRlAA */
+        /** @xstate-layout N4IgpgJg5mDOIC5QCUDyA1AwgewHa7AGMAXASzwDpkBXfU3KCgBTDACcB9AZXYDd2OOfETKUActmKC8BEpA4AVbBxbsAVrG592AYiYBRfcgBSXbkfRHBqMWP2YFASRsd9XBQEEAQgBlHXAAl9ABFEUAAHbFhSUVwwkAAPRABWAHYATgoADgAWAEY85IAGVOS8gCYANmSAZgAaEABPFJya7KLK1KzK9PLk-KKagF8hhrQsGRFyXCpaXHpGVU4eNn5OIVlYigkpDZF5JRVWNg0tVd0DI1NXZDRkeMjo2PikhFSeimr0nN6anPKcl0cg1mghvskKDV0qk8qkcvl4cksiMxhg9iRprM6AxmMczmtpMIMZR0cQDsolqcVms9IYTGYjHcHlEYtMXogCq1IT1+sloZUeqUQYhUnCKMUahVRXCclluiiQONSZiaNjFnjqQJlZRkERJhiGBxiBTjlTtGxaVczFwLFZMDY7A5nGJXO5vH5AiFmU82UhEhzBkUKKlynkcpUikVyqkauV0sKEP1KhRYQU0qH0lk8oMFUr9VtVfMcUt8Vr8yq9USyIbjUd1JpNRbLvSbky-Y9WXh2Qgw1k2uUiuGoX1JT16k0RRVsjkyjUOjUasVysjRoq0eWdXMFlRsLw6+sNzMdoTNuT92bzk26dcbchLMhrLZ7E4XG5PL5-EFQu2Wc8-a8ZyyCgM0BLp3kGQpx1BApKjaUosj6bNyjjEpKlzdcqxVLccWQXd9xPKZKA8WAAGsFhUUgABtJCNClSEIEiOAAMTYbAAFsOFQXBKPoMAOFw3hYB0cYOEcMRgn0AANFRHEwABpL0fx9Lt-w5PJ0iDfIYUKCoZ1ghMCklT5lxM-5vmHdCJkwzc1R3PcS21I8aNJM8BOEjBH0dF8XTfd1P0UiJf19UBXlSIogMqLJ+gXDSF1FAzJRyChATDGN4QKGFLMcrEi0YAT8Oy48XIgRRlDcgBZABVHwnCYHx9H4jAzBsPw7G9Ts4lUntYSS0VKjyLIQ3UkoAQMgc8godIpWQzosiKdTyiyw8cu3fKHOW4rSv43cKGCABDYg9swAALPbhEo3aDr2wRTvOjhglIWBCHzSAdGCDxPEwAIPCfHxXXfD0v3av8QpaVIU2SYo00HcNKmBCceyi8pjKKPkYRhMpwqW6yZkLVa8PWnGKE2w4BMuw6TrOggLv2w6bqpsBKPux7nqrV73s+77fsURxyv0VBKoUYHgv9BAsmhSE5RyebUdDWCoI5aWg2XOK4eSZduhXVErM2LDbLWvFspJsqdtpo7bup8nrspu7UHCMBcDej6PC+n67D+4J-HtJ8HGFlTQcTcNp0Gf5+uKJEsgMqbkwHcMpsXPlo+x3WbNyuyCo2l6StJnbysgUhzYZi7jzth2dD5z2Xa593-r8z1v0C5TOoD9XMiKKa9MqPpw1SBM5YhdT+vSTMKnSP5kmTwjcewvKCcNzO2ezk3eAoPOIALm3LbXgv6bu4qdHQRwJNQbgFGQfQPHK-iL+CABNP3m9FioPjC0VM2KczkkqPu8mqFN0iHiPOM49J7EmnvrOeZYibG22rwS0LYRLey8s6VsqB7hKQ6t2bMsZxSdEGFLdI0Ve4IzyLGIMhQIySnmr-coC5QEFhnunQmKcZgwLckg58IRFAnwAOpoDEAAcUaugB+WCZxtBKEiAUi4-j9W-iQ2MbRIqyOlgUKoyF6F61yjoHh+gvDIAUJgZizs-qMjQaIrq6lijZGKIMWo-RAThgTNUcGNQ5TdBqKKcRpDNGpwWPA64Ch9DlSYGgjwyBb6oPQY3TBliO7AQyu8aWCIYxjVDJ8P43wERZkjKkXxMwPAAHc9qskNIg-MHAvDUGIMaXAKg2BwCEhwhwlSFAuiYOfLgXALEB3Up44Cg525uNoV-eMJD+hASjBpDxoZaEZBGKuXA2AIBwHiHmImeNiwanNARMB2xnJZy2pSBs5oelP0XCmQcsFcj5HVrKeRoIkzikhtLAUAJIoAPyStLZAhGy7K2DA45pY2BnNeH2JKCFSgLllANd4DzJyZEzK0cWfYPF-C+Zs9UvydnZV1KzXWNYTT1mBaCxWcoKDULnGGSCgwEy1GTDOJFyFkLqTHhixhJY-nZQCGdCAPFDT6DYKxEFGCQZPwGJCLoACKHQnCgrMWFzCFvIKKQ2Uop2W2U5Tiw8pLuoTWzEOG5hQATdATEOZKGku4UN-pmPJq51ksO+bPey88iZFUOYcIFjZdWj2SmkcWg5+iENfgZX+bQajVGoaixceQNVpwNlAx1xEyKGiYFRGitY00MWYqxDiXF+V8QEvAUVItXhhmQtkBCy5pUaWZaG+EwZoxIRGpFKocb8YusTVPfZuwPXL11XKCEc4oSZlyKKSM8rOTK3Dp4ucod1btpwpAg80C+2wKtpvRmVtd7U2Zk9LOA6oTAW6F3UdmZoxjOgjcxtkobW-FkYu51GdV2Ly2mTM2m6aZXR3YzTi9tH4djFa8caFKNYAgBHOCM+kSFRSDCGPkodezqzQvajCjrMVMNdY6thpsrqfp9aKUDcpwOtA6POAyQ0UyRXCsGruy4UPa1xYwhNK7sNrrJtvQu50e1-odj6v+hlqiqo6BGNIP8yjJQQiHLoC4syPsw12vZOGV6cc-avfO1sLa-uKgOkM4pZSjLmp4gaP85qQgqOpf4MotZrh1t2jDLH-mYmU+p9eXHLboFICs5QXBiANL2nm-9PqJkWsBPNTxPxFzlD7gOCEEYfi9FaA4r+8nHNG3Y7nDT+GS3+3Ffq0hQm-gidRsQ0EA5oyTSqLkOctDSHDFQ3ZvZDnl1OZJBl3gPrYQpgK7OV5onSscjRp8UhHQ5bzWQjkVLLXHK6rHt1iNvXitiZIajCKfJBxzjHj3O1jHlqYt1R8QTi2BQlYTFCIM6swxwyhG-XIXyeFgAAEZsGIIQZiV0maCuFT63oyZOhQlIZrVov8zWDUmgKOUs0uhhi+UUkp1YoDCP+ZU6ptT6mNJ9YNTIkNOgwllNCPo8KexkODNDAn0JWg7dszNnLj8AIDx68Jk7y3QSSnBpDGa-VATdD6BPBZQA */
         createMachine({
             context: {
                 peerServerConfig: peerServerConfig,
@@ -306,14 +306,9 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
                             },
                         },
                         Rov_Peer_Connection: {
-                            id: "Rov_Peer_Connection",
                             initial: "Not_Connected_To_Peerjs_Server",
                             states: {
                                 Not_Connected_To_Peerjs_Server: {
-                                    invoke: {
-                                        src: "initPeerWithPeerjsServer",
-                                        id: "initPeerWithPeerjsServer",
-                                    },
                                     on: {
                                         PEERJS_SERVER_CONNECTION_ESTABLISHED: {
                                             target:
@@ -328,7 +323,7 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
                                     on: {
                                         ROV_INDEX_PICKED: {
                                             target:
-                                                "#Rov_Peer_Connection.Not_Connected_To_Rov",
+                                                "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Rov",
                                         },
                                     },
                                 },
@@ -339,11 +334,11 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
                                     on: {
                                         ROV_CONNECTION_ESTABLISHED: {
                                             target:
-                                                "#Rov_Peer_Connection.Not_Connected_To_Rov",
+                                                "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov",
                                         },
                                         MULTIPLE_ROVS_ONLINE: {
                                             target:
-                                                "#Rov_Peer_Connection.Asking_Pilot_to_Pick_From_Online_Rovs",
+                                                "#ROVConnection.Running.Rov_Peer_Connection.Asking_Pilot_to_Pick_From_Online_Rovs",
                                         },
                                     },
                                 },
@@ -355,15 +350,6 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
                                             exit: "closeDownDataChannel",
                                             initial: "Data_Channel_Open",
                                             states: {
-                                                Not_Open: {
-                                                    entry: "showConnectingUi",
-                                                    on: {
-                                                        DATACHANNEL_ESTABLISHED: {
-                                                            target:
-                                                                "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Data_Channel_Open",
-                                                        },
-                                                    },
-                                                },
                                                 Data_Channel_Disconnected: {
                                                     entry: "showConnectingUi",
                                                     invoke: {
@@ -375,9 +361,8 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
                                                                 "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Data_Channel_Open",
                                                         },
                                                         DATACHANNEL_TIMEOUT: {
-                                                            actions: "closeDownDataChannel",
                                                             target:
-                                                                "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Not_Open",
+                                                                "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Rov",
                                                         },
                                                     },
                                                 },
@@ -401,7 +386,7 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
                                             states: {
                                                 Not_Open: {
                                                     description:
-                                                        "ROV Should Call the plot, and that should be hooked up to trigger MEDIACHANNEL_ESTABLISHED",
+                                                        'ROV Will "Video Call" this plot, and that is hooked up to trigger the MEDIACHANNEL_ESTABLISHED transition',
                                                     invoke: {
                                                         src: "awaitMediaCall",
                                                         id: "awaitMediaCall",
@@ -444,7 +429,7 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
                                         },
                                         CONNECTED_TO_WRONG_ROV: {
                                             target:
-                                                "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Rov",
+                                                "#ROVConnection.Running.Rov_Peer_Connection.Asking_Pilot_to_Pick_From_Online_Rovs",
                                         },
                                     },
                                 },
@@ -453,10 +438,10 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
                     },
                     on: {
                         WEBRTC_FATAL_ERROR: {
-                            target: "#ROVConnection.Running",
+                            target: "#ROVConnection.Webrtc_Fatal_Error",
                         },
                         PEERJS_TEMPORARY_ERROR: {
-                            target: "#ROVConnection.Running",
+                            target: "#ROVConnection.Awaiting_ROV_Connect_Button_Press",
                         },
                     },
                 },
@@ -470,6 +455,11 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
                     invoke: {
                         src: "awaitROVConnectBtnPress",
                     },
+        on: {
+            CONNECT_BTN_PRESS: {
+                target: "#ROVConnection.Running",
+            },
+        },
                 },
             },
         }, machineFunctions);
