@@ -109,7 +109,7 @@ while True:
                 reply_data = {'message': recived_message}
 
                 # parse the message data as a JSON formatted string.
-                recived_data = json.loads(recived_message)
+                # recived_data = json.loads(recived_message)
 
                 # print(recived_data)
 
