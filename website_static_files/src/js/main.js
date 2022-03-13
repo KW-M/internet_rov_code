@@ -4,8 +4,9 @@
 // import {} from "./libraries/webrtc-signaling.js";
 // import {} from "./libraries/toastify-js.js";
 // import {} from "./libraries/joymap.min.js";
+import { inspect } from "@xstate/inspect";
 
-// import { } from "./util.js";
+import { getURLQueryStringVariable } from "./util.js";
 // import {} from "./ui.js";
 // import {} from "./api.js";
 // import {} from "./connection.js";
@@ -13,7 +14,19 @@
 // import {} from "./gamepad-ui.js";
 // import {} from "./gamepad.js";
 
+
+
+
 import { runSiteInitMachine } from "./siteInit";
+
+
+// show an inspector
+// if (getURLQueryStringVariable("debug-mode")) {
+inspect({
+    iframe: false,
+});
+// }
+
 
 runSiteInitMachine();
 

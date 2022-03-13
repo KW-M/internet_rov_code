@@ -1,6 +1,7 @@
 // import "toastify-js/src/toastify.css"
 import Toastify from 'toastify-js'
 
+
 // -------------------------------------------------------------
 // ------ UI Stuff ---------------------------------------------
 // -------------------------------------------------------------
@@ -34,19 +35,23 @@ export function showToastDialog(message, durration, btnName, callback) {
     }).showToast();
 }
 
+const connectBtn = document.getElementById('connect_btn');
+const disconnectBtn = document.getElementById('disconnect_btn');
 export function showROVDisconnectedUI() {
     connectBtn.style.display = 'block';
     disconnectBtn.style.display = 'none';
+    hideLoadingUi()
 }
 
 export function showROVConnectingUI() {
-    connectBtn.disabled = true;
-    showToastMessage("Connecting...")
+    connectBtn.style.display = 'none';
+    showLoadingUi("Connecting to ROV...");
 }
 
 export function showROVConnectedUI() {
     connectBtn.style.display = 'none';
     disconnectBtn.style.display = 'block';
+    hideLoadingUi()
 }
 
 export function showScanIpBtn() {
@@ -87,10 +92,15 @@ export function updateDisplayedSensorValues(sensorValues) {
     tempDisplay.innerText = sensorValues.temp;
 }
 
-var connectBtn, disconnectBtn;
+
+export function setupConnectBtnClickHandler(callback) {
+    connectBtn.addEventListener('click', function () {
+        connectBtn.removeEventListener('click', this);
+        callback();
+    });
+}
+
 export function setupConnectDisconnectButtonEvents(connectCallback, disconnectCallback) {
-    connectBtn = document.getElementById('connect_btn');
-    disconnectBtn = document.getElementById('disconnect_btn');
 
     connectBtn.addEventListener('click', (e) => {
         connectCallback(e);

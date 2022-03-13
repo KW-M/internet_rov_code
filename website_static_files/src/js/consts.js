@@ -14,6 +14,8 @@ export const peerServerLocalOptions = {
     port: 9000,
 }
 
+export const rovPeerIdBase = "iROV-";
+
 // FOR CONVERTING TEXT TO/FROM BINARY FOR SENDING OVER THE WEBRTC DATACHANNEL
 export const messageEncoder = new TextEncoder(); // always utf-8
 export const messageDecoder = new TextDecoder(); // always utf-8

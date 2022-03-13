@@ -15,13 +15,30 @@ export function calculateDesiredMotion(axes) {
     }
 }
 
+/*
+* Gets just the passed name parameter from the query string the curent url:
+* Example: if the url is: https://example.com/abc?some-variable-name=somevalue&someotherthing=someothervalue
+* then getURLQueryStringVariable("some-variable-name") will return "somevalue"
+*/
+export function getURLQueryStringVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split('&');
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == variable) {
+            return decodeURIComponent(pair[1]);
+        }
+    }
+    console.log('Query variable %s not found', variable);
+}
+
 export function isInternetAvailable(urlToCheck) {
     return new Promise((resolve) => {
         try {
             fetch(urlToCheck).then(() => { resolve(true) }).catch(() => { resolve(false) });
             setTimeout(() => {
                 resolve(false)
-            }, 5000)
+            }, 10000)
         } catch (e) {
             resolve(false)
         }

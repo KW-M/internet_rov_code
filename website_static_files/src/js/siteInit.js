@@ -4,7 +4,7 @@ import { pure } from "xstate/lib/actions";
 import { isInternetAvailable } from "./util"
 import { showToastMessage, showScanIpBtn, hideScanIpButton, showLoadingUi, hideLoadingUi } from "./ui";
 
-import { peerServerCloudOptions, peerServerLocalOptions } from "./consts"
+import * as consts from "./consts";
 import { runRovConnectionMachine } from "./rovConnStateMachine";
 
 export const runSiteInitMachine = () => {
@@ -17,10 +17,10 @@ export const runSiteInitMachine = () => {
   const machineFunctions = {
     actions: {
       setCloudPeerServerConfig: assign({
-        peerServerConfig: peerServerCloudOptions,
+        peerServerConfig: consts.peerServerCloudOptions,
       }),
       setLocalPeerServerConfig: assign({
-        peerServerConfig: peerServerLocalOptions
+        peerServerConfig: consts.peerServerLocalOptions
       }),
       setRovIpAddr: assign({
         rovIpAddr: (context, event) => {
@@ -68,7 +68,7 @@ export const runSiteInitMachine = () => {
           ) {
             callback("URL_IS_ROV_IP");
           } else {
-            isInternetAvailable("https://" + peerServerCloudOptions.host).then((internetOnline) => {
+            isInternetAvailable("https://" + consts.peerServerCloudOptions.host).then((internetOnline) => {
               if (internetOnline) {
                 callback("INTERNET_AVAILABLE");
               } else {
@@ -191,7 +191,7 @@ export const runSiteInitMachine = () => {
       },
     }, machineFunctions);
 
-  const siteInitService = interpret(siteInitMachine)
+  const siteInitService = interpret(siteInitMachine, { devTools: true })
   siteInitService.start();
 }
 

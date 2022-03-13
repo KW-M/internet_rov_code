@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/KW-M/internet_rov_code#readme",
   "dependencies": {
+    "@xstate/inspect": "^0.6.4",
     "joymap": "^2.2.4",
     "peerjs": "^1.3.2",
     "toastify-js": "^1.11.2",
