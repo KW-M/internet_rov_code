@@ -12,7 +12,7 @@ export function showToastMessage(message, durration, callback) {
         duration: durration || 5000,
         close: true,
         gravity: "top", // `top` or `bottom`
-        position: "left", // `left`, `center` or `right`
+        position: "center", // `left`, `center` or `right`
         stopOnFocus: true, // Prevents dismissing of toast on hover
         onClick: callback, // Callback export function when toast is clicked
     }).showToast();
@@ -21,13 +21,16 @@ export function showToastMessage(message, durration, callback) {
 export function showToastDialog(message, durration, btnName, callback) {
     const toastContent = document.createElement("div")
     toastContent.innerHTML = message
-    const btn =  document.createElement("button")
-    btn.innerHTML = btnName;
-    toastContent.appendChild(btn)
+    if (btnName) {
+        const btn = document.createElement("button")
+        btn.innerHTML = btnName;
+        btn.addEventListener("click", callback);
+        toastContent.appendChild(btn)
+    }
     Toastify({
         node: toastContent,
         duration: durration || 15000,
-        close: true,
+        close: !btnName,
         className: "dialog-toast",
         gravity: "top", // `top` or `bottom`
         position: "center", // `left`, `center` or `right`
