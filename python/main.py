@@ -83,21 +83,21 @@ while True:
         # sock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
 
         # SOCKET DATACHANEL
-        # try:
-        #     print('Awaiting connection...')
-        #     msg_socket.setup_socket(socket_path='/tmp/go.sock',
-        #                             socket_timeout=5)
-        # except Exception as e:
-        #     is_important = type(e) != TimeoutError and type(
-        #         e) != FileNotFoundError
-        #     pretty_print_exception(e,
-        #                            show_traceback=is_important,
-        #                            msg_socket=msg_socket)
-        #     msg_socket.close_socket()
-        #     time.sleep(3)
-        #     continue  # Go back to start of loop
-        # else:
-        #     print('Connected!')
+        try:
+            print('Awaiting connection...')
+            msg_socket.setup_socket(socket_path='/tmp/go.sock',
+                                    socket_timeout=5)
+        except Exception as e:
+            is_important = type(e) != TimeoutError and type(
+                e) != FileNotFoundError
+            pretty_print_exception(e,
+                                   show_traceback=is_important,
+                                   msg_socket=msg_socket)
+            msg_socket.close_socket()
+            time.sleep(3)
+            continue  # Go back to start of loop
+        else:
+            print('Connected!')
 
         while True:
 
