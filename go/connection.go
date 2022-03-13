@@ -26,7 +26,7 @@ var err error // handy variable to stuff any error messages into
 // To handle the case where multiple rovs are running at the same time,
 // we make the PeerId of this ROV the basePeerId plus a number tacked on
 // the end (rovNumber, eg: SSROV_0) that we increment if the current peerId is already taken.
-var basePeerId string = "SSROV_"
+var basePeerId string = "iROV-"
 var rovNumber int = 0
 
 // ----- PeerJs-Go Client Settings -----
@@ -142,7 +142,7 @@ func setupConnections(quitSignal chan bool) {
 func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Options, recievedMessageWriteChannel chan string) {
 	var shouldExit bool = false
 	var stopRelayingMsgs chan bool = make(chan bool)
-	var rovPeerId string = "SSROV_" + strconv.Itoa(rovNumber)
+	var rovPeerId string = basePeerId + strconv.Itoa(rovNumber)
 	var rovPeer, err = peerjs.NewPeer(rovPeerId, peerServerOptions)
 	defer rovPeer.Close() // close the websocket connection when this whole outer function exits
 	rovLog := log.WithFields(log.Fields{"peer": rovPeerId, "peerServer": peerServerOptions.Host})
