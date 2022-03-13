@@ -103,8 +103,9 @@ while True:
 
             reply_data = {}
 
-            recived_message = str(msg_socket.recieve_socket_message())
+            recived_message = msg_socket.recieve_socket_message()
             if (recived_message != None):
+                recived_message = str(recived_message, 'utf-8')
                 print('Received message: {}'.format(recived_message))
                 reply_data = {'message': recived_message}
 
