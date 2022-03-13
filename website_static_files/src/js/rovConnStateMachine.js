@@ -237,191 +237,222 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
     const peerServerConfig = siteInitMachineContext.peerServerConfig;
 
     const rovConnectionMachine =
-        /** @xstate-layout N4IgpgJg5mDOIC5QCUDyA1AwgewHa7AGMAXASzwDoA5bYgfR3yOMjoBVs6AFMMAJwBWsOgGV+AN34BiLgFFZyAFIjRC9AoaoqVWZjYBJLXVki2AQQBCAGX0iAErIAiiUAAdssUmTwuQAD0QAdgA2QIoATmDwwIBWAA4YgGYABji4gBZEgBoQAE9EdMD0inTCgEY0hIAmQMjIgF96nLQsPAISclxqWgY25lYObl5BYTE+ST4ZeSUVETUNADEzcytjZDRkX3dPb1xfAIRA5OCI6LjkstiK2pz8hAqqkuTE6JTE4Jjgsqr0xuaMRjtXYUQH9CDsTg8fhCUQSfgURwAQ2IiMwAAtEUwADbdeioVxgXBSRzLMyYOxmbSyVYmczWWwOZxIEDbLydfaICopChVOJlYLJcJnSLBW6IGLpR7BYKJQJlRL8splcKSv4gFqgjqUTUscGDKEjWHjeFIlHozEEHGOUiwQh9EiQYmk8mUnQ00yWGz2JxbDxsnzMg5ldLBigffkxC7RdIqwJihAh5IUS4hlXJVMK9LBNUa+3AnUDSHDGFjCYI5GojHYhE2u1MB0QJ3mF1U1YGACyslQAFU2L6duzA5yQ8Vwx8o0VY-GJVKZXKFV9laqmuqAXnOiC84WhtDRnC+OWzVXLRR8YSm2SKa26I5bJgtDo9D7mazdhz7nFubz+YLhdL47yjxpFUZSCiBMRVOEVQxDma71vmW56kWu5GmW7aQKQlYWmAOI0HiBJEp2t6Xq61LGB69Lekybh+m+Q73OkFwUIkVQXMkgRVLyRSFPGgSysmHHQVU7ygcJiSwa08EbgWSE7oapbSLeIj3lSeh0AsaDtnQLT9v6ez0RB8bfPyEQxjGkGQc82YrrmUnaohEJySW+4XnQqDIHQRH6GYDBXm6awbLpdGgAcIRhHUsQJCkaSZEZUHJqBsoxIqcR8VU1n-JJQIbsgRDrrgUB0MQyHyS5cgKMoqjIOoHkqY+BhGLSnoMs+NEDgGIWcvFtSXDKKSfMEjGinkiChHEpnKlEEqZOEwYSTqOV5VJBVFSVznGpM5UzFVNXqaSNLrO5QWDp19zdbNISJP10pDQBaQUPE5zJNBMoZJ84k2XB2WUGYADuiJsitLS9PBdAWAArsQxW4NwfBwLAUh1bobBg72bBGFwyAmHM1EsrRJ3+KNAoRKEU2JMlkQVPGg0UHycTpYE9OcR8wRVI0K64NgEBwL4tnfV0eEg0C24GutEzHR1hMIBBiQUGFEHPG98rhABkQPfTISfOEnxxA0n1Zcw0kOfqxZ7hth5YdWgtnvpbV6e+-Iqsm4TnOEv5HCx2QjdL-FZqzjNxMECRHDB+sLfZ8Ei6bqEmhW5rVtatqIRLttS98IEUFZzyZBBIT06rjyXCqiSlPTKQXPN64R8Lsmi2bZampbJ42yn74gZBtOFPE6du7K8aMWEhShDE0bhCkjOV3ZXQyY5dcxwejfx5arf0Uq0SZ+82fkzUQdVEZI-MTUzzxLUV18qHmXh9PxtrfX8LoRAmFLzhuJuQRK+nenZQbwKJfb3ne9vYcROJ+CCMQJRfEemUSe-NNyR1rtHBSB4H5P2PC-FuL58aSyDFEb+kFGLBkCLUF26ReKMR5FERIaQhTfGSmzMOVdr7wNnog-cFAUFNxwh-NOyowhZz-rnXe1Nng8ielBdiSUx4wMNtXMELCUJIO4UGS4st+E5x3vnb2gdmIxEZtxTigpkifGkVqLouU6zZRWsVJyd8+BKIKIAu4kFwglH5HyJURi3oJBMcCP6AMyBAwwELZgYNIbQ1hvDexCA3gRAVC8MyEpIwxCMmBTOY8Qy63lHxD4PiCavgJkGOI8YAC040yiRl1u8EuLtJr0MaEAA */
-        createMachine(
-            {
-                context: {
-                    peerServerConfig: peerServerConfig,
-                    peerConnectionTimeout: 0,
-                    rovPeerIdEndNumber: 0,
-                    thisPeer: null,
-                    dataChannel: null,
-                    mediaChannel: null,
-                    videoStream: null,
+        /** @xstate-layout N4IgpgJg5mDOIC5QCUDyA1AwgewHa7AGMAXASzwDpkBXfU3KCgBTDACcB9AZXYDd2OOfETKUActmKC8BEpA4AVbBxbsAVrG592AYiYBRfcgBSXbkfRHBqMWP2YFASRsd9XBQEEAQgBlHXAAl9ABFEUAAHbFhSUVwwkAAPRABWAAYANgoATmSADgB2ZPSsgBZUtNyAZmSAGhAAT0RirIpU1IBGAuTStoAmXsqAX0G6tCwZEXJcKlpcekZVTh42fk4hWViKCSl1kXklFVY2DS0V3QMjU1dkNGR4yOjY+KSENMycruKyiuq6xoRcslktk2iV2j0Cr0qsNRhhdiQpjM6AxmEdTqtpMIEZR4cR9spFidlqs9IYTGYjLd7lEYlNnoh2p1KhRevlKlkCvlGSUSsl8n9EPkoRR0qlciUqllKlzxTCQGNcYiaMiFmjiQJFZRkEQJgiGBxiASjkTtGxSZczFwLFZMDY7A5nGJXO5vH5AiFqY86UhEikMtk8oUvuUxb8Gk1qhQwYU8sl2mCSll0nKFbrNsq5ijFuiNWmlTqsWR9YbDupNOqzRdydcqT6HrS8PTXv6PkGej9auHXlyKFVKiV0iVKr0k+lclkU3C81rZvMqNheKW1tPpttMRt8UuTWdK2SrlbkJZkNZbPYnC43J5fP4gqE6zSnj6Xoz+V3eiVeplUlL2vlUvkyiHdJkxGeUp0LJVZxRZAFyXddJnESR4LkCBFGUGDeB0MYT3tc8nUvV0bw9e8vUbJ8GWlAUEFZNoRXyIVByyd8sl-SdxggmcVXnRds01aZcU3DCKGCABDYgRMwAALEThAAGy2JDUHCMBcB0YIPE8TAAg8U8fGdK83VvT0GziciEB5VIKHaXoMmHdo2nFDlKio394yjZIoXjNlpXjdo2L4pFM0YDC4ICgTUIOITRPEqSZIIeTopEwRpLkjhglIWBCDTSA1I0jwtJ0uw9II693TvCIH29UBnwyYF8ilEdv3aMd4xc9JCladJmt5KE8lSEp-JXQK5xC3ihvCtCOCisSJJS+LhJm5K4rAWS0oyrLCxy9TNO03TFEcABZfRUAAVQUYzH2qhlv2BD5fzjQobPSXoXI85l-3o9pkkqfsSjZAbQNTDjpgzEbYLG4GKAmyKFwWmK5pWuGkti1KlJU3KdsK-Q9OCfxbVPBwLqq30EHs9JgT+3Jnps1kynSZyu1-SpchFXk2VKP8oQlQbIdB6DwbRMLsoi9DYYOyBSFm5b5LXNHVKO3H8t2or9MIsqibIq7XkjLJ6Nycouf1wcqJsjoKG6XomXjXIoR5jZIK40bBfG4XJqE8WIEllH5o9yWltS8KdHQRxgmO7gFGQfQPAOqao+CABNDXTK16z8kyboEy5Md6I8k22nac2mKtiVbcB8D7c4oLuNCl3NpFqaF3NatsPx3DHRrVA7hIkym3FFnhxY-pWRt8FO3+RkcgoZnh3FeN2qYgHYXYiuQagqAdAAdX0LxkAUTAOAAMTy4qbk7pPe7yXtqnHcncnBXXcio-tgUqMmhU-Km7LthDV5VJurgUPoA6TBO4eGQPHDuXcKqkWTiTSUrRfz-mlN9dkYoTZ3woAxaoEoPyFFKMMUCuBsAQDgPEIGK9hpZjVKaZCmw1zQyNGWHMbBz5mXsq+f4+tLJik6EONO+Rxzgm-tiX+VdswVloYiBhW5yymlYVrLItFUi9DjKKfW4IAIvS7GySyYJujWWlLZfswj0xr1RAICRAVtQbXtsWRhxxZE7nkSTJ6LIhS63sgUdkAFH5dm6C-dk89KgZAlD9ExDsxHUJ3JIygAQZIQFkvMVwbA2DYBYd3S6JN2iVHpubYon4gLNXJmPJoBQp79GHCon6XxwmVznOImhfFnEvCqFRRMLMqYfhotZMUxRamiLBjxZ2kN6GuwOISRxqxmnXQ4ddDyLJXI2y6l1H6vR+mUOCgLXMIykLSIwtM0m74rIZG-ImcoutqhaP+KyYoLIup3wyLfRM+R1l802UM7ZFC9mw0St7RGstlKwPrJk58Qo2pCkwWKAYYJxyv3pq8sxTtPk-yhmM0WvAkZ-ISotLFa1MrCwOdk3kU9AmiiyByDoVyGT00yKyIEOQ0jBPsmssuy8UVvOrhDL5aKG4Yt+QjbF4l-bxQ4HLA5XIWjAS5KkHJQIyi+PHu1ZkRTyX-hHHPFlS8rGIq2cuSG3y+UzSxYSiULl2QtA8lCO+XwkzxgRY7XVMT+I8vdhLKWckFJSDFRk4moKqWkw5PkXsAiOh306EKF5rLtUOo+Xq7ldc3ZizdViigvtkYCtoZAA5BQWhDkTLw+m5QAJ52apCu+9EyU2z5PaquSK40ooNam5NAqKDoFICQ5QXBiBsDACJAAtqKwFhKgQvweWkGVuDeR5w-K0Nous+R-nqmKGtgya76pdUmz27r4omoVQyTp5TX7ij+kXZIK7+axqdaihNMNeCEvfC5Ol2R2qii+gxcmmqwJspERszlwyV7ZoZv8XWLR3z1R6hyIEjJz1QAOd0NpKjeylA5EmUoaRQnrI3mAAARmwYghBD4zVWvoFJaSDkfhNqUDpiDFECLvryReX6AoeAAO4iVpPqFuaYOBeGoMQQ0uAVA9tgPAH1msSYUa7Io59ij4z-i6oo-q-TCV7tJizNoGnNOabtQQoAA */
+        createMachine({
+            context: {
+                peerServerConfig: peerServerConfig,
+                peerConnectionTimeout: 0,
+                rovPeerIdEndNumber: 0,
+                thisPeer: null,
+                dataChannel: null,
+                mediaChannel: null,
+                videoStream: null,
+            },
+            id: "ROVConnection",
+            initial: "Running",
+            states: {
+                Running: {
+                    type: "parallel",
+                    states: {
+                        Peer_Server_Connection: {
+                            initial: "Not_Connected_To_Peerjs_Server",
+                            states: {
+                                Not_Connected_To_Peerjs_Server: {
+                                    invoke: {
+                                        src: "initPeerWithPeerjsServer",
+                                        id: "initPeerWithPeerjsServer",
+                                    },
+                                    on: {
+                                        PEERJS_SERVER_CONNECTION_ESTABLISHED: {
+                                            actions: ["setThisPeer", "showPeerServerConnectedNotice"],
+                                            target:
+                                                "#ROVConnection.Running.Peer_Server_Connection.Connected_To_Peerjs_Server",
+                                        },
+                                        PEERJS_ERROR: {
+                                            target:
+                                                "#ROVConnection.Running.Peer_Server_Connection.Handling_Error",
+                                        },
+                                    },
+                                },
+                                Connected_To_Peerjs_Server: {
+                                    on: {
+                                        PEERJS_ERROR: {
+                                            target:
+                                                "#ROVConnection.Running.Peer_Server_Connection.Handling_Error",
+                                        },
+                                    },
+                                },
+                                Reconnecting_to_Peerjs_Server: {
+                                    invoke: {
+                                        src: "reconnectToPeerServer",
+                                    },
+                                    on: {
+                                        PEERJS_SERVER_CONNECTION_ESTABLISHED: {
+                                            target:
+                                                "#ROVConnection.Running.Peer_Server_Connection.Connected_To_Peerjs_Server",
+                                        },
+                                        PEERJS_ERROR: {
+                                            target:
+                                                "#ROVConnection.Running.Peer_Server_Connection.Handling_Error",
+                                        },
+                                    },
+                                },
+                                Handling_Error: {
+                                    entry: "showPeerServerErrorNotice",
+                                    invoke: {
+                                        src: "handlePeerJsServerError",
+                                    },
+                                },
+                            },
+                        },
+                        Rov_Peer_Connection: {
+                            initial: "Not_Connected_To_Peerjs_Server",
+                            states: {
+                                Not_Connected_To_Peerjs_Server: {
+                                    invoke: {
+                                        src: "initPeerWithPeerjsServer",
+                                        id: "initPeerWithPeerjsServer",
+                                    },
+                                    on: {
+                                        PEERJS_SERVER_CONNECTION_ESTABLISHED: {
+                                            target:
+                                                "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Rov",
+                                        },
+                                    },
+                                },
+                                Not_Connected_To_Rov: {
+                                    invoke: {
+                                        src: "connectToRovPeer",
+                                    },
+                                    on: {
+                                        ROV_CONNECTION_ESTABLISHED: {
+                                            target:
+                                                "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Rov",
+                                        },
+                                    },
+                                },
+                                Connected_To_Rov: {
+                                    entry: "showRovConnectedNotice",
+                                    type: "parallel",
+                                    states: {
+                                        DataChannel: {
+                                            exit: "closeDownDataChannel",
+                                            initial: "Data_Channel_Open",
+                                            states: {
+                                                Not_Open: {
+                                                    entry: "showConnectingUi",
+                                                    on: {
+                                                        DATACHANNEL_ESTABLISHED: {
+                                                            target:
+                                                                "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Data_Channel_Open",
+                                                        },
+                                                    },
+                                                },
+                                                Data_Channel_Disconnected: {
+                                                    entry: "showConnectingUi",
+                                                    invoke: {
+                                                        src: "datachannelTimeoutCountdown",
+                                                    },
+                                                    on: {
+                                                        DATACHANNEL_ESTABLISHED: {
+                                                            target:
+                                                                "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Data_Channel_Open",
+                                                        },
+                                                        DATACHANNEL_TIMEOUT: {
+                                                            actions: "closeDownDataChannel",
+                                                            target:
+                                                                "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Not_Open",
+                                                        },
+                                                    },
+                                                },
+                                                Data_Channel_Open: {
+                                                    entry: "showConnectedUi",
+                                                    invoke: {
+                                                        src: "awaitDataChannelDisconnect",
+                                                    },
+                                                    on: {
+                                                        DATACHANNEL_DISCONNECT: {
+                                                            target:
+                                                                "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Data_Channel_Disconnected",
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                        MediaChannel: {
+                                            exit: "closeDownMediaChannel",
+                                            initial: "Not_Open",
+                                            states: {
+                                                Not_Open: {
+                                                    description:
+                                                        "ROV Should Call the plot, and that should be hooked up to trigger MEDIACHANNEL_ESTABLISHED",
+                                                    invoke: {
+                                                        src: "awaitMediaCall",
+                                                        id: "awaitMediaCall",
+                                                    },
+                                                    on: {
+                                                        MEDIACHANNEL_ESTABLISHED: {
+                                                            actions: [
+                                                                "setMediaChannel",
+                                                                "showMediaChannelConnectedNotice",
+                                                            ],
+                                                            target:
+                                                                "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.MediaChannel.Media_Channel_Connected",
+                                                        },
+                                                    },
+                                                },
+                                                Media_Channel_Connected: {
+                                                    invoke: {
+                                                        src: "awaitVideoStream",
+                                                        id: "awaitVideoStream",
+                                                    },
+                                                    on: {
+                                                        VIDEO_STREAM_READY: {
+                                                            actions: [
+                                                                "setVideoStream",
+                                                                "showGotVideoStreamNotice",
+                                                            ],
+                                                            target:
+                                                                "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.MediaChannel.Video_Stream_Open",
+                                                        },
+                                                    },
+                                                },
+                                                Video_Stream_Open: {},
+                                            },
+                                        },
+                                    },
+                                    on: {
+                                        PEERJS_ROV_CONNECTION_ERROR: {
+                                            target:
+                                                "Not_Connected_To_Rov",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    on: {
+                        WEBRTC_FATAL_ERROR: {
+                            target: "#ROVConnection.Running",
+                        },
+                        PEERJS_TEMPORARY_ERROR: {
+                            target: "#ROVConnection.Running",
+                        },
+                    },
                 },
-                id: "ROVConnection",
-                initial: "Not_Connected_To_Peerjs_Server",
-                states: {
-                    Not_Connected_To_Peerjs_Server: {
-                        invoke: {
-                            src: "initPeerWithPeerjsServer",
-                            id: "initPeerWithPeerjsServer",
-                        },
-                        on: {
-                            PEERJS_SERVER_CONNECTION_ESTABLISHED: {
-                                actions: ["setThisPeer", "showPeerServerConnectedNotice"],
-                                target: "#ROVConnection.Connected_To_Peerjs_Server",
-                            },
-                            PEERJS_SERVER_ERROR: [{
-                                cond: "peerServerFatalError",
-                                target: "#ROVConnection.Awaiting_ROV_Connect_Button_Press",
-                                actions: ["showPeerServerErrorNotice"]
-                            }, {
-                                    target: "#ROVConnection.Not_Connected_To_Peerjs_Server",
-                                    actions: ["showPeerServerErrorNotice"]
-                                }],
-                        },
-                    },
-                    Connected_To_Peerjs_Server: {
-                        type: "parallel",
-                        states: {
-                            DataChannel: {
-                                exit: "closeDownDataChannel",
-                                initial: "Not_Open",
-                                states: {
-                                    Not_Open: {
-                                        entry: "showConnectingUi",
-                                        invoke: {
-                                            src: "connectToRovPeer",
-                                        },
-                                        on: {
-                                            DATACHANNEL_ESTABLISHED: {
-                                                target:
-                                                    "#ROVConnection.Connected_To_Peerjs_Server.DataChannel.Open",
-                                            },
-                                        },
-                                    },
-                                    Disconnected: {
-                                        entry: "showConnectingUi",
-                                        invoke: {
-                                            src: "datachannelTimeoutCountdown",
-                                        },
-                                        on: {
-                                            DATACHANNEL_ESTABLISHED: {
-                                                target:
-                                                    "#ROVConnection.Connected_To_Peerjs_Server.DataChannel.Open",
-                                            },
-                                            DATACHANNEL_TIMEOUT: {
-                                                target:
-                                                    "#ROVConnection.Connected_To_Peerjs_Server.DataChannel.Not_Open",
-                                                actions: ["closeDownDataChannel"],
-                                            },
-                                        },
-                                    },
-                                    Open: {
-                                        entry: "showConnectedUi",
-                                        invoke: {
-                                            src: "awaitDataChannelDisconnect",
-                                        },
-                                        on: {
-                                            DATACHANNEL_DISCONNECTED: {
-                                                target:
-                                                    "#ROVConnection.Connected_To_Peerjs_Server.DataChannel.Disconnected",
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                            MediaChannel: {
-                                exit: "closeDownMediaChannel",
-                                initial: "Not_Open",
-                                states: {
-                                    Not_Open: {
-                                        description:
-                                            "ROV Should Call the plot, and that should be hooked up to trigger MEDIACHANNEL_ESTABLISHED",
-                                        invoke: {
-                                            src: "awaitMediaCall",
-                                        },
-                                        on: {
-                                            MEDIACHANNEL_ESTABLISHED: {
-                                                target:
-                                                    "#ROVConnection.Connected_To_Peerjs_Server.MediaChannel.Media_Channel_Connected",
-                                                actions: ["setMediaChannel", "showMediaChannelConnectedNotice"],
-                                            },
-                                        },
-                                    },
-                                    Media_Channel_Connected: {
-                                        invoke: {
-                                            src: "awaitVideoStream",
-                                            id: "awaitVideoStream",
-                                        },
-                                        on: {
-                                            VIDEO_STREAM_READY: {
-                                                target:
-                                                    "#ROVConnection.Connected_To_Peerjs_Server.MediaChannel.Open",
-                                                actions: ["setVideoStream", "showGotVideoStreamNotice"],
-                                            },
-                                        },
-                                    },
-                                    Open: {},
-                                },
-                            },
-                        },
-                        on: {
-                            DISCONNECT_FROM_ROV: {
-                                target: "#ROVConnection.Awaiting_ROV_Connect_Button_Press",
-                            },
-                            PEERJS_SERVER_ERROR: [{
-                                cond: "peerServerFatalError",
-                                target: "#ROVConnection.Not_Connected_To_Peerjs_Server",
-                                actions: ["showPeerServerDisconnectedNotice"]
-                            },
-                            {
-                                cond: "peerServerDisconnected",
-                                target: "#ROVConnection.Reconnecting_to_Peerjs_Server",
-                                actions: ["showPeerServerDisconnectedNotice"]
-                            },
-                            {
-                                target: "#ROVConnection.Connected_To_Peerjs_Server",
-                            }],
-                            DATA_OR_MEDIA_CHANNEL_ERROR: [
-                                {
-                                    cond: "peerServerFatalError",
-                                    target: "#ROVConnection.Not_Connected_To_Peerjs_Server",
-                                },
-                                {
-                                    cond: "peerServerDisconnected",
-                                    target: "#ROVConnection.Reconnecting_to_Peerjs_Server",
-                                    actions: ["showPeerServerDisconnectedNotice"]
-                                },
-                                {
-                                    target: "#ROVConnection.Connected_To_Peerjs_Server",
-                                },
-                            ],
-                        },
-                    },
-                    Reconnecting_to_Peerjs_Server: {
-                        invoke: {
-                            src: "reconnectToPeerServer",
-                        },
-                        on: {
-                            PEERJS_SERVER_CONNECTION_ESTABLISHED: {
-                                target: "#ROVConnection.Connected_To_Peerjs_Server",
-                            },
-                            PEERJS_SERVER_ERROR: [{
-                                cond: "peerServerFatalError",
-                                target: "#ROVConnection.Awaiting_ROV_Connect_Button_Press",
-                                actions: ["showPeerServerErrorNotice"]
-                            }, {
-                                    target: "#ROVConnection.Not_Connected_To_Peerjs_Server",
-                                    actions: ["showPeerServerErrorNotice"]
-                                }],
-                        },
-                    },
-                    Awaiting_ROV_Connect_Button_Press: {
-                        entry: "showDisconnectedUi",
-                        exit: "showConnectingUi",
-                        invoke: {
-                            src: "awaitROVConnectBtnPress",
-                        },
-                        on: {
-                            CONNECT_BUTTON_PRESSED: {
-                                target: "#ROVConnection.Not_Connected_To_Peerjs_Server",
-                            },
-                        },
+                Webrtc_Fatal_Error: {
+                    entry: "showDisconnectedUi",
+                    type: "final",
+                },
+                Awaiting_ROV_Connect_Button_Press: {
+                    entry: "showDisconnectedUi",
+                    exit: "showConnectingUi",
+                    invoke: {
+                        src: "awaitROVConnectBtnPress",
                     },
                 },
-            }, machineFunctions);
+            },
+        }, machineFunctions);
 
     const rovConnectionService = interpret(rovConnectionMachine, { devTools: true })
     rovConnectionService.start();
