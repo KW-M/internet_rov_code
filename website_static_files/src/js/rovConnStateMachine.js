@@ -5,7 +5,7 @@ import { pure } from "xstate/lib/actions";
 import Peer from "peerjs"
 
 
-import { showToastMessage, showROVDisconnectedUI, showROVConnectingUI, showROVConnectedUI, showLoadingUi, setupConnectBtnClickHandler, showToastDialog } from "./ui"
+import { showToastMessage, showROVDisconnectedUI, showROVConnectingUI, showROVConnectedUI, showLoadingUi, setupConnectBtnClickHandler, showToastDialog, hideLoadingUi } from "./ui"
 
 // import * from "./peerServerConn"
 
@@ -26,11 +26,12 @@ const machineFunctions = {
     actions: {
         showDisconnectedUi: () => { showROVDisconnectedUI() },
         showConnectingUi: () => { showROVConnectingUI() },
-        showConnectedUi: () => { showROVConnectedUI() },
+        showRovConnectedUi: () => { showROVConnectedUI() },
         showPeerServerConnectedNotice: () => { showToastMessage("Connected to Peerjs Server!") },
         showPeerServerDisconnectedNotice: () => { showToastMessage("Peerjs Server Disconnected") },
         showMediaChannelConnectedNotice: () => { showToastMessage("ROV Media Channel Connected!") },
-        showGotVideoStreamNotice: () => { showToastMessage("Got ROV Video Stream!") },
+        showGotVideoStreamNotice: () => { showToastMessage("Got ROV Video Stream!"); hideLoadingUi() },
+
         setThisPeer: assign({
             thisPeer: (context, event) => {
                 return event.data
@@ -39,6 +40,7 @@ const machineFunctions = {
         setDataChannel: assign({
             dataChannel: (context, event) => {
                 const dataChannel = event.data
+                console.log("setdataChannel", dataChannel)
                 return dataChannel;
             },
         }),
@@ -51,7 +53,7 @@ const machineFunctions = {
         setVideoStream: assign({
             videoStream: (context, event) => {
                 const rovVideoStream = event.data
-                const videoElem = document.getElementById('livestream');
+                const videoElem = document.getElementById('video-livestream');
                 videoElem.srcObject = rovVideoStream;  // video.src = URL.createObjectURL(rovVideoStream);
                 videoElem.muted = true
                 videoElem.autoplay = true
@@ -62,10 +64,12 @@ const machineFunctions = {
         }),
         closeDownMediaChannel: (context) => {
             console.log("closing media chnl");
-            context.thisPeer.off("call", eventHandlerFunctions["MEDIA_CHANNEL_ESTABLISHED"]);
-            if (context.mediaChannel) {
-                context.mediaChannel.off("stream", eventHandlerFunctions["VIDEO_STREAM_READY"]);
-                context.mediaChannel.close();
+            const thisPeer = context.thisPeer;
+            const mediaChannel = context.mediaChannel;
+            if (thisPeer) thisPeer.off("call", eventHandlerFunctions["MEDIA_CHANNEL_ESTABLISHED"]);
+            if (mediaChannel) {
+                mediaChannel.off("stream", eventHandlerFunctions["VIDEO_STREAM_READY"]);
+                mediaChannel.close();
             }
         },
         closeDownDataChannel: (context) => {
@@ -86,7 +90,7 @@ const machineFunctions = {
             }
         }),
         reloadWebsite: () => {
-            setTimeout(window.location.reload, 2000)
+            setTimeout(() => { window.location.reload() }, 2000)
         }
     },
     services: {
@@ -161,7 +165,7 @@ const machineFunctions = {
                     serialization: 'none',
                 });
 
-                const openHandler = generateStateChangeFunction(sendStateChange, "ROV_CONNECTION_ESTABLISHED", null)
+                const openHandler = generateStateChangeFunction(sendStateChange, "ROV_CONNECTION_ESTABLISHED", rovDataConnection)
                 const errorHandler = generateStateChangeFunction(sendStateChange, "PEERJS_ERROR", null)
                 rovDataConnection.on("open", openHandler)
                 rovDataConnection.on("error", console.log)
@@ -173,9 +177,9 @@ const machineFunctions = {
         },
         awaitMediaCall: (context, event) => {
             return (sendStateChange, onReceive) => {
-                console.log("Awaiting media call from ROV...");
+                showLoadingUi("Waiting for ROV livestream...");
                 const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
-                    console.info('Got media call from peer: ' + rovMediaConnection.peer)
+                    showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
                     rovMediaConnection.answer(null, {
                         // sdpTransform: function (sdp) {
                         //     console.log('answer sdp: ', sdp);
@@ -437,7 +441,7 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
                                     },
                                 },
                                 Connected_To_Rov: {
-                                    entry: "showRovConnectedNotice",
+                                    entry: "showRovConnectedUi",
                                     type: "parallel",
                                     states: {
                                         DataChannel: {
@@ -461,7 +465,7 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
                                                     },
                                                 },
                                                 Data_Channel_Open: {
-                                                    entry: "showConnectedUi",
+                                                    entry: "showRovConnectedUi",
                                                     invoke: {
                                                         src: "handleDataChannelEvents",
                                                     },
@@ -480,13 +484,13 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
                                             states: {
                                                 Not_Open: {
                                                     description:
-                                                        'ROV Will "Video Call" this plot, and that is hooked up to trigger the MEDIACHANNEL_ESTABLISHED transition',
+                                                        'ROV Will "Video Call" this plot, and that is hooked up to trigger the MEDIA_CHANNEL_ESTABLISHED transition',
                                                     invoke: {
                                                         src: "awaitMediaCall",
                                                         id: "awaitMediaCall",
                                                     },
                                                     on: {
-                                                        MEDIACHANNEL_ESTABLISHED: {
+                                                        MEDIA_CHANNEL_ESTABLISHED: {
                                                             actions: [
                                                                 "setMediaChannel",
                                                                 "showMediaChannelConnectedNotice",
@@ -572,7 +576,7 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
 //     actions: {
 //         showDisconnectedUi: () => { },
 //         showConnectingUi: () => { },
-//         showConnectedUi: () => { },
+//         showRovConnectedUi: () => { },
 //         showPeerServerConnectedNotice: () => { },
 //         showPeerServerDisconnectedNotice: () => { },
 //         resetPeerConnectionTimeout: assign({
@@ -671,7 +675,7 @@ export const runRovConnectionMachine = (siteInitMachineContext) => {
 //             return (sendStateChange, onReceive) => {
 //                 setTimeout(() => {
 //                     var num = Math.random();
-//                     if (num < 0.3) callback("MEDIACHANNEL_ESTABLISHED");
+//                     if (num < 0.3) callback("MEDIA_CHANNEL_ESTABLISHED");
 //                     else if (num > 0.6) callback("DATA_OR_MEDIA_CHANNEL_ERROR");
 //                     else callback("PEERJS_SERVER_DISCONNECTED");
 //                 }, 9000);

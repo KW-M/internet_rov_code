@@ -34,12 +34,17 @@ export function getURLQueryStringVariable(variable) {
 
 export function isInternetAvailable(urlToCheck) {
     return new Promise((resolve) => {
+        console.info("checkingUrl", urlToCheck);
         try {
-            fetch(urlToCheck).then(() => { resolve(true) }).catch(() => { resolve(false) });
-            setTimeout(() => {
+            fetch(urlToCheck).then(() => { resolve(true) }).catch((e) => {
+                console.warn("Internet Offline, starting switch to local mode", e)
                 resolve(false)
-            }, 10000)
+            });
+            // setTimeout(() => {
+            //     resolve(false)
+            // }, 10000)
         } catch (e) {
+            console.warn("Error Checking internet, starting switch to local mode", e)
             resolve(false)
         }
     })

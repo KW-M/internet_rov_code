@@ -1,4 +1,4 @@
-var btnLabels = ["button_1",
+const btnLabels = ["button_1",
     "button_2",
     "button_3",
     "button_4",
@@ -15,7 +15,7 @@ var btnLabels = ["button_1",
     "d_pad_left",
     "d_pad_right"]
 
-const gamepadUi = {
+export const gamepadUi = {
     showGamepadsConnected: function (gamepads) {
         document.getElementById("gamepad-connect-notice").style.display = "none";
         if (gamepads.length > 1) {

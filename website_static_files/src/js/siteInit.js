@@ -43,16 +43,13 @@ export const runSiteInitMachine = () => {
         showLoadingUi("Scanning for ROV IP address...");
       },
       redirectBrowserToRovIp: (context, event) => {
-        // window.location = "http://" + event.data
+        window.location = "http://" + event.data
       },
       siteReady: (context, event) => {
         console.log(context)
         runRovConnectionMachine(context)
       }
-      // showHttpGamepadSupportDisabledAlert: (context, event) => {
-
-      // }
-
+      // showHttpGamepadSupportDisabledAlert: (context, event) => { }
     },
     services: {
       checkInternetAvailable: (context, event) => {
@@ -61,13 +58,13 @@ export const runSiteInitMachine = () => {
 
           // check if we are viewing this site at an IP ADDRESS or .local domain
           // indicating this page was served directly from the rov (presumably)
-          const urlHostParts = window.location.host.split(".");
-          if (
-            (urlHostParts.length == 4 && parseInt(urlHostParts[3]) != NaN) ||
-            (urlHostParts.length == 2 && urlHostParts[1] == "local")
-          ) {
-            callback("URL_IS_ROV_IP");
-          } else {
+          // const urlHostParts = window.location.host.split(".");
+          // if (
+          //   (urlHostParts.length == 4 && parseInt(urlHostParts[3]) != NaN) ||
+          //   (urlHostParts.length == 2 && urlHostParts[1] == "local")
+          // ) {
+          //   callback("URL_IS_ROV_IP");
+          // } else {
             isInternetAvailable("https://" + consts.peerServerCloudOptions.host).then((internetOnline) => {
               if (internetOnline) {
                 callback("INTERNET_AVAILABLE");
@@ -75,7 +72,7 @@ export const runSiteInitMachine = () => {
                 callback("INTERNET_OFFLINE");
               }
             })
-          }
+          // }
         };
       },
       setupWaitForUserScanButtonPress: (context, event) => {
@@ -101,7 +98,7 @@ export const runSiteInitMachine = () => {
           setTimeout(() => {
             callback({
               type: "ROV_IP_FOUND",
-              data: "hids",
+              data: "UHhh the ip address man!",
             });
           }, 3000);
         };

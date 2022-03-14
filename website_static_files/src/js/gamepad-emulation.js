@@ -1,4 +1,4 @@
-const gamepadEmulator = {
+export const gamepadEmulator = {
 
     // The list of emulated gamepads, corresponds 1-1 to the list output by navigator.getGamepads().
     // when an emulated gamepad is "connected" ie: call addEmulatedGamepad(), it is added to this list.
