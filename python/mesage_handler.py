@@ -15,6 +15,7 @@ def handle_socket_message(message, motors, sensors, sensr_log):
 
     # create an empty dict to hold the reply message data:
     reply_data = {}
+    parsed_msg = {}
 
     # handle the sensor changes:
     sensor_values_did_change = sensors.update_all_sensors()
