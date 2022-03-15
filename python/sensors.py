@@ -1,7 +1,10 @@
+import logging
 import ms5803py
-import time
 
 from utilities import *
+
+###### setup logging #######
+log = logging.getLogger(__name__)
 
 
 class sensor_ctrl:
@@ -26,14 +29,14 @@ class sensor_ctrl:
 
     def setup_sensors(self):
         try:
-            print("Setting up sensors...")
+            log.info("Setting Up Sensors...")
             self.pressure_sensor = self.pressure_sensor or ms5803py.MS5803()
             self.orientation_sensor = None
             self.light_sensor = None
         except Exception as e:
-            pretty_print_exception(e, True)
+            log.error("Error Setting Up Sensors:", e, exc_info=True)
 
-    def update_sensor_value(self,sensor_name, new_value):
+    def update_sensor_value(self, sensor_name, new_value):
         if (self.current_sensor_state[sensor_name] != new_value):
             self.current_sensor_state[sensor_name] = new_value
             self.sensor_values_have_changed_flag = True
@@ -43,15 +46,14 @@ class sensor_ctrl:
         if self.pressure_sensor is not None:
             try:
                 pressure, temp = self.pressure_sensor.read(pressure_osr=4096)
-                print("Sensors: pressure={} mBar, temperature={} C".format(
+                log.debug("Sensors: pressure={} mBar, temperature={} C".format(
                     get_rounded_string(pressure), get_rounded_string(temp)))
 
                 self.update_sensor_value('pressure',
                                          get_rounded_string(pressure))
                 self.update_sensor_value('temp', get_rounded_string(temp))
             except Exception as e:
-                print("Error reading pressure sensor:")
-                pretty_print_exception(e, True)
+                log.warning("Error reading pressure sensor:", e)
 
         # Read the orientation sensor values
         if self.orientation_sensor is not None:

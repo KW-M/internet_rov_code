@@ -1,9 +1,14 @@
-import os
 import socket
+import logging
+
+############################
+###### setup logging #######
+log = logging.getLogger(__name__)
 
 
-class socket_datachanel:
-    sock = None
+class Socket_Datachannel:
+    def __init__(self):
+        self.sock = None
 
     def close_socket(self):
         if self.sock:
@@ -16,46 +21,41 @@ class socket_datachanel:
         This function is intended to be called in a loop so long as it returns False (indicating it was not able to connect).
         :param socket_path: Path to the UV4L socket file (Default = '/tmp/go.sock').
         :param socket_timeout: Timeout in seconds to wait to open the socket or recive data before moving on (Default = 0.1 seconds).
-        Raises exceptions if the socket was not successfully created or connected within the timeout.
+        :returns: false exceptions if the socket was not successfully created or connected within the timeout.
         """
-
-        print('Attempting to open socket at path: {}'.format(socket_path))
-
-        # # Try to unlink/free up the socket file if it already exists:
-        # try:
-        #     os.unlink(socket_path)
-        # except OSError as e:
-        #     if os.path.exists(socket_path):
-        #         raise OSError(
-        #             "Error unlinking socket file {} are you root?: {}".format(
-        #                 socket_path, e)) from e
-        #     else:
-        #         pass
 
         # try to create the socket class with the given path:
         try:
             if (self.sock == None):
+                log.info('Opening Unix Socket: {}'.format(socket_path))
                 self.sock = socket.socket(socket.AF_UNIX,
                                           socket.SOCK_SEQPACKET)
                 self.sock.settimeout(socket_timeout)
                 self.sock.connect(socket_path)
+                return True
+            else:
+                log.warning('Socket Already Connected: {}'.format(socket_path))
+                return True
 
-        # if the socket was not opened/connected before the timeout, throw an exception:
+        # if the socket was not opened/connected before the timeout, return false:
         except FileNotFoundError as e:
-            raise FileNotFoundError('Socket file doesn\'t exitst, retry later') from e
+            log.warning('Unix socket file does not yet exist!', e)
 
-        # if the socket file has not been created before the timeout:
+        # if the socket file has not been created before the timeout, return false:
         except socket.timeout as e:
-            raise TimeoutError('Socket setup timed out, retry later') from e
+            log.warning('Unix socket setup timed out!', e)
 
-        # if there was some other socket error, close the socket and raise the error again:
+        # if there was some other socket error, close the socket and return false:
         except socket.error as e:
             self.close_socket()
-            raise Exception("Setup Socket: Socket Error") from e
+            log.error('Setup Socket: Socket Error', e, exc_info=True)
 
-        # if there was some other error
+        # if there was some other error, close the socket and return false:
         except Exception as e:
-            raise Exception("Setup Socket: Other Error") from e
+            self.close_socket()
+            log.error('Setup Socket: Generic Error', e, exc_info=True)
+
+        return False
 
     def recieve_socket_message(self):
         """
@@ -64,17 +64,17 @@ class socket_datachanel:
         :return: Any new complete chunk of data recieved on the socket or None if no data was recieved / the read timed out.
         """
 
-        # try to read from the socket:
+        if (self.sock == None):
+            log.warning('recieve_socket_message(): Socket Not Setup!')
+            return None
+
         try:
-            if (self.sock == None):
-                print('Socket not setup')
+            # Wait for a message in utf-8 character encoding up to 1024 bytes long to appear in the unix socket file.
+            message = str(self.sock.recv(1024), 'utf-8')
+            if message:
+                return message
             else:
-                # pause program while waiting for a message in utf-8 character encoding up to 1024 bytes long to appear in the socket file.
-                message = str(self.sock.recv(1024), 'utf-8')
-                if message:
-                    return message
-                else:
-                    return None
+                return None
 
         # if the socket was not opened/connected before the timeout, return None:
         except socket.timeout as e:
@@ -83,28 +83,28 @@ class socket_datachanel:
         # if there was some other socket error, close the socket and raise the error again:
         except socket.error as e:
             self.close_socket()
-            raise Exception("Recive Message Socket Error") from e
+            raise Exception("recieve_socket_message(): Socket Error") from e
 
         # if there was some other error
         except Exception as e:
-            raise Exception("Recive Message Other Error") from e
+            raise Exception("recieve_socket_message(): Generic Error") from e
 
     def send_socket_message(self, socket_message):
         """
-        Sends a message/data to socket setup in the setup_socket() function. Waits the timeout specified in the setup_socket() function before returning False
+        Sends a message/data to socket previously setup by setup_socket(). Waits the timeout specified in the setup_socket() without hearing a message before returning False
         :return: True if the message was sent successfully.
         """
 
-        # try to read from the socket:
+        if (self.sock == None):
+            log.warning('send_socket_message(): Socket Not Setup!')
+            return False
+
+        if (socket_message == None or len(socket_message) == 0):
+            return False
+
         try:
-            if (self.sock == None):
-                print('Socket not setup')
-            else:
-                data = self.sock.send(bytes(socket_message, 'utf-8'))
-                if data:
-                    return data
-                else:
-                    return None
+            sucessful = self.sock.send(bytes(socket_message, 'utf-8'))
+            return sucessful
 
         # if the socket was not opened/connected before the timeout, return None:
         except socket.timeout as e:
@@ -113,8 +113,8 @@ class socket_datachanel:
         # if there was some other socket error, close the socket and raise the error again:
         except socket.error as e:
             self.close_socket()
-            raise Exception("Send Message Socket Error") from e
+            raise Exception("send_socket_message(): Socket Error") from e
 
         # if there was some other error
         except Exception as e:
-            raise Exception("Send Message Other Error") from e
+            raise Exception("send_socket_message(): Generic Error") from e
