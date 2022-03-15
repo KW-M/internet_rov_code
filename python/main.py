@@ -47,7 +47,12 @@ motors = Motion_Controller()
 
 ############################
 ###### setup logging #######
-logging.root.setLevel(logging.DEBUG)
+
+# assuming loglevel is bound to the string value obtained from the
+# command line argument. Convert to upper case to allow the user to
+# specify --log=DEBUG or --log=debug
+
+logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 ######################################
