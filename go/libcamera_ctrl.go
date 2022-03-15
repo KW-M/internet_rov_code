@@ -21,11 +21,14 @@ import (
 	webrtc "github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media"
 	"github.com/pion/webrtc/v3/pkg/media/h264reader"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
 	h264FrameDuration = time.Millisecond * 33
 )
+// setup logrus logger
+var cameraLog = log.WithFields(log.Fields{})
 
 // videoTrack to hold the front camera video stream for all peers/pilots who connect
 var rovLivestreamVideoTrack = &webrtc.TrackLocalStaticSample{}
@@ -52,7 +55,7 @@ func pipeVideoToStream(done chan bool) error {
 	sdoutPipe, err := cmd.StdoutPipe()
 	sderrPipe, err := cmd.StderrPipe()
 	if err != nil {
-		log.Fatal("could not create libcamera-vid cmd output pipes. ", err)
+		cameraLog.Fatal("could not create video stream cmd output pipes. ", err)
 	}
 
 	// print out the stderr output of the command in a seperate go routine
@@ -60,13 +63,13 @@ func pipeVideoToStream(done chan bool) error {
 		scanner := bufio.NewScanner(sderrPipe)
 		scanner.Split(bufio.ScanLines)
 		for scanner.Scan() {
-			fmt.Printf("[libcamera-vid] > %s\n", scanner.Text())
+			cameraLog.Printf("[libcamera-vid] > %s\n", scanner.Text())
 		}
 	}()
 
 	// Create a new video track from the h264 reader
 	if err := cmd.Start(); err != nil {
-		fmt.Printf("[libcamera-vid][CMD START ERROR] > %s\n", err)
+		cameraLog.Printf("[libcamera-vid][CMD START ERROR] > %s\n", err)
 		return err
 	}
 
@@ -84,7 +87,7 @@ func pipeVideoToStream(done chan bool) error {
 	// Now attach the h264 reader to the output of the libcamera-vid command
 	h264, h264Err := h264reader.NewReader(sdoutPipe)
 	if h264Err != nil {
-		log.Println("h264reader Initilization Error")
+		cameraLog.Println("h264reader Initilization Error")
 		panic(h264Err)
 	}
 
@@ -101,11 +104,11 @@ func pipeVideoToStream(done chan bool) error {
 		for ;true; <-ticker.C {
 			nal, h264Err := h264.NextNAL()
 			if h264Err == io.EOF {
-				fmt.Printf("SHOULD NOT HAPPEN! All video frames parsed and sent")
+				cameraLog.Println("All video frames parsed and sent")
 				return
 			}
 			if h264Err != nil {
-				log.Println("h264reader Decode Error: ",h264Err)
+				cameraLog.Println("h264reader Decode Error: ",h264Err)
 				return
 			}
 			nal.Data = append([]byte{0x00, 0x00, 0x00, 0x01}, nal.Data...)
@@ -119,7 +122,7 @@ func pipeVideoToStream(done chan bool) error {
 			}
 
 			if h264WriteErr := rovLivestreamVideoTrack.WriteSample(media.Sample{Data: nal.Data, Duration: time.Second}); h264WriteErr != nil {
-				log.Println("Error writing h264 video track sample: ", h264WriteErr)
+				cameraLog.Println("Error writing h264 video track sample: ", h264WriteErr)
 			}
 		}
 	}()

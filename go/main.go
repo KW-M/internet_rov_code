@@ -11,17 +11,23 @@ import (
 )
 
 var uSockSendMsgChannel = make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
-var uSockMsgRecivedChannel = make(chan string, 12)// a channel with a buffer of 12 messages which can pile up until they are handled
+var uSockMsgRecivedChannel = make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
+
+
+// flags
+var videoShellCommand = ""
+var peerServerListenPort = ""
+var prependedPeerIdToRecivedMessages = false
 
 func main() {
+
 	// Parse the flags passed to program
-	// videoShellCommand := ""
-	// peerServerListenPort := ""
-	// flag.StringVar(&videoShellCommand, "video-shell-cmd", "cat -" "Shell command that will start generating h264 stream", "")
-	// flag.StringVar(&httpListenAddress, "udp-video-listen-address", "http://localhost:8080", "Port number to pull the video stream from. Default is http://localhost:8080")
-	// flag.StringVar(&peerServerListenPort, "peerserver-listen-port", "8181", "Port number for websocket HTTP server to listen on. Default is :8181")
+	flag.StringVar(&videoShellCommand, "video-shell-cmd", "cat -", "Shell command that will send a h264 video stream to stdout, Default is \"cat -\"")
+	flag.StringVar(&peerServerListenPort, "peerserver-listen-port", "8181", "Port number for the go peerjs server to listen on. Default is 8181")
+	flag.BoolVar(&prependedPeerIdToRecivedMessages, "prepend-peer-id", false, "If true, when a datachannel message is recived, the sender's peer id will be prepended to the message, followed by the delimeter \"::\" before being sent to the unix socket. Default is false")
 	flag.Parse()
 
+	// Set up the logrus logger
 	log.SetFormatter(&log.TextFormatter{
 		DisableColors: true,
 		DisableTimestamp: true,

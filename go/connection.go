@@ -143,9 +143,14 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 	var shouldExit bool = false
 	var stopRelayingMsgs chan bool = make(chan bool)
 	var rovPeerId string = basePeerId + strconv.Itoa(rovNumber)
+
+	// setup logrus logger
+	rovLog := log.WithFields(log.Fields{"peer": rovPeerId, "peerServer": peerServerOptions.Host})
+
+	// establish peer with peerjs server
 	var rovPeer, err = peerjs.NewPeer(rovPeerId, peerServerOptions)
 	defer rovPeer.Close() // close the websocket connection when this whole outer function exits
-	rovLog := log.WithFields(log.Fields{"peer": rovPeerId, "peerServer": peerServerOptions.Host})
+
 	if err != nil {
 		rovLog.Println("Error creating ROV peer: ", err)
 		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
@@ -166,6 +171,7 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 		rovPeer.On("connection", func(data interface{}) {
 			pilotDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
 			var pilotPeerId string = pilotDataConnection.GetPeerID()
+
 			log := rovLog.WithFields(log.Fields{"peer": rovPeerId, "peerServer": peerServerOptions.Host})
 			log.Println("Peer connection established with Pilot Peer ID: ", pilotDataConnection.GetPeerID())
 
@@ -175,7 +181,10 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 				pilotDataConnection.On("data", func(msgBytes interface{}) {
 					log.Printf("Received: %#v: %s\n", msgBytes, msgBytes)
 					var msgString string = string(msgBytes.([]byte))
-					var socketString string = pilotPeerId + "::" + msgString
+					var socketString string = msgString
+					if prependedPeerIdToRecivedMessages {
+					  socketString = pilotPeerId + "::" + socketString
+					}
 					uSockSendMsgChannel <- socketString
 				})
 
