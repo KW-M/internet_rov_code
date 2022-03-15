@@ -7,10 +7,14 @@ import Toastify from 'toastify-js'
 // -------------------------------------------------------------
 
 export function showToastMessage(message, durration, callback) {
-    Toastify({
+    return Toastify({
         text: message,
         duration: durration || 5000,
         close: true,
+        // className: "dialog-toast",
+        style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
         gravity: "top", // `top` or `bottom`
         position: "center", // `left`, `center` or `right`
         stopOnFocus: true, // Prevents dismissing of toast on hover
@@ -27,10 +31,10 @@ export function showToastDialog(message, durration, btnName, callback) {
         btn.addEventListener("click", callback);
         toastContent.appendChild(btn)
     }
-    Toastify({
+    return Toastify({
         node: toastContent,
         duration: durration || 15000,
-        close: !btnName,
+        close: btnName != false,
         className: "dialog-toast",
         gravity: "top", // `top` or `bottom`
         position: "center", // `left`, `center` or `right`

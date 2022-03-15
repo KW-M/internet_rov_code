@@ -21,6 +21,30 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// 2022/03/14 19:20:02 UNIX SOCKET got message: {"pong": 1200}
+// DEBU[0680] WS msg -1                                     module=peer source=socket
+// DEBU[0680] websocket closed: websocket: close 1006 (abnormal closure): unexpected EOF  module=peer source=socket
+// ERRO[0680] Error: Lost connection to server              module=peer source="peer:iROV-0"
+// ROV PEER JS ERROR EVENT: Lost connection to server
+// DEBU[0680] Disconnect peer with ID:iROV-0                module=peer source="peer:iROV-0"
+// ROV PEER JS DISCONNECTED EVENT (0x4b1090,0x2204fd8)level=info msg=StopSendingMsgs peer=iROV-0 peerServer=0.peerjs.com
+
+// level=info msg="exiting setupWebrtcConnection" peer=iROV-0 peerServer=0.peerjs.com
+// DEBU[0680] Destroy peer with ID:                         module=peer source="peer:iROV-0"
+// PILOT PEER DATACHANNEL CLOSE EVENT (0x0,0x0)
+// DEBU[0680] Cleaning up PeerConnection to 0e5ec07c-956e-4990-a4ce-e4b4c465e3cc  module=peer source=negotiator
+// DEBU[0680] <nil>                                         module=peer source=media
+// PILOT PEER DATACHANNEL CLOSE EVENT (0x0,0x0)
+// DEBU[0680] Cleaning up PeerConnection to fa2728d9-3c28-4b8d-ba6e-b97b642e6da1  module=peer source=negotiator
+// DEBU[0680] <nil>                                         module=peer source=media
+// ROV PEER JS CLOSE EVENT (0x0,0x0)
+// ERRO[0682] sendHeartbeat: Failed to send message: write tcp 192.168.1.79:42960->54.243.238.66:443: write: broken pipe  module=peer source=socket
+// ERRO[0685] sendHeartbeat: Failed to send message: write tcp 192.168.1.79:42960->54.243.238.66:443: write: broken pipe  module=peer source=socket
+// ERRO[0688] sendHeartbeat: Failed to send message: write tcp 192.168.1.79:42960->54.243.238.66:443: write: broken pipe  module=peer source=socket
+// ERRO[0691] sendHeartbeat: Failed to send message: write tcp 192.168.1.79:42960->54.243.238.66:443: write: broken pipe  module=peer source=socket
+// ERRO[0694] sendHeartbeat: Failed to send message: write tcp 192.168.1.79:42960->54.243.238.66:443: write: broken pipe  module=peer source=socket
+// ERRO[0697] sendHeartbeat: Failed to send message: write tcp 192.168.1.79:42960->54.243.238.66:443: write: broken pipe  module=peer source=socket
+
 var err error // handy variable to stuff any error messages into
 
 // To handle the case where multiple rovs are running at the same time,
@@ -101,17 +125,17 @@ func setupConnections(quitSignal chan bool) {
 	localQuitSignal := make(chan string)
 	localConnectionWriteChannel := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
 	exitLocalConnection := make(chan bool)
-	// go func() {
-	// 	// for {
-	// 		select {
-	// 		case <-localQuitSignal:
-	// 			println("Exiting local quitSignal")
-	// 			return
-	// 		default:
-	// 		}
-	// 		setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts, localConnectionWriteChannel)
-	// 	// }
-	// }()
+	go func() {
+		// for {
+			select {
+			case <-localQuitSignal:
+				println("Exiting local quitSignal")
+				return
+			default:
+			}
+			setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts, localConnectionWriteChannel)
+		// }
+	}()
 
 	// send messages recived from the socket to seperate channels for both the local and cloud peers
 	msgForwarderQuitSignal := make(chan string)

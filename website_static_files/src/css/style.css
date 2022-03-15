@@ -360,20 +360,21 @@ button:active {
 #too-many-gamepads-notice {
   position: absolute;
   z-index: 9;
-  bottom: 53px;
+  bottom: 87px;
   left: 50%;
 
   display: block;
 
-  max-width: 40vw;
+  max-width: 136px;
 
   transform: translateX(-50%);
   text-align: center;
 
-  color: #ffcb00;
+  color: #ffffffa1;
 
   font-family: sans-serif;
   font-size: 26px;
+  line-height: 1.2em;
 }
 
 #gamepad-container {
@@ -425,6 +426,7 @@ button:active {
   min-height: 9cm;
   max-height: 14cm;
 
+  transition: all 0.4s ease;
   pointer-events: none;
 }
 
@@ -446,7 +448,20 @@ button:active {
   display: block;
 }
 
+#onscreen-gamepad-left {
+  left: 0;
+
+  transform: translateX(-30%);
+}
+
+#onscreen-gamepad-right {
+  right: 0;
+
+  transform: translateX(30%);
+}
+
 #gamepad-container.help-open #onscreen-gamepad-left {
+  bottom: 15px;
   left: 50% !important;
 
   transform: translateX(-120%);
@@ -454,6 +469,7 @@ button:active {
 
 #gamepad-container.help-open #onscreen-gamepad-right {
   right: 50% !important;
+  bottom: 15px;
 
   transform: translateX(120%);
 }
@@ -465,6 +481,7 @@ button:active {
 
   width: fit-content;
   margin: auto;
+  margin-top: 34px;
 
   cursor: zoom-in;
 }
@@ -482,6 +499,10 @@ button:active {
 }
 #video-livestream {
   height: 100%;
+
+  border: 3px solid black;
+  border-radius: 12px;
+  background: #ffffff8a;
 }
 
 .gamepad-btn-highlight {

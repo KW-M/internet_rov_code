@@ -47,6 +47,7 @@ motors = Motion_Controller()
 
 ############################
 ###### setup logging #######
+logging.root.setLevel(logging.DEBUG)
 log = logging.getLogger(__name__)
 
 ######################################
@@ -82,10 +83,14 @@ while True:
             # Wait for a message to arrive (or timeout)
             # - Note the timeout effectively sets how frequently reply messages can go out when no messages come in.
             recived_message = msg_socket.recieve_socket_message()
+            log.debug('recived_message: ' + str(recived_message))
 
             # Handle the message and generate a response message (if needed)
             reply_message = handle_socket_message(recived_message, motors,
                                                   sensors, sensr_log)
+
+            # Send the response message
+            log.debug('Sending reply message: ' + str(reply_message))
             msg_socket.send_socket_message(reply_message)
 
     except Exception as error:

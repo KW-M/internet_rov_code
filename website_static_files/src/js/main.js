@@ -16,8 +16,8 @@ import { calculateDesiredMotion, getURLQueryStringVariable } from "./util.js";
 
 
 
-import { runSiteInitMachine } from "./siteInit";
-
+import { siteInitMachine } from "./siteInit";
+import { rovConnectionMachine } from "./rovConnStateMachine";
 
 import { toggleFullscreen } from "./util.js";
 import { initGamepadSupport } from "./gamepad.js";
@@ -34,7 +34,105 @@ if (getURLQueryStringVariable("debug-mode")) {
 }
 
 
-runSiteInitMachine();
+import { createMachine, assign, send, interpret } from "xstate";
+import { pure } from "xstate/lib/actions";
+import { handleRovMessage } from "./messageHandler";
+
+const mainMachine = createMachine({
+    id: "main",
+    initial: "Start",
+    context: {
+        peerServerConfig: {},
+        rovIpAddr: "",
+    },
+    states: {
+        Start: {
+            invoke: {
+                src: siteInitMachine,
+                id: "siteInitMachine",
+            },
+            on: {
+                SITE_READY: {
+                    target: "Running",
+                    actions: ["setRovIpAddr", "setPeerServerConfig"]
+                }
+            }
+        },
+        Running: {
+            type: "parallel",
+            states: {
+                Connection_To_Rov: {
+                    invoke: {
+                        src: rovConnectionMachine,
+                        id: "rovConnectionMachine",
+                        data: {
+                            rovIpAddr: (context, event) => context.rovIpAddr,
+                            peerServerConfig: (context, event) => context.peerServerConfig,
+                            peerConnectionTimeout: 0,
+                            rovPeerIdEndNumber: 0,
+                            rovChosen: false,
+                        }
+                    },
+                },
+                Gamepad_Support: {
+                    // invoke: {
+                    //     // src: gamepadSupportMachine,
+                    //     id: "gamepadSupportMachine",
+                    //     // src: getSiteInitMachine(),
+                    // },
+                },
+                Message_Handler: {
+                    // invoke: {
+                    //     // src: messageHandlerMachine,
+                    //     id: "messageHandlerMachine",
+                    //     // src: getSiteInitMachine(),
+                    // },
+
+                    invoke: {
+                        src: (context, event) => {
+                            return (callback, onReceive) => {
+                                setInterval(() => {
+                                    callback({ type: "SEND_MESSAGE_TO_ROV", data: JSON.stringify({ "ping": Date.now() }) });
+                                }, 3000)
+                            }
+                        }
+                    },
+                    on: {
+                        SEND_MESSAGE_TO_ROV: {
+                            actions: send((context, event) => {
+                                console.log("Sending dmessage to ROV: " + event.data);
+                                return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
+                            }, { to: "rovConnectionMachine" })
+                        },
+                        GOT_MESSAGE_FROM_ROV: {
+                            actions: (context, event) => { console.log(event.data); return handleRovMessage(event.data) }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}, {
+    actions: {
+        setRovIpAddr: assign({
+            rovIpAddr: (ctx, event) => event.data.rovIpAddr
+        }),
+        setPeerServerConfig: assign({
+            peerServerConfig: (ctx, event) => event.data.peerServerConfig
+        }),
+    },
+    services: {
+    },
+    guards: {
+    },
+})
+
+
+const mainMachineService = interpret(mainMachine, { devTools: true })
+
+setTimeout(() => {
+    mainMachineService.start();
+}, 1000);
 
 // var lastTimeRecvdPong = 0;
 // const handleROVMessage = function (message) {
