@@ -13,6 +13,8 @@ def handle_socket_message(message, motors, sensors, sensr_log):
     :return: The reply message, or None if no reply is needed.
     """
 
+    log.debug("Got Message: " + message)
+
     # create an empty dict to hold the reply message data:
     reply_data = {}
     parsed_msg = {}

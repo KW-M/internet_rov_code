@@ -16,8 +16,9 @@ peerServerConn.serverConectionOpenCallback = function (realPeerId) {
 function setupEventListeners() {
 
     document.getElementById("connect_btn").addEventListener('click', () => {
+        rovPeerConn.rovPeerId = window.window.prompt("Enter peer id to connect to", "iROV-0")
         peerServerConn.startConnection()
-        document.writeln("Open Browser Console For Progress.<br/> Type any key to send a message once connected.")
+        document.body.appendChild(document.createTextNode("Open Browser Console For Progress. Type any key to send a message once connected."))
         window.addEventListener('keypress', () => {
             if (rovPeerConn.rovDataConnection == null || rovPeerConn.rovDataConnection.open == false) {
                 alert("No Open Data Channel");

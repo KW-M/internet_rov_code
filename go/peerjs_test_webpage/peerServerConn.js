@@ -77,7 +77,7 @@ class PeerServerConnection {
             });
             call.on('stream', (remoteStream) => {
                 console.info('Got livestream!');
-                var video = document.getElementById('livestream');
+                var video = document.getElementById('video-livestream');
                 // video.src = URL.createObjectURL(remoteStream);
                 video.srcObject = remoteStream;
                 video.muted = true
@@ -94,10 +94,10 @@ class PeerServerConnection {
                 } else if (err.type == "peer-unavailable" && this.peer.open) {
                     console.info("ROV is not yet online")
                 } else if (err.type == "webrtc") {
-                    console.info("Webrtc browser error, reloading page...")
-                    setTimeout(() => {
-                        window.location.reload()
-                    }, 300)
+                    console.info("Webrtc browser error, please reload page...")
+                    // setTimeout(() => {
+                    //     window.location.reload()
+                    // }, 300)
                 } else {
                     console.info('Peer server connection error: ', err);
                     console.dir(err)
