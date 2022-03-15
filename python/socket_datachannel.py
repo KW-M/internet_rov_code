@@ -32,6 +32,7 @@ class Socket_Datachannel:
                                           socket.SOCK_SEQPACKET)
                 self.sock.settimeout(socket_timeout)
                 self.sock.connect(socket_path)
+                log.info('Unix Socket Connected!')
                 return True
             else:
                 log.warning(
@@ -49,12 +50,10 @@ class Socket_Datachannel:
             self.close_socket()
             log.warning('Unix socket setup timed out!')
 
-
         # if there was some other socket error, close the socket and return false:
         except socket.error as e:
             self.close_socket()
             log.error('Setup Socket: Socket Error', exc_info=e)
-
 
         # if there was some other error, close the socket and return false:
         except Exception as e:
@@ -81,7 +80,9 @@ class Socket_Datachannel:
             #https://stackoverflow.com/questions/27946786/how-to-detect-when-a-client-disconnects-from-a-uds-unix-domain-socket
             if message == '':
                 self.close_socket()
-                raise Exception("Unix socket was closed by go process.")
+                ex = Exception("Unix socket was closed by go process.")
+                ex.suppress_traceback = True
+                raise ex
             elif message:
                 return message
             else:
@@ -95,10 +96,6 @@ class Socket_Datachannel:
         except socket.error as e:
             self.close_socket()
             raise Exception("recieve_socket_message(): Socket Error") from e
-
-        # if there was some other error
-        except Exception as e:
-            raise Exception("recieve_socket_message(): Generic Error") from e
 
     def send_socket_message(self, socket_message):
         """

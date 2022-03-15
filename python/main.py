@@ -89,7 +89,12 @@ while True:
             msg_socket.send_socket_message(reply_message)
 
     except Exception as error:
-        log.error(error, exc_info=True)
+
+        if "suppress_traceback" in error and error[
+                "suppress_traceback"] == True:
+            log.error(str(error))
+        else:
+            log.error(error, exc_info=True)
 
         try:
             motors.stop_gpio_and_motors()
