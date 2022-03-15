@@ -22,8 +22,7 @@ def handle_socket_message(message, motors, sensors, sensr_log):
         reply_data["sensor_update"] = sensors.get_changed_sensor_values()
 
     # handle the recived message:
-    if parsed_msg is not None:
-
+    if message is not None:
         # parse the message data as a JSON formatted string.
         try:
             parsed_msg = json.loads(message)
@@ -32,6 +31,9 @@ def handle_socket_message(message, motors, sensors, sensr_log):
                 'Received unix socket message with invalid JSON format: ' +
                 message)
             return None
+
+    # handle the parssed message data:
+    if parsed_msg is not None:
 
         if 'ping' in parsed_msg:
             reply_data['pong'] = parsed_msg['ping']
