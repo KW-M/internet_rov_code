@@ -6,7 +6,6 @@ import (
 	// "errors"
 	"bufio"
 	"io"
-	"log"
 
 	// "flag"
 	"fmt"
