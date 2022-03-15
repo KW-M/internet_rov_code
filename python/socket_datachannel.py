@@ -48,12 +48,12 @@ class Socket_Datachannel:
         # if there was some other socket error, close the socket and return false:
         except socket.error as e:
             self.close_socket()
-            log.error('Setup Socket: Socket Error', e, exc_info=True)
+            log.error('Setup Socket: Socket Error', exc_info=e)
 
         # if there was some other error, close the socket and return false:
         except Exception as e:
             self.close_socket()
-            log.error('Setup Socket: Generic Error', e, exc_info=True)
+            log.error('Setup Socket: Generic Error', exc_info=e)
 
         return False
 

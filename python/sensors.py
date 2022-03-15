@@ -34,7 +34,7 @@ class sensor_ctrl:
             self.orientation_sensor = None
             self.light_sensor = None
         except Exception as e:
-            log.error("Error Setting Up Sensors:", e, exc_info=True)
+            log.error("Error Setting Up Sensors:",  exc_info=e)
 
     def update_sensor_value(self, sensor_name, new_value):
         if (self.current_sensor_state[sensor_name] != new_value):
