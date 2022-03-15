@@ -90,8 +90,8 @@ while True:
 
     except Exception as error:
 
-        if "suppress_traceback" in error and error[
-                "suppress_traceback"] == True:
+        if hasattr(error,
+                   "suppress_traceback") and error.suppress_traceback == True:
             log.error(str(error))
         else:
             log.error(error, exc_info=True)
