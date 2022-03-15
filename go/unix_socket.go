@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"log"
 	"net"
 	"os"
@@ -59,7 +58,7 @@ func (sock *RovUnixSocket) WriteUnixSocketAsync() {
 // path is the name of the unix socket to connect to (eg. "/tmp/whatever.sock").
 func (*RovUnixSocket) createSocketListener(path string) (*net.UnixListener, error) {
 
-	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+	if _, err := os.Stat(path); err == nil {
 		// try to remove any old socket file if it is still exists
 		err := os.Remove(path)
 		if err != nil {
