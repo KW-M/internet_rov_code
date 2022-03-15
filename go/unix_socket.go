@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"net"
+	"os"
 	"time"
 	// log "github.com/sirupsen/logrus"
 )
@@ -56,11 +58,15 @@ func (sock *RovUnixSocket) WriteUnixSocketAsync() {
 // connect starts listening on a unix domain socket at the particular address using the SOCK_SEQPACKET socket format.
 // path is the name of the unix socket to connect to (eg. "/tmp/whatever.sock").
 func (*RovUnixSocket) createSocketListener(path string) (*net.UnixListener, error) {
-	// try to remove any old socket file if it is still open
-	// err := os.Remove(path)
-	// if err != nil {
-	// 	log.Println("ERROR REMOVING SOCKET FILE: ",err)
-	// }
+
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		// try to remove any old socket file if it is still exists
+		err := os.Remove(path)
+		if err != nil {
+			log.Println("ERROR REMOVING OLD SOCKET FILE: ",err)
+		}
+	}
+
 	log.Println("Creating socket listener...", path)
 	addr, err := net.ResolveUnixAddr("unixpacket", path)
 	if err != nil {
