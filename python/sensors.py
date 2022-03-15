@@ -33,6 +33,9 @@ class sensor_ctrl:
             self.pressure_sensor = self.pressure_sensor or ms5803py.MS5803()
             self.orientation_sensor = None
             self.light_sensor = None
+        except IOError as e:
+            log.error("Error in setup_sensors() Sensor Not Responding: " +
+                      str(e))
         except Exception as e:
             log.error("Error Setting Up Sensors:",  exc_info=e)
 

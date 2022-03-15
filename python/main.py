@@ -70,6 +70,11 @@ while True:
         # ----- SOCKET CONNECTION ----
         success = msg_socket.setup_socket(socket_path='/tmp/go.sock',
                                           socket_timeout=5)
+        if not success:
+            log.warn(
+                'Unix socket connection not open. Retrying in 3 seconds...')
+            time.sleep(3)
+            continue
 
         ######## MESSAGE LOOP #########
         while True:

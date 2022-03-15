@@ -3,6 +3,10 @@ import json
 import subprocess
 
 
+# NOTE THIS PYTHON SCRIPT IS NOT RUN DIRECTLY, IT IS CALLED BY THE UWSGI SERVER,
+# IT IS ALSO NOT PART OF THE PYTHON MODULE OF ALL THE OTHER FILES
+
+
 def runBashCommand(bashCommand):
     sp = subprocess.Popen(
         ["/bin/bash", "-c", bashCommand],
