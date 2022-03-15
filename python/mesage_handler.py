@@ -5,6 +5,7 @@ import logging
 ###### setup logging #######
 log = logging.getLogger(__name__)
 
+
 def handle_socket_message(message, motors, sensors, sensr_log):
     """
     Called when a new message is recieved on the socket.
@@ -12,24 +13,25 @@ def handle_socket_message(message, motors, sensors, sensr_log):
     :return: The reply message, or None if no reply is needed.
     """
 
-    # parse the message data as a JSON formatted string.
-    try:
-        parsed_msg = json.loads(message)
-    except json.JSONDecodeError:
-        log.warning('Received unix socket message with invalid JSON format: ' +
-                    message)
-        return None
-
     # create an empty dict to hold the reply message data:
     reply_data = {}
 
-    # handle the message:
+    # handle the sensor changes:
     sensor_values_did_change = sensors.update_all_sensors()
     if sensor_values_did_change:
         reply_data["sensor_update"] = sensors.get_changed_sensor_values()
 
     # handle the recived message:
     if parsed_msg is not None:
+
+        # parse the message data as a JSON formatted string.
+        try:
+            parsed_msg = json.loads(message)
+        except json.JSONDecodeError:
+            log.warning(
+                'Received unix socket message with invalid JSON format: ' +
+                message)
+            return None
 
         if 'ping' in parsed_msg:
             reply_data['pong'] = parsed_msg['ping']
