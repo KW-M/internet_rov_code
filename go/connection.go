@@ -140,8 +140,7 @@ func setupConnections(quitSignal chan bool) {
 
 // should be called as a goroutine
 func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Options, recievedMessageWriteChannel chan string) {
-	var shouldExit bool = false
-	var stopRelayingMsgs chan bool = make(chan bool)
+	var alreadyExitingFunction bool = false
 	var rovPeerId string = basePeerId + strconv.Itoa(rovNumber)
 
 	// setup logrus logger
@@ -213,10 +212,10 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 		go func() {
 			for {
 				select {
-				case <-stopRelayingMsgs:
-					rovLog.Println("StopSendingMsgs")
-					return
 				case msgFromROV := <-recievedMessageWriteChannel:
+					if alreadyExitingFunction {
+						return
+					}
 					rovLog.Println("Sending Message to Pilot: ", msgFromROV)
 					for peerId, dataChannel := range activeDataConnectionsToThisPeer {
 						rovLog.Println("Sending to PeerId: ", peerId)
@@ -228,19 +227,19 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 	})
 
 	rovPeer.On("close", func(message interface{}) {
-		println("ROV PEER JS CLOSE EVENT", message, shouldExit)
-		if !shouldExit {
+		println("ROV PEER JS CLOSE EVENT", message, alreadyExitingFunction)
+		if !alreadyExitingFunction {
 			exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 		}
 	})
 
 	rovPeer.On("disconnected", func(message interface{}) {
 		println("ROV PEER JS DISCONNECTED EVENT", message)
-		if !shouldExit {
+		if !alreadyExitingFunction {
 			err = rovPeer.Reconnect()
 			if err != nil {
 				rovLog.Println("ERROR RECONNECTING TO DISCONNECTED PEER SERVER: ", err)
-				if !shouldExit {
+				if !alreadyExitingFunction {
 					exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 				}
 			}
@@ -255,8 +254,7 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 	// ---------------------------------------------------------------------------------------------------------------------
 	fmt.Println("starting setup WebrtcConnection goroutine sleep")
 	<-exitFunction // CONTINUE when a signal is sent on the 'exitFunction' channel from the the calling function to clean up because program is exiting or somthin, unblock this goroutine and exit.
-	shouldExit = true
-	close(stopRelayingMsgs)
+	alreadyExitingFunction = true
 	close(exitFunction)
 
 	rovLog.Println("exiting setupWebrtcConnection")
