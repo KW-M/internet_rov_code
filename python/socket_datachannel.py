@@ -77,7 +77,12 @@ class Socket_Datachannel:
         try:
             # Wait for a message in utf-8 character encoding up to 1024 bytes long to appear in the unix socket file.
             message = str(self.sock.recv(1024), 'utf-8')
-            if message:
+
+            #https://stackoverflow.com/questions/27946786/how-to-detect-when-a-client-disconnects-from-a-uds-unix-domain-socket
+            if message == '':
+                self.close_socket()
+                raise Exception("Unix socket was closed by go process.")
+            elif message:
                 return message
             else:
                 return None
