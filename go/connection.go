@@ -228,7 +228,7 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 	})
 
 	rovPeer.On("close", func(message interface{}) {
-		println("ROV PEER JS CLOSE EVENT", message)
+		println("ROV PEER JS CLOSE EVENT", message, shouldExit)
 		if !shouldExit {
 			exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 		}

@@ -45,7 +45,7 @@ class RovWebrtcConn {
             console.info("ROV Data Channel is open!")
             // Receive messages
             this.rovDataConnection.on('data', (data) => {
-                data = decoder.decode(data);
+                data = messageDecoder.decode(data);
                 console.log("Got DC Mesg: ", data);
                 document.body.appendChild(document.createTextNode(String(data)));
             });
