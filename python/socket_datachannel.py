@@ -34,16 +34,18 @@ class Socket_Datachannel:
                 self.sock.connect(socket_path)
                 return True
             else:
-                log.warning('Socket Already Connected: {}'.format(socket_path))
+                log.warning(
+                    'setup_socket() called, but unix socket is already open: {}'
+                    .format(socket_path))
                 return True
 
         # if the socket was not opened/connected before the timeout, return false:
         except FileNotFoundError as e:
-            log.warning('Unix socket file does not yet exist!', e)
+            log.warning('Unix socket file does not yet exist!')
 
         # if the socket file has not been created before the timeout, return false:
         except socket.timeout as e:
-            log.warning('Unix socket setup timed out!', e)
+            log.warning('Unix socket setup timed out!')
 
         # if there was some other socket error, close the socket and return false:
         except socket.error as e:

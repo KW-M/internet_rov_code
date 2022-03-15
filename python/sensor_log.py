@@ -26,7 +26,7 @@ class Sensor_Log:
         # make the sensor_log folder if it doesn't exist:
         sensor_log_folder = os.path.expanduser(ROV_SAVED_STUFF_FOLDER +
                                                "sensor_log/")
-        os.makedirs(sensor_log_folder, )
+        os.makedirs(sensor_log_folder, exist_ok=True)
 
         # Create the sensor_log file
         current_time = datetime.datetime.now().strftime("%X")

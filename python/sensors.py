@@ -55,8 +55,12 @@ class sensor_ctrl:
                 self.update_sensor_value('pressure',
                                          get_rounded_string(pressure))
                 self.update_sensor_value('temp', get_rounded_string(temp))
+            except IOError as e:
+                log.warning(
+                    "IO Error reading pressure sensor, is it disconnected? " +
+                    str(e))
             except Exception as e:
-                log.warning("Error reading pressure sensor:", e)
+                log.error("Error reading pressure sensor:", exc_info=e)
 
         # Read the orientation sensor values
         if self.orientation_sensor is not None:
