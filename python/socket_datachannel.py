@@ -41,16 +41,20 @@ class Socket_Datachannel:
 
         # if the socket was not opened/connected before the timeout, return false:
         except FileNotFoundError as e:
+            self.close_socket()
             log.warning('Unix socket file does not yet exist!')
 
-        # if the socket file has not been created before the timeout, return false:
+        # if the socket file cannot be opened before the timeout, return false:
         except socket.timeout as e:
+            self.close_socket()
             log.warning('Unix socket setup timed out!')
+
 
         # if there was some other socket error, close the socket and return false:
         except socket.error as e:
             self.close_socket()
             log.error('Setup Socket: Socket Error', exc_info=e)
+
 
         # if there was some other error, close the socket and return false:
         except Exception as e:
