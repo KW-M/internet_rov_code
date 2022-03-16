@@ -99,7 +99,6 @@ const mainMachine = createMachine({
                     on: {
                         SEND_MESSAGE_TO_ROV: {
                             actions: send((context, event) => {
-                                console.log("Sending dmessage to ROV: " + event.data);
                                 return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
                             }, { to: "rovConnectionMachine" })
                         },

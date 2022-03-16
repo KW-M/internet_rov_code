@@ -72,15 +72,15 @@ while True:
             time.sleep(3)
             continue
 
-        # ----- MOTORS -----
-        motors.init_motor_controllers()
-        motors.stop_gpio_and_motors()  # Keep motors off while disconnected:
+        # # ----- MOTORS -----
+        # motors.init_motor_controllers()
+        # motors.stop_gpio_and_motors()  # Keep motors off while disconnected:
 
-        # ----- SENSORS -----
-        sensors.setup_sensors()
+        # # ----- SENSORS -----
+        # sensors.setup_sensors()
 
-        # ----- SENSOR_LOG -----
-        sensr_log.setup_sensor_log(sensors.get_connected_sensor_column_names())
+        # # ----- SENSOR_LOG -----
+        # sensr_log.setup_sensor_log(sensors.get_connected_sensor_column_names())
 
         ######## MESSAGE LOOP #########
         while True:
@@ -99,7 +99,7 @@ while True:
             if reply_message != None:
                 success = msg_socket.send_socket_message(reply_message)
                 log.debug('Sending reply message: ' + str(reply_message) +
-                          str(success))
+                          " Successful?: " + str(success))
 
     except Exception as error:
 
@@ -110,10 +110,10 @@ while True:
             log.error(error, exc_info=True)
 
         try:
-            motors.stop_gpio_and_motors()
-            motors.cleanup_gpio()
-            errorMessage = json.dumps({'error': str(error)})
-            msg_socket.send_socket_message(errorMessage)
+            # motors.stop_gpio_and_motors()
+            # motors.cleanup_gpio()
+            # errorMessage = json.dumps({'error': str(error)})
+            # msg_socket.send_socket_message(errorMessage)
             msg_socket.close_socket()
         except:
             pass
