@@ -112,6 +112,7 @@ class Socket_Datachannel:
 
         try:
             sucessful = self.sock.send(bytes(socket_message, 'utf-8'))
+            print("Sent {} bytes".format(sucessful))
             return int(sucessful) > 0
 
         # if the socket was not opened/connected before the timeout, return None:
