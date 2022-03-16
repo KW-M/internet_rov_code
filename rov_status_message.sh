@@ -35,24 +35,6 @@ echo " * Systemd Services Status: *"
 
 #check if services are active, if not, show their status:
 echo "------------------------"
-if systemctl -q is-active add_fixed_ip.service; then
-    echo "add_fixed_ip.service: ACTIVE"
-else
-    systemctl status --no-pager add_fixed_ip.service
-fi
-echo "------------------------"
-if systemctl -q is-active bluetooth.service; then
-    echo "bluetooth.service: ACTIVE"
-else
-    systemctl status --no-pager bluetooth.service
-fi
-echo "------------------------"
-if systemctl -q is-active nginx.service; then
-    echo "nginx.service: ACTIVE"
-else
-    systemctl status --no-pager nginx.service
-fi
-echo "------------------------"
 if systemctl -q is-active rov_go_code.service; then
     echo "rov_go_code.service: ACTIVE"
 else
@@ -65,11 +47,29 @@ else
     systemctl status --no-pager rov_python_code.service
 fi
 echo "------------------------"
+if systemctl -q is-active nginx.service; then
+    echo "nginx.service: ACTIVE"
+else
+    systemctl status --no-pager nginx.service
+fi
+echo "------------------------"
 if systemctl -q is-active rov_uwsgi_server.service; then
     echo "rov_uwsgi_server.service: ACTIVE"
 else
     systemctl status --no-pager rov_uwsgi_server.service
 fi
+echo "------------------------"
+if systemctl -q is-active add_fixed_ip.service; then
+    echo "add_fixed_ip.service: ACTIVE"
+else
+    systemctl status --no-pager add_fixed_ip.service
+fi
+# echo "------------------------"
+# if systemctl -q is-active bluetooth.service; then
+#     echo "bluetooth.service: ACTIVE"
+# else
+#     systemctl status --no-pager bluetooth.service
+# fi
 # echo "------------------------"
 # if systemctl -q is-active ngrok.service; then
 #     echo "ngrok.service: ACTIVE"
