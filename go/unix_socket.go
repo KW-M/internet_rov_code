@@ -25,6 +25,7 @@ func (sock *RovUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
 	buf := make([]byte, readBufferSize)
 	for {
 		if sock.socketOpen {
+			sock.socketConnection.SetReadDeadline(time.Now().Add(time.Second * 2))
 			nr, err := sock.socketConnection.Read(buf)
 			if err != nil {
 				log.Println("UNIX SOCKET READ ERROR: ", err)
@@ -47,6 +48,7 @@ func (sock *RovUnixSocket) WriteUnixSocketAsync() {
 	for {
 			msg, chanIsOpen := <-sock.socketWriteChannel
 			if sock.socketOpen && chanIsOpen && msg != "" {
+				sock.socketConnection.SetWriteDeadline(time.Now().Add(time.Second * 2))
 				_, err := sock.socketConnection.Write([]byte(msg))
 				if err != nil {
 					log.Println("UNIX SOCKET WRITE ERROR: ", err)
@@ -112,6 +114,7 @@ func (sock *RovUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketPat
 		log.Println("UNIX SOCKET ACCEPT ERROR: ", err)
 		return false
 	}
+
 	sock.socketOpen = true
 	go sock.ReadUnixSocketAsync(1024)
 	go sock.WriteUnixSocketAsync()
