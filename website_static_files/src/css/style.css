@@ -475,13 +475,16 @@ button:active {
 }
 
 .livestream-container {
-  position: relative;
+  position: fixed;
+  top: 34px;
+  right: 68px;
+  bottom: 34px;
+  left: 68px;
 
   display: block;
 
   width: fit-content;
   margin: auto;
-  margin-top: 34px;
 
   cursor: zoom-in;
 }
@@ -498,11 +501,15 @@ button:active {
   cursor: zoom-out;
 }
 #video-livestream {
-  height: 100%;
+  display: block;
+
+max-width: 100%;
+  max-height: 100%;
+  margin: auto;
 
   border: 3px solid black;
   border-radius: 12px;
-  background: #ffffff8a;
+  background: black;
 }
 
 .gamepad-btn-highlight {

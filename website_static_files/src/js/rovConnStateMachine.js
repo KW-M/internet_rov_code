@@ -1,9 +1,9 @@
-import { createMachine, assign, send, interpret } from "xstate";
+import { createMachine, assign, send, interpret, sendParent } from "xstate";
 
 import { messageEncoder, messageDecoder } from "./consts";
 
 import * as consts from "./consts";
-import { pure, sendParent } from "xstate/lib/actions";
+import { pure } from "xstate/lib/actions";
 import Peer from "peerjs"
 
 
@@ -74,6 +74,13 @@ const machineFunctions = {
             const encodedMessage = messageEncoder.encode(outgoingMessage);
             rovDataConnection.send(encodedMessage);
         },
+        gotMessageFromRov: sendParent((context, event) => {
+            console.log("Send Parent: GOT_MESSAGE_FSROM_ROV", event.data);
+            return {
+                type: "GOT_MESSAGE_FROM_ROV",
+                message: event.data,
+            }
+        }),
         closeDownMediaChannel: (context) => {
             console.log("closing media chnl");
             const thisPeer = context.thisPeer;
@@ -239,6 +246,7 @@ const machineFunctions = {
             return (sendStateChange, onReceive) => {
                 const rovDataConnection = context.dataChannel
                 // handle new messages from the datachannel (comming FROM the rov)
+                console.log("handleDataChannelEvents:", rovDataConnection);
                 const dataMsgRecivedHandler = (encodedMessage) => {
                     message = messageDecoder.decode(encodedMessage);
                     console.log("Got Datachannel Message: ", message);
@@ -493,12 +501,7 @@ export const rovConnectionMachine =
                                                         actions: "sendMessageToRov",
                                                     },
                                                     GOT_MESSAGE_FROM_ROV: {
-                                                        actions: sendParent((context, event) => {
-                                                            return {
-                                                                type: "GOT_MESSAGE_FROM_ROV",
-                                                                message: event.data,
-                                                            }
-                                                        }),
+                                                        actions: "gotMessageFromRov"
                                                     }
                                                 },
                                             },

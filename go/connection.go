@@ -202,7 +202,7 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 				activeDataConnectionsToThisPeer[pilotPeerId] = pilotDataConnection // add this connection to the map of active connections
 
 				pilotDataConnection.On("data", func(msgBytes interface{}) {
-					log.Printf("Received: %#v: %s\n", msgBytes, msgBytes)
+					log.Printf("Received: %s", msgBytes)
 					var msgString string = string(msgBytes.([]byte))
 					var socketString string = msgString
 					if prependedPeerIdToRecivedMessages {
@@ -211,7 +211,7 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 					uSockSendMsgChannel <- socketString
 				})
 
-				fmt.Printf("VIDEO CALLING Peer (a Pilot or Spectator) with ID: %s\n", pilotPeerId)
+				fmt.Printf("VIDEO CALLING Peer (a Pilot or Spectator) with peer ID: %s\n", pilotPeerId)
 				_, err = rovPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
 				if err != nil {
 					log.Println("Error calling pilot id: ", pilotPeerId)

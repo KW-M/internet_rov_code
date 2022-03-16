@@ -66,11 +66,10 @@ const mainMachine = createMachine({
                         src: rovConnectionMachine,
                         id: "rovConnectionMachine",
                         data: {
+                            ...rovConnectionMachine.context, // spread syntax to fill in the rest of the context specified in the child machine (otherwise xstate removes the rest: https://github.com/statelyai/xstate/issues/993)
                             rovIpAddr: (context, event) => context.rovIpAddr,
                             peerServerConfig: (context, event) => context.peerServerConfig,
-                            peerConnectionTimeout: 0,
-                            rovPeerIdEndNumber: 0,
-                            rovChosen: false,
+                            // rovChosen: false,
                         }
                     },
                 },

@@ -63,6 +63,15 @@ while True:
     try:
         ######## SETUP #########
 
+        # ----- SOCKET CONNECTION ----
+        success = msg_socket.setup_socket(socket_path='/tmp/go.sock',
+                                          socket_timeout=5)
+        if not success:
+            log.warning(
+                'Unix socket connection not open. Retrying in 3 seconds...')
+            time.sleep(3)
+            continue
+
         # ----- MOTORS -----
         motors.init_motor_controllers()
         motors.stop_gpio_and_motors()  # Keep motors off while disconnected:
@@ -72,15 +81,6 @@ while True:
 
         # ----- SENSOR_LOG -----
         sensr_log.setup_sensor_log(sensors.get_connected_sensor_column_names())
-
-        # ----- SOCKET CONNECTION ----
-        success = msg_socket.setup_socket(socket_path='/tmp/go.sock',
-                                          socket_timeout=5)
-        if not success:
-            log.warning(
-                'Unix socket connection not open. Retrying in 3 seconds...')
-            time.sleep(3)
-            continue
 
         ######## MESSAGE LOOP #########
         while True:
@@ -97,8 +97,9 @@ while True:
 
             # Send the response message
             if reply_message != None:
-                msg_socket.send_socket_message(reply_message)
-                log.debug('Sending reply message: ' + str(reply_message))
+                success = msg_socket.send_socket_message(reply_message)
+                log.debug('Sending reply message: ' + str(reply_message) +
+                          str(success))
 
     except Exception as error:
 
