@@ -25,7 +25,7 @@ func (sock *RovUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
 	buf := make([]byte, readBufferSize)
 	for {
 		if sock.socketOpen {
-			sock.socketConnection.SetReadDeadline(time.Now().Add(time.Second * 2))
+			sock.socketConnection.SetReadDeadline(time.Now().Add(time.Second * 10))
 			nr, err := sock.socketConnection.Read(buf)
 			if err != nil {
 				log.Println("UNIX SOCKET READ ERROR: ", err)
@@ -48,7 +48,7 @@ func (sock *RovUnixSocket) WriteUnixSocketAsync() {
 	for {
 			msg, chanIsOpen := <-sock.socketWriteChannel
 			if sock.socketOpen && chanIsOpen && msg != "" {
-				sock.socketConnection.SetWriteDeadline(time.Now().Add(time.Second * 2))
+				sock.socketConnection.SetWriteDeadline(time.Now().Add(time.Second * 10))
 				_, err := sock.socketConnection.Write([]byte(msg))
 				if err != nil {
 					log.Println("UNIX SOCKET WRITE ERROR: ", err)
