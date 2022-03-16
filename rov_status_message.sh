@@ -10,16 +10,16 @@ echo ""
 
 # from: https://stackoverflow.com/questions/8529181/which-terminal-command-to-get-just-ip-address-and-nothing-else
 echo " * ROV's IP addresses are: * "
-# from
+echo "http://`hostname`.local - This is the pi's mDNS name, try it."
+# list all local ip addresses
+hostname --all-ip-addresses | xargs echo | sed 's/ /\n/g'
+# try to get our external (internet facing) IP using the icanhazip service
 PUBLIC_IP=$(wget --timeout=2 --quiet -O - http://icanhazip.com/ | tail)
 if [ $PUBLIC_IP ]; then
     echo "Public IP: $PUBLIC_IP"
 else
     echo "Public IP: No Internet Connection"
 fi
-# list all local ip addresses
-hostname --all-ip-addresses | xargs echo | sed 's/ /\n/g'
-echo "http://`hostname`.local - This is the pi's mDNS name, try it."
 echo ""
 echo "========================="
 echo "";
@@ -32,61 +32,76 @@ echo ""
 echo "========================="
 echo "";
 echo " * Systemd Services Status: *"
-echo "------------------------"
+
 #check if services are active, if not, show their status:
-if systemctl -q is-active uv4l_raspicam.service; then
-    echo "uv4l_raspicam.service is active"
-else
-    systemctl status --no-pager uv4l_raspicam.service
-fi
-echo "------------------------"
-if systemctl -q is-active rov_bluetooth_terminal.service; then
-    echo "rov_bluetooth_terminal.service is active"
-else
-    systemctl status --no-pager rov_bluetooth_terminal.service
-fi
-echo "------------------------"
-if systemctl -q is-active netdata.service; then
-    echo "netdata.service is active"
-else
-    systemctl status --no-pager netdata.service
-fi
 echo "------------------------"
 if systemctl -q is-active add_fixed_ip.service; then
-    echo "add_fixed_ip.service is active"
+    echo "add_fixed_ip.service: ACTIVE"
 else
     systemctl status --no-pager add_fixed_ip.service
 fi
 echo "------------------------"
-if systemctl -q is-active ngrok.service; then
-    echo "ngrok.service is active"
-else
-    systemctl status --no-pager ngrok.service
-fi
-echo "------------------------"
 if systemctl -q is-active bluetooth.service; then
-    echo "bluetooth.service is active"
+    echo "bluetooth.service: ACTIVE"
 else
     systemctl status --no-pager bluetooth.service
 fi
 echo "------------------------"
 if systemctl -q is-active nginx.service; then
-    echo "nginx.service is active"
+    echo "nginx.service: ACTIVE"
 else
     systemctl status --no-pager nginx.service
 fi
 echo "------------------------"
+if systemctl -q is-active rov_go_code.service; then
+    echo "rov_go_code.service: ACTIVE"
+else
+    systemctl status --no-pager rov_go_code.service
+fi
+echo "------------------------"
 if systemctl -q is-active rov_python_code.service; then
-    echo "rov_python_code.service is active"
+    echo "rov_python_code.service: ACTIVE"
 else
     systemctl status --no-pager rov_python_code.service
 fi
 echo "------------------------"
 if systemctl -q is-active rov_uwsgi_server.service; then
-    echo "rov_uwsgi_server.service is active"
+    echo "rov_uwsgi_server.service: ACTIVE"
 else
     systemctl status --no-pager rov_uwsgi_server.service
 fi
+# echo "------------------------"
+# if systemctl -q is-active ngrok.service; then
+#     echo "ngrok.service: ACTIVE"
+# else
+#     systemctl status --no-pager ngrok.service
+# fi
+# echo "------------------------"
+# if systemctl -q is-active uv4l_raspicam.service; then
+#     echo "uv4l_raspicam.service: ACTIVE"
+# else
+#     systemctl status --no-pager uv4l_raspicam.service
+# fi
+# echo "------------------------"
+# if systemctl -q is-active rov_bluetooth_terminal.service; then
+#     echo "rov_bluetooth_terminal.service: ACTIVE"
+# else
+#     systemctl status --no-pager rov_bluetooth_terminal.service
+# fi
+# echo "------------------------"
+# if systemctl -q is-active netdata.service; then
+#     echo "netdata.service: ACTIVE"
+# else
+#     systemctl status --no-pager netdata.service
+# fi
+echo "";
+echo "========================="
+echo "";
+echo " * git status of the Internet ROV Code from Github: * ";
+cd /home/pi/internet_rov_code/
+GIT_HTTP_CONNECT_TIMEOUT=2 git fetch > /dev/null
+git status;
+echo "Last git commit: `git log -1 --pretty=format:"%h %s"`";
 echo "";
 echo "========================="
 let upSeconds=$(/usr/bin/cut -d. -f1 /proc/uptime)
@@ -111,14 +126,6 @@ echo "$(tput setaf 2)
    '~ .~~~. ~'    Disk Space.........: `df -h | grep /dev/root | awk {'print $5'}` full (`df -h | grep /dev/root | awk {'print $3'}` used of `df -h | grep /dev/root | awk {'print $2'}`)
        '~'
 $(tput sgr0)"
-echo "========================="
-echo "";
-echo " * git status of the Internet ROV Code from Github: * ";
-cd /home/pi/internet_rov_code/
-GIT_HTTP_CONNECT_TIMEOUT=2 git fetch > /dev/null
-git status;
-echo "Last git commit: `git log -1 --pretty=format:"%h %s"`";
-echo "";
 echo "========================="
 echo "";
 /bin/bash /home/pi/internet_rov_code/show_system_warnings.sh
