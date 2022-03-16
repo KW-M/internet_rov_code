@@ -48,18 +48,18 @@ func main() {
 	defer sock.CleanupSocket()
 
 	// DEBUG FOR SOCKET MESSAGES
-	go func() {
-		for {
-			select {
-			case <-quitProgram:
-				return
-			case <-time.After(time.Second * 1):
-				sock.socketWriteChannel <- "{\"ping\":3}"
-			case msg := <- sock.socketReadChannel:
-				log.Debug("Got message from socket: ", msg)
-			}
-		}
-	}()
+	// go func() {
+	// 	for {
+	// 		select {
+	// 		case <-quitProgram:
+	// 			return
+	// 		case <-time.After(time.Second * 1):
+	// 			sock.socketWriteChannel <- "{\"ping\":3}"
+	// 		case msg := <- sock.socketReadChannel:
+	// 			log.Debug("Got message from socket: ", msg)
+	// 		}
+	// 	}
+	// }()
 
 	// // DEBUG FOR ECHOING BACK ALL MESSAGES & BYPASSING SOCKET
 	// go func() {
@@ -74,12 +74,12 @@ func main() {
 	// 	}
 	// }()
 
-	// // Setup the video stream and start the camera running
-	// initVideoTrack()
-	// go pipeVideoToStream(quitProgram)
+	// Setup the video stream and start the camera running
+	initVideoTrack()
+	go pipeVideoToStream(quitProgram)
 
-	// // Setup the peerjs client to accept webrtc connections
-	// go setupConnections(quitProgram)
+	// Setup the peerjs client to accept webrtc connections
+	go setupConnections(quitProgram)
 
 	// Wait for a signal to stop the program
 	systemExitCalled := make(chan os.Signal, 1) // Create a channel to listen for an interrupt signal from the OS.
