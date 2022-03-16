@@ -35,7 +35,8 @@ func (sock *RovUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
 
 			message := string(buf[0:nr])
 			log.Println("UNIX SOCKET got message:", message)
-			// sock.socketReadChannel <- message
+			sock.socketReadChannel <- message
+			log.Println("UNIX SOCKET relaying message")
 		} else {
 			log.Println("ReadUnixSocketAsync(): UNIX SOCKET NOT OPEN")
 			time.Sleep(time.Second * 2)
