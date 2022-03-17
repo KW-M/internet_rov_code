@@ -140,7 +140,7 @@ func setupConnections(quitSignal chan bool) {
 	// send messages recived from the socket to seperate channels for both the local and cloud peers
 	msgForwarderQuitSignal := make(chan string)
 	go func() {
-		// for {
+		for {
 		select {
 		case <- msgForwarderQuitSignal:
 			log.Println("Exiting message forwarder quitSignal")
@@ -151,7 +151,7 @@ func setupConnections(quitSignal chan bool) {
 			// log.Println("connection.go setupConnections post:", msgFromROVPython)
 			// localConnectionWriteChannel <- msgFromROVPython
 		}
-		// }
+		}
 	}()
 
 	<-quitSignal // wait for the quitSignal channel to be triggered at which point close each of the local & cloud connection function channels
