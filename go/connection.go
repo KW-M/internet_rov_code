@@ -108,7 +108,7 @@ func setupConnections(quitSignal chan bool) {
 	time.Sleep(time.Second * 1) // wait a bit for the local peerJs server to start up
 
 	cloudQuitSignal := make(chan string)
-	cloudConnectionWriteChannel := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
+	sendMessageToCloudPeersChan := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
 	exitCloudConnection := make(chan bool)
 	go func() {
 		for {
@@ -117,13 +117,13 @@ func setupConnections(quitSignal chan bool) {
 				println("Exiting cloud quitSignal")
 				return
 			default:
-				setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts, cloudConnectionWriteChannel)
+				setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts, sendMessageToCloudPeersChan)
 			}
 		}
 	}()
 
 	localQuitSignal := make(chan string)
-	localConnectionWriteChannel := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
+	sendMessageToLocalPeersChan := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
 	exitLocalConnection := make(chan bool)
 	// go func() {
 	// 	// for {
@@ -133,7 +133,7 @@ func setupConnections(quitSignal chan bool) {
 	// 			return
 	// 		default:
 	// 		}
-	// 		setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts, localConnectionWriteChannel)
+	// 		setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts, sendMessageToLocalPeersChan)
 	// 	// }
 	// }()
 
@@ -147,9 +147,9 @@ func setupConnections(quitSignal chan bool) {
 			return
 		case msgFromUnixSocket := <-messagesFromUnixSocket:
 			log.Println("connection.go setupConnections pre:", msgFromUnixSocket)
-			// cloudConnectionWriteChannel <- msgFromROVPython
-			// log.Println("connection.go setupConnections post:", msgFromROVPython)
-			// localConnectionWriteChannel <- msgFromROVPython
+			sendMessageToCloudPeersChan <- msgFromUnixSocket
+			log.Println("connection.go setupConnections post:", msgFromUnixSocket)
+			// sendMessageToLocalPeersChan <- msgFromUnixSocket
 		}
 		}
 	}()
@@ -161,12 +161,12 @@ func setupConnections(quitSignal chan bool) {
 	close(msgForwarderQuitSignal)
 	exitLocalConnection <- true
 	exitCloudConnection <- true
-	close(cloudConnectionWriteChannel)
-	close(localConnectionWriteChannel)
+	close(sendMessageToCloudPeersChan)
+	close(sendMessageToLocalPeersChan)
 }
 
 // should be called as a goroutine
-func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Options, recievedMessageWriteChannel chan string) {
+func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Options, messagesToSendToPeersChan chan string) {
 	var alreadyExitingFunction bool = false
 	var rovPeerId string = basePeerId + strconv.Itoa(rovNumber)
 
@@ -238,21 +238,21 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 
 		go func() {
 			for {
-				log.Println("connection.go recievedMessageWriteChannel pre:")
+				log.Println("connection.go messagesToSendToPeersChan pre:")
 				select {
-				case msgFromROV := <-recievedMessageWriteChannel:
-					log.Println("connection.go recievedMessageWriteChannel post:", msgFromROV)
+				case msgFromROV := <-messagesToSendToPeersChan:
+					log.Println("connection.go messagesToSendToPeersChan post:", msgFromROV)
 					if alreadyExitingFunction {
-						log.Println("connection.go recievedMessageWriteChannel already exiting funcyion")
+						log.Println("connection.go messagesToSendToPeersChan already exiting funcyion")
 						return
 					}
 					rovLog.Println("Sending Message to Pilot: ", msgFromROV)
-					// for peerId, dataChannel := range activeDataConnectionsToThisPeer {
-					// 	rovLog.Println("Sending to PeerId: ", peerId)
-					// 	dataChannel.Send([]byte(msgFromROV), false)
-					// }
+					for peerId, dataChannel := range activeDataConnectionsToThisPeer {
+						rovLog.Println("Sending to PeerId: ", peerId)
+						dataChannel.Send([]byte(msgFromROV), false)
+					}
 				case <-exitFunction:
-					log.Println("connection.go recievedMessageWriteChannel exiting..")
+					log.Println("connection.go messagesToSendToPeersChan exiting..")
 					return
 				}
 			}
