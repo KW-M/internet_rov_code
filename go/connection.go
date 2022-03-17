@@ -147,7 +147,7 @@ func setupConnections(quitSignal chan bool) {
 			return
 		case msgFromROVPython := <-uSockMsgRecivedChannel:
 			log.Println("connection.go setupConnections pre:", msgFromROVPython)
-			cloudConnectionWriteChannel <- msgFromROVPython
+			// cloudConnectionWriteChannel <- msgFromROVPython
 			log.Println("connection.go setupConnections post:", msgFromROVPython)
 			// localConnectionWriteChannel <- msgFromROVPython
 		}
