@@ -102,7 +102,7 @@ func startLocalPeerJsServer(done chan bool) {
 	}
 }
 
-func setupConnections(quitSignal chan bool) {
+func setupLocalAndCloudConnections(quitSignal chan bool) {
 	makePeerJsOptions()
 	go startLocalPeerJsServer(quitSignal)
 	time.Sleep(time.Second * 1) // wait a bit for the local peerJs server to start up
@@ -114,7 +114,7 @@ func setupConnections(quitSignal chan bool) {
 		for {
 			select {
 			case <-cloudQuitSignal:
-				println("Exiting cloud quitSignal")
+				println("Exiting cloud webrtc connection loop.")
 				return
 			default:
 				setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts, sendMessageToCloudPeersChan)
@@ -129,7 +129,7 @@ func setupConnections(quitSignal chan bool) {
 	// 	// for {
 	// 		select {
 	// 		case <-localQuitSignal:
-	// 			println("Exiting local quitSignal")
+	// 			println("Exiting local webrtc connection loop.")
 	// 			return
 	// 		default:
 	// 		}
@@ -143,9 +143,9 @@ func setupConnections(quitSignal chan bool) {
 		for {
 		select {
 		case <- msgForwarderQuitSignal:
-			log.Println("Exiting message forwarder quitSignal")
+			log.Println("Exiting send webrtc message fan-out loop.")
 			return
-		case msgFromUnixSocket := <-messagesFromUnixSocket:
+		case msgFromUnixSocket := <-messagesFromUnixSocketChan:
 			log.Println("connection.go setupConnections pre:", msgFromUnixSocket)
 			sendMessageToCloudPeersChan <- msgFromUnixSocket
 			log.Println("connection.go setupConnections post:", msgFromUnixSocket)
@@ -155,7 +155,6 @@ func setupConnections(quitSignal chan bool) {
 	}()
 
 	<-quitSignal // wait for the quitSignal channel to be triggered at which point close each of the local & cloud connection function channels
-	log.Println("connection.go setupConnections quitting")
 	close(localQuitSignal)
 	close(cloudQuitSignal)
 	close(msgForwarderQuitSignal)
@@ -165,7 +164,7 @@ func setupConnections(quitSignal chan bool) {
 	close(sendMessageToLocalPeersChan)
 }
 
-// should be called as a goroutine
+// NOTE: should be called as a goroutine
 func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Options, messagesToSendToPeersChan chan string) {
 	var alreadyExitingFunction bool = false
 	var rovPeerId string = basePeerId + strconv.Itoa(rovNumber)
@@ -211,7 +210,7 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 					if prependedPeerIdToRecivedMessages {
 					  socketString = pilotPeerId + "::" + socketString
 					}
-					sendMessagesToUnixSocket <- socketString
+					sendMessagesToUnixSocketChan <- socketString
 				})
 
 				fmt.Printf("VIDEO CALLING Peer (a Pilot or Spectator) with peer ID: %s\n", pilotPeerId)
@@ -238,10 +237,8 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 
 		go func() {
 			for {
-				log.Println("connection.go messagesToSendToPeersChan pre:")
 				select {
 				case msgFromROV := <-messagesToSendToPeersChan:
-					log.Println("connection.go messagesToSendToPeersChan post:", msgFromROV)
 					if alreadyExitingFunction {
 						log.Println("connection.go messagesToSendToPeersChan already exiting funcyion")
 						return
@@ -289,7 +286,6 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 	<-exitFunction // CONTINUE when a signal is sent on the 'exitFunction' channel from the the calling function to clean up because program is exiting or somthin, unblock this goroutine and exit.
 	alreadyExitingFunction = true
 	close(exitFunction)
-
 	rovLog.Println("exiting setupWebrtcConnection")
 }
 

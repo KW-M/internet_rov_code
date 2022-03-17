@@ -10,8 +10,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var sendMessagesToUnixSocket = make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
-var messagesFromUnixSocket = make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
+var sendMessagesToUnixSocketChan = make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
+var messagesFromUnixSocketChan = make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
 
 
 // flags
@@ -44,8 +44,8 @@ func main() {
 
 	// Create the unix socket to send and receive data to - from python
 
-	// sock := CreateUnixSocket(quitProgramChan, uSockMsgRecivedChannel, uSockSendMsgChannel, "/tmp/go.sock")
-	// defer sock.CleanupSocket()
+	sock := CreateUnixSocket(quitProgramChan, messagesFromUnixSocketChan, sendMessagesToUnixSocketChan, "/tmp/go.sock")
+	defer sock.CleanupSocket()
 
 	// DEBUG FOR SOCKET MESSAGES
 	// go func() {
@@ -62,25 +62,25 @@ func main() {
 	// }()
 
 	// DEBUG FOR ECHOING BACK ALL MESSAGES & BYPASSING SOCKET
-	go func() {
-		for {
-			select {
-			case msg := <-sendMessagesToUnixSocket:
-				log.Println("Received message from unix socket: ", msg)
-				messagesFromUnixSocket <- "DEBUG USOCKET ECHO: " + msg
-			case <-quitProgramChan:
-				log.Println("Closing down echo loop bcuz of quit program channel")
-				return
-			}
-		}
-	}()
+	// go func() {
+	// 	for {
+	// 		select {
+	// 		case msg := <-sendMessagesToUnixSocket:
+	// 			log.Println("Received message from unix socket: ", msg)
+	// 			messagesFromUnixSocket <- "DEBUG USOCKET ECHO: " + msg
+	// 		case <-quitProgramChan:
+	// 			log.Println("Closing down echo loop bcuz of quit program channel")
+	// 			return
+	// 		}
+	// 	}
+	// }()
 
 	// Setup the video stream and start the camera running
 	initVideoTrack()
 	go pipeVideoToStream(quitProgramChan)
 
 	// Setup the peerjs client to accept webrtc connections
-	go setupConnections(quitProgramChan)
+	go setupLocalAndCloudConnections(quitProgramChan)
 
 	// Wait for a signal to stop the program
 	systemExitCalled := make(chan os.Signal, 1) // Create a channel to listen for an interrupt signal from the OS.

@@ -78,7 +78,7 @@ const machineFunctions = {
             console.log("Send Parent: GOT_MESSAGE_FSROM_ROV", event.data);
             return {
                 type: "GOT_MESSAGE_FROM_ROV",
-                message: event.data,
+                data: event.data,
             }
         }),
         closeDownMediaChannel: (context) => {
