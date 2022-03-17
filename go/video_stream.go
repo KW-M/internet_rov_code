@@ -51,7 +51,7 @@ func pipeVideoToStream(done chan bool) error {
 	cmd := exec.Command("libcamera-vid", "--width", "960", "--height", "720", "--codec", "h264", "--profile", "high", "--level", "4.2","--bitrate", "8000",  "--framerate", "16", "--inline", "1", "--flush", "1", "--timeout", "0","--nopreview", "1","--output", "-") //"--listen", "1", "--output", "tcp://0.0.0.0:8585")
 	fmt.Println(cmd.Args)
 
-	// sdoutPipe, err := cmd.StdoutPipe()
+	sdoutPipe, _ := cmd.StdoutPipe()
 	sderrPipe, err := cmd.StderrPipe()
 	if err != nil {
 		cameraLog.Fatal("could not create video stream cmd output pipes. ", err)
