@@ -19,6 +19,7 @@ import (
 	peerjs "github.com/muka/peerjs-go"
 	peerjsServer "github.com/muka/peerjs-go/server"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/text/cases"
 )
 
 // 2022/03/14 19:20:02 UNIX SOCKET got message: {"pong": 1200}
@@ -146,13 +147,16 @@ func setupConnections(quitSignal chan bool) {
 			println("Exiting message forwarder quitSignal")
 			return
 		case msgFromROVPython := <-uSockMsgRecivedChannel:
+			log.Println("connection.go setupConnections pre:", msgFromROVPython)
 			cloudConnectionWriteChannel <- msgFromROVPython
+			log.Println("connection.go setupConnections post:", msgFromROVPython)
 			// localConnectionWriteChannel <- msgFromROVPython
 		}
 		// }
 	}()
 
 	<-quitSignal // wait for the quitSignal channel to be triggered at which point close each of the local & cloud connection function channels
+	log.Println("connection.go setupConnections quitting")
 	close(localQuitSignal)
 	close(cloudQuitSignal)
 	close(msgForwarderQuitSignal)
@@ -237,14 +241,21 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 			for {
 				select {
 				case msgFromROV := <-recievedMessageWriteChannel:
+					log.Println("connection.go recievedMessageWriteChannel post:", msgFromROV)
 					if alreadyExitingFunction {
+						log.Println("connection.go recievedMessageWriteChannel already exiting funcyion")
 						return
 					}
 					rovLog.Println("Sending Message to Pilot: ", msgFromROV)
-					for peerId, dataChannel := range activeDataConnectionsToThisPeer {
-						rovLog.Println("Sending to PeerId: ", peerId)
-						dataChannel.Send([]byte(msgFromROV), false)
-					}
+					// for peerId, dataChannel := range activeDataConnectionsToThisPeer {
+					// 	rovLog.Println("Sending to PeerId: ", peerId)
+					// 	dataChannel.Send([]byte(msgFromROV), false)
+					// }
+				case <-exitFunction:
+					log.Println("connection.go recievedMessageWriteChannel exiting..")
+					log.Println("connection.go recievedMessageWriteChannel post:", msgFromROV)
+					return
+				case default:
 				}
 			}
 		}()
