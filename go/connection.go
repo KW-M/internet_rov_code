@@ -142,13 +142,13 @@ func setupConnections(quitSignal chan bool) {
 	go func() {
 		// for {
 		select {
-		case <-msgForwarderQuitSignal:
-			println("Exiting message forwarder quitSignal")
+		case <- msgForwarderQuitSignal:
+			log.Println("Exiting message forwarder quitSignal")
 			return
-		case msgFromROVPython := <-uSockMsgRecivedChannel:
-			log.Println("connection.go setupConnections pre:", msgFromROVPython)
+		case msgFromUnixSocket := <-messagesFromUnixSocket:
+			log.Println("connection.go setupConnections pre:", msgFromUnixSocket)
 			// cloudConnectionWriteChannel <- msgFromROVPython
-			log.Println("connection.go setupConnections post:", msgFromROVPython)
+			// log.Println("connection.go setupConnections post:", msgFromROVPython)
 			// localConnectionWriteChannel <- msgFromROVPython
 		}
 		// }
@@ -205,13 +205,13 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 				activeDataConnectionsToThisPeer[pilotPeerId] = pilotDataConnection // add this connection to the map of active connections
 
 				pilotDataConnection.On("data", func(msgBytes interface{}) {
-					log.Printf("Received: %s", msgBytes)
 					var msgString string = string(msgBytes.([]byte))
+					log.Printf("pilotDataConnection GOT MESSAGE: %s", msgString)
 					var socketString string = msgString
 					if prependedPeerIdToRecivedMessages {
 					  socketString = pilotPeerId + "::" + socketString
 					}
-					uSockSendMsgChannel <- socketString
+					sendMessagesToUnixSocket <- socketString
 				})
 
 				fmt.Printf("VIDEO CALLING Peer (a Pilot or Spectator) with peer ID: %s\n", pilotPeerId)

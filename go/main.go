@@ -10,8 +10,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var uSockSendMsgChannel = make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
-var uSockMsgRecivedChannel = make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
+var sendMessagesToUnixSocket = make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
+var messagesFromUnixSocket = make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
 
 
 // flags
@@ -65,11 +65,12 @@ func main() {
 	go func() {
 		for {
 			select {
-			case <-quitProgramChan:
-				return
-			case msg := <-uSockSendMsgChannel:
+			case msg := <-sendMessagesToUnixSocket:
 				log.Println("Received message from unix socket: ", msg)
-				uSockMsgRecivedChannel <- "Message received: " + msg
+				messagesFromUnixSocket <- "DEBUG USOCKET ECHO: " + msg
+			case <-quitProgramChan:
+				log.Println("Closing down echo loop bcuz of quit program channel")
+				return
 			}
 		}
 	}()
