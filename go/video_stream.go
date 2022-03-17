@@ -51,7 +51,7 @@ func pipeVideoToStream(done chan bool) error {
 	cmd := exec.Command("libcamera-vid", "--width", "960", "--height", "720", "--codec", "h264", "--profile", "high", "--level", "4.2","--bitrate", "8000",  "--framerate", "16", "--inline", "1", "--flush", "1", "--timeout", "0","--nopreview", "1","--output", "-") //"--listen", "1", "--output", "tcp://0.0.0.0:8585")
 	fmt.Println(cmd.Args)
 
-	sdoutPipe, err := cmd.StdoutPipe()
+	// sdoutPipe, err := cmd.StdoutPipe()
 	sderrPipe, err := cmd.StderrPipe()
 	if err != nil {
 		cameraLog.Fatal("could not create video stream cmd output pipes. ", err)
@@ -62,13 +62,13 @@ func pipeVideoToStream(done chan bool) error {
 		scanner := bufio.NewScanner(sderrPipe)
 		scanner.Split(bufio.ScanLines)
 		for scanner.Scan() {
-			cameraLog.Printf("[libcamera-vid] > %s\n", scanner.Text())
+			cameraLog.Printf("[camera-stream-sderr] > %s\n", scanner.Text())
 		}
 	}()
 
 	// Create a new video track from the h264 reader
 	if err := cmd.Start(); err != nil {
-		cameraLog.Printf("[libcamera-vid][CMD START ERROR] > %s\n", err)
+		cameraLog.Printf("[camera-stream-cmd][CMD START ERROR] > %s\n", err)
 		return err
 	}
 
@@ -83,7 +83,7 @@ func pipeVideoToStream(done chan bool) error {
 	// 	fmt.Printf("[libcamera-vid] > %s\n", line)
 	// }
 
-	// Now attach the h264 reader to the output of the libcamera-vid command
+	// Now attach the h264 reader to the output of the camera-streaming command
 	h264, h264Err := h264reader.NewReader(sdoutPipe)
 	if h264Err != nil {
 		cameraLog.Println("h264reader Initilization Error")

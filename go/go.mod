@@ -1,4 +1,4 @@
-module peerjs-webrtc-libcamera
+module peerjs-webrtc-robot
 
 go 1.13
 

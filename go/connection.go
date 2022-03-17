@@ -111,15 +111,15 @@ func setupConnections(quitSignal chan bool) {
 	cloudConnectionWriteChannel := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
 	exitCloudConnection := make(chan bool)
 	go func() {
-		// for {
-		select {
-		case <-cloudQuitSignal:
-			println("Exiting cloud quitSignal")
-			return
-		default:
+		for {
+			select {
+			case <-cloudQuitSignal:
+				println("Exiting cloud quitSignal")
+				return
+			default:
+				setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts, cloudConnectionWriteChannel)
+			}
 		}
-		setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts, cloudConnectionWriteChannel)
-		// }
 	}()
 
 	localQuitSignal := make(chan string)
