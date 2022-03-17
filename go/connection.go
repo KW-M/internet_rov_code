@@ -19,7 +19,6 @@ import (
 	peerjs "github.com/muka/peerjs-go"
 	peerjsServer "github.com/muka/peerjs-go/server"
 	log "github.com/sirupsen/logrus"
-	"golang.org/x/text/cases"
 )
 
 // 2022/03/14 19:20:02 UNIX SOCKET got message: {"pong": 1200}
@@ -239,6 +238,7 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 
 		go func() {
 			for {
+				log.Println("connection.go recievedMessageWriteChannel pre:")
 				select {
 				case msgFromROV := <-recievedMessageWriteChannel:
 					log.Println("connection.go recievedMessageWriteChannel post:", msgFromROV)
@@ -253,9 +253,7 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 					// }
 				case <-exitFunction:
 					log.Println("connection.go recievedMessageWriteChannel exiting..")
-					log.Println("connection.go recievedMessageWriteChannel post:", msgFromROV)
 					return
-				case default:
 				}
 			}
 		}()
