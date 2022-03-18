@@ -10,7 +10,7 @@ import (
 
 // for passing messages back and forth to the python program
 // from https://go.dev/play/p/jupwWV8pdH
-type RovUnixSocket struct {
+type RobotUnixSocket struct {
 	socketOpen         bool
 	doReconnectSignal  chan bool
 	socketConnection   net.Conn
@@ -21,7 +21,7 @@ type RovUnixSocket struct {
 
 // ReadUnixSocketAsync: ment to be run as a goroutine
 // will call the onMessageCallback when a message is received with the message as a string
-func (sock *RovUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
+func (sock *RobotUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
 	buf := make([]byte, readBufferSize)
 	for {
 		if sock.socketOpen {
@@ -36,16 +36,16 @@ func (sock *RovUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
 			message := string(buf[0:nr])
 			log.Println("UNIX SOCKET got message:", message)
 			sock.socketReadChannel <- message
-			log.Println("UNIX SOCKET relaying message")
 		} else {
 			log.Println("ReadUnixSocketAsync(): UNIX SOCKET NOT OPEN")
-			time.Sleep(time.Second * 2)
+			sock.doReconnectSignal <- true
+			return
 		}
 	}
 
 }
 
-func (sock *RovUnixSocket) WriteUnixSocketAsync() {
+func (sock *RobotUnixSocket) WriteUnixSocketAsync() {
 	for {
 			msg, chanIsOpen := <-sock.socketWriteChannel
 			if sock.socketOpen && chanIsOpen && msg != "" {
@@ -62,7 +62,7 @@ func (sock *RovUnixSocket) WriteUnixSocketAsync() {
 
 // connect starts listening on a unix domain socket at the particular address using the SOCK_SEQPACKET socket format.
 // path is the name of the unix socket to connect to (eg. "/tmp/whatever.sock").
-func (*RovUnixSocket) createSocketListener(path string) (*net.UnixListener, error) {
+func (*RobotUnixSocket) createSocketListener(path string) (*net.UnixListener, error) {
 
 	if _, err := os.Stat(path); err == nil {
 		// try to remove any old socket file if it is still exists
@@ -84,7 +84,7 @@ func (*RovUnixSocket) createSocketListener(path string) (*net.UnixListener, erro
 }
 
 /* Closes any open socket connections & removes the listener */
-func (sock *RovUnixSocket) CleanupSocket() {
+func (sock *RobotUnixSocket) CleanupSocket() {
 	if sock.socketConnection != nil {
 		sock.socketConnection.Close()
 	}
@@ -94,7 +94,7 @@ func (sock *RovUnixSocket) CleanupSocket() {
 	sock.socketOpen = false
 }
 
-func (sock *RovUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketPath string) bool {
+func (sock *RobotUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketPath string) bool {
 	// catch any errors or returns gracefully and CleanupSocket
 	defer func() {
 		if r := recover(); r != nil {
@@ -135,8 +135,8 @@ func (sock *RovUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketPat
 // recivedMessageChannel is a string channel When a message is recived on the socket it will be sent to this channel.
 // sendMessageChannel is a string channel. When a message is sent on this channel, it will be sent to the socket.
 // unixSocketPath is the path the unix socket to connect to (eg. "/tmp/whatever.sock").
-func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan string, sendMessageChannel chan string, unixSocketPath string) *RovUnixSocket {
-	var sock = new(RovUnixSocket)
+func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan string, sendMessageChannel chan string, unixSocketPath string) *RobotUnixSocket {
+	var sock = new(RobotUnixSocket)
 	sock.socketOpen = false
 	sock.socketWriteChannel = sendMessageChannel
 	sock.socketReadChannel = recivedMessageChannel

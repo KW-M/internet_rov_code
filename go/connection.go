@@ -5,6 +5,7 @@ import (
 	// "io/ioutil"
 	// "errors"
 
+	"encoding/json"
 	"strconv"
 	"time"
 
@@ -48,10 +49,9 @@ import (
 var err error // handy variable to stuff any error messages into
 
 // To handle the case where multiple rovs are running at the same time,
-// we make the PeerId of this ROV the basePeerId plus a number tacked on
-// the end (rovNumber, eg: SSROV_0) that we increment if the current peerId is already taken.
-var basePeerId string = "iROV-"
-var rovNumber int = 0
+// we make the PeerId of this ROV the basePeerId plus this number tacked on
+// the end (eg: iROV-0) that we increment if the current peerId is already taken.
+var robotPeerIdEndingNum int = 0
 
 // ----- PeerJs-Go Client Settings -----
 var peerServerCloudOpts, peerServerLocalOpts peerjs.Options
@@ -75,6 +75,19 @@ func makePeerJsOptions() {
 	peerServerLocalOpts.Secure = false
 	peerServerLocalOpts.Debug = 3
 	peerServerLocalOpts.PingInterval = 3000
+}
+
+func generateToUnixSocketMetadataMessage(srcPeerId string, peerEvent string, err string) string {
+	var metadata = new(DatachannelToUnixSocketMessageMetadata)
+	metadata.SrcPeerId = srcPeerId
+	if len(peerEvent) > 0 {
+		metadata.PeerEvent = peerEvent
+	}
+	if len(err) > 0 {
+		metadata.Err = err
+	}
+	mtaDataJson, _ := json.Marshal(metadata)
+	return string(mtaDataJson)
 }
 
 func startLocalPeerJsServer(done chan bool) {
@@ -114,7 +127,7 @@ func setupLocalAndCloudConnections(quitSignal chan bool) {
 		for {
 			select {
 			case <-cloudQuitSignal:
-				println("Exiting cloud webrtc connection loop.")
+				log.Println("Exiting cloud webrtc connection loop.")
 				return
 			default:
 				setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts, sendMessageToCloudPeersChan)
@@ -129,7 +142,7 @@ func setupLocalAndCloudConnections(quitSignal chan bool) {
 	// 	// for {
 	// 		select {
 	// 		case <-localQuitSignal:
-	// 			println("Exiting local webrtc connection loop.")
+	// 			log.Println("Exiting local webrtc connection loop.")
 	// 			return
 	// 		default:
 	// 		}
@@ -141,16 +154,14 @@ func setupLocalAndCloudConnections(quitSignal chan bool) {
 	msgForwarderQuitSignal := make(chan string)
 	go func() {
 		for {
-		select {
-		case <- msgForwarderQuitSignal:
-			log.Println("Exiting send webrtc message fan-out loop.")
-			return
-		case msgFromUnixSocket := <-messagesFromUnixSocketChan:
-			log.Println("connection.go setupConnections pre:", msgFromUnixSocket)
-			sendMessageToCloudPeersChan <- msgFromUnixSocket
-			log.Println("connection.go setupConnections post:", msgFromUnixSocket)
-			// sendMessageToLocalPeersChan <- msgFromUnixSocket
-		}
+			select {
+			case <-msgForwarderQuitSignal:
+				log.Println("Exiting send webrtc message fan-out loop.")
+				return
+			case msgFromUnixSocket := <-messagesFromUnixSocketChan:
+				sendMessageToCloudPeersChan <- msgFromUnixSocket
+				// sendMessageToLocalPeersChan <- msgFromUnixSocket
+			}
 		}
 	}()
 
@@ -164,111 +175,124 @@ func setupLocalAndCloudConnections(quitSignal chan bool) {
 	close(sendMessageToLocalPeersChan)
 }
 
-// NOTE: should be called as a goroutine
+func handleOutgoingDatachannelMessages() {
+	for {
+		select {
+		case msgFromROV := <-messagesToSendToPeersChan:
+			if alreadyExitingFunction {
+				return
+			}
+
+			// rovLog.Println("Sending Message to Pilot: ", msgFromROV)
+			for peerId, dataChannel := range activeDataConnectionsToThisPeer {
+				robotConnLog.Println("Sending to PeerId: ", peerId)
+				dataChannel.Send([]byte(msgFromROV), false)
+			}
+		case <- exitFunction:
+			log.Println("connection.go messagesToSendToPeersChan exiting..")
+			return
+		}
+	}
+}
+
+func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLog *log.Entry, messagesToSendToPeersChan chan string) {
+	activeDataConnectionsToThisPeer := make(map[string]*peerjs.DataConnection) // map of the open datachannel connection Ids to this peer.
+
+	robotPeer.On("connection", func(data interface{}) {
+		browserPeerDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
+		var pilotPeerId string = browserPeerDataConnection.GetPeerID()
+
+		log := robotConnLog.WithField("peer", robotPeer.ID)
+		log.Println("Peer connection established with  Peer ID: ", browserPeerDataConnection.GetPeerID())
+
+		browserPeerDataConnection.On("open", func(interface{}) {
+			activeDataConnectionsToThisPeer[pilotPeerId] = browserPeerDataConnection // add this connection to the map of active connections
+
+			// send a metadata message down the unix socket that a new peer has connected
+			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
+				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(pilotPeerId, "Connected", "")
+			}
+
+			// handle incoming messages from this browser peer
+			browserPeerDataConnection.On("data", func(msgBytes interface{}) {
+				var msgString string = string(msgBytes.([]byte))
+				log.Printf("pilotDataConnection GOT MESSAGE: %s", msgString)
+				var socketString string = msgString
+				// send a metadata message down the unix socket that a new peer has connected
+				if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
+					var metadata string = generateToUnixSocketMetadataMessage(pilotPeerId, "", "")
+					socketString = metadata + UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR + socketString
+				}
+				sendMessagesToUnixSocketChan <- socketString
+			})
+
+			fmt.Printf("VIDEO CALLING browser peer with peer ID: %s\n", pilotPeerId)
+			_, err = robotPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
+			if err != nil {
+				log.Println("Error calling pilot id: ", pilotPeerId)
+				log.Fatal(err)
+			}
+		})
+
+		browserPeerDataConnection.On("close", func(message interface{}) {
+			log.Println("BROWSER PEER DATACHANNEL CLOSE EVENT", message)
+			delete(activeDataConnectionsToThisPeer, pilotPeerId) // remove this connection from the map of active connections
+
+			// send a metadata message down the unix socket that this peer connection has been closed
+			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
+				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(pilotPeerId, "Closed", "")
+			}
+		})
+
+		browserPeerDataConnection.On("disconnected", func(message interface{}) {
+			log.Println("BROWSER PEER DATACHANNEL DISCONNECTED EVENT", message)
+
+			// send a metadata message down the unix socket that this peer has disconnected
+			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
+				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(pilotPeerId, "Disconnected", "")
+			}
+		})
+
+		browserPeerDataConnection.On("error", func(message interface{}) {
+			fmt.Printf("PILOT PEER DATACHANNEL ERROR EVENT: %s", message)
+			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
+				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(pilotPeerId, "Error", message.(string))
+			}
+		})
+	})
+}
+
 func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Options, messagesToSendToPeersChan chan string) {
+	// NOTE: This should be called as a goroutine, it will not return until the connection breaks or is closed, in which case this function should be run again.
+
 	var alreadyExitingFunction bool = false
-	var rovPeerId string = basePeerId + strconv.Itoa(rovNumber)
+	var robotPeerId string = BASE_PEER_ID + strconv.Itoa(robotPeerIdEndingNum)
 
 	// setup logrus logger
-	rovLog := log.WithFields(log.Fields{"peer": rovPeerId, "peerServer": peerServerOptions.Host})
+	robotConnLog := log.WithFields(log.Fields{"peer": robotPeerId, "peerServer": peerServerOptions.Host})
 
 	// establish peer with peerjs server
-	var rovPeer, err = peerjs.NewPeer(rovPeerId, peerServerOptions)
-	defer rovPeer.Close() // close the websocket connection when this whole outer function exits
+	var robotPeer, err = peerjs.NewPeer(robotPeerId, peerServerOptions)
+	defer robotPeer.Close() // close the websocket connection when this whole outer function exits
 
 	if err != nil {
-		rovLog.Println("Error creating ROV peer: ", err)
+		robotConnLog.Println("Error creating ROV peer: ", err)
 		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 	}
 
-	rovPeer.On("open", func(peerId interface{}) {
-		var peerID string = peerId.(string) // typecast to string
-		if peerID != rovPeerId {
-			rovLog.Printf("Uh oh, got peer id: %s (%s must be taken). Switching to next rov number...\n", peerID, rovPeerId)
-			rovNumber++          // increment the rovNumber and try again
-			exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
-		} else {
-			rovLog.Println("ROV Peer Established!")
-		}
-
-		activeDataConnectionsToThisPeer := make(map[string]*peerjs.DataConnection) // map of the open datachannel connection Ids to this peer.
-
-		rovPeer.On("connection", func(data interface{}) {
-			pilotDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
-			var pilotPeerId string = pilotDataConnection.GetPeerID()
-
-			log := rovLog.WithFields(log.Fields{"peer": rovPeerId, "peerServer": peerServerOptions.Host})
-			log.Println("Peer connection established with Pilot Peer ID: ", pilotDataConnection.GetPeerID())
-
-			pilotDataConnection.On("open", func(message interface{}) {
-				activeDataConnectionsToThisPeer[pilotPeerId] = pilotDataConnection // add this connection to the map of active connections
-
-				pilotDataConnection.On("data", func(msgBytes interface{}) {
-					var msgString string = string(msgBytes.([]byte))
-					log.Printf("pilotDataConnection GOT MESSAGE: %s", msgString)
-					var socketString string = msgString
-					if prependedPeerIdToRecivedMessages {
-					  socketString = pilotPeerId + "::" + socketString
-					}
-					sendMessagesToUnixSocketChan <- socketString
-				})
-
-				fmt.Printf("VIDEO CALLING Peer (a Pilot or Spectator) with peer ID: %s\n", pilotPeerId)
-				_, err = rovPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
-				if err != nil {
-					log.Println("Error calling pilot id: ", pilotPeerId)
-					log.Fatal(err)
-				}
-			})
-
-			pilotDataConnection.On("close", func(message interface{}) {
-				println("PILOT PEER DATACHANNEL CLOSE EVENT", message)
-				delete(activeDataConnectionsToThisPeer, pilotPeerId) // remove this connection from the map of active connections
-			})
-
-			pilotDataConnection.On("disconnected", func(message interface{}) {
-				println("PILOT PEER DATACHANNEL DISCONNECTED EVENT", message)
-			})
-
-			pilotDataConnection.On("error", func(message interface{}) {
-				fmt.Printf("PILOT PEER DATACHANNEL ERROR EVENT: %s", message)
-			})
-		})
-
-		go func() {
-			for {
-				select {
-				case msgFromROV := <-messagesToSendToPeersChan:
-					if alreadyExitingFunction {
-						log.Println("connection.go messagesToSendToPeersChan already exiting funcyion")
-						return
-					}
-					rovLog.Println("Sending Message to Pilot: ", msgFromROV)
-					for peerId, dataChannel := range activeDataConnectionsToThisPeer {
-						rovLog.Println("Sending to PeerId: ", peerId)
-						dataChannel.Send([]byte(msgFromROV), false)
-					}
-				case <-exitFunction:
-					log.Println("connection.go messagesToSendToPeersChan exiting..")
-					return
-				}
-			}
-		}()
-	})
-
-	rovPeer.On("close", func(message interface{}) {
-		println("ROV PEER JS CLOSE EVENT", message, alreadyExitingFunction)
+	robotPeer.On("close", func(message interface{}) {
+		log.Println("ROV PEER JS CLOSE EVENT", message, alreadyExitingFunction)
 		if !alreadyExitingFunction {
 			exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 		}
 	})
 
-	rovPeer.On("disconnected", func(message interface{}) {
-		println("ROV PEER JS DISCONNECTED EVENT", message)
+	robotPeer.On("disconnected", func(message interface{}) {
+		log.Println("ROV PEER JS DISCONNECTED EVENT", message)
 		if !alreadyExitingFunction {
-			err = rovPeer.Reconnect()
+			err = robotPeer.Reconnect()
 			if err != nil {
-				rovLog.Println("ERROR RECONNECTING TO DISCONNECTED PEER SERVER: ", err)
+				robotConnLog.Println("ERROR RECONNECTING TO DISCONNECTED PEER SERVER: ", err)
 				if !alreadyExitingFunction {
 					exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 				}
@@ -276,46 +300,44 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 		}
 	})
 
-	rovPeer.On("error", func(message interface{}) {
+	robotPeer.On("error", func(message interface{}) {
 		fmt.Printf("ROV PEER JS ERROR EVENT: %s", message)
 		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 	})
+
+	robotPeer.On("open", func(peerId interface{}) {
+		var peerID string = peerId.(string) // typecast to string
+		if peerID != robotPeerId {
+			robotConnLog.Printf("Uh oh, server gave us peer id: %s (%s must be taken). Switching to next end number...\n", peerID, robotPeerId)
+			robotPeerIdEndingNum++ // increment the peer id ending integer and try again
+			exitFunction <- true   // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
+		} else {
+			robotConnLog.Println("Robot Peer Established!")
+		}
+
+
+	})
+
 
 	// ---------------------------------------------------------------------------------------------------------------------
 	fmt.Println("starting setup WebrtcConnection goroutine sleep")
 	<-exitFunction // CONTINUE when a signal is sent on the 'exitFunction' channel from the the calling function to clean up because program is exiting or somthin, unblock this goroutine and exit.
 	alreadyExitingFunction = true
 	close(exitFunction)
-	rovLog.Println("exiting setupWebrtcConnection")
+	robotConnLog.Println("exiting setupWebrtcConnection")
 }
 
-// // connect to site
-// conn, err := net.Dial("tcp", "127.0.0.1:8585")
-// if err != nil {
-// 	fmt.Printf("failed to connect to video tcp: %s\n", err)
-// 	return err
+// // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs#avc_h.264
+// // Find the H264 codec in the list of codecs supported by the remote peer (aka the pilot's browser)
+// var h264PayloadType uint8 = 0
+// for _, videoCodec := range mediaEngine.GetCodecsByKind(webrtc.RTPCodecTypeVideo) {
+// 	if videoCodec.Name == "H264" {
+// 		h264PayloadType = videoCodec.PayloadType
+// 		break
+// 	}
 // }
-
-// func handleMediaCall(remoteSDP) {
-// 	mediaEngine := webrtc.MediaEngine{}
-// 	if err := mediaEngine.PopulateFromSDP(remoteSdp); err != nil {
-// 		fmt.Println("pion could not create webrtc media engine from remote SDP.", err)
-// 		return
-// 	}
-
-// 	// https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs#avc_h.264
-
-// 	// Find the H264 codec in the list of codecs supported by the remote peer (aka the pilot's browser)
-// 	var h264PayloadType uint8 = 0
-// 	for _, videoCodec := range mediaEngine.GetCodecsByKind(webrtc.RTPCodecTypeVideo) {
-// 		if videoCodec.Name == "H264" {
-// 			h264PayloadType = videoCodec.PayloadType
-// 			break
-// 		}
-// 	}
-
-// 	// if the payloadTypeNumber never changed, the broswer doesn't support H264 (highly unlikely)
-// 	if h264PayloadType == 0 {
-// 		fmt.Println("Remote peer does not support H264")
-// 		continue
-// 	}
+// // if the payloadTypeNumber from never changed, the broswer doesn't support H264 (highly unlikely)
+// if h264PayloadType == 0 {
+// 	fmt.Println("Remote peer does not support H264")
+// 	continue
+// }
