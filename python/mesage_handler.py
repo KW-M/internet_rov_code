@@ -15,8 +15,14 @@ def handle_socket_message(message, motors, sensors, sensr_log):
     """
     Called when a new message is recieved on the socket.
     :param message: The message recieved from the socket in utf-8 text.
+    :param motors: The motors object.
+    :param sensors: The sensors object.
+    :param sensr_log: The sensor log object.
     :return: The reply message, or None if no reply is needed.
     """
+
+    global current_pilot_peerid
+    global connected_peerids
 
     # create empty dicts to hold the recived message data
     parsed_metadata = {}
@@ -25,7 +31,6 @@ def handle_socket_message(message, motors, sensors, sensr_log):
     # create empty dicts to hold the reply message data:
     reply_metadata = {}
     reply_msg_data = {}
-
 
     # handle the sensor changes:
     sensor_values_did_change = sensors.update_all_sensors()
@@ -76,7 +81,6 @@ def handle_socket_message(message, motors, sensors, sensr_log):
             # now check if this message came from the pilot
             if current_pilot_peerid == srcPeerId:
                 messageIsFromPilot = True
-
 
     # handle the parssed message data:
     if parsed_msg is not None:
