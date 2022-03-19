@@ -103,7 +103,7 @@ const mainMachine = createMachine({
                             }, { to: "rovConnectionMachine" })
                         },
                         GOT_MESSAGE_FROM_ROV: {
-                            actions: (context, event) => { console.log(event.data); return handleRovMessage(event.data) }
+                            actions: (context, event) => { return handleRovMessage(event.data) }
                         }
                     }
                 }

@@ -75,7 +75,6 @@ const machineFunctions = {
             rovDataConnection.send(encodedMessage);
         },
         gotMessageFromRov: sendParent((context, event) => {
-            console.log("Send Parent: GOT_MESSAGE_FSROM_ROV", event.data);
             return {
                 type: "GOT_MESSAGE_FROM_ROV",
                 data: event.data,
@@ -249,7 +248,6 @@ const machineFunctions = {
                 console.log("handleDataChannelEvents:", rovDataConnection);
                 const dataMsgRecivedHandler = (encodedMessage) => {
                     message = messageDecoder.decode(encodedMessage);
-                    console.log("Got Datachannel Message: ", message);
                     sendStateChange({ type: "GOT_MESSAGE_FROM_ROV", data: message });
                 }; rovDataConnection.on('data', dataMsgRecivedHandler)
 
