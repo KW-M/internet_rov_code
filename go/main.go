@@ -24,7 +24,7 @@ func main() {
 	// Parse the flags passed to program
 	flag.StringVar(&videoShellCommand, "video-shell-cmd", "cat -", "Shell command that will send a h264 video stream to stdout, Default is \"cat -\"")
 	flag.StringVar(&peerServerListenPort, "peerserver-listen-port", "8181", "Port number for the go peerjs server to listen on. Default is 8181")
-	flag.BoolVar(&ADD_METADATA_TO_UNIX_SOCKET_MESSAGES, "prepend-peer-id", false, "If true, when a datachannel message is recived, the sender's peer id will be prepended to the message, followed by the delimeter \"::\" before being sent to the unix socket. Default is false")
+	// flag.BoolVar(&ADD_METADATA_TO_UNIX_SOCKET_MESSAGES, "prepend-peer-id", false, "If true, when a datachannel message is recived, metataa like the sender's peer id will be prepended to all message, followed by the delimeter before being sent to the unix socket. Default is false")
 	flag.Parse()
 
 	// Set up the logrus logger
