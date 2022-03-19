@@ -183,25 +183,15 @@ const machineFunctions = {
                     serialization: 'none',
                 });
 
-                const gotConnectionHandler = generateStateChangeFunction(sendStateChange, "ROV_CONNECTION_ESTABLISHED", rovDataConnection)
+                const openHandler = generateStateChangeFunction(sendStateChange, "ROV_CONNECTION_ESTABLISHED", rovDataConnection)
                 const errorHandler = generateStateChangeFunction(sendStateChange, "PEERJS_ERROR", null)
-                rovDataConnection.on("connection", gotConnectionHandler)
-                rovDataConnection.on("error", errorHandler)
+                rovDataConnection.on("open", openHandler)
+                rovDataConnection.on("error", console.log)
                 return () => {
-                    rovDataConnection.off("open", gotConnectionHandler);
-                    rovDataConnection.off("error", errorHandler);
+                    rovDataConnection.off("open", openHandler);
+                    rovDataConnection.off("error", console.log);
                 }
             };
-        },
-        awaitDatachannelOpen: (context, event) => {
-            const openHandler = generateStateChangeFunction(sendStateChange, "DATACHANNEL_ESTABLISHED", null)
-            const errorHandler = generateStateChangeFunction(sendStateChange, "PEERJS_ERROR", null)
-            rovDataConnection.on("open", openHandler)
-            rovDataConnection.on("error", errorHandler)
-            return () => {
-                rovDataConnection.off("open", openHandler);
-                rovDataConnection.off("error", errorHandler);
-            }
         },
         awaitMediaCall: (context, event) => {
             return (sendStateChange, onReceive) => {
@@ -218,7 +208,7 @@ const machineFunctions = {
                 context.thisPeer.on('call', callHandler);
 
                 const timeoutId = setTimeout(() => {
-                    // sendStateChange({ type: "ROV_PEER_CONNECTION_ERROR", data: { type: "timeout", error: "Timeout waiting for video stream" } });
+                    sendStateChange({ type: "ROV_PEER_CONNECTION_ERROR", data: { type: "timeout", error: "Timeout waiting for video stream" } });
                 }, 10000);
                 return () => {
                     clearTimeout(timeoutId);
@@ -232,7 +222,7 @@ const machineFunctions = {
                 context.mediaChannel.on('stream', videoReadyHandler);
 
                 const timeoutId = setTimeout(() => {
-                    // sendStateChange({ type: "ROV_PEER_CONNECTION_ERROR", data: { type: "timeout", error: "Timeout waiting for video stream" } });
+                    sendStateChange({ type: "ROV_PEER_CONNECTION_ERROR", data: { type: "timeout", error: "Timeout waiting for video stream" } });
                 }, 10000);
                 return () => {
                     clearTimeout(timeoutId);
@@ -341,7 +331,7 @@ const machineFunctions = {
 }
 
 export const rovConnectionMachine =
-    /** @xstate-layout N4IgpgJg5mDOIC5QCUDyA1AwgewHa7AGMAXASzwDpkBXfU3KCgBTDACcB9AZXYDd2OOfETKUActmKC8BEpA4AVbBxbsAVrG592AYiYBRfcgBSXbkfRHBqMWP2YFASRsd9XBQEEAQgBlHXAAl9ABFEUAAHbFhSUVwwkAAPRABmAA4ABgoAFiyAVgA2QoAmfIB2EozcgBoQAE9EAoBOCnT05Pzc3Kzk9Mb01IBGAF8hmrQsGRFyXCpaXHpGVU4eNn5OIVlYigkpDZF5JRVWNg0tVd0DI1NXZDRkeMjo2PikhDTMnILisor06rqUo1khQgQNkl0OqVUnlkiMxhg9iRprM6AxmMczmtpMIkZREcQDsolqcVms9IYTGYjHcHlEYtMXogBukiqUKF0SqUsqk+q12jV6ghckUBhQikVkjDmckijksnCQON8ciaKjFhjSQJlXjJnIIIoiccSdo2OSrmYuBYrMF-JgbHYHCFaU8GUhEohGgNmtysuluaVGvlUsH8gLEKVmRRkslSlDSvl0gnoakFUrdVtVfM0UtMVr0yqiPmGBxiIb1JpNabLpTzMhLMhrLZ7E4XG5PL5-EFQm7HvS8IyEMzWeyspzuby2qGAULoRQMvGso0l77R6VUwj85RMwt0QJK9jNgXCEWoCWyycKyazTXqah7j26c83a8Bgnmhl0gMckDUsK-WGEFKdI2XyAZOkGRpymSL1GnXCYcQzOYdxzfdtRmAIAENcAgAAbBZXDYNhsCrClrktOsrDtJsHGcMRBB8VBLW7CJH1dUAXzfOdWi-Rc0j-LIAPFUU-SyDpUkKfoQzXUZFQ3BCVSQtFkGwXgjjzeTxEkA99n1Q5iUvc4SPNWt60bB0WzottvD8QInQfF1+2fRAgyyOcSgTUcukaVISgAgZWUyVlcl-XII0aEVRLgtCUSzRhlNUnNoo8WAAGt8KYUgcK00sVFIQgUo4AAxIiAFsOFQXA8IIDh4tgHRxg4RwxGCfQAA0VEcTAAGk7JYhy4icwccnyMVcmjfpwUXIpwr8gYIxBApgoGaFuVyP4os3GZtyUlS1PWTbti0-FCRqlT6owMzm1o1x3GsztepAXsn3YplekyHpUlKYLwtaToBOnL8ugofIJUKRpQvaVoig2jStsUuLdsSg6dm0vUDVO3gdAAWQAVR8JwmB8fQaowMwbD8OxnT7AaXqGtoWmFHzQqAkpkj8koinZcLweZIEik-XIYcPLd4aoRGMWi47dOUeKKGCDDiAwzAAAssIIHC5YVjDBFV4QcI4YJSFgY8EMgHRgg8TxMACDwmx8G72xsrsqee91BwGV8xVacLJS9ANGn+wV+ejChmXE6bwQjT98iFqYRbVMWEolg6pfR2X5cVlW1bADWM+1rO9YNo2Tc2M2Latm27cURwsf0VAcYUF22Ldr9E3ZDIgx5op5ynQVAcyQZgMKaFwcDWPcThhP4r21GtlTw5061gv1c1xWdez-XUHCMBcHNy2PGt227Htm0uCo8ym8c2mPfadkxq5ZbwvjWVBP85ppqTDy8nyWEZLTWGYo7mnkjAB88ZYqVXkrXWK887r0LlvHeOhLTNQ4LXLgXAPAAHFiYKFQCTdAl8aZuw6M0XIfR2ge1WqBPyqQ0hijyKzboyRIKvnHohKe4t1LCxmGAjGkDl450gXA9W5Vt670wagBQqC3AYOwUVNAWN8GEIHH0VyEZaHcg9q+ICvcmTQk5rKKEINEwFBFDHP+cluGAJ2knLhcceHphOovTO0DBGwIEfrFGCDd7lwPpXY+Ds7q2WYo9ViV83YxlcrKYMJQvQSj+IHRAIoYxRj4nKNozDChsIUhw2x+1QGOOlnwrGkBSBQI3odKQ3jsYhEcB4QQ-j9D2ysh2YJyjBr5G8iCUcPIyjcmmkuQS3RMjeWDPOAMwEA7ZPjrFROM9JaFLThAkpEAykeIoCsspwic6zzNugRwLU8HuGQPoDwiiTkeGCAATXadfUS70Bm9AXFHf4QduhsgyFkL8gMuRP2mZPWZwDk4FNNkU+K510AqApJdGirZbh3luW7WMI0yE-28uFYMuR-J+RyJkMabQvq0OFGBcx8J4JWO2gjPJs9kS8PBefZsIRFB4IAOpoDEJgpR9lqYDm0akKMrIeTopJfkRJQ1u6hxZAHQolDon-OsVS+Zm1rxkStA2BlsK6KYAYkxRFrwZScz6GtbooUiiM1SOzT8C1YxrWFKUA18rKU6BZfoLwyAFCYCKvvZp8L7x9R5YNcUnTga+njD-fmBQxVclcuJDJf0QZgWkmS6KTrqzXAUPoLGTA7weGQFcm4NJuWu31T-UUQJQL2v5ouUcYr-JgVDqFTokodHRnlR4AA7hhekxYGr4g4F4agxBSy4BUGwOAdUNVSK8A3XBdEmAnPQQ9J6zd9VAX5W0V8I9PxZChABMouQQS0KXMez0K0RgyVwNgCAcB4j-wpaLFCJoaWaV2IsvSRoDJrD1UyEo2QvzeX6DWn+-JpzvGBiyNagwSjvJTBY8l9iFW7mWE+hZoL0b6VzGwb9gF7Xsg9ui0SWL0UAVRRQZFYIgIwmmvKODKaH0ahQwdZAhZ5LFhyhhys2Gvz83A0KjIn0gQ5AAkBYEfRu7chBkK6GtGmP0b3IxgBmFsJVVPPoQixEuPeQPWtWMMY0gSkgmKoMB7mFLnaJ9P4nThgyYAZSpDmHn1EOXeEl8LI-2Ln40B6MuiECQWyDyNaHsyiJkmo60WQK7ET0qbsopHGTTYejPymMQFlpgkWtCNmAMZSihBqyeMoUfKfRo8m2TuSlUAOSmlYsGUspSHY3lAqxVsBlQqlVMAGN4BFpXUyICHzCNQj+MyfopRLXAmYWBbuBR-2jjC2VkBViUZ0pUlx3o-LyHeR3QGaCn5ZoZBHIGdoU1eiitm4Czh+SrFLd4Pw1xuctbbP1obY2hSuOjlFNBWM4VVyQZG9OYOnNEwkIDqPEMp2gHnccxQK7N2KnuNu6Ine2HOnAi+qJEGi5AyGL8uiloLI5rhTNVZ0lsl4NRbsxFi7CHod53WXDjeHAvFiIS8tdkxnvyfWCtj2MocSgB3EqFb+gsbP3rm8Cy7b7wHXZp7d7D1HWe-nZ4SvyEZXKdNaDK4an4wc2PK+LtDC9lmlPKXraL3iEsSmyLGbuHRRVmpDEMr8o1lr7o-BGbXir5tU4l8Uo36zNn53h1LFbXzD2ZM7sNXdf2cjAiCyUMakpQLWZK7Z8LEPUOlzBYb1ZxuV7oFINe5QXBiBjowi1pnXWXM9c6KkwM+Pyg+V+28r62QxMRn8sKJc7u5me6i9D-3HjZdLkt-Xm3nl7d-empkTpQYwLAV9ODYrJO6Oi8i3Pb38VZdAXl10DzSuAZkNFGCbkwZMnkNg8nkXZ3qVoVl6Jbfivgp8j8v0Ea3l7WhX6H6Mai+70IcpdhqEdzADfRUSbzIZdkYOMCCTT8COX+C-BDFlMAAAIzYGIEICKi1n1jUyIiwwryIVeDNUXDnDSGggimn0aGEx6D-U+y-GDFfGJ1-yiw7S7TIB7Quj7QHSHTwFHXHQS1FXfHBGFEkzIS5AAk9E5iDFy1HirVZH+WwyBi+Q80A1lGAw6AAgAFpuRshj8UtwYCVCgaMRggA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QCUDyA1AwgewHa7AGMAXASzwDpkBXfU3KCgBTDACcB9AZXYDd2OOfETKUActmKC8BEpA4AVbBxbsAVrG592AYiYBRfcgBSXbkfRHBqMWP2YFASRsd9XBQEEAQgBlHXAAl9ABFEUAAHbFhSUVwwkAAPRABmAA4ABgoAFiyAVgA2QoAmfIB2EozcgBoQAE9EAoBOCnT05Pzc3Kzk9Mb01IBGAF8hmrQsGRFyXCpaXHpGVU4eNn5OIVlYigkpDZF5JRVWNg0tVd0DI1NXZDRkeMjo2PikhDTMnILisor06rqUo1khQgQNkl0OqVUnlkiMxhg9iRprM6AxmMczmtpMIkZREcQDsolqcVms9IYTGYjHcHlEYtMXogBukiqUKF0SqUsqk+q12jV6ghckUBhQikVkjDmckijksnCQON8ciaKjFhjSQJlXjJnIIIoiccSdo2OSrmYuBYrMF-JgbHYHCFaU8GUhEohGgNmtysuluaVGvlUsH8gLEKVmRRkslSlDSvl0gnoakFUrdVtVfM0UtMVr0yqiPmGBxiIb1JpNabLpTzMhLMhrLZ7E4XG5PL5-EFQm7HvS8IyEMzWeyspzuby2qGAULoRQMvGso0l77R6VUwj85RMwt0QJK9jNgXCEWoCWyycKyazTXqah7j26c83a8Bgnmhl0gMckDUsK-WGEFKdI2XyAZOkGRpymSL1GnXCYcQzOYdxzfdtRmAIAENcAgAAbBZXDYNhsCrClrktOsrDtJsHGcMRBB8VBLW7CJH1dUAXzfOdWi-Rc0j-LIAPFUU-SyDpUkKfoQzXUZFQ3BCVSQtFkGwXgjjzeTxEkA99n1Q5iUvc4SPNWt60bB0WzottvD8QInQfF1+2fRAgyyOcSgTUcukaVISgAgZWUyVlcl-XII0aEVRLgtCUSzRhlNUnNoo8WAAGt8KYUgcK00sVFIQgUo4AAxIiAFsOFQXA8IIDh4tgHRxg4RwxGCfQAA0VEcTAAGk7JYhy4icwccnyMVcmjfpwUXIpwr8gYIxBApgoGaFuVyP4os3GZtyUlS1PWTbti0-FCRqlT6owMzm1o1x3GsztepAXsn3YplekyHpUlKYLwtaToBOnL8ugofIJUKRpQvaVoig2jStsUuLdsSg6dm0vUDVO3gdAAWQAVR8JwmB8fQaowMwbD8OxnT7AaXqGtoWmFHzQqAkpkj8koinZcLweZIEik-XIYcPLd4aoRGMWi47dOUeKKGCDDiAwzAAAssIIHC5YVjDBFV4QcI4YJSFgY8EMgHRgg8TxMACDwmx8G72xsrsqee91BwGV8xVacLJS9ANGn+wV+ejChmXE6bwQjT98iFqYRbVMWEolg6pfR2X5cVlW1bADWM+1rO9YNo2Tc2M2Latm27cURwsf0VAcYUF22Ldr9E3ZDIgx5op5ynQVAcyQZgMKaFwcDWPcThhP4r21GtlTw5061gv1c1xWdez-XUHCMBcHNy2PGt227Htm0uCo8ym8c2mPfadkxq5ZbwvjWVBP85ppqTDy8nyWEZLTWGYo7mnkjAB88ZYqVXkrXWK887r0LlvHeOhLTNQ4LXLgXAPAAHFiYKFQCTdAl8aZuw6M0XIfR2ge1WqBPyqQ0hijyKzboyRIKvnHohKe4t1LCxmGAjGkDl450gXA9W5Vt670wagBQqC3AYOwUVNAWN8GEIHH0VyEZaHcg9q+ICvcmTQk5rKKEINEwFBFDHP+cluGAJ2knLhcceHphOovTO0DBGwIEfrFGCDd7lwPpXY+Ds7q2WYo9ViV83YxjZDKbo3kfwdBZGzacIpZTZD5ECUcv5gLygsfBKx20Ea2P2qAxx0s+FY0gKQKBG9DpSG8djEIjgPCCH8foe2VkOzBOUYNfI3kQQZMDFyHyS5GiCW6JkbywZ5wBmAgHNhCkOGFNnsiXhstykQEqR4igazKnCJzrPM26BHAtTwe4ZA+gPCKLOR4YIABNLp19RLvWmn0SC+QshR3+EHbobIMhZC-IDLkT85nx1ionGeksSlpzOg1asl0aKtluHee5btYwjTIT-WJ3dfz+T8jkTIY02hfVocKMC5j4S5PsdYgp4KU6QoXmdc+zYQiKDwQAdTQGITBSj7LUwHNo1IUZWQ8liaSt5uLu6hxZAHQolDZQphydFfJYKQHcOvGRK0DZGXwropgBiTFkWvBlJzPoa1uihSKIzVI7NPwLVjGtYUpQjXAsnrFHQrL9BeGQAoTARV95tMRfePqvLBrih6cDX08Yf78wKIHcMOQ5wJmjH9EGYFpLksVfDNVZgFD6CxkwO8HhkA3JuDSHlrtDU-1FECUCjr+aLlHLGwcIpcih1Cp0SUOjozOooB4AA7hhekxYGr4g4F4agxBSy4BUGwOAdUtVSK8A3XBdEmBnPQQ9J6zdDVAQFW0V8I9PzvKtdOMoLbvLMOGUuZaOQRgyVwNgCAcB4j-zyaLFCJolmaV2HS88xpDIGqZCUbIX5vL9AbT-fk053jAxZGtQYJRvnyvTQdJV77DKfocabUp+lcxsAA4BR17IPaxNErkL0PIALoooKisEQEYTTWychgBqGNQfsVYWeSxYco4crPhr8-MYPCoyJ9dJjagLAj6N3bkINhXQwVSht9rH0PRUwthKqp59CEWInx7yLa1qxhjGkCUkFG1BhbRe6tn0-g9OGPJ5jim9xsc2nxlkwHFzCfA9GXRCBILZB5GtD2ZREyTW7Uq4BycAEo14Txk0+HowCsiZ+QY4IxLdD8jKUUINWTxlCj5T6jHZIUonlS5VEWrHJTSsWDKWUpDcbygVYq2AyoVSqmADG8Ay1bqZEBH5pGoR-GZP0Uo1rgTMLAt3AoIHRyhdFuFuxxWos-oxi53p5DvLvIDNBT8s0MgjkDO0KavQ3kzYWTS4pWGoW8H4a43OWtdn60NsbEpfHRyimgrGcKq44PDaSW0TmiYSEB1HiGE7oK5tFKsSsiBedNnuJu6Ine+GenAi+qJEGi5AyGL8rEloLI5rhQtTZslhWM2nZVZSqHV2Yc3aER4jgXixFxZ8lzbuspgp5G6AMbHvSPtpA+vtwWdnX1k7KxTpbziql6zi2NQVMSeRpHiRKPyEZXI9NaDK4ah7QdAM4RDsXF36VXe2ZLleDPEedfCYaiU2RYzdw6G8i1IZRlflGstU9H4Iza5sWdyH4uIHG82cb+7+yIAub+SCWhgZO7DShKM7oodXwlDGpKUCtmmPC7B7rjDFBKdbIqSbwR6BSCPuUFwYgM6MLNcZxbohL4vrmeYTWyCrOftfK+tkSTEZ-LCiXF76l5Piu54Dzd-DzybflHEjGx34lBLTUyD0oMYEsm9C6H30r8255+94KP9vG27dT+CjPgGZDRRgkXH6Rfla00k4UyLjfzdN2W8QBa0Ue-J8O8P95sOI1vK1qxRai1ArF9SlfJfDKENzUDfRUSLzUZdkYOMCaTT8COX+dPSlVlMAAAIzYGIEICKi1n1k0yIjwxrwHEAPfD538i-AXxGWnEdQ+DmgDC-GDFfGJ2AOKz7QHTICHQuhHTHQnTwGnVnTizeXIM6A5l-BMwAk9E5iDCy1HjrVZGdXwyBj+XczA1lAgw6AAgAFpuRshuQrMvQ1oYxChskRggA */
     createMachine({
         context: {
             /* NOTE that the context is really set by the parent machine, not here */
@@ -472,16 +462,21 @@ export const rovConnectionMachine =
                                 states: {
                                     DataChannel: {
                                         exit: "closeDownDataChannel",
-                                        initial: "Data_Channel_Not_Open",
+                                        initial: "Data_Channel_Open",
                                         states: {
-                                            Data_Channel_Not_Open: {
+                                            Data_Channel_Disconnected: {
+                                                entry: "showConnectingUi",
                                                 invoke: {
-                                                    src: "awaitDatachannelOpen",
+                                                    src: "datachannelTimeoutCountdown",
                                                 },
                                                 on: {
                                                     DATACHANNEL_ESTABLISHED: {
                                                         target:
                                                             "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Data_Channel_Open",
+                                                    },
+                                                    DATACHANNEL_TIMEOUT: {
+                                                        target:
+                                                            "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Rov",
                                                     },
                                                 },
                                             },
@@ -511,22 +506,6 @@ export const rovConnectionMachine =
                                                         actions: "gotMessageFromRov",
                                                         target:
                                                             "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Data_Channel_Open",
-                                                    },
-                                                },
-                                            },
-                                            Data_Channel_Disconnected: {
-                                                entry: "showConnectingUi",
-                                                invoke: {
-                                                    src: "datachannelTimeoutCountdown",
-                                                },
-                                                on: {
-                                                    DATACHANNEL_ESTABLISHED: {
-                                                        target:
-                                                            "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Data_Channel_Open",
-                                                    },
-                                                    DATACHANNEL_TIMEOUT: {
-                                                        target:
-                                                            "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Rov",
                                                     },
                                                 },
                                             },
