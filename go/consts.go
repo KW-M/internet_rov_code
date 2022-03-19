@@ -8,7 +8,7 @@ var BASE_PEER_ID string = "iROV-"
 var UNIX_SOCKET_PATH string = "/tmp/go_robot.socket"
 
 // the seperator string that goes between the message metadata json and the actual message when it is sent through the unix socket:
-var UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR string = "|"|" // intentionally an invalid json string
+var UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR string = "|\"|" // intentionally an invalid json string
 
 // this metadata is prepended to messages sent down the unix socket (when the prepend-metadata command line flag is true)
 // it allows the program at the other end of the to identify which peer

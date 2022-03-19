@@ -1,12 +1,11 @@
 package main
 
 import (
-	"errors"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
-	"fmt"
 
 	peerjs "github.com/muka/peerjs-go"
 	peerjsServer "github.com/muka/peerjs-go/server"
@@ -260,10 +259,10 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLo
 		})
 
 		browserPeerDataConnection.On("error", func(message interface{}) {
-			message := message.(*errors.errorString)
+			errMessage := message.(*errors.errorString)
 			fmt.Printf("PILOT PEER DATACHANNEL ERROR EVENT: %s", message)
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(pilotPeerId, "Error", message.Error())
+				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(pilotPeerId, "Error", errMessage.Error())
 			}
 		})
 	})
