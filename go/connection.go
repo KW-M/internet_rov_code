@@ -259,7 +259,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLo
 		})
 
 		browserPeerDataConnection.On("error", func(message interface{}) {
-			errMessage := message.(*errors.errorString)
+			errMessage := message.(error)
 			fmt.Printf("PILOT PEER DATACHANNEL ERROR EVENT: %s", message)
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
 				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(pilotPeerId, "Error", errMessage.Error())
