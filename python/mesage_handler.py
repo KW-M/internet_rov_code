@@ -38,7 +38,7 @@ def handle_socket_message(message, motors, sensors, sensr_log):
         reply_msg_data["sensor_update"] = sensors.get_changed_sensor_values()
 
     # handle the recived message:
-    if message is not None:
+    if message is not None and len(message) > 0:
         log.debug("Recived: " + message)
         # parse the message data as two JSON formatted strings, first is the metadata.
         try:
@@ -52,8 +52,11 @@ def handle_socket_message(message, motors, sensors, sensr_log):
                 'Received unix socket message with invalid JSON format: ' +
                 message)
             return None
+        except Exception as error:
+            log.error(error, exc_info=True)
+            return None
 
-    # vvariables to be set based on the recived metadata
+    # variables to be set based on the recived metadata
     messageIsFromPilot = False
     srcPeerId = None
 
