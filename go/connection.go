@@ -7,6 +7,7 @@ import (
 
 	"encoding/json"
 	"strconv"
+	"strings"
 	"time"
 
 	// "flag"
@@ -52,6 +53,9 @@ var err error // handy variable to stuff any error messages into
 // we make the PeerId of this ROV the basePeerId plus this number tacked on
 // the end (eg: iROV-0) that we increment if the current peerId is already taken.
 var robotPeerIdEndingNum int = 0
+
+// map off all peer datachannels connected to this robot (includes both the robot peer associated with the local peerjs server and the robot peer associated with the cloud peerjs server)
+var activeDataConnectionsToThisRobot = make(map[string]*peerjs.DataConnection) // map of the open datachannel connection Ids to this peer.
 
 // ----- PeerJs-Go Client Settings -----
 var peerServerCloudOpts, peerServerLocalOpts peerjs.Options
@@ -117,87 +121,101 @@ func startLocalPeerJsServer(done chan bool) {
 
 func setupLocalAndCloudConnections(quitSignal chan bool) {
 	makePeerJsOptions()
-	go startLocalPeerJsServer(quitSignal)
-	time.Sleep(time.Second * 1) // wait a bit for the local peerJs server to start up
 
-	cloudQuitSignal := make(chan string)
-	sendMessageToCloudPeersChan := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
+	exitCloudGoroutineLoop := make(chan bool)
 	exitCloudConnection := make(chan bool)
 	go func() {
 		for {
 			select {
-			case <-cloudQuitSignal:
+			case <-exitCloudGoroutineLoop:
 				log.Println("Exiting cloud webrtc connection loop.")
 				return
 			default:
-				setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts, sendMessageToCloudPeersChan)
+				setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts)
 			}
 		}
 	}()
 
-	localQuitSignal := make(chan string)
-	sendMessageToLocalPeersChan := make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
+
+	exitLocalGoroutineLoop := make(chan bool)
 	exitLocalConnection := make(chan bool)
-	// go func() {
-	// 	// for {
-	// 		select {
-	// 		case <-localQuitSignal:
-	// 			log.Println("Exiting local webrtc connection loop.")
-	// 			return
-	// 		default:
-	// 		}
-	// 		setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts, sendMessageToLocalPeersChan)
-	// 	// }
-	// }()
+	go func() {
+	go startLocalPeerJsServer(quitSignal) // WARNING _ DOES QUIT SIGNAL WORK HERE!!!!!!!?
+	time.Sleep(time.Second * 1) // wait a bit for the local peerJs server to start up
+		// for {
+			select {
+			case <-exitLocalGoroutineLoop:
+				log.Println("Exiting local webrtc connection loop.")
+				return
+			default:
+			}
+			setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts)
+		// }
+	}()
 
 	// send messages recived from the socket to seperate channels for both the local and cloud peers
-	msgForwarderQuitSignal := make(chan string)
-	go func() {
-		for {
-			select {
-			case <-msgForwarderQuitSignal:
-				log.Println("Exiting send webrtc message fan-out loop.")
-				return
-			case msgFromUnixSocket := <-messagesFromUnixSocketChan:
-				sendMessageToCloudPeersChan <- msgFromUnixSocket
-				// sendMessageToLocalPeersChan <- msgFromUnixSocket
-			}
-		}
-	}()
+	exitOutgoingMessageLoop := make(chan  bool)
+	handleOutgoingDatachannelMessages(exitOutgoingMessageLoop)
 
 	<-quitSignal // wait for the quitSignal channel to be triggered at which point close each of the local & cloud connection function channels
-	close(localQuitSignal)
-	close(cloudQuitSignal)
-	close(msgForwarderQuitSignal)
+	close(exitCloudGoroutineLoop)
+	close(exitLocalGoroutineLoop)
 	exitLocalConnection <- true
 	exitCloudConnection <- true
-	close(sendMessageToCloudPeersChan)
-	close(sendMessageToLocalPeersChan)
 }
 
-func handleOutgoingDatachannelMessages() {
+func handleOutgoingDatachannelMessages(exitOutgoingMessageLoop chan bool) {
 	for {
 		select {
-		case msgFromROV := <-messagesToSendToPeersChan:
-			if alreadyExitingFunction {
-				return
+		case msgFromUnixSocket := <-messagesFromUnixSocketChan:
+			fmt.Printf("Received message from unix socket: %s\n", msgFromUnixSocket)
+
+			var TargetPeerIds = make(map[string]bool)
+
+			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
+				metadataAndMessage := strings.Split(msgFromUnixSocket, UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR)
+				if len(metadataAndMessage) == 2 {
+					msgFromUnixSocket = metadataAndMessage[1]
+					var metadataJson = metadataAndMessage[0]
+					var metadata = new(UnixSocketToDatachannelMessageMetadataJson)
+					err := json.Unmarshal([]byte(metadataJson), &metadata)
+					if err != nil {
+						fmt.Printf("Error unmarshalling message metadata: %s\n", err)
+					} else {
+						// copy all of the target peer ids into the TargetPeerIds map
+						for i := 0; i < len(metadata.TargetPeerIds); i++ {
+							TargetPeerIds[metadata.TargetPeerIds[i]] = true
+						}
+
+						// handle other actions
+						// ...
+					}
+				}
 			}
 
-			// rovLog.Println("Sending Message to Pilot: ", msgFromROV)
-			for peerId, dataChannel := range activeDataConnectionsToThisPeer {
-				robotConnLog.Println("Sending to PeerId: ", peerId)
-				dataChannel.Send([]byte(msgFromROV), false)
+			// send the message to all of the peers in the TargetPeerIds map (or all peers if TargetPeerIds is empty)
+			var hasTargetPeerIds = len(TargetPeerIds) > 0
+			for peerIdAndHost, dataChannel := range activeDataConnectionsToThisRobot {
+				var peerId string = strings.Split(peerIdAndHost, "::")[0]
+				var host string = strings.Split(peerIdAndHost, "::")[1]
+				if dataChannel != nil && (!hasTargetPeerIds || TargetPeerIds[peerId]) {
+					log.WithFields(log.Fields{
+						"peerId": peerId,
+						"host": host,
+					}).Println("Sending message to peer:", msgFromUnixSocket)
+					dataChannel.Send([]byte(msgFromUnixSocket), false)
+				}
 			}
-		case <- exitFunction:
-			log.Println("connection.go messagesToSendToPeersChan exiting..")
+
+
+		case <-exitOutgoingMessageLoop:
+			log.Println("Exiting handleOutgoingDatachannelMessages loop.")
 			return
 		}
 	}
 }
 
-func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLog *log.Entry, messagesToSendToPeersChan chan string) {
-	activeDataConnectionsToThisPeer := make(map[string]*peerjs.DataConnection) // map of the open datachannel connection Ids to this peer.
-
+func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLog *log.Entry, peerServerOpts peerjs.Options) {
 	robotPeer.On("connection", func(data interface{}) {
 		browserPeerDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
 		var pilotPeerId string = browserPeerDataConnection.GetPeerID()
@@ -206,7 +224,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLo
 		log.Println("Peer connection established with  Peer ID: ", browserPeerDataConnection.GetPeerID())
 
 		browserPeerDataConnection.On("open", func(interface{}) {
-			activeDataConnectionsToThisPeer[pilotPeerId] = browserPeerDataConnection // add this connection to the map of active connections
+			activeDataConnectionsToThisRobot[pilotPeerId + "::" + peerServerOpts.Host] = browserPeerDataConnection // add this connection to the map of active connections
 
 			// send a metadata message down the unix socket that a new peer has connected
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
@@ -236,7 +254,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLo
 
 		browserPeerDataConnection.On("close", func(message interface{}) {
 			log.Println("BROWSER PEER DATACHANNEL CLOSE EVENT", message)
-			delete(activeDataConnectionsToThisPeer, pilotPeerId) // remove this connection from the map of active connections
+			delete(activeDataConnectionsToThisRobot, pilotPeerId + "::" + peerServerOpts.Host) // remove this connection from the map of active connections
 
 			// send a metadata message down the unix socket that this peer connection has been closed
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
@@ -262,7 +280,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLo
 	})
 }
 
-func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Options, messagesToSendToPeersChan chan string) {
+func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Options) {
 	// NOTE: This should be called as a goroutine, it will not return until the connection breaks or is closed, in which case this function should be run again.
 
 	var alreadyExitingFunction bool = false
@@ -313,11 +331,9 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 			exitFunction <- true   // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
 		} else {
 			robotConnLog.Println("Robot Peer Established!")
+			peerConnectionOpenHandler(*robotPeer, robotPeerId, robotConnLog, peerServerOptions)
 		}
-
-
 	})
-
 
 	// ---------------------------------------------------------------------------------------------------------------------
 	fmt.Println("starting setup WebrtcConnection goroutine sleep")
