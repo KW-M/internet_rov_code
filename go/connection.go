@@ -214,6 +214,8 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLo
 		browserPeerDataConnection.On("open", func(interface{}) {
 			activeDataConnectionsToThisRobot[pilotPeerId+"::"+peerServerOpts.Host] = browserPeerDataConnection // add this connection to the map of active connections
 
+			log.Println("would be video calling")
+
 			// send a metadata message down the unix socket that a new peer has connected
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
 				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(pilotPeerId, "Connected", "")
@@ -261,12 +263,12 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLo
 		})
 
 
-		log.Printf("VIDEO CALLING browser peer with peer ID: %s\n", pilotPeerId)
-		_, err = robotPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
-		if err != nil {
-			log.Println("Error calling pilot id: ", pilotPeerId)
-			log.Fatal(err)
-		}
+		// log.Printf("VIDEO CALLING browser peer with peer ID: %s\n", pilotPeerId)
+		// _, err = robotPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
+		// if err != nil {
+		// 	log.Println("Error calling pilot id: ", pilotPeerId)
+		// 	log.Fatal(err)
+		// }
 
 	})
 }
