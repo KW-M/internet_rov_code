@@ -39,11 +39,10 @@ def handle_socket_message(message, motors, sensors, sensr_log):
 
     # handle the recived message:
     if message is not None:
-        print("recvd message: " + str(message))
         # parse the message data as two JSON formatted strings, first is the metadata.
         try:
             metadataJson, messageDataJson = message.split(
-                MESSAGE_METADATA_SEPARATOR)
+                MESSAGE_METADATA_SEPARATOR, 2)
             parsed_metadata = json.loads(metadataJson)
             parsed_msg = json.loads(messageDataJson)
 
@@ -127,6 +126,11 @@ def handle_socket_message(message, motors, sensors, sensr_log):
             reply_msg_data["currentPiotPeerId"] = srcPeerId
 
     # Send the reply_msg_data as a json string if it has any data in it.
-    if len(reply_msg_data) > 0:
+    reply_message = ""
+    if len(reply_metadata) > 0:
         reply_message = json.dumps(reply_msg_data)
+    if len(reply_msg_data) > 0:
+        reply_message = reply_message + MESSAGE_METADATA_SEPARATOR + json.dumps(
+            reply_msg_data)
+    if len(reply_message) > 0:
         return reply_message
