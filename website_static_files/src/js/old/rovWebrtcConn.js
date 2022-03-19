@@ -54,7 +54,7 @@ class RovWebrtcConn {
             var lastIceConnectionState = null
             this.checkDataChannelIntervalId = setInterval(() => {
                 // console.log("DC Active", rovDataConnection.peerConnection)
-                if (this.rovDataConnection.peerConnection) {
+                if (this.rovDataConnection.peerConnection && rovDataConnection.peerConnection.iceConnectionState) {
                     let connectionState = this.rovDataConnection.peerConnection.iceConnectionState
                     if (connectionState == "disconnected") {
                         console.info("Waiting for ROV to reconnect: " + reconnectCountdown)
