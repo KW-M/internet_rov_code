@@ -128,7 +128,7 @@ def handle_socket_message(message, motors, sensors, sensr_log):
     # Send the reply_msg_data as a json string if it has any data in it.
     reply_message = ""
     if len(reply_metadata) > 0:
-        reply_message = json.dumps(reply_msg_data)
+        reply_message = json.dumps(reply_metadata)
     if len(reply_msg_data) > 0:
         reply_message = reply_message + MESSAGE_METADATA_SEPARATOR + json.dumps(
             reply_msg_data)

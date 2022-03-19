@@ -92,7 +92,7 @@ const mainMachine = createMachine({
                             return (callback, onReceive) => {
                                 setInterval(() => {
                                     callback({ type: "SEND_MESSAGE_TO_ROV", data: JSON.stringify({ "ping": Date.now() }) });
-                                }, 3000)
+                                }, 8000)
                             }
                         }
                     },
