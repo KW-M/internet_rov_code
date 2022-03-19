@@ -62,7 +62,7 @@ func pipeVideoToStream(done chan bool) error {
 		scanner := bufio.NewScanner(sderrPipe)
 		scanner.Split(bufio.ScanLines)
 		for scanner.Scan() {
-			cameraLog.Printf("[camera-stream-sderr] > %s\n", scanner.Text())
+			// cameraLog.Printf("[camera-stream-sderr] > %s\n", scanner.Text())
 		}
 	}()
 
