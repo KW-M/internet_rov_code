@@ -168,7 +168,6 @@ func handleOutgoingDatachannelMessages(exitOutgoingMessageLoop chan bool) {
 	for {
 		select {
 		case msgFromUnixSocket := <-messagesFromUnixSocketChan:
-			fmt.Printf("Received message from unix socket: %s\n", msgFromUnixSocket)
 
 			var TargetPeerIds = make(map[string]bool)
 
