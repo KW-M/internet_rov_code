@@ -17,7 +17,7 @@ var messagesFromUnixSocketChan = make(chan string, 12) // a channel with a buffe
 // flags
 var videoShellCommand = ""
 var peerServerListenPort = ""
-var ADD_METADATA_TO_UNIX_SOCKET_MESSAGES = false
+var ADD_METADATA_TO_UNIX_SOCKET_MESSAGES = true
 
 func main() {
 
