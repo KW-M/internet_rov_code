@@ -64,7 +64,7 @@ while True:
         ######## SETUP #########
 
         # ----- SOCKET CONNECTION ----
-        success = msg_socket.setup_socket(socket_path='/tmp/go.sock',
+        success = msg_socket.setup_socket(socket_path='/tmp/go_robot.socket',
                                           socket_timeout=5)
         if not success:
             log.warning(

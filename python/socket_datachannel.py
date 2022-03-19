@@ -15,7 +15,9 @@ class Socket_Datachannel:
             self.sock.close()
             self.sock = None
 
-    def setup_socket(self, socket_path='/tmp/go.sock', socket_timeout=.1):
+    def setup_socket(self,
+                     socket_path='/tmp/got_robot.socket',
+                     socket_timeout=.1):
         """
         Setup a python socket to communicate with the the datachanel socket file the go rov code creates.
         This function is intended to be called in a loop so long as it returns False (indicating it was not able to connect).
