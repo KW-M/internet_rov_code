@@ -34,6 +34,7 @@ def handle_socket_message(message, motors, sensors, sensr_log):
 
     # handle the recived message:
     if message is not None:
+        print("recvd message: " + str(message))
         # parse the message data as two JSON formatted strings, first is the metadata.
         try:
             metadataJson, messageDataJson = message.split(
