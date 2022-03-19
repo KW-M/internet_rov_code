@@ -24,7 +24,7 @@ type DatachannelToUnixSocketMessageMetadata struct {
 // this metadata is what is expected to be prepended (as JSON followed by the unixSocketRelayMetadataSeparator string) to messages recived from the unix socket (when the prepend-metadata command line flag is true)
 type UnixSocketToDatachannelMessageMetadataJson struct {
 	// TargetPeerIds is the list of peerjs peers (by peer id) this mesage should be sent to. An empty list means broadcast mesage to all connected peers.
-	TargetPeerIds  []string    `json:"TargetPeerId"`
+	TargetPeerIds  []string    `json:"TargetPeerIds"`
 	// An action to be performed by this go code. Options are currently: "Change_Video_Cmd"
 	Action  string    `json:"Action"`
 	// Parameters used by the Action.

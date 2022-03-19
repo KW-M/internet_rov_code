@@ -58,10 +58,11 @@ def handle_socket_message(message, motors, sensors, sensr_log):
     srcPeerId = None
 
     # handle the metadata:
-    if parsed_metadata is not None:
+    if len(parsed_metadata) > 0:
 
         if "SrcPeerId" in parsed_metadata:
             srcPeerId = parsed_metadata["SrcPeerId"]
+            reply_metadata['TargetPeerIds'] = [parsed_metadata['SrcPeerId']]
 
             # check if a connected or disconnected event happened:
             if "Event" in parsed_metadata:
@@ -83,7 +84,7 @@ def handle_socket_message(message, motors, sensors, sensr_log):
                 messageIsFromPilot = True
 
     # handle the parssed message data:
-    if parsed_msg is not None:
+    if len(parsed_msg) > 0:
 
         # handle pilot actions
         if messageIsFromPilot:
@@ -95,8 +96,6 @@ def handle_socket_message(message, motors, sensors, sensr_log):
 
             if 'toggleLights' in parsed_msg:
                 pass
-
-        reply_metadata['TargetPeerIds'] = [parsed_metadata['SrcPeerId']]
 
         # handle actions / events applicable to all peers (pilots and spectators):
         if 'ping' in parsed_msg:
