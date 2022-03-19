@@ -5,7 +5,7 @@ import logging
 ###### setup logging #######
 log = logging.getLogger(__name__)
 
-MESSAGE_METADATA_SEPARATOR = '{|'
+MESSAGE_METADATA_SEPARATOR = '|"|'
 
 current_pilot_peerid = None
 connected_peerids = []
