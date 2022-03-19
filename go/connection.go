@@ -120,27 +120,28 @@ func setupLocalAndCloudConnections(quitSignal chan bool) {
 				log.Println("Exiting cloud webrtc connection loop.")
 				return
 			default:
+				println("Setting Up Cloud Connection")
 				setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts)
 			}
 		}
 	}()
 
-	exitLocalGoroutineLoop := make(chan bool)
-	exitLocalConnection := make(chan bool)
-	go func() {
-		go startLocalPeerJsServer(quitSignal) // WARNING _ DOES QUIT SIGNAL WORK HERE!!!!!!!?
-		time.Sleep(time.Second * 1)           // wait a bit for the local peerJs server to start up
-		for {
-			select {
-			case <-exitLocalGoroutineLoop:
-				log.Println("Exiting local webrtc connection loop.")
-				return
-			default:
-				return
-				// setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts)
-			}
-		}
-	}()
+	// exitLocalGoroutineLoop := make(chan bool)
+	// exitLocalConnection := make(chan bool)
+	// go func() {
+	// 	go startLocalPeerJsServer(quitSignal) // WARNING _ DOES QUIT SIGNAL WORK HERE!!!!!!!?
+	// 	time.Sleep(time.Second * 1)           // wait a bit for the local peerJs server to start up
+	// 	for {
+	// 		select {
+	// 		case <-exitLocalGoroutineLoop:
+	// 			log.Println("Exiting local webrtc connection loop.")
+	// 			return
+	// 		default:
+	// 			return
+	// 			// setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts)
+	// 		}
+	// 	}
+	// }()
 
 	// send messages recived from the socket to seperate channels for both the local and cloud peers
 	exitOutgoingMessageLoop := make(chan bool)
@@ -148,8 +149,8 @@ func setupLocalAndCloudConnections(quitSignal chan bool) {
 
 	<-quitSignal // wait for the quitSignal channel to be triggered at which point close each of the local & cloud connection function channels
 	exitCloudGoroutineLoop <- true
-	exitLocalGoroutineLoop <- true
-	exitLocalConnection <- true
+	// exitLocalGoroutineLoop <- true
+	// exitLocalConnection <- true
 	exitCloudConnection <- true
 }
 

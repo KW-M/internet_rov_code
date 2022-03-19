@@ -194,7 +194,7 @@ const machineFunctions = {
             };
         },
         awaitDatachannelOpen: (context, event) => {
-            const openHandler = generateStateChangeFunction(sendStateChange, "DATA_CHANNEL_ESTABLISHED", null)
+            const openHandler = generateStateChangeFunction(sendStateChange, "DATACHANNEL_ESTABLISHED", null)
             const errorHandler = generateStateChangeFunction(sendStateChange, "PEERJS_ERROR", null)
             rovDataConnection.on("open", openHandler)
             rovDataConnection.on("error", errorHandler)
@@ -474,19 +474,14 @@ export const rovConnectionMachine =
                                         exit: "closeDownDataChannel",
                                         initial: "Data_Channel_Not_Open",
                                         states: {
-                                            Data_Channel_Disconnected: {
-                                                entry: "showConnectingUi",
+                                            Data_Channel_Not_Open: {
                                                 invoke: {
-                                                    src: "datachannelTimeoutCountdown",
+                                                    src: "awaitDatachannelOpen",
                                                 },
                                                 on: {
                                                     DATACHANNEL_ESTABLISHED: {
                                                         target:
                                                             "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Data_Channel_Open",
-                                                    },
-                                                    DATACHANNEL_TIMEOUT: {
-                                                        target:
-                                                            "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Rov",
                                                     },
                                                 },
                                             },
@@ -519,14 +514,19 @@ export const rovConnectionMachine =
                                                     },
                                                 },
                                             },
-                                            Data_Channel_Not_Open: {
+                                            Data_Channel_Disconnected: {
+                                                entry: "showConnectingUi",
                                                 invoke: {
-                                                    src: "awaitDatachannelOpen",
+                                                    src: "datachannelTimeoutCountdown",
                                                 },
                                                 on: {
                                                     DATACHANNEL_ESTABLISHED: {
                                                         target:
                                                             "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Data_Channel_Open",
+                                                    },
+                                                    DATACHANNEL_TIMEOUT: {
+                                                        target:
+                                                            "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Rov",
                                                     },
                                                 },
                                             },
