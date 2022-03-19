@@ -96,10 +96,11 @@ def handle_socket_message(message, motors, sensors, sensr_log):
             if 'toggleLights' in parsed_msg:
                 pass
 
+        reply_metadata['TargetPeerIds'] = [parsed_metadata['SrcPeerId']]
+
         # handle actions / events applicable to all peers (pilots and spectators):
         if 'ping' in parsed_msg:
             reply_msg_data['pong'] = parsed_msg['ping']
-            reply_metadata['TargetPeerId'] = parsed_metadata['SrcPeerId']
 
         if 'photo' in parsed_msg:
             reply_msg_data["statusMessage"] = "Photo Taken"
@@ -124,6 +125,7 @@ def handle_socket_message(message, motors, sensors, sensr_log):
 
         if 'takeControl' in parsed_msg and srcPeerId != None:
             current_pilot_peerid = srcPeerId
+            reply_metadata['TargetPeerIds'] = []
             reply_msg_data["currentPiotPeerId"] = srcPeerId
 
     # Send the reply_msg_data as a json string if it has any data in it.

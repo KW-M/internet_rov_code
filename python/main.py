@@ -88,8 +88,6 @@ while True:
             # Wait for a message to arrive (or timeout)
             # - Note the timeout effectively sets how frequently reply messages can go out when no messages come in.
             recived_message = msg_socket.recieve_socket_message()
-            if recived_message != None:
-                log.debug('recived_message: ' + str(recived_message))
 
             # Handle the message and generate a response message (if needed)
             reply_message = handle_socket_message(recived_message, motors,
@@ -98,8 +96,8 @@ while True:
             # Send the response message
             if reply_message != None:
                 success = msg_socket.send_socket_message(reply_message)
-                log.debug('Sending reply message: ' + str(reply_message) +
-                          " Successful?: " + str(success))
+                # log.debug('Sending reply message: ' + str(reply_message) +
+                #           " Successful?: " + str(success))
 
     except Exception as error:
 
