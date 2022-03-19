@@ -231,13 +231,6 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLo
 				}
 				sendMessagesToUnixSocketChan <- socketString
 			})
-
-			log.Printf("VIDEO CALLING browser peer with peer ID: %s\n", pilotPeerId)
-			_, err = robotPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
-			if err != nil {
-				log.Println("Error calling pilot id: ", pilotPeerId)
-				log.Fatal(err)
-			}
 		})
 
 		browserPeerDataConnection.On("close", func(message interface{}) {
@@ -266,6 +259,15 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLo
 				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(pilotPeerId, "Error", errMessage.Error())
 			}
 		})
+
+
+		log.Printf("VIDEO CALLING browser peer with peer ID: %s\n", pilotPeerId)
+		_, err = robotPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
+		if err != nil {
+			log.Println("Error calling pilot id: ", pilotPeerId)
+			log.Fatal(err)
+		}
+
 	})
 }
 
