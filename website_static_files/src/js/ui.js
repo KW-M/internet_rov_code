@@ -61,6 +61,20 @@ export function showROVConnectedUI() {
     hideLoadingUi()
 }
 
+export function setupConnectBtnClickHandler(callback) {
+    connectBtn.addEventListener('click', callback);
+    return cleanupFunc = () => {
+        connectBtn.removeEventListener('click', callback);
+    }
+}
+
+export function setupDisconnectBtnClickHandler(callback) {
+    connectBtn.addEventListener('click', callback);
+    return cleanupFunc = () => {
+        connectBtn.removeEventListener('click', callback);
+    }
+}
+
 export function showScanIpBtn() {
     document.getElementById("scan_for_ip_btn").style.display = "block";
 }
@@ -80,7 +94,11 @@ export function hideLoadingUi() {
     loadingIndicator.style.display = 'none';
 }
 
-
+var connectionDisplay = document.getElementById('connection_display');
+export function updateConnectionDisplay(rovPeerId, isPilot) {
+    pingDisplay.innerText = pingTimeMs;
+    connectionDisplay.innerText = `Connected to: ${rovPeerId} | Your Role: ${isPilot ? "Pilot" : "Spectator"}`;
+}
 
 var pingDisplay = document.getElementById('ping_value');
 export function updatePingDisplay(pingTimeMs) {
@@ -99,23 +117,31 @@ export function updateDisplayedSensorValues(sensorValues) {
     tempDisplay.innerText = sensorValues.temp;
 }
 
+// https://codepen.io/fueru/pen/JjjoXez
+var compassDisc = document.getElementById("compassDiscImg");
+const compassOffset = 135;
+export function setCompassHeading(headingDeg) {
+    var totalDir = -(headingDeg + compassOffset);
 
-export function setupConnectBtnClickHandler(callback) {
-    connectBtn.addEventListener('click', function () {
-        connectBtn.removeEventListener('click', this);
-        callback();
-    });
-}
+    // document.getElementById("direction").innerHTML = "dir: " + Math.ceil(dir) + " + offset(" + offset + ") = " + Math.ceil(totalDir);
+    compassDisc.style.transform = `translateX(${totalDir}px)`;
+};
 
-export function setupConnectDisconnectButtonEvents(connectCallback, disconnectCallback) {
+// FOR DEBUGGING COMPASS:
+document.addEventListener("DOMContentLoaded", function (event) {
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', function (eventData) {
+            // gamma: Tilting the device from left to right. Tilting the device to the right will result in a positive value.
+            var tiltLR = eventData.gamma;
 
-    connectBtn.addEventListener('click', (e) => {
-        connectCallback(e);
-        showROVConnectedUI()
-    }, false);
+            // beta: Tilting the device from the front to the back. Tilting the device to the front will result in a positive value.
+            var tiltFB = eventData.beta;
 
-    disconnectBtn.addEventListener('click', (e) => {
-        disconnectCallback(e);
-        showROVDisconnectedUI()
-    }, false);
-}
+            // alpha: The direction the compass of the device aims to in degrees.
+            var dir = eventData.alpha
+
+            // Call the function to use the data on the page.
+            setCompassHeading(dir);
+        }, false);
+    }
+});

@@ -17,15 +17,11 @@
         <span id="site_loading_text">Checking Internet Access...</span>
     </div>
     <button id='connect_btn' style="display: none;">Connect to ROV</button>
-    <button id='disconnect_btn' style="display: none;">Disconnect</button>
     <button id='scan_for_ip_btn' style="display: none;">Scan for ROV IP</button>
 
 
-    <div class="top-left-corner">
-        <p>Net Ping: <span id="ping_value">--</span>ms</p>
-        <p>Battery: <span id="battery_value">--</span></p>
-        <p>Pressure: <span id="pressure_value">--</span>mPa</p>
-        <p>Temp: <span id="temp_value">--</span>C</p>
+<div class="bottom-center">
+    <span id="connection_display">Not Connected</span>
     </div>
 
     <div class="top-right-corner">
@@ -35,6 +31,7 @@
             <ul tabindex="0">
                 <li onclick="shutdownROV()" tabindex="0">Shutdown ROV</li>
                 <li onclick="rebootROV()" tabindex="0">Reboot ROV</li>
+                <li id='disconnect_btn' style="display: none;">Disconnect</li>
                 <!-- <li onclick="disconnect()">Disconnect</li> -->
             </ul>
         </div>
@@ -46,10 +43,10 @@
                 </a>
             </ul>
         </div> -->
-        <button class="debug-menu-btn icon-btn bottom-btn"></button>
+        <!--<button class="debug-menu-btn icon-btn bottom-btn"></button>
         <div class="dropdown-menu-list">
             <ul>
-                <!-- <a href="/uwsgi/status/" target="_blank" tabindex="0">
+                <a href="/uwsgi/status/" target="_blank" tabindex="0">
                     <li>System Status</li>
                 </a>
                 <a href="/netdata.html" target="_blank" tabindex="0">
@@ -67,12 +64,30 @@
                 <li onclick="rePullROVGithubCode()" tabindex="0">Pull ROV Code from Github</li>
                 <li onclick="restartROVServices()" tabindex="0">Restart ROV Services</li>
                 <li onclick="enableWifi()" tabindex="0">Enable ROV Wifi</li>
-                <li onclick="disableWifi()" tabindex="0">Disable ROV Wifi</li> -->
-            </ul>
-        </div>
+                <li onclick="disableWifi()" tabindex="0">Disable ROV Wifi</li>
+                </ul>
+        </div>-->
     </div>
-    <div class="livestream-container">
-        <video id='video-livestream' onclick="toggleFullscreen(event,this)"></video>
+    <div class="livestream-container" onclick="toggleFullscreen(event,this)">
+        <table class="top-left-corner">
+            <tr>
+                <td><b>Net Ping:</b></td>
+                <td><span id="ping_value">--</span> ms</td>
+            </tr>
+            <tr>
+                <td><b>Pressure:</b></td>
+                <td><span id="pressure_value">--</span> mPa</td>
+            </tr>
+            <tr>
+                <td><b>Temp:</b></td>
+                <td><span id="temp_value">--</span> ℃</td>
+            </tr>
+        </table>
+        <div class="compass">
+            <div class="line"></div>
+            <div class="bg" id="compassDiscImg"></div>
+        </div>
+        <video id='video-livestream'></video>
     </div>
     <div id="gamepad-container">
         <!-- Gamepad Connected/Disconned Feedback -->

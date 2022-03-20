@@ -57,12 +57,15 @@ body {
   text-align: center;
 }
 .top-left-corner {
-  position: absolute;
-  z-index: 4;
-  top: 0;
-  left: 0;
+  position: fixed;
+z-index: 4;
+top: 0;
+left: 0;
 
-  padding: 0px 16px;
+padding: 6px;
+
+border-bottom-right-radius: 16px;
+background: #ffffffdb;
 }
 .top-right-corner {
   position: absolute;
@@ -72,9 +75,30 @@ body {
 
   padding: 8px;
 }
+.top-center {
+  position: absolute;
+  z-index: 7;
+  top: 8px;
+
+  margin: 0 auto;
+
+  text-align: center ;
+}
+.bottom-center {
+  position: absolute;
+  z-index: 6;
+  bottom: 8px;
+  left: 50%;
+
+transform: translateX(-50%);
+  text-align: center ;
+}
+
+table.top-left-corner td{
+  padding: 4px 7px;
+}
 
 #connect_btn,
-#disconnect_btn,
 #site_loading_indicator,
 #scan_for_ip_btn {
   position: absolute;
@@ -289,72 +313,108 @@ button:active {
   background-color: rgb(0, 52, 87);
 }
 
-/* CIRCULAR CORNER MENU WITH ICONS */
+/******* Video Stream + Fullscreen Layout *********/
 
-#circle_corner_menu {
+.livestream-container {
   position: fixed;
-  z-index: 50;
+  top: 0;
+  right: 0;
   bottom: 0;
   left: 0;
 
-  overflow: hidden;
+  display: block;
 
-  width: 70px;
-  height: 70px;
+  width: fit-content;
+  margin: auto;
+  padding: 34px 68px;
 
-  transition: width 0.4s ease, height 0.4s ease;
+  cursor: zoom-in;
+}
+.livestream-container.fullscreen-open {
+  width: 100%;
+  height: 100%;
+  padding-right: 0;
+  padding-bottom: 0;
+  padding-left: 0;
 
-  border-radius: 0 188px 0 0;
-  background-color: black;
-  box-shadow: 0 0px 20px -5px rgb(0 0 0 / 48%);
+  cursor: zoom-out;
+}
+.livestream-container.fullscreen-open  #video-livestream {
+width: 100%;
+height: 100%;
+}
+#video-livestream {
+  display: block;
+
+max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+
+  border: 3px solid black;
+  border-radius: 12px;
+  background: black;
 }
 
-#circle_corner_menu:hover,
-#circle_corner_menu.expanded,
-#circle_corner_menu:focus-within {
-  width: 130px;
-  height: 130px;
+/* ********* Compass Display ********* */
+
+.compass {
+	position: relative;
+top: 0px;
+left: 0px;
+
+overflow: hidden;
+
+width: 360px;
+height: 36px;
+margin: 0 auto;
+  margin-top: 0px;
+margin-top: -26px;
+  margin-bottom: 0px;
+margin-bottom: -2px;
+
+border: 2px solid black;
+border-radius: 20px 20px 0 0;
 }
 
-#circle_corner_menu:focus-within {
-  transition: none;
+.compass .bg {
+	position: absolute;
+	/*left: 20px;*/
+	z-index: 200;
+	top: 0px;
+
+	width: 1080px;
+	height: 50px;
+
+	background: url('https://i.ibb.co/DfFhkbM/COMPASS-v4.jpg');
+  background-repeat: no-repeat;
+	/*background-size: 100%;*/
 }
 
-#circle_corner_menu:hover .icon-links-hover-hint,
-#circle_corner_menu.expanded .icon-links-hover-hint,
-#circle_corner_menu:focus-within .icon-links-hover-hint {
-  opacity: 0.1;
+.compass .line {
+	position: absolute;
+	/*left: 20px;*/
+	z-index: 1000;
+	top: 0px;
+
+	width: 1080px;
+	height: 50px;
+
+	background: url('https://i.ibb.co/h25K56D/COMPASS-v4.png');
+	/*background-size: 100%;*/
 }
 
-.icon-links-hover-hint {
+/* ********* Gamepad Help ********* */
+
+#gamepad-container {
   position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
   bottom: 0;
   left: 0;
 
-  padding: 11px;
-
-  user-select: none;
-
-  color: white;
-
-  font-size: 56px;
-  line-height: 30px;
+  pointer-events: none;
 }
-
-#circle_corner_menu a {
-  position: absolute;
-
-  opacity: 1;
-}
-
-#circle_corner_menu img {
-  height: 30px;
-  padding: 12px;
-
-  border-radius: 100px;
-}
-
-/* ********* Gamepads / Gamepad Help ********* */
 
 #gamepad-connect-notice,
 #too-many-gamepads-notice {
@@ -375,17 +435,6 @@ button:active {
   font-family: sans-serif;
   font-size: 26px;
   line-height: 1.2em;
-}
-
-#gamepad-container {
-  position: absolute;
-  z-index: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-
-  pointer-events: none;
 }
 
 #gamepad-help-text {
@@ -418,18 +467,6 @@ button:active {
   pointer-events: all;
 }
 
-.onscreen-gamepad {
-  position: absolute;
-  bottom: -15px;
-
-  height: 60vh;
-  min-height: 9cm;
-  max-height: 14cm;
-
-  transition: all 0.4s ease;
-  pointer-events: none;
-}
-
 #gamepad-container.help-open {
   z-index: 20;
 
@@ -446,6 +483,20 @@ button:active {
 
 #gamepad-container.help-open #gamepad-help-text {
   display: block;
+}
+
+/* ********* Onscreen Gamepad Related ********* */
+
+.onscreen-gamepad {
+  position: absolute;
+  bottom: -15px;
+
+  height: 60vh;
+  min-height: 9cm;
+  max-height: 14cm;
+
+  transition: all 0.4s ease;
+  pointer-events: none;
 }
 
 #onscreen-gamepad-left {
@@ -472,44 +523,6 @@ button:active {
   bottom: 15px;
 
   transform: translateX(120%);
-}
-
-.livestream-container {
-  position: fixed;
-  top: 34px;
-  right: 68px;
-  bottom: 34px;
-  left: 68px;
-
-  display: block;
-
-  width: fit-content;
-  margin: auto;
-
-  cursor: zoom-in;
-}
-.livestream-container:-webkit-full-screen {
-  cursor: zoom-out;
-}
-.livestream-container:-moz-full-screen {
-  cursor: zoom-out;
-}
-.livestream-container:-ms-fullscreen {
-  cursor: zoom-out;
-}
-.livestream-container:fullscreen {
-  cursor: zoom-out;
-}
-#video-livestream {
-  display: block;
-
-max-width: 100%;
-  max-height: 100%;
-  margin: auto;
-
-  border: 3px solid black;
-  border-radius: 12px;
-  background: black;
 }
 
 .gamepad-btn-highlight {
@@ -566,6 +579,8 @@ max-width: 100%;
 .gamepad-joystick-touch-area#gamepad-joystick-touch-area-right {
   right: 0;
 }
+
+
 
 /* Site loading "spinning circle" indicator */
 

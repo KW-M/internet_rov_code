@@ -19,11 +19,10 @@ import { calculateDesiredMotion, getURLQueryStringVariable } from "./util.js";
 import { siteInitMachine } from "./siteInit";
 import { rovConnectionMachine } from "./rovConnStateMachine";
 
-import { toggleFullscreen } from "./util.js";
 import { initGamepadSupport } from "./gamepad.js";
 import { gamepadUi } from "./gamepad-ui.js";
 import { gamepadEmulator } from "./gamepad-emulation.js";
-window.toggleFullscreen = toggleFullscreen;
+
 
 
 // show an inspector
@@ -62,6 +61,7 @@ const mainMachine = createMachine({
             type: "parallel",
             states: {
                 Connection_To_Rov: {
+                    exit: send({ type: "CLEANUP_CONNECTIONS" }, { to: "rovConnectionMachine" }),
                     invoke: {
                         src: rovConnectionMachine,
                         id: "rovConnectionMachine",
@@ -69,7 +69,6 @@ const mainMachine = createMachine({
                             ...rovConnectionMachine.context, // spread syntax to fill in the rest of the context specified in the child machine (otherwise xstate removes the rest: https://github.com/statelyai/xstate/issues/993)
                             rovIpAddr: (context, event) => context.rovIpAddr,
                             peerServerConfig: (context, event) => context.peerServerConfig,
-                            // rovChosen: false,
                         }
                     },
                 },
@@ -88,49 +87,67 @@ const mainMachine = createMachine({
                     // },
 
                     invoke: {
-                        src: (context, event) => {
-                            return (callback, onReceive) => {
-                                setInterval(() => {
-                                    callback({ type: "SEND_MESSAGE_TO_ROV", data: JSON.stringify({ "ping": Date.now() }) });
-                                }, 8000)
-                            }
-                        }
+                        src: "handleSendingMessages",
+                        id: "handleSendingMessages",
                     },
                     on: {
                         SEND_MESSAGE_TO_ROV: {
-                            actions: send((context, event) => {
-                                return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
-                            }, { to: "rovConnectionMachine" })
+                            actions: "sendMessageToRov"
                         },
                         GOT_MESSAGE_FROM_ROV: {
-                            actions: (context, event) => { return handleRovMessage(event.data) }
+                            actions: "gotMessageFromRov"
                         }
                     }
                 }
+            },
+            on: {
+                WEBSITE_CLOSE: {
+                    target: "Done",
+                }
             }
+        },
+        Done: {
+            type: "final",
         }
     }
 }, {
     actions: {
         setRovIpAddr: assign({
-            rovIpAddr: (ctx, event) => event.data.rovIpAddr
+            rovIpAddr: (context, event) => event.data.rovIpAddr
         }),
         setPeerServerConfig: assign({
-            peerServerConfig: (ctx, event) => event.data.peerServerConfig
+            peerServerConfig: (context, event) => event.data.peerServerConfig
         }),
+        sendMessageToRov: send((context, event) => {
+            return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
+        }, { to: "rovConnectionMachine" }),
+        gotMessageFromRov: (context, event) => {
+            (context, event) => { return handleRovMessage(event.data) }
+        }
     },
     services: {
+        handleSendingMessages: (context, event) => {
+            (context, event) => {
+                return (callback, onReceive) => {
+                    intervalId = setInterval(() => {
+                        callback({ type: "SEND_MESSAGE_TO_ROV", data: JSON.stringify({ "ping": Date.now() }) });
+                    }, 8000)
+                    return () => { clearInterval(intervalId) }
+                }
+            }
+        }
     },
     guards: {
     },
 })
 
+window.mainRovMachineService = interpret(mainMachine, { devTools: true })
+window.mainRovMachineService.start();
 
-const mainMachineService = interpret(mainMachine, { devTools: true })
+window.onbeforeunload = () => {
+    window.mainRovMachineService.send("WEBSITE_CLOSE");
+}
 
-setTimeout(() => {
-    mainMachineService.start();
-}, 1000);
 
 // var lastTimeRecvdPong = 0;
 // const handleROVMessage = function (message) {
