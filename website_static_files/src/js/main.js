@@ -248,7 +248,7 @@ function handleGamepadInput(buttonStates, axisState) {
 
     if (Object.keys(messageToRov).length > 0) {
         console.log("Sending message to ROV: " + JSON.stringify(messageToRov));
-        sendUpdateToROV(messageToRov);
+        sendUpdateToROV(JSON.stringify(messageToRov));
     }
 }
 

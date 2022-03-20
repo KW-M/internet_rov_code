@@ -44,8 +44,14 @@ def handle_socket_message(message, motors, sensors, sensr_log):
         try:
             metadataJson, messageDataJson = message.split(
                 MESSAGE_METADATA_SEPARATOR, 2)
-            parsed_metadata = json.loads(metadataJson)
-            parsed_msg = json.loads(messageDataJson)
+        except ValueError:
+            metadataJson = message
+
+        try:
+            if len(metadataJson) > 0:
+                parsed_metadata = json.loads(metadataJson)
+            if len(messageDataJson) > 0:
+                parsed_msg = json.loads(messageDataJson)
 
         except json.JSONDecodeError:
             log.warning(
