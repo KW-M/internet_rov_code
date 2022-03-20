@@ -23,8 +23,6 @@ import { initGamepadSupport } from "./gamepad.js";
 import { gamepadUi } from "./gamepad-ui.js";
 import { gamepadEmulator } from "./gamepad-emulation.js";
 
-
-
 // show an inspector
 if (getURLQueryStringVariable("debug-mode")) {
     inspect({
@@ -148,6 +146,10 @@ window.onbeforeunload = () => {
     window.mainRovMachineService.send("WEBSITE_CLOSE");
 }
 
+function sendUpdateToROV(message) {
+    window.mainRovMachineService.send({ type: "SEND_MESSAGE_TO_ROV", data: message });
+}
+
 
 // var lastTimeRecvdPong = 0;
 // const handleROVMessage = function (message) {
@@ -246,7 +248,7 @@ function handleGamepadInput(buttonStates, axisState) {
 
     if (Object.keys(messageToRov).length > 0) {
         console.log("Sending message to ROV: " + JSON.stringify(messageToRov));
-        // sendUpdateToROV(messageToRov);
+        sendUpdateToROV(messageToRov);
     }
 }
 

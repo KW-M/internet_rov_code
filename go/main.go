@@ -44,8 +44,8 @@ func main() {
 
 	// Create the unix socket to send and receive data to - from python
 
-	// sock := CreateUnixSocket(quitProgramChan, messagesFromUnixSocketChan, sendMessagesToUnixSocketChan, UNIX_SOCKET_PATH)
-	// defer sock.CleanupSocket()
+	sock := CreateUnixSocket(quitProgramChan, messagesFromUnixSocketChan, sendMessagesToUnixSocketChan, UNIX_SOCKET_PATH)
+	defer sock.CleanupSocket()
 
 	// DEBUG FOR SOCKET MESSAGES
 	// go func() {
