@@ -10,6 +10,7 @@ log = logging.getLogger(__name__)
 ###################################################
 ############### Motor / GPIO Stuff ################
 
+
 class Drok_Pwm_Motor:
     """ For the Drok 7A dual DC motor driver (Product SKU: 200206)
     pin_ena: the raspberry pi pin going to the ENA1 pin on the motor driver (ENA2 if driving the second motor)
@@ -29,7 +30,8 @@ class Drok_Pwm_Motor:
         self.pigpio_instance.set_PWM_dutycycle(self.pin_ena, 0)
         self.pigpio_instance.write(self.pin_in1, 0)  # pin LOW (off)
         self.pigpio_instance.write(self.pin_in2, 0)  # pin LOW (off)
-        print('PWM Freq: pin_ena = {}'.format(pigpio_instance.get_PWM_frequency(self.pin_ena)))
+        print('PWM Freq: pin_ena = {}'.format(
+            pigpio_instance.get_PWM_frequency(self.pin_ena)))
 
     def set_speed(self, speed):
         """
@@ -113,29 +115,29 @@ class Motion_Controller:
 
             # initilize the motor controllers
             # Motor Controller 1 (forward right)
-            self.FORWARD_RIGHT_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance,
-                                                 pin_in1=5,
-                                                 pin_in2=6)
+            self.FORWARD_RIGHT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
+                                                      pin_ena=17,
+                                                      pin_in1=27,
+                                                      pin_in2=22)
             # Motor Controller 2 (forward left)
             self.FORWARD_LEFT_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance,
-                                                pin_in1=13,
-                                                pin_in2=26)
+                                                         pin_in1=13,
+                                                         pin_in2=26)
             # Motor Controller 3 (up right)
             self.UP_LEFT_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance,
-                                           pin_in1=21,
-                                           pin_in2=20)
+                                                    pin_in1=21,
+                                                    pin_in2=20)
             # Motor Controller 4 (up left)
             self.UP_RIGHT_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance,
-                                            pin_in1=12,
-                                            pin_in2=25)
+                                                     pin_in1=12,
+                                                     pin_in2=25)
             # Motor Controller 5 (claw)
-            self.CLAW_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance,
-                                        pin_in1=11,
-                                        pin_in2=27)
+            # self.CLAW_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance,
+            #                             pin_in1=11,
+            #                             pin_in2=NAN)
         except Exception as e:
             if type(e) != ValueError:
                 log.error("Error Initializing Motor Controllers: ", e)
-
 
     def set_rov_motion(self, thrust_vector=[0, 0, 0], turn_rate=0):
         """
@@ -168,9 +170,9 @@ class Motion_Controller:
                   up_right_thrust_amt)
 
         try:
-            self.UP_LEFT_MOTOR.set_speed(up_left_thrust_amt)
-            self.UP_RIGHT_MOTOR.set_speed(up_right_thrust_amt)
-            self.FORWARD_LEFT_MOTOR.set_speed(forward_left_thrust_amt)
+            # self.UP_LEFT_MOTOR.set_speed(up_left_thrust_amt)
+            # self.UP_RIGHT_MOTOR.set_speed(up_right_thrust_amt)
+            # self.FORWARD_LEFT_MOTOR.set_speed(forward_left_thrust_amt)
             self.FORWARD_RIGHT_MOTOR.set_speed(forward_right_thrust_amt)
         except Exception as e:
             log.warning("Error setting motor speed!", e)
