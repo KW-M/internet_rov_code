@@ -1,0 +1,627 @@
+html,
+body {
+  overflow: hidden;
+
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+
+  user-select: none;
+
+  background: linear-gradient(#00effb, #1537a6);
+
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+  touch-action: none;
+}
+
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.dialog-toast {
+  color: rgb(36, 36, 36);
+  border-radius: 5px;
+  background: #fff;
+}
+
+.dialog-toast .toast-close {
+  display: block;
+
+  margin: 14px auto 0 auto;
+  padding: 6px;
+
+  text-align: center;
+
+  opacity: 1;
+  color: #fff;
+  border-radius: 3px;
+  background-image: linear-gradient(135deg, rgb(12, 97, 216), rgb(102, 28, 167));
+}
+
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 100%;
+  margin: 0;
+
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.top-left-corner {
+  position: fixed;
+z-index: 4;
+top: 0;
+left: 0;
+
+padding: 6px;
+
+border-bottom-right-radius: 16px;
+background: #ffffffdb;
+}
+
+.top-right-corner {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  right: 0;
+
+  padding: 8px;
+}
+
+.top-center {
+  position: absolute;
+  z-index: 7;
+  top: 8px;
+
+  margin: 0 auto;
+
+  text-align: center ;
+}
+
+.bottom-center {
+  position: absolute;
+  z-index: 6;
+  bottom: 8px;
+  left: 50%;
+
+transform: translateX(-50%);
+  text-align: center ;
+}
+
+table.top-left-corner td{
+  padding: 4px 7px;
+}
+
+#connect_btn,
+#site_loading_indicator,
+#scan_for_ip_btn {
+  position: absolute;
+  z-index: 2;
+  top: 6px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  background: -webkit-linear-gradient(135deg, #0c61d8, #661ca7);
+  background: linear-gradient(135deg, #0c61d8, #661ca7);
+}
+
+#connect_btn, #scan_for_ip_btn {
+  transform: translate(-50%, 20vh) scale(2);
+
+}
+
+#site_loading_indicator {
+  padding: 10px 30px 10px 20px;
+
+  transform: translate(-50%, 20vh);
+
+  border-radius: 11px;
+  background: #000000b5;
+}
+
+#site_loading_indicator #site_loading_text {
+  display: inline-block;
+
+vertical-align: top;
+
+color: white;
+
+font-size: larger;
+font-weight: bold;
+line-height: 80px;
+}
+
+button {
+  position: relative;
+
+  display: inline-block;
+
+  padding: 10px 18px;
+
+  cursor: pointer;
+  text-decoration: none;
+
+  color: #fff;
+  border: none;
+  border: 3px solid;
+  border-radius: 6px;
+  background: -webkit-linear-gradient(135deg, #d2a500, #ea2c00);
+  background: linear-gradient(135deg, #d2a500, #ea2c00);
+  box-shadow: 0 3px 6px -1px rgb(0 0 0 / 12%), 0 10px 36px -4px rgb(77 96 232 / 30%);
+
+  font-size: large;
+  font-weight: bold;
+}
+
+button:hover,
+button:focus {
+  border: 3px solid black;
+}
+
+button:active {
+  border: 3px solid rgb(0, 153, 255);
+}
+
+/*
+.gamepad-debug-area {
+    position: absolute;
+    right:0;
+    bottom:0;
+}
+
+.gamepad-debug-area .gamepad-axis-viewer {
+    width: 100px;
+    height: 100px;
+
+    border: 1px solid greenyellow;
+    border-radius: 6px;
+}
+
+.gamepad-debug-area .gamepad-axis-viewer .debug-dot {
+    width: 5px;
+    height: 5px;
+
+    border-radius: 5px;
+    background-color: blueviolet;
+} */
+
+/* Drop Down Menus */
+
+.icon-btn {
+  position: relative;
+
+  display: block;
+
+  width: 52px;
+  height: 52px;
+  margin: 0;
+  padding: 0;
+
+  cursor: pointer;
+  pointer-events: all;
+
+  border: none;
+  border-bottom: 2px solid grey;
+  background: none;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 40px;
+}
+
+.transparent-btn {
+  border: none;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.icon-btn.top-btn {
+  border-radius: 10px 10px 0 0;
+}
+
+.icon-btn.middle-btn {
+  border-radius: 0;
+}
+
+.icon-btn.bottom-btn {
+  border-bottom: none;
+  border-radius: 0 0 10px 10px;
+}
+
+.power-menu-btn {
+  background-image: url("settings_power_black_24dp.b5ab220f.svg");
+}
+
+.gamepad-menu-btn {
+  background-image: url("gamepad_black_24dp.72a3a87f.svg");
+}
+
+.debug-menu-btn {
+  background-image: url("insights_black_24dp.aead0418.svg");
+}
+
+.fullscreen-btn {
+  margin-bottom: 10px;
+
+  border-radius: 100px;
+  background-image: url("open_in_full_black_24dp.6dd74371.svg");
+}
+
+.fullscreen-btn.fullscreen-open {
+  background-image: url("close_fullscreen_black_24dp.3cb7ae5a.svg");
+}
+
+.dropdown-menu-list:focus-within,
+.dropdown-menu-list:hover {
+  visibility: visible;
+}
+
+.icon-btn:focus + .dropdown-menu-list,
+.icon-btn:hover + .dropdown-menu-list {
+  visibility: visible;
+}
+
+.dropdown-menu-list {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  right: 60px;
+
+  visibility: hidden;
+  overflow: hidden;
+
+  min-width: 200px;
+  padding: 4px;
+
+  pointer-events: all;
+}
+
+.dropdown-menu-list ul {
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+
+  padding: 0;
+
+  list-style-type: none;
+
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.dropdown-menu-list li {
+  padding: 12px;
+
+  cursor: pointer;
+
+  color: black;
+  border-bottom: 2px solid grey;
+  background-color: rgb(255, 255, 255);
+
+  font-weight: bold;
+}
+
+.dropdown-menu-list li:hover {
+  color: white;
+  border-bottom: 2px solid rgb(0, 153, 255);
+  background-color: rgb(0, 52, 87);
+}
+
+/******* Video Stream + Fullscreen Layout *********/
+
+.livestream-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  display: block;
+
+  width: fit-content;
+  margin: auto;
+  padding: 34px 68px;
+
+  cursor: zoom-in;
+}
+
+.livestream-container.fullscreen-open {
+  width: 100%;
+  height: 100%;
+  padding-right: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+
+  cursor: zoom-out;
+}
+
+.livestream-container.fullscreen-open  #video-livestream {
+width: 100%;
+height: 100%;
+}
+
+#video-livestream {
+  display: block;
+
+max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+
+  border: 3px solid black;
+  border-radius: 12px;
+  background: black;
+}
+
+/* ********* Compass Display ********* */
+
+.compass {
+	position: relative;
+top: 0px;
+left: 0px;
+
+overflow: hidden;
+
+width: 360px;
+height: 36px;
+margin: 0 auto;
+  margin-top: 0px;
+margin-top: -26px;
+  margin-bottom: 0px;
+margin-bottom: -2px;
+
+border: 2px solid black;
+border-radius: 20px 20px 0 0;
+}
+
+.compass .bg {
+	position: absolute;
+	/*left: 20px;*/
+	z-index: 200;
+	top: 0px;
+
+	width: 1080px;
+	height: 50px;
+
+	background: url("https://i.ibb.co/DfFhkbM/COMPASS-v4.jpg");
+  background-repeat: no-repeat;
+	/*background-size: 100%;*/
+}
+
+.compass .line {
+	position: absolute;
+	/*left: 20px;*/
+	z-index: 1000;
+	top: 0px;
+
+	width: 1080px;
+	height: 50px;
+
+	background: url("https://i.ibb.co/h25K56D/COMPASS-v4.png");
+	/*background-size: 100%;*/
+}
+
+/* ********* Gamepad Help ********* */
+
+#gamepad-container {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  pointer-events: none;
+}
+
+#gamepad-connect-notice,
+#too-many-gamepads-notice {
+  position: absolute;
+  z-index: 9;
+  bottom: 87px;
+  left: 50%;
+
+  display: block;
+
+  max-width: 136px;
+
+  transform: translateX(-50%);
+  text-align: center;
+
+  color: #ffffffa1;
+
+  font-family: sans-serif;
+  font-size: 26px;
+  line-height: 1.2em;
+}
+
+#gamepad-help-text {
+  position: absolute;
+  top: 58px;
+  right: 0;
+  left: 50%;
+
+  display: none;
+
+  box-sizing: border-box;
+  width: 400px;
+  margin: 0;
+  padding: 7px;
+
+  transform: translateX(-50%);
+  text-align: center;
+
+  font-family: sans-serif;
+  font-size: 26px;
+}
+
+#gamepad-help-button {
+  position: absolute;
+  z-index: 10;
+  bottom: 6px;
+  left: 50%;
+
+  transform: translateX(-50%);
+  pointer-events: all;
+}
+
+#gamepad-container.help-open {
+  z-index: 20;
+
+  pointer-events: all;
+
+  background-color: #ffffffba;
+
+  backdrop-filter: blur(3px);
+}
+
+#gamepad-container.help-open #gamepad-connect-notice {
+  display: none;
+}
+
+#gamepad-container.help-open #gamepad-help-text {
+  display: block;
+}
+
+/* ********* Onscreen Gamepad Related ********* */
+
+.onscreen-gamepad {
+  position: absolute;
+  bottom: -15px;
+
+  height: 60vh;
+  min-height: 9cm;
+  max-height: 14cm;
+
+  transition: all 0.4s ease;
+  pointer-events: none;
+}
+
+#onscreen-gamepad-left {
+  left: 0;
+
+  transform: translateX(-30%);
+}
+
+#onscreen-gamepad-right {
+  right: 0;
+
+  transform: translateX(30%);
+}
+
+#gamepad-container.help-open #onscreen-gamepad-left {
+  bottom: 15px;
+  left: 50% !important;
+
+  transform: translateX(-120%);
+}
+
+#gamepad-container.help-open #onscreen-gamepad-right {
+  right: 50% !important;
+  bottom: 15px;
+
+  transform: translateX(120%);
+}
+
+.gamepad-btn-highlight {
+  visibility: hidden;
+
+  pointer-events: all;
+}
+
+.gamepad-btn-highlight.touched {
+  visibility: visible;
+
+  opacity: 0.5;
+}
+
+.gamepad-btn-highlight.pressed {
+  visibility: visible;
+
+  opacity: 1 !important;
+}
+
+.gamepad-arrow-highlight {
+  visibility: hidden;
+
+  pointer-events: none;
+}
+
+.gamepad-arrow-highlight.touched {
+  visibility: visible;
+}
+
+.gamepad-arrow-highlight.axis-moved {
+  visibility: visible;
+
+  opacity: 0.5 !important;
+}
+
+.gamepad-joystick-touch-area {
+  position: fixed;
+  bottom: 0;
+
+  width: 50%;
+  height: 10cm;
+
+  pointer-events: all;
+  /* background-color: #0c61d860; */
+
+  touch-action: none;
+}
+
+.gamepad-joystick-touch-area#gamepad-joystick-touch-area-left {
+  left: 0;
+}
+
+.gamepad-joystick-touch-area#gamepad-joystick-touch-area-right {
+  right: 0;
+}
+
+/* Site loading "spinning circle" indicator */
+
+.lds-circle {
+    display: inline-block;
+
+    transform: translateZ(1px);
+  }
+
+.lds-circle > div {
+    display: inline-block;
+
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+
+    animation: lds-circle 2.4s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+
+    border-radius: 50%;
+    background: #fff;
+  }
+
+@keyframes lds-circle {
+    0%, 100% {
+      animation-timing-function: cubic-bezier(0.5, 0, 1, 0.5);
+    }
+    0% {
+      transform: rotateY(0deg);
+    }
+    50% {
+      transform: rotateY(1800deg);
+      animation-timing-function: cubic-bezier(0, 0.5, 0.5, 1);
+    }
+    100% {
+      transform: rotateY(3600deg);
+    }
+  }
+
+/*# sourceMappingURL=index.c92073ef.css.map */
