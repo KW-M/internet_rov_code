@@ -98,15 +98,15 @@ def handle_socket_message(message, motors, sensors, sensr_log):
     if len(parsed_msg) > 0:
 
         # handle pilot actions
-        if messageIsFromPilot:
+        # if messageIsFromPilot:
 
-            if 'move' in parsed_msg:
-                motors.set_rov_motion(
-                    thrust_vector=parsed_msg['move']['thrustVector'],
-                    turn_rate=parsed_msg['move']['turnRate'])
+        if 'move' in parsed_msg:
+            motors.set_rov_motion(
+                thrust_vector=parsed_msg['move']['thrustVector'],
+                turn_rate=parsed_msg['move']['turnRate'])
 
-            if 'toggleLights' in parsed_msg:
-                pass
+        if 'toggleLights' in parsed_msg:
+            pass
 
         # handle actions / events applicable to all peers (pilots and spectators):
         if 'ping' in parsed_msg:
