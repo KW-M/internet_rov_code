@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 ###################################################
 ############### Motor / GPIO Stuff ################
 
-
 class Drok_Pwm_Motor:
     """ For the Drok 7A dual DC motor driver (Product SKU: 200206)
     pin_ena: the raspberry pi pin going to the ENA1 pin on the motor driver (ENA2 if driving the second motor)
@@ -30,6 +29,7 @@ class Drok_Pwm_Motor:
         self.pigpio_instance.set_PWM_dutycycle(self.pin_ena, 0)
         self.pigpio_instance.write(self.pin_in1, 0)  # pin LOW (off)
         self.pigpio_instance.write(self.pin_in2, 0)  # pin LOW (off)
+        print('PWM Freq: pin_ena = {}'.format(pigpio_instance.get_PWM_frequency(self.pin_ena)))
 
     def set_speed(self, speed):
         """

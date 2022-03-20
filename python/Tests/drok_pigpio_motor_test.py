@@ -1,7 +1,6 @@
 import time
 import os
 import pigpio
-from python.Tests.pigpio_motor_driver_test import RAMP_STEPS
 
 ### -----------------------
 
