@@ -73,8 +73,8 @@ while True:
             continue
 
         # # ----- MOTORS -----
-        # motors.init_motor_controllers()
-        # motors.stop_gpio_and_motors()  # Keep motors off while disconnected:
+        motors.init_motor_controllers()
+        motors.stop_gpio_and_motors()  # Keep motors off while disconnected:
 
         # # ----- SENSORS -----
         # sensors.setup_sensors()
