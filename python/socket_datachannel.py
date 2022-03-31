@@ -63,23 +63,26 @@ class Unix_Socket_Datachannel:
                     log.error('send_socket_messages(): Error', exc_info=e)
                     await asyncio.sleep(1)
 
-    async def socket_loop(self, loop=None):
+    async def socket_loop(self, asyncLoop=None):
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
 
         read_task = None
         write_task = None
-        if loop is None:
-            loop = asyncio.get_event_loop()
+        if asyncLoop is None:
+            asyncLoop = asyncio.get_event_loop()
 
         while True:
             try:
-                async with asyncio.open_unix_connection(
-                        self.SOCKET_PATH, loop=loop,
-                        sock=self.sock) as (sock_reader, sock_writer):
-                    read_task = asyncio.create_task(
-                        self.read_socket_messages(sock_reader))
-                    write_task = asyncio.create_task(
-                        self.send_socket_messages(sock_writer))
+                (sock_reader,
+                 sock_writer) = await asyncio.open_unix_connection(
+                     self.SOCKET_PATH, loop=asyncLoop, sock=self.sock)
+
+                read_task = asyncio.create_task(
+                    self.read_socket_messages(sock_reader))
+                write_task = asyncio.create_task(
+                    self.send_socket_messages(sock_writer))
+                await read_task
+                await write_task
 
             except FileNotFoundError as e:
                 log.warning('Unix socket file does not yet exist!')
@@ -102,6 +105,8 @@ class Unix_Socket_Datachannel:
             if (write_task != None):
                 write_task.cancel()
                 write_task = None
+
+            await asyncio.sleep(3)  # wait 3 seconds before trying again
 
     # def setup_socket(self,
     #                  socket_path='/tmp/go_robot.socket',
