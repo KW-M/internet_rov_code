@@ -67,8 +67,7 @@ class Unix_Socket_Datachannel:
         if asyncLoop is None:
             asyncLoop = asyncio.get_event_loop()
 
-        self.sock = socket.socket(socket.AddressFamily.AF_UNIX,
-                                  socket.SocketKind.SOCK_SEQ_PACKET)
+        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQ_PACKET)
         self.sock.settimeout(self.SOCKET_TIMEOUT)
 
         self.messages_from_socket_queue = asyncio.Queue(
@@ -87,7 +86,7 @@ class Unix_Socket_Datachannel:
                 # Substitute class property getter with fixed value getter.
                 socket_property = socket.socket.type
                 socket.socket.type = property(
-                    lambda self: socket.SocketKind.SOCK_STREAM,
+                    lambda self: socket.SOCK_STREAM,
                     None,
                     None,
                 )
