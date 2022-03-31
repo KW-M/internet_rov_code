@@ -15,9 +15,9 @@ class Unix_Socket_Datachannel:
                  socket_timeout=5):
         self.sock = None
         self.socketOpen = False
-        self.messages_from_socket_queue = asyncio.Queue(maxsize=max_queue_size)
-        self.messages_to_send_to_socket_queue = asyncio.Queue(
-            maxsize=max_queue_size)
+        self.messages_from_socket_queue = None
+        self.messages_to_send_to_socket_queue = None
+        self.MAX_QUEUE_SIZE = max_queue_size
         self.SOCKET_PATH = socket_path
         self.SOCKET_TIMEOUT = socket_timeout
         self.MAX_MESSAGE_SIZE = max_message_size
@@ -64,17 +64,25 @@ class Unix_Socket_Datachannel:
                     await asyncio.sleep(1)
 
     async def socket_loop(self, asyncLoop=None):
-        # self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
-
-        read_task = None
-        write_task = None
         if asyncLoop is None:
             asyncLoop = asyncio.get_event_loop()
 
+        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+        self.sock.settimeout(self.SOCKET_TIMEOUT)
+
+        self.messages_from_socket_queue = asyncio.Queue(
+            maxsize=self.MAX_QUEUE_SIZE, loop=asyncLoop)
+        self.messages_to_send_to_socket_queue = asyncio.Queue(
+            maxsize=self.MAX_QUEUE_SIZE, loop=asyncLoop)
+
+        read_task = None
+        write_task = None
+
         while True:
             try:
+                self.sock.connect(self.SOCKET_PATH)
                 sock_reader, sock_writer = await asyncio.open_unix_connection(
-                    self.SOCKET_PATH, loop=asyncLoop)
+                    sock=self.sock, loop=asyncLoop)
                 #sock=self.sock
 
                 read_task = asyncio.create_task(
