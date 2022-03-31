@@ -62,9 +62,8 @@ class Unix_Socket_Datachannel:
         if asyncLoop is None:
             asyncLoop = asyncio.get_event_loop()
 
-        self.sock = socket.socket(
-            socket.AddressFamily.AF_UNIX, socket.SocketKind.SOCK_STREAM
-        )  # socket.SocketKind.SOCK_SEQPACKET would be better, but as of python 3.10 it is not supported with asyncio. SEE: https://bugs.python.org/issue38285
+        self.sock = socket.socket(socket.AddressFamily.AF_UNIX,
+                                  socket.SocketKind.SOCK_SEQPACKET)
         self.sock.settimeout(self.SOCKET_TIMEOUT)
 
         self.messages_from_socket_queue = asyncio.Queue(
@@ -78,8 +77,21 @@ class Unix_Socket_Datachannel:
         while True:
             try:
                 self.sock.connect(self.SOCKET_PATH)
-                sock_reader, sock_writer = await asyncio.open_unix_connection(
-                    sock=self.sock, loop=asyncLoop)
+
+                # workaround hack from: https://bugs.python.org/issue38285
+                # Substitute class property getter with fixed value getter.
+                socket_property = socket.socket.type
+                socket.socket.type = property(
+                    lambda self: socket.SocketKind.SOCK_STREAM,
+                    None,
+                    None,
+                )
+
+                sockTask = asyncio.open_unix_connection(sock=self.sock,
+                                                        loop=asyncLoop)
+                # Revert the trick: Restore class property getter.
+                socket.socket.type = socket_property
+                sock_reader, sock_writer = await sockTask
 
                 read_task = asyncio.create_task(
                     self.read_socket_messages(sock_reader))
