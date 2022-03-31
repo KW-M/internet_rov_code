@@ -60,7 +60,7 @@ func (sock *RobotUnixSocket) WriteUnixSocketAsync() {
 	}
 }
 
-// connect starts listening on a unix domain socket at the particular address using the SOCK_SEQPACKET socket format.
+// connect starts listening on a unix domain socket at the particular address using the SOCK_STREAM format.
 // path is the name of the unix socket to connect to (eg. "/tmp/whatever.sock").
 func (*RobotUnixSocket) createSocketListener(path string) (*net.UnixListener, error) {
 
@@ -73,12 +73,12 @@ func (*RobotUnixSocket) createSocketListener(path string) (*net.UnixListener, er
 	}
 
 	log.Println("Creating socket listener...", path)
-	addr, err := net.ResolveUnixAddr("unixpacket", path)
+	addr, err := net.ResolveUnixAddr("unix", path)
 	if err != nil {
 		return nil, err
 	}
 	log.Println("Resolved addr socket listener...", path)
-	listener, err := net.ListenUnix("unixpacket", addr)
+	listener, err := net.ListenUnix("unix", addr)
 	log.Println("listening to addr socket listener...", path)
 	return listener, err
 }
@@ -109,6 +109,8 @@ func (sock *RobotUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketP
 		log.Println("UNIX SOCKET Initilization Error: ", err)
 		return false
 	}
+
+	// start listening for connections
 	log.Println("UNIX SOCKET Listening for Connection...")
 	sock.socketConnection, err = sock.socketListener.Accept()
 	if err != nil {
@@ -116,10 +118,13 @@ func (sock *RobotUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketP
 		return false
 	}
 
+	// set our own socket open flag and start our read / write goroutines
 	sock.socketOpen = true
 	go sock.ReadUnixSocketAsync(1024)
 	go sock.WriteUnixSocketAsync()
 	log.Println("Unix socket open! Listening for messages on: ", unixSocketPath)
+
+	// wait for a signal to close the socket
 	select {
 	case <-sock.doReconnectSignal:
 		sock.socketOpen = false
@@ -130,7 +135,7 @@ func (sock *RobotUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketP
 	}
 }
 
-// connect starts listening on a unix domain socket at the particular address using the SOCK_SEQPACKET socket format.
+// connect starts listening on a unix domain socket at the particular address using the SOCK_STREAM format.
 // closeSocketSignal is the channel that will signal to this goroutine to close the socket.
 // recivedMessageChannel is a string channel When a message is recived on the socket it will be sent to this channel.
 // sendMessageChannel is a string channel. When a message is sent on this channel, it will be sent to the socket.
@@ -145,7 +150,7 @@ func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan st
 	go func() {
 		for {
 			var shouldExit bool = sock.openSocket(closeSocketSignal, unixSocketPath)
-			if shouldExit == true {
+			if shouldExit {
 				log.Println("Exiting socket reconnect loop...")
 				break
 			}
