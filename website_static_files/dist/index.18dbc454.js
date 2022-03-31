@@ -6851,18 +6851,24 @@ function showToastDialog(message, durration, btnName, callback) {
 }
 const connectBtn = document.getElementById('connect_btn');
 const disconnectBtn = document.getElementById('disconnect_btn');
+const connectedRovIndicatorButton = document.getElementById('connected_rov_indicator_btn');
 function showROVDisconnectedUI() {
     connectBtn.style.display = 'block';
     disconnectBtn.style.display = 'none';
+    connectedRovIndicatorButton.parentElement.classList.add('hidden');
     hideLoadingUi();
 }
 function showROVConnectingUI() {
     connectBtn.style.display = 'none';
+    connectedRovIndicatorButton.parentElement.classList.add('hidden');
     showLoadingUi("Connecting to ROV...");
 }
-function showROVConnectedUI() {
+function showROVConnectedUI(rovName) {
     connectBtn.style.display = 'none';
     disconnectBtn.style.display = 'block';
+    console.log(connectedRovIndicatorButton);
+    connectedRovIndicatorButton.parentElement.classList.remove('hidden');
+    if (rovName) connectedRovIndicatorButton.innerText = rovName;
     hideLoadingUi();
 }
 function setupConnectBtnClickHandler(callback) {
@@ -8104,8 +8110,8 @@ const machineFunctions = {
         showConnectingUi: ()=>{
             _ui.showROVConnectingUI();
         },
-        showRovConnectedUi: ()=>{
-            _ui.showROVConnectedUI();
+        showRovConnectedUi: (context, event)=>{
+            _ui.showROVConnectedUI(!!event.data ? event.data.peer : null);
         },
         showPeerServerConnectedNotice: ()=>{
             _ui.showToastMessage("Connected to Peerjs Server!");

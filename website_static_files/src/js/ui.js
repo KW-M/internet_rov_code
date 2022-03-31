@@ -42,22 +42,51 @@ export function showToastDialog(message, durration, btnName, callback) {
     }).showToast();
 }
 
+export function showChoiceDialog(message, buttons, callback) {
+    const toastContent = document.createElement("div")
+    toastContent.innerHTML = message
+    buttons.forEach(button => {
+        const btn = document.createElement("button")
+        btn.innerHTML = button.name;
+        btn.addEventListener("click", () => {
+
+            callback(button.value)
+        })
+        toastContent.appendChild(btn)
+    })
+    return Toastify({
+        node: toastContent,
+        duration: 0,
+        close: true,
+        className: "dialog-toast",
+        gravity: "top", // `top` or `bottom`
+        position: "center", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+    }).showToast();
+}
+
 const connectBtn = document.getElementById('connect_btn');
 const disconnectBtn = document.getElementById('disconnect_btn');
+const connectedRovIndicatorButton = document.getElementById('connected_rov_indicator_btn');
 export function showROVDisconnectedUI() {
     connectBtn.style.display = 'block';
     disconnectBtn.style.display = 'none';
+    connectedRovIndicatorButton.parentElement.classList.add('hidden')
     hideLoadingUi()
 }
 
 export function showROVConnectingUI() {
     connectBtn.style.display = 'none';
+    connectedRovIndicatorButton.parentElement.classList.add('hidden')
     showLoadingUi("Connecting to ROV...");
 }
 
-export function showROVConnectedUI() {
+export function showROVConnectedUI(rovName) {
     connectBtn.style.display = 'none';
     disconnectBtn.style.display = 'block';
+    console.log(connectedRovIndicatorButton)
+    connectedRovIndicatorButton.parentElement.classList.remove('hidden')
+    if (rovName) connectedRovIndicatorButton.innerText = rovName
     hideLoadingUi()
 }
 

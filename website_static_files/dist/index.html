@@ -19,10 +19,11 @@
     <button id="connect_btn" style="display: none;">Connect to ROV</button>
     <button id="scan_for_ip_btn" style="display: none;">Scan for ROV IP</button>
 
-
-<div class="bottom-center">
-    <span id="connection_display">Not Connected</span>
+    <div class="bottom-center hidden" id="connected_rov_display"><span>Connected to </span><button id="connected_rov_indicator_btn">iROV-3</button>
+        <!-- <div id="pilot_mode_display"><span>Spectator Mode <button class="rounded-button">Take Over</button><em></div>
+                                            <div id="gamepad_help_display"><span>Gamepad not connected: </span><button class="rounded-button">?</button> -->
     </div>
+    
 
     <div class="top-right-corner">
         <button class="fullscreen-btn icon-btn transparent-btn" onclick="toggleFullscreen(event)"></button>
@@ -32,7 +33,6 @@
                 <li onclick="shutdownROV()" tabindex="0">Shutdown ROV</li>
                 <li onclick="rebootROV()" tabindex="0">Reboot ROV</li>
                 <li id="disconnect_btn" style="display: none;">Disconnect</li>
-                <!-- <li onclick="disconnect()">Disconnect</li> -->
             </ul>
         </div>
         <!-- <button class="gamepad-menu-btn icon-btn middle-btn"></button>
@@ -96,7 +96,7 @@
 
         <!-- Gamepad Help Stuff -->
         <h2 id="gamepad-help-text">Gamepad Help</h2>
-        <button id="gamepad-help-button">Gamepad Help</button>
+        <!-- <button id="gamepad-help-button">Gamepad Help</button> -->
 
         <!-- Gamepads on either side of Screen -->
         <div id="gamepad-joystick-touch-area-left" class="gamepad-joystick-touch-area"></div>

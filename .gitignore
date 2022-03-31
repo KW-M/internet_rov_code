@@ -10,6 +10,9 @@ node_modules
 !.vscode/extensions.json
 *.code-workspace
 
+# go output
+/go/peerjs-webrtc-robot
+
 # Local History for Visual Studio Code
 .history/
 
