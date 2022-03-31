@@ -64,7 +64,7 @@ class Unix_Socket_Datachannel:
                     await asyncio.sleep(1)
 
     async def socket_loop(self, asyncLoop=None):
-        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+        # self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
 
         read_task = None
         write_task = None
@@ -73,9 +73,9 @@ class Unix_Socket_Datachannel:
 
         while True:
             try:
-                (sock_reader,
-                 sock_writer) = await asyncio.open_unix_connection(
-                     self.SOCKET_PATH, loop=asyncLoop, sock=self.sock)
+                sock_reader, sock_writer = await asyncio.open_unix_connection(
+                    self.SOCKET_PATH, loop=asyncLoop)
+                #sock=self.sock
 
                 read_task = asyncio.create_task(
                     self.read_socket_messages(sock_reader))
