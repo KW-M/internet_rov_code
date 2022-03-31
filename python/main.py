@@ -5,33 +5,15 @@
 # public domain
 # https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
 
-#  AttributeError: 'NoneType' object has no attribute 'send'
-# Jan 31 11:06:59 raspberrypi python3[3436]: Initializing motor controllers...
-# Jan 31 11:06:59 raspberrypi python3[3436]: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Jan 31 11:06:59 raspberrypi python3[3436]: Can't connect to pigpio at localhost(8888)
-# Jan 31 11:06:59 raspberrypi python3[3436]: Can't create callback thread.
-# Jan 31 11:06:59 raspberrypi python3[3436]: Perhaps too many simultaneous pigpio connections.
-# Jan 31 11:06:59 raspberrypi python3[3436]: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Jan 31 11:06:59 raspberrypi python3[3436]: Traceback (most recent call last):
-# Jan 31 11:06:59 raspberrypi python3[3436]:   File "/home/pi/internet_rov_code/python/main.py", line 29, in <module>
-# Jan 31 11:06:59 raspberrypi python3[3436]:     motors.init_motor_controllers()
-# Jan 31 11:06:59 raspberrypi python3[3436]:   File "/home/pi/internet_rov_code/python/motion_controller.py", line 69, in init_motor_controllers
-# Jan 31 11:06:59 raspberrypi python3[3436]:     self.FORWARD_RIGHT_MOTOR = pwm_motor(self.pigpio_instance,
-# Jan 31 11:06:59 raspberrypi python3[3436]:   File "/home/pi/internet_rov_code/python/motion_controller.py", line 20, in __init__
-# Jan 31 11:06:59 raspberrypi python3[3436]:     self.pigpio_instance.set_mode(self.pin_in1, pigpio.OUTPUT)
-# Jan 31 11:06:59 raspberrypi python3[3436]:   File "/usr/lib/python3/dist-packages/pigpio.py", line 1376, in set_mode
-# Jan 31 11:06:59 raspberrypi python3[3436]:     return _u2i(_pigpio_command(self.sl, _PI_CMD_MODES, gpio, mode))
-# Jan 31 11:06:59 raspberrypi python3[3436]:   File "/usr/lib/python3/dist-packages/pigpio.py", line 1025, in _pigpio_command
-# Jan 31 11:06:59 raspberrypi python3[3436]:     sl.s.send(struct.pack('IIII', cmd, p1, p2, 0))
-# Jan 31 11:06:59 raspberrypi python3[3436]: AttributeError: 'NoneType' object has no attribute 'send'
-
 import time
 import json
 import logging
 
+import asyncio
+
 # import our python files from the same directory
 # import logging_formatter
-from socket_datachannel import Socket_Datachannel
+from socket_datachannel import Unix_Socket_Datachannel
 from motion_controller import Motion_Controller
 from sensor_log import Sensor_Log
 from sensors import sensor_ctrl
@@ -40,7 +22,7 @@ from utilities import *
 
 ############################
 ##### Setup Variables #####
-msg_socket = Socket_Datachannel()
+unix_socket_datachannel = Unix_Socket_Datachannel()
 sensors = sensor_ctrl()
 sensr_log = Sensor_Log()
 motors = Motion_Controller()
@@ -55,65 +37,86 @@ motors = Motion_Controller()
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
+
+async def socket_message_loop():
+    while True:
+        # get the next message from the socket
+        message = await unix_socket_datachannel.messages_from_socket_queue.get(
+        )
+        if message:
+            print("got message: {}".format(message))
+            # await handle_socket_message(message)
+
+
 ######################################
 ######## Main Program Loop ###########
 ######################################
-while True:
+async def main():
+    # setup the asyncio loop to run each of these functions aka "tasks" aka "coroutines" concurently
+    await asyncio.gather(
+        unix_socket_datachannel.socket_loop(),
+        socket_message_loop(),
+        #  sensors.sensor_loop(),
+    )
 
-    try:
-        ######## SETUP #########
+asyncio.run(main())
 
-        # ----- SOCKET CONNECTION ----
-        success = msg_socket.setup_socket(socket_path='/tmp/go_robot.socket',
-                                          socket_timeout=5)
-        if not success:
-            log.warning(
-                'Unix socket connection not open. Retrying in 3 seconds...')
-            time.sleep(3)
-            continue
+# while True:
 
-        # # ----- MOTORS -----
-        motors.init_motor_controllers()
-        motors.stop_gpio_and_motors()  # Keep motors off while disconnected:
+#     try:
+#         ######## SETUP #########
 
-        # # ----- SENSORS -----
-        # sensors.setup_sensors()
+#         # ----- SOCKET CONNECTION ----
+#         success = msg_socket.setup_socket(socket_path='/tmp/go_robot.socket',
+#                                           socket_timeout=5)
+#         if not success:
+#             log.warning(
+#                 'Unix socket connection not open. Retrying in 3 seconds...')
+#             time.sleep(3)
+#             continue
 
-        # # ----- SENSOR_LOG -----
-        # sensr_log.setup_sensor_log(sensors.get_connected_sensor_column_names())
+#         # # ----- MOTORS -----
+#         motors.init_motor_controllers()
+#         motors.stop_gpio_and_motors()  # Keep motors off while disconnected:
 
-        ######## MESSAGE LOOP #########
-        while True:
+#         # # ----- SENSORS -----
+#         # sensors.setup_sensors()
 
-            # Wait for a message to arrive (or timeout)
-            # - Note the timeout effectively sets how frequently reply messages can go out when no messages come in.
-            recived_message = msg_socket.recieve_socket_message()
+#         # # ----- SENSOR_LOG -----
+#         # sensr_log.setup_sensor_log(sensors.get_connected_sensor_column_names())
 
-            # Handle the message and generate a response message (if needed)
-            reply_message = handle_socket_message(recived_message, motors,
-                                                  sensors, sensr_log)
+#         ######## MESSAGE LOOP #########
+#         while True:
 
-            # Send the response message
-            if reply_message != None:
-                success = msg_socket.send_socket_message(reply_message)
-                # log.debug('Sending reply message: ' + str(reply_message) +
-                #           " Successful?: " + str(success))
+#             # Wait for a message to arrive (or timeout)
+#             # - Note the timeout effectively sets how frequently reply messages can go out when no messages come in.
+#             recived_message = msg_socket.recieve_socket_message()
 
-    except Exception as error:
+#             # Handle the message and generate a response message (if needed)
+#             reply_message = handle_socket_message(recived_message, motors,
+#                                                   sensors, sensr_log)
 
-        if hasattr(error,
-                   "suppress_traceback") and error.suppress_traceback == True:
-            log.error(str(error))
-        else:
-            log.error(error, exc_info=True)
+#             # Send the response message
+#             if reply_message != None:
+#                 success = msg_socket.send_socket_message(reply_message)
+#                 # log.debug('Sending reply message: ' + str(reply_message) +
+#                 #           " Successful?: " + str(success))
 
-        try:
-            # motors.stop_gpio_and_motors()
-            # motors.cleanup_gpio()
-            # errorMessage = json.dumps({'error': str(error)})
-            # msg_socket.send_socket_message(errorMessage)
-            msg_socket.close_socket()
-        except:
-            pass
+#     except Exception as error:
 
-        time.sleep(3)
+#         if hasattr(error,
+#                    "suppress_traceback") and error.suppress_traceback == True:
+#             log.error(str(error))
+#         else:
+#             log.error(error, exc_info=True)
+
+#         try:
+#             # motors.stop_gpio_and_motors()
+#             # motors.cleanup_gpio()
+#             # errorMessage = json.dumps({'error': str(error)})
+#             # msg_socket.send_socket_message(errorMessage)
+#             msg_socket.close_socket()
+#         except:
+#             pass
+
+#         time.sleep(3)
