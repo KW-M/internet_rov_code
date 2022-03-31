@@ -92,9 +92,8 @@ class Unix_Socket_Datachannel:
                     None,
                 )
 
-                sockTask = asyncio.create_task(
-                    asyncio.open_unix_connection(sock=self.sock,
-                                                 loop=asyncLoop))
+                sockTask = asyncio.open_unix_connection(sock=self.sock,
+                                                        loop=asyncLoop)
                 # Revert the trick: Restore class property getter.
                 socket.socket.type = socket_property
                 sock_reader, sock_writer = await sockTask
