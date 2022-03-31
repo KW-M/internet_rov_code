@@ -22,11 +22,6 @@ class Unix_Socket_Datachannel:
         self.SOCKET_TIMEOUT = socket_timeout
         self.MAX_MESSAGE_SIZE = max_message_size
 
-    def close_socket(self):
-        if self.sock:
-            self.sock.close()
-            self.sock = None
-
     async def read_socket_messages(self, sock_reader):
         """
         Relays all messages recived from the unix socket onto the messages_from_socket_queue.
@@ -102,11 +97,11 @@ class Unix_Socket_Datachannel:
 
             # if there was some other socket error, close the socket and return false:
             except socket.error as e:
-                log.error('Setup Socket: Socket Error', exc_info=e)
+                log.error('Socket Error', exc_info=e)
 
             # if there was some other error, close the socket and return false:
             except Exception as e:
-                log.error('Setup Socket: Generic Error', exc_info=e)
+                log.error('Generic Error', exc_info=e)
 
             if (read_task != None):
                 read_task.cancel()
