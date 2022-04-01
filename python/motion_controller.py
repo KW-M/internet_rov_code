@@ -120,7 +120,7 @@ class Motion_Controller:
             self.cleanup_gpio()
             # pause this loop until a problem occurs with the gpio (like set motion) which will set this flag.
 
-    async def init_motor_controllers(self):
+    def init_motor_controllers(self):
         # Initilize the library for adafruit I2C 4 motor controller pi hat:
         log.info("Initializing motor controllers...")
         try:
@@ -156,7 +156,6 @@ class Motion_Controller:
         except Exception as e:
             if type(e) != ValueError:
                 log.error("Error Initializing Motor Controllers: ", e)
-            await asyncio.sleep(1)
             self.gpio_issue_flag.set()
 
     def set_rov_motion(self, thrust_vector=[0, 0, 0], turn_rate=0):
