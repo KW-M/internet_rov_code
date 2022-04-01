@@ -136,7 +136,7 @@ ICM_20948_Status_e my_read_i2c(uint8_t reg, uint8_t *buff, uint32_t len, void *u
 {
     WIRE_PORT.beginTransmission(I2C_ADDR);
     WIRE_PORT.write(reg);
-    WIRE_PORT.endTransmission(false); // Send repeated start
+    WIRE_PORT.endTransmission(); // Send repeated start
 
     uint32_t num_received = WIRE_PORT.requestFrom(I2C_ADDR, len);
     if (num_received == len)
