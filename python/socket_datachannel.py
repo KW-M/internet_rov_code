@@ -30,7 +30,7 @@ class Unix_Socket_Datachannel:
                 return
 
             try:
-                encodedMessage = self.sock.recvmsg(self.MAX_MESSAGE_SIZE)
+                encodedMessage = self.sock.recv(self.MAX_MESSAGE_SIZE)
                 if encodedMessage:
                     message = str(encodedMessage, 'utf-8')
                     self.messages_from_socket_queue.put_nowait(message)
@@ -54,7 +54,7 @@ class Unix_Socket_Datachannel:
             while True:
                 try:
                     messageBytes = message.encode('utf-8')
-                    numBytesSent = self.sock.sendmsg(messageBytes)
+                    numBytesSent = self.sock.send(messageBytes)
                     assert numBytesSent == len(messageBytes)
                     break
                 except asyncio.CancelledError as e:
