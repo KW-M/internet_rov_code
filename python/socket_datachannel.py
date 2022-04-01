@@ -83,6 +83,7 @@ class Unix_Socket_Datachannel:
                                           socket.SocketKind.SOCK_SEQPACKET)
                 self.sock.connect(self.SOCKET_PATH)
                 self.sock.settimeout(self.SOCKET_TIMEOUT)
+                log.info("Unix socket connection open!")
                 # workaround for: https://bugs.python.org/issue38285
                 read_task = asyncio.create_task(self.read_socket_messages())
                 write_task = asyncio.create_task(self.send_socket_messages())
