@@ -32,7 +32,7 @@ class Unix_Socket_Datachannel:
             try:
                 encodedMessage = self.sock.recvmsg(self.MAX_MESSAGE_SIZE)
                 if encodedMessage:
-                    message = encodedMessage.decode('utf-8')
+                    message = str(encodedMessage, 'utf-8')
                     self.messages_from_socket_queue.put_nowait(message)
             except asyncio.CancelledError as e:
                 return
