@@ -7,14 +7,12 @@ A C++ interface to the ICM-20948
 #ifndef _ICM_20948_H_
 #define _ICM_20948_H_
 
-#include <iostream>
-using namespace std;
 #include "util/ICM_20948_C.h" // The C backbone. ICM_20948_USE_DMP is defined in here.
 #include "util/AK09916_REGISTERS.h"
 
-// #include "Arduino.h" // Arduino support
-// #include "Wire.h"
-// #include "SPI.h"
+#include "Arduino.h" // Arduino support
+#include "Wire.h"
+#include "SPI.h"
 
 #define ICM_20948_ARD_UNUSED_PIN 0xFF
 
@@ -22,7 +20,7 @@ using namespace std;
 class ICM_20948
 {
 private:
-  ostream *_debugSerial;    // The stream to send debug messages to if enabled
+  Stream *_debugSerial;     //The stream to send debug messages to if enabled
   bool _printDebug = false; //Flag to print the serial commands we are sending to the Serial port for debug
 
   const uint8_t MAX_MAGNETOMETER_STARTS = 10; // This replaces maxTries
@@ -46,18 +44,18 @@ public:
 #if defined(USB_VID) // Is the USB Vendor ID defined?
 #if (USB_VID == 0x1B4F) // Is this a SparkFun board?
 #if !defined(ARDUINO_SAMD51_THING_PLUS) & !defined(ARDUINO_SAMD51_MICROMOD) // If it is not a SAMD51 Thing Plus or SAMD51 MicroMod
-  void enableDebugging(ostream &debugPort = coutUSB);                       // Given a port to print to, enable debug messages.
+  void enableDebugging(Stream &debugPort = SerialUSB); //Given a port to print to, enable debug messages.
 #else
-  void enableDebugging(ostream &debugPort = cout); // Given a port to print to, enable debug messages.
+  void enableDebugging(Stream &debugPort = Serial); //Given a port to print to, enable debug messages.
 #endif
 #else
-  void enableDebugging(ostream &debugPort = cout); // Given a port to print to, enable debug messages.
+  void enableDebugging(Stream &debugPort = Serial); //Given a port to print to, enable debug messages.
 #endif
 #else
-  void enableDebugging(ostream &debugPort = cout); // Given a port to print to, enable debug messages.
+  void enableDebugging(Stream &debugPort = Serial); //Given a port to print to, enable debug messages.
 #endif
 #else
-  void enableDebugging(ostream &debugPort = cout); // Given a port to print to, enable debug messages.
+  void enableDebugging(Stream &debugPort = Serial); //Given a port to print to, enable debug messages.
 #endif
 
   void disableDebugging(void); //Turn off debug statements
@@ -66,7 +64,9 @@ public:
 
   // gfvalvo's flash string helper code: https://forum.arduino.cc/index.php?topic=533118.msg3634809#msg3634809
   void debugPrint(const char *);
+  void debugPrint(const __FlashStringHelper *);
   void debugPrintln(const char *);
+  void debugPrintln(const __FlashStringHelper *);
   void doDebugPrint(char (*)(const char *), const char *, bool newLine = false);
 
   void debugPrintf(int i);
@@ -218,15 +218,15 @@ public:
 // I2C
 
 // Forward declarations of TwoWire and Wire for board/variant combinations that don't have a default 'SPI'
-// class TwoWire;       // Commented by PaulZC 21/2/8 - this was causing compilation to fail on the Arduino NANO 33 BLE
-// extern TwoWire Wire; // Commented by PaulZC 21/2/8 - this was causing compilation to fail on the Arduino NANO 33 BLE
+//class TwoWire; // Commented by PaulZC 21/2/8 - this was causing compilation to fail on the Arduino NANO 33 BLE
+//extern TwoWire Wire; // Commented by PaulZC 21/2/8 - this was causing compilation to fail on the Arduino NANO 33 BLE
 
 class ICM_20948_I2C : public ICM_20948
 {
 private:
 protected:
 public:
-  Wire *_i2c;
+  TwoWire *_i2c;
   uint8_t _addr;
   uint8_t _ad0;
   bool _ad0val;
@@ -234,7 +234,7 @@ public:
 
   ICM_20948_I2C(); // Constructor
 
-  virtual ICM_20948_Status_e begin(Wire &wirePort = Wire, bool ad0val = true, uint8_t ad0pin = ICM_20948_ARD_UNUSED_PIN);
+  virtual ICM_20948_Status_e begin(TwoWire &wirePort = Wire, bool ad0val = true, uint8_t ad0pin = ICM_20948_ARD_UNUSED_PIN);
 };
 
 // SPI
@@ -243,12 +243,8 @@ public:
 #define ICM_20948_SPI_DEFAULT_MODE SPI_MODE0
 
 // Forward declarations of SPIClass and SPI for board/variant combinations that don't have a default 'SPI'
-class SPIClass;         // Commented by PaulZC 21/2/8 - this was causing compilation to fail on the Arduino NANO 33 BLE
-extern SPIClass SPI;    // Commented by PaulZC 21/2/8 - this was causing compilation to fail on the Arduino NANO 33 BLE
-class SPISettings {
-  public:
-    SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) {}
-}; // Commented by PaulZC 21/2/8 - this was causing compilation to fail on the Arduino NANO 33 BLE
+//class SPIClass; // Commented by PaulZC 21/2/8 - this was causing compilation to fail on the Arduino NANO 33 BLE
+//extern SPIClass SPI; // Commented by PaulZC 21/2/8 - this was causing compilation to fail on the Arduino NANO 33 BLE
 
 class ICM_20948_SPI : public ICM_20948
 {

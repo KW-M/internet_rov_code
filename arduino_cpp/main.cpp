@@ -1,292 +1,278 @@
-#include <iostream>
-#include <math.h>
-using namespace std;
-
-// Include arduPi library
-#include "./libraries/arduPi/arduPi.h"
-
-// arduino pi documentation:
-// https://www.cooking-hacks.com/documentation/tutorials/raspberry-pi-to-arduino-shields-connection-bridge.html
-
-/*********************************************************
- *  IF YOUR ARDUINO CODE HAS OTHER FUNCTIONS APART FROM  *
- *  setup() AND loop() YOU MUST DECLARE THEM HERE        *
- * *******************************************************/
-
-/**************************
- * YOUR ARDUINO CODE HERE *
- * ************************/
-
 /****************************************************************
- * Example6_DMP_Quat9_Orientation.ino
+ * Example999_Portable.ino
  * ICM 20948 Arduino Library Demo
- * Initialize the DMP based on the TDK InvenSense ICM20948_eMD_nucleo_1.0 example-icm20948
- * Paul Clark, April 25th, 2021
- * Based on original code by:
+ * Uses underlying portable C skeleton with user-defined read/write functions
  * Owen Lyke @ SparkFun Electronics
  * Original Creation Date: April 17 2019
- *
- * ** This example is based on InvenSense's _confidential_ Application Note "Programming Sequence for DMP Hardware Functions".
- * ** We are grateful to InvenSense for sharing this with us.
- *
- * ** Important note: by default the DMP functionality is disabled in the library
- * ** as the DMP firmware takes up 14301 Bytes of program memory.
- * ** To use the DMP, you will need to:
- * ** Edit ICM_20948_C.h
- * ** Uncomment line 29: #define ICM_20948_USE_DMP
- * ** Save changes
- * ** If you are using Windows, you can find ICM_20948_C.h in:
- * ** Documents\Arduino\libraries\SparkFun_ICM-20948_ArduinoLibrary\src\util
  *
  * Please see License.md for the license information.
  *
  * Distributed as-is; no warranty is given.
  ***************************************************************/
+#include <iostream>
+#include <math.h>
+using namespace std;
 
-#define QUAT_ANIMATION // Uncomment this line to output data in the correct format for ZaneL's Node.js Quaternion animation tool: https://github.com/ZaneL/quaternion_sensor_3d_nodejs
+// Include arduPi library
+// arduino pi documentation:
+// https://www.cooking-hacks.com/documentation/tutorials/raspberry-pi-to-arduino-shields-connection-bridge.html
+#include "./libraries/arduPi/arduPi.h"
 
-#include "./libraries/SparkFun_9DoF_IMU_Breakout_-_ICM_20948_-_Arduino_Library/src/ICM_20948.h" // Click here to get the library: http://librarymanager/All#SparkFun_ICM_20948_IMU
+#include "./my_util.cpp"
 
-#define AD0_VAL 1      // The value of the last bit of the I2C address.                \
-                       // On the SparkFun 9DoF IMU breakout the default is 1, and when \
-                       // the ADR jumper is closed the value becomes 0
+// include the library for the 9axis compass:
+// #define ICM_20948_USE_DMP
+#include "./libraries/SparkFun_9DoF_IMU_Breakout_-_ICM_20948_-_Arduino_Library/src/ICM_20948.h"
 
-ICM_20948_I2C myICM; // Otherwise create an ICM_20948_I2C object
+#define SERIAL_PORT SerialCout
+
+#define WIRE_PORT Wire
+#define I2C_ADDR ICM_20948_I2C_ADDR_AD1
+
+// These are the interface functions that you would define for your system. They can use either I2C or SPI,
+// or really **any** protocol as long as it successfully reads / writes the desired data into the ICM in the end
+ICM_20948_Status_e my_write_i2c(uint8_t reg, uint8_t *data, uint32_t len, void *user);
+ICM_20948_Status_e my_read_i2c(uint8_t reg, uint8_t *buff, uint32_t len, void *user);
+
+// You declare a "Serial Interface" (serif) type and give it the pointers to your interface functions
+const ICM_20948_Serif_t mySerif = {
+    my_write_i2c, // write
+    my_read_i2c,  // read
+    NULL,
+};
+
+// Now declare the structure that represents the ICM.
+ICM_20948_Device_t myICM;
 
 void setup()
 {
 
-    delay(2000);
-#ifndef QUAT_ANIMATION
-    cout << "ICM-20948 Example" << endl;
-#endif
+    WIRE_PORT.begin();
+    // WIRE_PORT.setClock(400000);
 
-    delay(100);
+    // Initialize myICM
+    ICM_20948_init_struct(&myICM);
 
-#ifdef USE_SPI
-    SPI_PORT.begin();
-#else
-    Wire.begin();
-    // Wire.setClock(400000);
-#endif
+    // Link the serif
+    ICM_20948_link_serif(&myICM, &mySerif);
 
-#ifndef QUAT_ANIMATION
-    // myICM.enableDebugging(); // Uncomment this line to enable helpful debug messages on Serial
-#endif
-
-    bool initialized = false;
-    while (!initialized)
+    while (ICM_20948_check_id(&myICM) != ICM_20948_Stat_Ok)
     {
-
-        // Initialize the ICM-20948
-        // If the DMP is enabled, .begin performs a minimal startup. We need to configure the sample mode etc. manually.
-#ifdef USE_SPI
-        myICM.begin(CS_PIN, SPI_PORT);
-#else
-        myICM.begin(Wire, AD0_VAL);
-#endif
-
-#ifndef QUAT_ANIMATION
-        cout << "Initialization of the sensor returned: ";
-        SERIAL_PORT.println(myICM.statusString());
-#endif
-        if (myICM.status != ICM_20948_Stat_Ok)
-        {
-#ifndef QUAT_ANIMATION
-            cout << "Trying again..." << endl;
-#endif
-            delay(500);
-        }
-        else
-        {
-            initialized = true;
-        }
+        Serial.println("whoami does not match. Halting...");
+        delay(1000);
     }
 
-#ifndef QUAT_ANIMATION
-    cout << "Device connected!" << endl;
-#endif
-
-    bool success = true; // Use success to show if the DMP configuration was successful
-
-    // Initialize the DMP. initializeDMP is a weak function. You can overwrite it if you want to e.g. to change the sample rate
-    success &= (myICM.initializeDMP() == ICM_20948_Stat_Ok);
-
-    // DMP sensor options are defined in ICM_20948_DMP.h
-    //    INV_ICM20948_SENSOR_ACCELEROMETER               (16-bit accel)
-    //    INV_ICM20948_SENSOR_GYROSCOPE                   (16-bit gyro + 32-bit calibrated gyro)
-    //    INV_ICM20948_SENSOR_RAW_ACCELEROMETER           (16-bit accel)
-    //    INV_ICM20948_SENSOR_RAW_GYROSCOPE               (16-bit gyro + 32-bit calibrated gyro)
-    //    INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED (16-bit compass)
-    //    INV_ICM20948_SENSOR_GYROSCOPE_UNCALIBRATED      (16-bit gyro)
-    //    INV_ICM20948_SENSOR_STEP_DETECTOR               (Pedometer Step Detector)
-    //    INV_ICM20948_SENSOR_STEP_COUNTER                (Pedometer Step Detector)
-    //    INV_ICM20948_SENSOR_GAME_ROTATION_VECTOR        (32-bit 6-axis quaternion)
-    //    INV_ICM20948_SENSOR_ROTATION_VECTOR             (32-bit 9-axis quaternion + heading accuracy)
-    //    INV_ICM20948_SENSOR_GEOMAGNETIC_ROTATION_VECTOR (32-bit Geomag RV + heading accuracy)
-    //    INV_ICM20948_SENSOR_GEOMAGNETIC_FIELD           (32-bit calibrated compass)
-    //    INV_ICM20948_SENSOR_GRAVITY                     (32-bit 6-axis quaternion)
-    //    INV_ICM20948_SENSOR_LINEAR_ACCELERATION         (16-bit accel + 32-bit 6-axis quaternion)
-    //    INV_ICM20948_SENSOR_ORIENTATION                 (32-bit 9-axis quaternion + heading accuracy)
-
-    // Enable the DMP orientation sensor
-    success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_ORIENTATION) == ICM_20948_Stat_Ok);
-
-    // Enable any additional sensors / features
-    // success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_GYROSCOPE) == ICM_20948_Stat_Ok);
-    // success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
-    // success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED) == ICM_20948_Stat_Ok);
-
-    // Configuring DMP to output data at multiple ODRs:
-    // DMP is capable of outputting multiple sensor data at different rates to FIFO.
-    // Setting value can be calculated as follows:
-    // Value = (DMP running rate / ODR ) - 1
-    // E.g. For a 5Hz ODR rate when DMP is running at 55Hz, value = (55/5) - 1 = 10.
-    success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Quat9, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-    // success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Accel, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-    // success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-    // success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro_Calibr, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-    // success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Cpass, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-    // success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Cpass_Calibr, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-
-    // Enable the FIFO
-    success &= (myICM.enableFIFO() == ICM_20948_Stat_Ok);
-
-    // Enable the DMP
-    success &= (myICM.enableDMP() == ICM_20948_Stat_Ok);
-
-    // Reset DMP
-    success &= (myICM.resetDMP() == ICM_20948_Stat_Ok);
-
-    // Reset FIFO
-    success &= (myICM.resetFIFO() == ICM_20948_Stat_Ok);
-
-    // Check success
-    if (success)
+    ICM_20948_Status_e stat = ICM_20948_Stat_Err;
+    uint8_t whoami = 0x00;
+    while ((stat != ICM_20948_Stat_Ok) || (whoami != ICM_20948_WHOAMI))
     {
-#ifndef QUAT_ANIMATION
-        cout << "DMP enabled!" << endl;
-#endif
+        whoami = 0x00;
+        stat = ICM_20948_get_who_am_i(&myICM, &whoami);
+        Serial.print("whoami does not match (0x");
+        Serial.print(whoami, HEX);
+        Serial.print("). Halting...");
+        Serial.println();
+        delay(1000);
     }
-    else
-    {
-        cout << "Enable DMP failed!" << endl;
-        cout << "Please check that you have uncommented line 29 (#define ICM_20948_USE_DMP) in ICM_20948_C.h..." << endl;
-        while (1)
-            ; // Do nothing more
-    }
+
+    // Here we are doing a SW reset to make sure the device starts in a known state
+    ICM_20948_sw_reset(&myICM);
+    delay(250);
+
+    // Set Gyro and Accelerometer to a particular sample mode
+    ICM_20948_set_sample_mode(&myICM, (ICM_20948_InternalSensorID_bm)(ICM_20948_Internal_Acc | ICM_20948_Internal_Gyr), ICM_20948_Sample_Mode_Continuous); // optiona: ICM_20948_Sample_Mode_Continuous. ICM_20948_Sample_Mode_Cycled
+
+    // Set full scale ranges for both acc and gyr
+    ICM_20948_fss_t myfss;
+    myfss.a = gpm2;   // (ICM_20948_ACCEL_CONFIG_FS_SEL_e)
+    myfss.g = dps250; // (ICM_20948_GYRO_CONFIG_1_FS_SEL_e)
+    ICM_20948_set_full_scale(&myICM, (ICM_20948_InternalSensorID_bm)(ICM_20948_Internal_Acc | ICM_20948_Internal_Gyr), myfss);
+
+    // Set up DLPF configuration
+    ICM_20948_dlpcfg_t myDLPcfg;
+    myDLPcfg.a = acc_d473bw_n499bw;
+    myDLPcfg.g = gyr_d361bw4_n376bw5;
+    ICM_20948_set_dlpf_cfg(&myICM, (ICM_20948_InternalSensorID_bm)(ICM_20948_Internal_Acc | ICM_20948_Internal_Gyr), myDLPcfg);
+
+    // Choose whether or not to use DLPF
+    ICM_20948_enable_dlpf(&myICM, ICM_20948_Internal_Acc, false);
+    ICM_20948_enable_dlpf(&myICM, ICM_20948_Internal_Gyr, false);
+
+    // Now wake the sensor up
+    ICM_20948_sleep(&myICM, false);
+    ICM_20948_low_power(&myICM, false);
 }
 
 void loop()
 {
-    // Read any DMP data waiting in the FIFO
-    // Note:
-    //    readDMPdataFromFIFO will return ICM_20948_Stat_FIFONoDataAvail if no data is available.
-    //    If data is available, readDMPdataFromFIFO will attempt to read _one_ frame of DMP data.
-    //    readDMPdataFromFIFO will return ICM_20948_Stat_FIFOIncompleteData if a frame was present but was incomplete
-    //    readDMPdataFromFIFO will return ICM_20948_Stat_Ok if a valid frame was read.
-    //    readDMPdataFromFIFO will return ICM_20948_Stat_FIFOMoreDataAvail if a valid frame was read _and_ the FIFO contains more (unread) data.
-    icm_20948_DMP_data_t data;
-    myICM.readDMPdataFromFIFO(&data);
+    delay(1000);
 
-    if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail)) // Was valid data available?
+    ICM_20948_AGMT_t agmt = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0}};
+    if (ICM_20948_get_agmt(&myICM, &agmt) == ICM_20948_Stat_Ok)
     {
-        // cout << "Received data! Header: 0x"; // Print the header in HEX so we can see what data is arriving in the FIFO
-        // if ( data.header < 0x1000) cout <<  "0" ; // Pad the zeros
-        // if ( data.header < 0x100) cout <<  "0" ;
-        // if ( data.header < 0x10) cout <<  "0" ;
-        // SERIAL_PORT.println( data.header, HEX );
-
-        if ((data.header & DMP_header_bitmap_Quat9) > 0) // We have asked for orientation data so we should receive Quat9
-        {
-            // Q0 value is computed from this equation: Q0^2 + Q1^2 + Q2^2 + Q3^2 = 1.
-            // In case of drift, the sum will not add to 1, therefore, quaternion data need to be corrected with right bias values.
-            // The quaternion data is scaled by 2^30.
-
-            // SERIAL_PORT.printf("Quat9 data is: Q1:%ld Q2:%ld Q3:%ld Accuracy:%d\r\n", data.Quat9.Data.Q1, data.Quat9.Data.Q2, data.Quat9.Data.Q3, data.Quat9.Data.Accuracy);
-
-            // Scale to +/- 1
-            double q1 = ((double)data.Quat9.Data.Q1) / 1073741824.0; // Convert to double. Divide by 2^30
-            double q2 = ((double)data.Quat9.Data.Q2) / 1073741824.0; // Convert to double. Divide by 2^30
-            double q3 = ((double)data.Quat9.Data.Q3) / 1073741824.0; // Convert to double. Divide by 2^30
-            double q0 = 0.0;                                         // sqrt(1.0 - ((q1 * q1) + (q2 * q2) + (q3 * q3)));
-
-            // convert Tait-Bryan XYZ (commonly called Euler angles) to
-            // a quaternion. 'revision_1_fma_s' in toy code
-            // http://marc-b-reynolds.github.io/math/2017/04/18/TaitEuler.html
-
-            // double w = q0;
-            // double x = q1;
-            // double y = q2;
-            // double z = q3;
-
-            // double t0 = (x + z) * (x - z); // x^2-z^2
-            // double t1 = (w + y) * (w - y); // w^2-y^2
-            // double xx = 0.5f * (t0 + t1);
-            // double xy = f32_mma(x, y, w, z);
-            // double xz = f32_mms(w, y, x, z);
-            // double yz = 2.f * (f32_mma(y, z, w, x));
-            // double t = xx * xx + xy * xy;
-
-            // double yaw = atan2f(xy, xx);
-            // double pitch = atanf(xz / sqrtf(t));
-            // double roll = 0;
-
-            // if (t != 0)
-            // {
-            //     roll = atan2f(yz, t1 - t0);
-            // }
-            // else
-            // {
-            //     roll = 2.f * atan2f(x, w) - sgn(xz) * yaw;
-            // }
-
-            // cout << "Roll:";
-            // cout << roll, 1;
-            // cout << " Pitch:";
-            // cout << pitch, 1;
-            // cout << " Yaw:";
-            // SERIAL_PORT.println(yaw, 1);
-
-#ifndef QUAT_ANIMATION
-            cout << " Q1:";
-            cout << q1;
-            cout << " Q2:";
-            cout << q2;
-            cout << " Q3:";
-            cout << q3;
-            // cout << " Accuracy:";
-            // cout << data.Quat9.Data.Accuracy << endl;
-#else
-            // Output the Quaternion data in the format expected by ZaneL's Node.js Quaternion animation tool
-            cout << "{\"quat_w\":";
-            cout << q0;
-            cout << ", \"quat_x\":";
-            cout << q1;
-            cout << ", \"quat_y\":";
-            cout << q2;
-            cout << ", \"quat_z\":";
-            cout << q3;
-            cout << "}" << endl;
-#endif
-        }
+        printRawAGMT(agmt);
     }
-
-    if (myICM.status != ICM_20948_Stat_FIFOMoreDataAvail) // If more data is available then we should read it right away - and not delay
+    else
     {
-        delay(10);
+        Serial.println("Uh oh");
     }
 }
 
-/**************************
- * main function is used to recreate the behavior of the  Arduino defualt setup() and loop() functions
- **************************/
-int main()
+///////////////////////////////////////////////////////////////
+/* Here's where you actually define your interface functions */
+///////////////////////////////////////////////////////////////
+
+ICM_20948_Status_e my_write_i2c(uint8_t reg, uint8_t *data, uint32_t len, void *user)
 {
-    setup();
-    while (1)
+    WIRE_PORT.beginTransmission(I2C_ADDR);
+    WIRE_PORT.write(reg);
+    WIRE_PORT.write(data, len);
+    WIRE_PORT.endTransmission();
+
+    return ICM_20948_Stat_Ok;
+}
+
+ICM_20948_Status_e my_read_i2c(uint8_t reg, uint8_t *buff, uint32_t len, void *user)
+{
+    WIRE_PORT.beginTransmission(I2C_ADDR);
+    WIRE_PORT.write(reg);
+    WIRE_PORT.endTransmission(false); // Send repeated start
+
+    uint32_t num_received = WIRE_PORT.requestFrom(I2C_ADDR, len);
+    if (num_received == len)
     {
-        loop();
+        for (uint32_t i = 0; i < len; i++)
+        {
+            buff[i] = WIRE_PORT.read();
+        }
     }
-    return (0);
+
+    return ICM_20948_Stat_Ok;
+}
+
+// Some helper functions
+
+void printPaddedInt16b(int16_t val)
+{
+    if (val > 0)
+    {
+        SERIAL_PORT.print(" ");
+        if (val < 10000)
+        {
+            SERIAL_PORT.print("0");
+        }
+        if (val < 1000)
+        {
+            SERIAL_PORT.print("0");
+        }
+        if (val < 100)
+        {
+            SERIAL_PORT.print("0");
+        }
+        if (val < 10)
+        {
+            SERIAL_PORT.print("0");
+        }
+    }
+    else
+    {
+        SERIAL_PORT.print("-");
+        if (abs(val) < 10000)
+        {
+            SERIAL_PORT.print("0");
+        }
+        if (abs(val) < 1000)
+        {
+            SERIAL_PORT.print("0");
+        }
+        if (abs(val) < 100)
+        {
+            SERIAL_PORT.print("0");
+        }
+        if (abs(val) < 10)
+        {
+            SERIAL_PORT.print("0");
+        }
+    }
+    SERIAL_PORT.print(abs(val));
+}
+
+void printRawAGMT(ICM_20948_AGMT_t agmt)
+{
+    SERIAL_PORT.print("RAW. Acc [ ");
+    printPaddedInt16b(agmt.acc.axes.x);
+    SERIAL_PORT.print(", ");
+    printPaddedInt16b(agmt.acc.axes.y);
+    SERIAL_PORT.print(", ");
+    printPaddedInt16b(agmt.acc.axes.z);
+    SERIAL_PORT.print(" ], Gyr [ ");
+    printPaddedInt16b(agmt.gyr.axes.x);
+    SERIAL_PORT.print(", ");
+    printPaddedInt16b(agmt.gyr.axes.y);
+    SERIAL_PORT.print(", ");
+    printPaddedInt16b(agmt.gyr.axes.z);
+    SERIAL_PORT.print(" ], Mag [ ");
+    printPaddedInt16b(agmt.mag.axes.x);
+    SERIAL_PORT.print(", ");
+    printPaddedInt16b(agmt.mag.axes.y);
+    SERIAL_PORT.print(", ");
+    printPaddedInt16b(agmt.mag.axes.z);
+    SERIAL_PORT.print(" ], Tmp [ ");
+    printPaddedInt16b(agmt.tmp.val);
+    SERIAL_PORT.print(" ]");
+    SERIAL_PORT.println();
+}
+
+float getAccMG(int16_t raw, uint8_t fss)
+{
+    switch (fss)
+    {
+    case 0:
+        return (((float)raw) / 16.384);
+        break;
+    case 1:
+        return (((float)raw) / 8.192);
+        break;
+    case 2:
+        return (((float)raw) / 4.096);
+        break;
+    case 3:
+        return (((float)raw) / 2.048);
+        break;
+    default:
+        return 0;
+        break;
+    }
+}
+
+float getGyrDPS(int16_t raw, uint8_t fss)
+{
+    switch (fss)
+    {
+    case 0:
+        return (((float)raw) / 131);
+        break;
+    case 1:
+        return (((float)raw) / 65.5);
+        break;
+    case 2:
+        return (((float)raw) / 32.8);
+        break;
+    case 3:
+        return (((float)raw) / 16.4);
+        break;
+    default:
+        return 0;
+        break;
+    }
+}
+
+float getMagUT(int16_t raw)
+{
+    return (((float)raw) * 0.15);
+}
+
+float getTmpC(int16_t raw)
+{
+    return (((float)raw) / 333.87);
 }

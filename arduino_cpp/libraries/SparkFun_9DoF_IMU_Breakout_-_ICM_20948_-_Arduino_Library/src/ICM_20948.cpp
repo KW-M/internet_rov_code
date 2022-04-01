@@ -33,9 +33,21 @@ void ICM_20948::debugPrint(const char *line)
   doDebugPrint([](const char *ptr) { return *ptr; }, line);
 }
 
+void ICM_20948::debugPrint(const __FlashStringHelper *line)
+{
+  doDebugPrint([](const char *ptr) { return (char)pgm_read_byte_near(ptr); },
+               (const char *)line);
+}
+
 void ICM_20948::debugPrintln(const char *line)
 {
   doDebugPrint([](const char *ptr) { return *ptr; }, line, true);
+}
+
+void ICM_20948::debugPrintln(const __FlashStringHelper *line)
+{
+  doDebugPrint([](const char *ptr) { return (char)pgm_read_byte_near(ptr); },
+               (const char *)line, true);
 }
 
 void ICM_20948::doDebugPrint(char (*funct)(const char *), const char *string, bool newLine)
@@ -1193,9 +1205,7 @@ ICM_20948_Status_e ICM_20948::initializeDMP(void)
   // You can see by monitoring the Aux I2C pins that the next three lines reduce the bus traffic (magnetometer reads) from 1125Hz to the chosen rate: 68.75Hz in this case.
   result = setBank(3); if (result > worstResult) worstResult = result; // Select Bank 3
   uint8_t mstODRconfig = 0x04; // Set the ODR configuration to 1100/2^4 = 68.75Hz
-  result = write(AGB3_REG_I2C_MST_ODR_CONFIG, &mstODRconfig, 1);
-  if (result > worstResult)
-    worstResult = result; // Write one byte to the I2C_MST_ODR_CONFIG register
+  result = write(AGB3_REG_I2C_MST_ODR_CONFIG, &mstODRconfig, 1); if (result > worstResult) worstResult = result; // Write one byte to the I2C_MST_ODR_CONFIG register  
 
   // Configure clock source through PWR_MGMT_1
   // ICM_20948_Clock_Auto selects the best available clock source – PLL if ready, else use the Internal oscillator
@@ -1653,7 +1663,7 @@ ICM_20948_Status_e ICM_20948_write_I2C(uint8_t reg, uint8_t *data, uint32_t len,
   {
     return ICM_20948_Stat_ParamErr;
   }
-  Wire *_i2c = ((ICM_20948_I2C *)user)->_i2c; // Cast user field to ICM_20948_I2C type and extract the I2C interface pointer
+  TwoWire *_i2c = ((ICM_20948_I2C *)user)->_i2c; // Cast user field to ICM_20948_I2C type and extract the I2C interface pointer
   uint8_t addr = ((ICM_20948_I2C *)user)->_addr;
   if (_i2c == NULL)
   {
