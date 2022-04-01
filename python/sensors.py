@@ -88,7 +88,9 @@ class Sensor_Controller:
 
     async def sensor_setup_loop(self):
         log.info("Setting Up Sensors...")
-        sensor_setup_tasks = [sensor for sensor in self.all_sensors]
+        sensor_setup_tasks = [
+            sensor[0].start_sensor_loop() for sensor in self.all_sensors
+        ]
         print(sensor_setup_tasks)
         await asyncio.gather(*sensor_setup_tasks)
 
