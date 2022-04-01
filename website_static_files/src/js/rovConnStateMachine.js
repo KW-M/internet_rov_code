@@ -7,7 +7,7 @@ import { pure } from "xstate/lib/actions";
 import Peer from "peerjs"
 
 
-import { showToastMessage, showROVDisconnectedUI, showROVConnectingUI, showROVConnectedUI, showLoadingUi, setupConnectBtnClickHandler, showToastDialog, hideLoadingUi, setupDisconnectBtnClickHandler } from "./ui"
+import { showToastMessage, showROVDisconnectedUI, showROVConnectingUI, showROVConnectedUI, showLoadingUi, setupConnectBtnClickHandler, showToastDialog, hideLoadingUi, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandler } from "./ui"
 
 // import * from "./peerServerConn"
 
@@ -338,7 +338,7 @@ const machineFunctions = {
         awaitSwitchRovBtnPress: (context, event) => {
             return (sendStateChange, onReceive) => {
                 const cleanupFunc = setupSwitchRovBtnClickHandler(() => {
-                    sendStateChange("");
+                    sendStateChange("CONNECTED_TO_WRONG_ROV");
                 })
                 return cleanupFunc;
             };
@@ -346,7 +346,7 @@ const machineFunctions = {
         chooseROVPopup: (context, event) => {
             return (sendStateChange) => {
                 showLoadingUi("Finding Online ROVs...")
-                Peer.listAllPeers((peerIds) => {
+                context.thisPeer.listAllPeers((peerIds) => {
                     hideLoadingUi()
                     console.log("peerIds:", peerIds);
                     const toastPopup = showChoiceDialog("Choose ROV", peerIds, (peerId) => {

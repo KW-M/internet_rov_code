@@ -540,18 +540,19 @@ var _gamepadEmulationJs = require("./gamepad-emulation.js");
 var _xstate = require("xstate");
 var _actions = require("xstate/lib/actions");
 var _messageHandler = require("./messageHandler");
+var _uiJs = require("./ui.js");
 // show an inspector
 if (_utilJs.getURLQueryStringVariable("debug-mode")) _inspect.inspect({
     iframe: false
 });
-const mainMachine = _xstate.createMachine({
-    id: "main",
-    initial: "Start",
+const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QBGAJxTssgKwAGZVIAsixQCYAzFIBsAGhABPRHOwB2Xcu3b1ADim6ZBg7oMBfLybRZsBgBXTEwsKGwAWThYVBg6AAlUTAgAGzAichoAOVY6SJpcXGYAcXoqAHlGCoA1MT4BIRExSQQHXWsPA2U5Ryt1OykTcwRbA2wtAylHR3dlGZkfPwwcYNDwqJi4sETktIzSEoqqfMLisroAMQYKyOq6pBAGwWFRR9aAWm0Jw1lfq2UNmUBm0w0QYwmiimMzmCyWIH8qxCYUwUFIAHUaAAhSi0OgAYQAMhVcDR6vwXs13ogdB1FBpdLN1LoWVJtI4wQgVI5sDJXOzgeoQY5XD5fCBMLwIHAxIi8IQSOTGq8Wogvh0PGz1NruoDdNqrJy+RN+iL1DIZFpLdpFPC5WsURF8SJMGAAMZNTB0Ki8Ri8ABuSspb1ArSkwIm2isimZNpU+pZnMUVis2Ec6is2gMzgz0ZcdpWgWRGxKqGQYG4qAgdFwQW4fEVj2entVCHDPJkPSjVkc9PTbMNZkQ-XGchtMhTGcBBYCDo20VgsXiSRS6SIQZb1LbqcU6YG7LZyn0+nUnPUNuwGeTuj0HlcMnUM6R61RG5VW6+43pUzkUwBQJBTk9DpPo7H3dM7HmJ9sFYEQwDfKlQxpZlsHcS1GQGKY9BkJNjWzFlNG0KR6U7KwnwQkMJDVFQfh-f49WBTlpk6cNdCsAxNHPcMyLFIA */ _xstate.createMachine({
     context: {
         peerServerConfig: {
         },
         rovIpAddr: ""
     },
+    id: "main",
+    initial: "Start",
     states: {
         Start: {
             invoke: {
@@ -560,16 +561,17 @@ const mainMachine = _xstate.createMachine({
             },
             on: {
                 SITE_READY: {
-                    target: "Running",
                     actions: [
                         "setRovIpAddr",
                         "setPeerServerConfig"
-                    ]
+                    ],
+                    target: "Running"
                 }
             }
         },
         Running: {
             type: "parallel",
+            entry: "hideLoadingUi",
             states: {
                 Connection_To_Rov: {
                     exit: _xstate.send({
@@ -591,11 +593,6 @@ const mainMachine = _xstate.createMachine({
                 Gamepad_Support: {
                 },
                 Message_Handler: {
-                    // invoke: {
-                    //     // src: messageHandlerMachine,
-                    //     id: "messageHandlerMachine",
-                    //     // src: getSiteInitMachine(),
-                    // },
                     invoke: {
                         src: "handleSendingMessages",
                         id: "handleSendingMessages"
@@ -640,23 +637,22 @@ const mainMachine = _xstate.createMachine({
             (context, event)=>{
                 return _messageHandler.handleRovMessage(event.data);
             };
-        }
+        },
+        hideLoadingUi: _uiJs.hideLoadingUi
     },
     services: {
         handleSendingMessages: (context, event)=>{
-            (context, event)=>{
-                return (callback, onReceive)=>{
-                    intervalId = setInterval(()=>{
-                        callback({
-                            type: "SEND_MESSAGE_TO_ROV",
-                            data: JSON.stringify({
-                                "ping": Date.now()
-                            })
-                        });
-                    }, 8000);
-                    return ()=>{
-                        clearInterval(intervalId);
-                    };
+            return (callback, onReceive)=>{
+                intervalId = setInterval(()=>{
+                    callback({
+                        type: "SEND_MESSAGE_TO_ROV",
+                        data: JSON.stringify({
+                            "ping": Date.now()
+                        })
+                    });
+                }, 5000);
+                return ()=>{
+                    clearInterval(intervalId);
                 };
             };
         }
@@ -676,152 +672,100 @@ function sendUpdateToROV(message) {
         type: "SEND_MESSAGE_TO_ROV",
         data: message
     });
-}
-// var lastTimeRecvdPong = 0;
-// const handleROVMessage = function (message) {
-//     msgData = JSON.parse(message);
-//     if (msgData['pong']) {
-//         console.log("Ping->Pong received");
-//         lastTimeRecvdPong = Date.now();
-//         networkPingDelay = lastTimeRecvdPong - Number.parseFloat(msgData['pong']) // since the rpi replies with the ms time we sent in the ping in the pong message
-//         updatePingDisplay(networkPingDelay);
-//         if (msgData["sensor_update"]) updateDisplayedSensorValues(msgData["sensor_update"]);
-//     }
-// }
-// setupConnectDisconnectButtonEvents(() => {
-//     // connect button clicked:
-//     connectToROV(getDefaultSignallingServerURL(), handleROVMessage, () => {
-//         console.log("Connected to ROV");
-//         // start ping timer to send ping every second
-//         pingTimer = setInterval(() => {
-//             sendUpdateToROV({ 'ping': Date.now() });
-//         }, 2000);
-//     });
-// }, () => {
-//     // disconnect button clicked:
-//     if (signalObj) {
-//         signalObj.hangup();
-//     }
-//     signalObj = null;
-//     videoElem.srcObject = null;
-//     isStreaming = false;
-// })
-// // -----------------------------------------------------
-// // ------------ Gamepad Related ------------------------
-// // -----------------------------------------------------
-var handleButtonPressBrowserSide = function(buttonFunction, buttonValue) {
-    if (buttonFunction == "photo") // takePhoto();
-    return true;
-    else if (buttonFunction == "video") // toggleVideo();
-    return true;
-    return false;
-};
-var buttonMappingNames = {
-    'A': {
-        func: 'photo',
-        desc: 'Take Photo'
-    },
-    'B': {
-        func: 'record',
-        desc: 'Start/Stop Recording'
-    },
-    'X': {
-        func: 'None',
-        desc: 'TBD'
-    },
-    'Y': {
-        func: 'None',
-        desc: 'TBD'
-    },
-    'L1': {
-        func: 'clawOpen',
-        mode: "btn_hold_allowed",
-        desc: 'Open Claw'
-    },
-    'R1': {
-        func: 'clawOpen',
-        mode: "btn_hold_allowed",
-        desc: 'Open Claw'
-    },
-    'L2': {
-        func: 'clawClose',
-        mode: "btn_hold_allowed",
-        desc: 'Close Claw'
-    },
-    'R2': {
-        func: 'clawClose',
-        mode: "btn_hold_allowed",
-        desc: 'Close Claw'
-    },
-    'SELECT': {
-        func: 'bitrate-',
-        mode: "btn_hold_allowed",
-        desc: 'TODO: Decrease Video Quality (lowers latency)'
-    },
-    'START': {
-        func: 'bitrate+',
-        mode: "btn_hold_allowed",
-        desc: 'TODO: Increase Video Quality (adds latency)'
-    },
-    'dpadUp': {
-        func: 'lights+',
-        mode: "btn_hold_allowed",
-        desc: 'TODO: Increase Intensity of Lights'
-    },
-    'dpadDown': {
-        func: 'lights-',
-        mode: "btn_hold_allowed",
-        desc: 'TODO: Decrease Intensity of Lights'
-    },
-    'dpadLeft': {
-        func: 'exposure-',
-        mode: "btn_hold_allowed",
-        desc: 'TODO: Dim Camera Exposure'
-    },
-    'dpadRight': {
-        func: 'exposure+',
-        mode: "btn_hold_allowed",
-        desc: 'TODO: Brighten Camera Exposure'
-    }
-};
-var lastROVMotionMessage = {
-};
-_gamepadJs.initGamepadSupport(_gamepadUiJs.gamepadUi, _gamepadEmulationJs.gamepadEmulator, handleGamepadInput);
-function handleGamepadInput(buttonStates, axisState) {
-    var messageToRov = {
-    };
-    for(const btnName in buttonMappingNames){
-        const btnState = buttonStates[btnName];
-        if (btnState == undefined) continue;
-        const btnFunctionName = buttonMappingNames[btnName].func;
-        const btnFunctionMode = buttonMappingNames[btnName].mode;
-        if (btnState.pressed && (btnState.justChanged || btnFunctionMode == "btn_hold_allowed")) {
-            // if this button action is performed in the browser (not on the rov), this function will take care of it, and return true:
-            if (handleButtonPressBrowserSide(btnFunctionName, btnState.value)) continue;
-            // otherwise, send the function name of the button to the ROV with the current button value
-            messageToRov[btnFunctionName] = btnState.value;
-        }
-    // if (gamepadHelpVisible && btnState.justChanged && btnState.pressed) {
-    //     gamepadHelpText.innerText = buttonMappingNames[btnName].desc
-    // }
-    }
-    var rawAxies = [];
-    if (axisState["L"] && axisState["R"]) {
-        rawAxies = rawAxies.concat(axisState["L"].value);
-        rawAxies = rawAxies.concat(axisState["R"].value);
-        var desiredRovMotion = _utilJs.calculateDesiredMotion(rawAxies);
-        if (JSON.stringify(desiredRovMotion) != lastROVMotionMessage) {
-            lastROVMotionMessage = JSON.stringify(desiredRovMotion);
-            messageToRov['move'] = desiredRovMotion;
-        }
-    }
-    if (Object.keys(messageToRov).length > 0) {
-        console.log("Sending message to ROV: " + JSON.stringify(messageToRov));
-        sendUpdateToROV(JSON.stringify(messageToRov));
-    }
-}
+} // var lastTimeRecvdPong = 0;
+ // const handleROVMessage = function (message) {
+ //     msgData = JSON.parse(message);
+ //     if (msgData['pong']) {
+ //         console.log("Ping->Pong received");
+ //         lastTimeRecvdPong = Date.now();
+ //         networkPingDelay = lastTimeRecvdPong - Number.parseFloat(msgData['pong']) // since the rpi replies with the ms time we sent in the ping in the pong message
+ //         updatePingDisplay(networkPingDelay);
+ //         if (msgData["sensor_update"]) updateDisplayedSensorValues(msgData["sensor_update"]);
+ //     }
+ // }
+ // setupConnectDisconnectButtonEvents(() => {
+ //     // connect button clicked:
+ //     connectToROV(getDefaultSignallingServerURL(), handleROVMessage, () => {
+ //         console.log("Connected to ROV");
+ //         // start ping timer to send ping every second
+ //         pingTimer = setInterval(() => {
+ //             sendUpdateToROV({ 'ping': Date.now() });
+ //         }, 2000);
+ //     });
+ // }, () => {
+ //     // disconnect button clicked:
+ //     if (signalObj) {
+ //         signalObj.hangup();
+ //     }
+ //     signalObj = null;
+ //     videoElem.srcObject = null;
+ //     isStreaming = false;
+ // })
+ // // -----------------------------------------------------
+ // // ------------ Gamepad Related ------------------------
+ // // -----------------------------------------------------
+ // var handleButtonPressBrowserSide = function (buttonFunction, buttonValue) {
+ //     if (buttonFunction == "photo") {
+ //         // takePhoto();
+ //         return true;
+ //     } else if (buttonFunction == "video") {
+ //         // toggleVideo();
+ //         return true;
+ //     }
+ //     return false
+ // }
+ // var buttonMappingNames = {
+ //     'A': { func: 'photo', desc: 'Take Photo' },
+ //     'B': { func: 'record', desc: 'Start/Stop Recording' },
+ //     'X': { func: 'None', desc: 'TBD' },
+ //     'Y': { func: 'None', desc: 'TBD' },
+ //     'L1': { func: 'clawOpen', mode: "btn_hold_allowed", desc: 'Open Claw' },
+ //     'R1': { func: 'clawOpen', mode: "btn_hold_allowed", desc: 'Open Claw' },
+ //     'L2': { func: 'clawClose', mode: "btn_hold_allowed", desc: 'Close Claw' },
+ //     'R2': { func: 'clawClose', mode: "btn_hold_allowed", desc: 'Close Claw' },
+ //     'SELECT': { func: 'bitrate-', mode: "btn_hold_allowed", desc: 'TODO: Decrease Video Quality (lowers latency)' },
+ //     'START': { func: 'bitrate+', mode: "btn_hold_allowed", desc: 'TODO: Increase Video Quality (adds latency)' },
+ //     'dpadUp': { func: 'lights+', mode: "btn_hold_allowed", desc: 'TODO: Increase Intensity of Lights' },
+ //     'dpadDown': { func: 'lights-', mode: "btn_hold_allowed", desc: 'TODO: Decrease Intensity of Lights' },
+ //     'dpadLeft': { func: 'exposure-', mode: "btn_hold_allowed", desc: 'TODO: Dim Camera Exposure' },
+ //     'dpadRight': { func: 'exposure+', mode: "btn_hold_allowed", desc: 'TODO: Brighten Camera Exposure' },
+ // }
+ // var lastROVMotionMessage = {};
+ // initGamepadSupport(gamepadUi, gamepadEmulator, handleGamepadInput);
+ // function handleGamepadInput(buttonStates, axisState) {
+ //     var messageToRov = {}
+ //     for (const btnName in buttonMappingNames) {
+ //         const btnState = buttonStates[btnName]
+ //         if (btnState == undefined) continue;
+ //         const btnFunctionName = buttonMappingNames[btnName].func;
+ //         const btnFunctionMode = buttonMappingNames[btnName].mode;
+ //         if (btnState.pressed && (btnState.justChanged || btnFunctionMode == "btn_hold_allowed")) {
+ //             // if this button action is performed in the browser (not on the rov), this function will take care of it, and return true:
+ //             if (handleButtonPressBrowserSide(btnFunctionName, btnState.value)) continue;
+ //             // otherwise, send the function name of the button to the ROV with the current button value
+ //             messageToRov[btnFunctionName] = btnState.value;
+ //         }
+ //         // if (gamepadHelpVisible && btnState.justChanged && btnState.pressed) {
+ //         //     gamepadHelpText.innerText = buttonMappingNames[btnName].desc
+ //         // }
+ //     }
+ //     var rawAxies = [];
+ //     if (axisState["L"] && axisState["R"]) { // && (axisState["R"].justChanged || axisState["L"].justChanged)
+ //         rawAxies = rawAxies.concat(axisState["L"].value);
+ //         rawAxies = rawAxies.concat(axisState["R"].value);
+ //         var desiredRovMotion = calculateDesiredMotion(rawAxies);
+ //         if (JSON.stringify(desiredRovMotion) != lastROVMotionMessage) {
+ //             lastROVMotionMessage = JSON.stringify(desiredRovMotion);
+ //             messageToRov['move'] = desiredRovMotion;
+ //         }
+ //     }
+ //     if (Object.keys(messageToRov).length > 0) {
+ //         console.log("Sending message to ROV: " + JSON.stringify(messageToRov));
+ //         sendUpdateToROV(JSON.stringify(messageToRov));
+ //     }
+ // }
 
-},{"./siteInit":"8TXLV","@xstate/inspect":"39FuP","./util.js":"doATT","./rovConnStateMachine":"j5PiZ","./gamepad.js":"2YxSr","./gamepad-ui.js":"2JE4J","./gamepad-emulation.js":"iwJat","xstate":"2sk4t","xstate/lib/actions":"b9dCp","./messageHandler":"at2SH"}],"8TXLV":[function(require,module,exports) {
+},{"./siteInit":"8TXLV","@xstate/inspect":"39FuP","./util.js":"doATT","./rovConnStateMachine":"j5PiZ","./gamepad.js":"2YxSr","./gamepad-ui.js":"2JE4J","./gamepad-emulation.js":"iwJat","xstate":"2sk4t","xstate/lib/actions":"b9dCp","./messageHandler":"at2SH","./ui.js":"efi6n"}],"8TXLV":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "siteInitMachine", ()=>siteInitMachine
@@ -6784,6 +6728,8 @@ parcelHelpers.export(exports, "showToastMessage", ()=>showToastMessage
 );
 parcelHelpers.export(exports, "showToastDialog", ()=>showToastDialog
 );
+parcelHelpers.export(exports, "showChoiceDialog", ()=>showChoiceDialog
+);
 parcelHelpers.export(exports, "showROVDisconnectedUI", ()=>showROVDisconnectedUI
 );
 parcelHelpers.export(exports, "showROVConnectingUI", ()=>showROVConnectingUI
@@ -6793,6 +6739,8 @@ parcelHelpers.export(exports, "showROVConnectedUI", ()=>showROVConnectedUI
 parcelHelpers.export(exports, "setupConnectBtnClickHandler", ()=>setupConnectBtnClickHandler
 );
 parcelHelpers.export(exports, "setupDisconnectBtnClickHandler", ()=>setupDisconnectBtnClickHandler
+);
+parcelHelpers.export(exports, "setupSwitchRovBtnClickHandler", ()=>setupSwitchRovBtnClickHandler
 );
 parcelHelpers.export(exports, "showScanIpBtn", ()=>showScanIpBtn
 );
@@ -6849,6 +6797,27 @@ function showToastDialog(message, durration, btnName, callback) {
         stopOnFocus: true
     }).showToast();
 }
+function showChoiceDialog(message, buttons, callback) {
+    const toastContent = document.createElement("div");
+    toastContent.innerHTML = message;
+    buttons.forEach((button)=>{
+        const btn = document.createElement("button");
+        btn.innerHTML = button.name;
+        btn.addEventListener("click", ()=>{
+            callback(button.value);
+        });
+        toastContent.appendChild(btn);
+    });
+    return _toastifyJsDefault.default({
+        node: toastContent,
+        duration: 0,
+        close: true,
+        className: "dialog-toast",
+        gravity: "top",
+        position: "center",
+        stopOnFocus: true
+    }).showToast();
+}
 const connectBtn = document.getElementById('connect_btn');
 const disconnectBtn = document.getElementById('disconnect_btn');
 const connectedRovIndicatorButton = document.getElementById('connected_rov_indicator_btn');
@@ -6879,6 +6848,12 @@ function setupConnectBtnClickHandler(callback) {
 }
 function setupDisconnectBtnClickHandler(callback) {
     connectBtn.addEventListener('click', callback);
+    return cleanupFunc = ()=>{
+        connectBtn.removeEventListener('click', callback);
+    };
+}
+function setupSwitchRovBtnClickHandler(callback) {
+    connectedRovIndicatorButton.addEventListener('click', callback);
     return cleanupFunc = ()=>{
         connectBtn.removeEventListener('click', callback);
     };
@@ -8156,6 +8131,11 @@ const machineFunctions = {
                 return rovVideoStream;
             }
         }),
+        setRovPeerIdEndNumber: _xstate.assign({
+            rovPeerIdEndNumber: (context, event)=>{
+                return event.data;
+            }
+        }),
         sendMessageToRov: (context, event)=>{
             const outgoingMessage = event.data;
             const rovDataConnection = context.dataChannel;
@@ -8427,12 +8407,37 @@ const machineFunctions = {
                 });
                 return cleanupFunc;
             };
+        },
+        awaitSwitchRovBtnPress: (context, event)=>{
+            return (sendStateChange, onReceive)=>{
+                const cleanupFunc = _ui.setupSwitchRovBtnClickHandler(()=>{
+                    sendStateChange("CONNECTED_TO_WRONG_ROV");
+                });
+                return cleanupFunc;
+            };
+        },
+        chooseROVPopup: (context, event)=>{
+            return (sendStateChange)=>{
+                _ui.showLoadingUi("Finding Online ROVs...");
+                context.thisPeer.listAllPeers((peerIds)=>{
+                    _ui.hideLoadingUi();
+                    console.log("peerIds:", peerIds);
+                    const toastPopup = showChoiceDialog("Choose ROV", peerIds, (peerId)=>{
+                        console.log("chosen peerId:", peerId);
+                        toastPopup.hideToast();
+                        sendStateChange({
+                            type: "ROV_PEER_CHOSEN",
+                            data: peerId
+                        });
+                    });
+                });
+            };
         }
     },
     guards: {
     }
 };
-const rovConnectionMachine = /** @xstate-layout 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-EKaREkBxsb-OxgDhaAv-jeUiNp6zgpObRTA9FGIXPrvkSMIIwa8k+LCcCIo2bTlSPNMSEI4QjR+D8hCGodDQv0F4ZAChMDFR3tbO8D5+rIqGZUD8lR-LP2fl8QCbNoSghWXkd2S4A4R3WuSzhNKzAKH0BjJg94PDID6ZcBkSLHavh1RQKxAY-ijgVH9Lu35WjuQgs0eMRL8hSsUjK5lnSxBYyYMcyyXA2VPD4sKsZo4YSwhBKuf67km5wk6F0d2aRcgJsoB4AA7uhZkRZGrEg4F4agxASy4BUGwOA9UGVyK8NXbBtEmAdNQY9Z6dcc3CVoUOMoH9+RpAmv8P2v4Pw3yFOJaEUIBhKlwNgCAcB4hwQKbDZCZop7oiOs4gyOY2DZq9C0VyM4XgB1eCFXkYYxwfjSIGEE4z6F-DrRspCWpr0gMNmUh9FZn3hgYQGnopCOWFDhMkMM4NRJQhGuOSCPkwN-KzJBoyN7twFgUkWXKcGzQIbfPGVoLxvYf1DZ0GZDQhSRoKABMGq0A5EejlesjSUMJYWqmefQBEiL0Y5aCQN7yrFjmEr+jlkpGhdBeGYy1gnL2kbxKhBD6S32fs-R-BuflTGRsFAUXuLGyi6Ypdw-a7C70gv0iaQyyx6PpGIS8MoPRQ06L+H5PowrmimrSHy1c6RHObIBS53hKV0pFkytlKQNH8qFRKtgcqlVqpgDRvAH1s6UjNEyDOQoM5Vy8gMeuwE05aEM2SQYv4aG4v-MpYloFbmYOgt4AhsCcTpnikFEUWEs1JwBpjBxRrg4Q4dZ2s58jkxdmCMztUjOat6na11vrUp9HugfnaKBNdfIVqND8kuX0YzP4FCnItrhwD47uYEbwIRm2xGbckZvBDgbfRwnEuJGS0arsh1GdMoGXwoQGMe1s4pOzXsuI2yI7Cf3XIkLITxChkk-KlGHGJXomihRMLhwllbwK+uz0EbUzxWtvE-YITO6Jr4dGiTfD5aHbRhTtFSa8V9pDvw8RBlin+56gWFK6xTtb73aefdpztxpEAENwmFUKBhVjCc+TfHzsCoyBTCWDFkwMZOpfQYLmUyWcvUcUHQKQE9yguDEH7ehPLUjZNWdWt7GEIIeR9FSeBeT82waVeFLF21Ud7Fm5e1Tt7rj3F0+VvRsS7OoSC7aDoqEqTMkkI9kQySkqI-sMl8t83ul+v0ZKKnzn05udZ43Y3UcIUCjMIDvGU3peDoq+FdGmvGeedhhhBKTkGv4xDnFMUR7CHGi+jBqZgM37H5CWIbCQeQHYwQVckR6FYAABGbBiCEGKmrbWUnCJPpKyzlIwZX0nb6IzEfaesMrU-D7RoBQP6JnjUXpLTaW1njbTTA7S7R7T7QHQQ3AhGQRE+hjETDEiX2eCO2m1yAMWxzAkFDAwQ1phMw-QXwszZgAFpG4Zw+QdFfg09clBhBggA */ _xstate.createMachine({
+const rovConnectionMachine = /** @xstate-layout N4IgpgJg5mDOIC5QCUDyA1AwgewHa7AGMAXASzwDpkBXfU3KCgBTDACcB9AZXYDd2OOfETKUActmKC8BEpA4AVbBxbsAVrG592AYiYBRfcgBSXbkfRHBqMWP2YFASRsd9XBQEEAQgBlHXAAl9ABFEUAAHbFhSUVwwkAAPRABGAAYANgoATgAOdIBWDNSAFnzinKzKgBoQAE9EfPyAZgpGsoB2LOTc5tT2gF9+mrQsGRFyXCpaXHpGVU4eNn5OIVlYigkpVZF5JRVWNg0tJd0DI1NXZDRkeMjo2PikhGTkgta8rPTPrNLk4pr6ghiuliq12n9Kvl2jkmjl2sUmoNhhhtiQJlM6AxmAdjstpMI0ZRUcRdsp5kdFss9IYTGYjNdblEYhNHilXpksiVkgAmJrpJrJdrc5oAxDA-IUIUvaHpYWlbkgpEgEbE9E0TFzHGUgSqoljOQQRRkg4U7RsannMxcCxWYL+TA2OwOEKM+4spCJFKpOEUbqcl7pCpZeHc0UIKHJX0BkHtVJNcpNRFDZUo-XrdUzLHzXE6tNqoh5hgcYjG9SabXms608zISzIay2exOFxuTy+fxBUIeu7MvCs56pfJZSXtJpx17cypZfI5MOByMVaEZYHFcqK5MqvOUDOzbECCv4tb5wiFqDF0uHctmi3V+moG7dpkPD1PZIznIUOFZWFNXL89pCmG5QSoUWTctygpLuCORKpuBLptMu7ZgeuqTAEACGuAQAANrMrhsGw2CVjSFzWrWVgOo2DjOGIgg+Kg1pdhET7uqAr6pBxkpxtyHE8RO1R1IgTQQRQ3I5IUPJCgK3pZLBqbwWqiFYsg2C8PsuYKeIkiHjshp7OSV4nMRlo1nWDZOs2tGtt4fiBC6j5un2L4NMkLT5AU3orrK7T8mGaTdL6nJgakgpdOCskbvJR7bkpjAqWp2aoRQHiwAA1nhTCkNh2kliopCEKlHAAGKEQAthwqC4LhBAcPFsA6CMKg0oIAQMfoYiur2cTOc8PHcu84nlJ00rpGGPyZDKEbevGfzFHJoyaZMO7Kap6krFukybDpBpGrVqkNRg5lNjRrjuDZHb2cxjndWxiBdMOJRSd+Lzxl0fk8W5sKjsUcZNI08LzUly1xatiUbRQxKkntvAUME6HEOhmAABaYQQ2Gw-D6GCCjwjYRwwSkLAJ7wZAOjBB4niYAEHiNj4p1trZnadc+t0IBULT8sULw-JOqSfKGgnPNCkZ-DkMLQty4I8oD4PA1QoM4klkN6co8UYwjyOo2A6Nwwj2Na3jBNE2mpPk5T1O04ojgALL6KgACqCjM6xnq9X9FACl0XyclzIVNH5fqSsKMKuXzjRJsiC3RUtsXywlivg8ru1q7riM42j6tY5ruMVeEYC4GTFMeFTNN2HTdpcJRFnO05rMVBNBScjCxRCvy-uC8kcItHzHHpH03xfBHKZR+MMUanHa3besSd7CnmPZxnqf6znqB5wX1piMEHC21wXAeAA4voiioLVGA1zdrsIu0FDpIPwXfekkl+UO-U8mBCKrk07RlMkMuLRimYQbxw0tHCGJsVbQ0zgvbWmdl5o1zvnHQ+9UAKG3m4Peh9ipoGtqfdA59+y32vtBfIvJgQ5DSNyf4HcZz9RyD9SchQSgtzFn-UBct4qTyVuA5OqkKDW0gKQNOBsNjaVXog22doPAtVLvoOm1l2x2SYiAHsLNXYkOvvOL+4JfxDj5GGCCnRshxh+CQ38cZb6sNHjHceHCwb-xnqrXh-CICCOgejZxgi4HaynqTdAjhgh224AoZA+gPA4JCR4YIABNfBPUeQVAoBkGE-p3IcWKALQEEE8iSm6DxIcgpSiWMJNYwBE87GgIcdDA66AmoUUdMdFsVx7yxNZn3CUiYhrfj4quLIAcEmrjKPQ6cgoxJFIQjYhWICrFgJJhA+KOgq5NhCMfDgAB1NAYh964Jaa7N8qRX6-inHKDIf0A4AVaLyCCvQwosMiiPYpADdy2ITotG8pEbT1kWdRFwmB6KMR2a+fIkYQR-V5J8WE4ERSC2nKkT8QpyHFFyEKToc07lA1ijoVZ+gvDIAUJgYqRc5FNIfFdLq-Y-QfkqP5TuncviAUFtCUEBS8hcyXOQ7kYzFIajeWYBQ+hrZMHvB4ZAUTLgMgcmSuJlQPwtwDH8UcCo3od26G5dyVyOlpG-pysegCFk+FCWIe2TAjrfLEFwAFiA+KwqSaOGEsIQSrneu5D2cJOhdC5mkXI2rJgeAAO7oWZEWRqxIOBeGoMQEsuAVBsDgPVL5qCvCOwUC4JgITd6XWUSxWurtLn9SHGUPu-I0hiyoYCVyuRWicnhVCcSAFBjJlwNgCAcB4hwTYbHZCZop7oi2pUgyOY2AWoHC0VyM4XjkNeCFXkYYxwfjSIGEEyTJwQVRZHdF49O1GW7XqWZu1+0ViHSQ0EiLxK3yBYUOEyQwz-VElCSW45II+W9Y8rMWou1AwLApIsuV91miHW+eMrQXh8z7oqzoGSGhClaO5KEo5CjQnIc+uWm68RJQwlhaqZ59AESIv+oFx7wSDJbmOYSM6gWSkaF0F49DWVIY7W+rdqEh2GNHROidfceTtzLXQ6DBTugwknDyVdw912lOeVMh5vbuH6RNIZZY-70jXxeGUHoiqSF-D8n0WFzRGVpAhaudIdGJnAPWv-FK6UiyZWylIH9+VColWwOVSq1UwDQ3gBK1Rr5gSwsTB0P6j9BT5DGnyT8cYe7ekobyX+aLZax3E6Z0BUnd2z1UkOsCGj0nikFEUWEY1JwUBXLGMOeSv5GbE5MhL0zKlzw1unGBS83H40JsTNYkB-38Yo3zEtfIciDiCx3Jcvokn90bpUMrTyKvbsmNV3hqc3GwMa2Ii+KiXZPFlb6OE4lxIySuX5Uc18Si8jhF8KE+zxsrRM1NmZrW5mzfnnV7CQ6uYczvjxB+T8O6lGHGJI9lCehxnO0AzhidpOOJhh4oRuMRFSCW3h-qVyfInbaMKdo+jXgjtvl0kovEYSA7KS8ipoPIEQ-mxDrxeNlZDrhLCoUlCW4-Z8m+NHYFEkCmEsGExgY8fxauzN8HAjIcZ3QKQZtyguDEBjehJza88M8b6L13IfIuZvf0eBY9g5fMzhIe5bnk2uHJbB3wgXbj-1iVEm+RH05kdQn0cYm+0pCiUd7sJtt0z2F65Bwb6G-6Sjm6hJjto2vUcd185KMcncjnqJd1FN3cWPeLSp7ChHAfrfB8BHQ49VvwIfAgtOQHh6JSsfHQGKdXGhLX1hOHBU9qxZnZi--VZYAABGbBiCEGKpjPG2HCKDo86tlIwYR3fz6I-TkKPRqCxnLC+uwoYN9188+v1AayBBsOiGsNEa8DRtjUO7Pw4ESPRjImMSZfngdeBLkfZb2wKCm9UOgUvo-psZL5xsMABad2M4+TdAyGJPIMF60gA */ _xstate.createMachine({
     context: {
         /* NOTE that the context is really set by the parent machine, not here */ peerServerConfig: null,
         peerConnectionTimeout: 0,
@@ -8528,10 +8533,12 @@ const rovConnectionMachine = /** @xstate-layout N4IgpgJg5mDOIC5QCUDyA1AwgewHa7AG
                         },
                         Asking_Pilot_to_Pick_From_Online_Rovs: {
                             invoke: {
-                                src: "connectToRovPeer"
+                                src: "chooseROVPopup",
+                                id: "chooseROVPopup"
                             },
                             on: {
-                                ROV_INDEX_PICKED: {
+                                ROV_PEER_CHOSEN: {
+                                    actions: "setRovPeerIdEndNumber",
                                     target: "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Rov"
                                 }
                             }
@@ -8545,15 +8552,15 @@ const rovConnectionMachine = /** @xstate-layout N4IgpgJg5mDOIC5QCUDyA1AwgewHa7AG
                                 ROV_CONNECTION_ESTABLISHED: {
                                     actions: "setDataChannel",
                                     target: "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov"
-                                },
-                                MULTIPLE_ROVS_ONLINE: {
-                                    target: "#ROVConnection.Running.Rov_Peer_Connection.Asking_Pilot_to_Pick_From_Online_Rovs"
                                 }
                             }
                         },
                         Connected_To_Rov: {
                             entry: "showRovConnectedUi",
                             type: "parallel",
+                            invoke: {
+                                src: "awaitSwitchRovBtnPress"
+                            },
                             states: {
                                 DataChannel: {
                                     exit: "closeDownDataChannel",

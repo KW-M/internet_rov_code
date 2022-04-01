@@ -104,6 +104,13 @@ export function setupDisconnectBtnClickHandler(callback) {
     }
 }
 
+export function setupSwitchRovBtnClickHandler(callback) {
+    connectedRovIndicatorButton.addEventListener('click', callback);
+    return cleanupFunc = () => {
+        connectBtn.removeEventListener('click', callback);
+    }
+}
+
 export function showScanIpBtn() {
     document.getElementById("scan_for_ip_btn").style.display = "block";
 }
