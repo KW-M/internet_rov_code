@@ -11,8 +11,10 @@ log = logging.getLogger(__name__)
 
 
 class Generic_Sensor:
-    def __init__(self, name: str, sensor_read_interval: float, measurement_names: str, measurement_units: str,
-                 setup_sensor_function: function, read_sensor_function: function):
+    def __init__(self, name: str, sensor_read_interval: float,
+                 measurement_names: str, measurement_units: str,
+                 setup_sensor_function: function,
+                 read_sensor_function: function):
         self.sensor_name = name
         self.sensor_connection = None
         self.sensor_read_interval = sensor_read_interval
@@ -46,7 +48,8 @@ class Generic_Sensor:
         while True:
             new_readings: list[float]
             try:
-                new_readings = await self.read_sensor_function(self.sensor_connection)
+                new_readings = await self.read_sensor_function(
+                    self.sensor_connection)
                 if new_readings != self.measured_values:
                     self.value = new_readings
                     self.sensor_value_changed_flag.set()
@@ -65,97 +68,79 @@ class Generic_Sensor:
 
 async def setup_pressure_sensor():
     return ms5803py.MS5803()
+
+
 async def read_pressure_sensor(sensor_connection):
     list(sensor_connection.read(pressure_osr=4096))
-pressure_temp_sensor = Generic_Sensor('ms5803_pressure_temp', 1, ['pressure', 'temperature'], ['mPa', 'C'], setup_pressure_sensor,read_pressure_sensor),
 
 
-arduino_sensors_interface = Generic_Sensor('arduino_interface_sensors', 1, ['yaw', 'pitch', 'roll'], ['deg', 'deg','deg'], setup_pressure_sensor,read_pressure_sensor),
+pressure_temp_sensor = Generic_Sensor('ms5803_pressure_temp', 1,
+                                      ['pressure', 'temperature'],
+                                      ['mPa', 'C'], setup_pressure_sensor,
+                                      read_pressure_sensor),
 
-all_sensors = [pressure_temp_sensor]
+# arduino_sensors_interface = Generic_Sensor('arduino_interface_sensors', 1, ['yaw', 'pitch', 'roll'], ['deg', 'deg','deg'], setup_pressure_sensor,read_pressure_sensor),
+
+
+
 class Sensor_Controller:
-
-    sensor_values_have_changed_flag = False
-    current_sensor_state = {
-        'pressure': 0,
-        'temp': 0,
-        'light': 0,
-        'yaw': 0,
-        'roll': 0,
-        'pitch': 0,
-        'accel_x': 0,
-        'accel_y': 0,
-        'accel_z': 0,
-        'board_warnings': 0,
-    }
-
-    pressure_sensor = None
-    orientation_sensor = None
-    light_sensor = None
+    all_sensors = [pressure_temp_sensor]
 
     async def sensor_setup_loop(self):
         log.info("Setting Up Sensors...")
-        setup_pressure_sensor(self)
+        await asyncio.gather(*[sensor.start_sensor_loop() for sensor in self.all_sensors])
 
-    async def setup_pressure_sensor(self):
-        while True:
-            try:
-                self.pressure_sensor = self.pressure_sensor or
-            except IOError as e:
-                log.error("Error in setup_sensors() Sensor Not Responding: " +
-                          str(e))
-            except Exception as e:
-                log.error("Error Setting Up Sensors:", exc_info=e)
+    def get_sensor_update_dict(self):
+        sensor_dict = {}
+        for sensor in self.all_sensors:
+            if sensor.sensor_value_changed_flag.is_set():
+                sensor.sensor_value_changed_flag.clear()
+                for i in range(len(sensor.measurement_names)):
+                    sensor_dict[sensor.measurement_names[i]] = sensor.measured_values[i]
+        return sensor_dict
 
-    def update_sensor_value(self, sensor_name, new_value):
-        if (self.current_sensor_state[sensor_name] != new_value):
-            self.current_sensor_state[sensor_name] = new_value
-            self.sensor_values_have_changed_flag = True
+    # def get_sensor_column_names(self):
+    #     output_column_names = ['date_time']
 
-    def update_all_sensors(self):
-        # Read the pressure sensor values
-        if self.pressure_sensor is not None:
-            try:
-                pressure, temp = self.pressure_sensor.read(pressure_osr=4096)
-                log.debug("Sensors: pressure={} mBar, temperature={} C".format(
-                    get_rounded_string(pressure), get_rounded_string(temp)))
+    # def get_sensor_values_row(self):
+    #     rowString = ""
+    #     for sensor in all_sensors:
+    #         self.current_sensor_state[sensor.sensor_name] = sensor.measured_values
 
-                self.update_sensor_value('pressure',
-                                         get_rounded_string(pressure))
-                self.update_sensor_value('temp', get_rounded_string(temp))
-            except IOError as e:
-                log.warning(
-                    "IO Error reading pressure sensor, is it disconnected? " +
-                    str(e))
-            except Exception as e:
-                log.error("Error reading pressure sensor:", exc_info=e)
+    # def update_all_sensors(self):
+    #     for sensor in all_sensors:
+    #         if(sensor.sensor_value_changed_flag.is_set()):
+    #             sensor.sensor_value_changed_flag.clear()
 
-        # Read the orientation sensor values
-        if self.orientation_sensor is not None:
-            pass
+    #                 self.current_sensor_state[sensor.measurement_names[sensor_index]] = sensor_value
+    #             self.current_sensor_state[sensor.sensor_name] = sensor.measured_values
 
-        # Read the photoresistor (light sensor) values
-        if self.light_sensor is not None:
-            pass
+    #     # Read the orientation sensor values
+    #     if self.orientation_sensor is not None:
+    #         pass
 
-        return self.sensor_values_have_changed_flag
+    #     # Read the photoresistor (light sensor) values
+    #     if self.light_sensor is not None:
+    #         pass
 
-    def get_changed_sensor_values(self):
-        self.sensor_values_have_changed_flag = False
-        return self.current_sensor_state
+    #     return self.sensor_values_have_changed_flag
 
-    def get_connected_sensor_column_names(self):
-        output_column_names = ['date_time']
-        if self.pressure_sensor:
-            output_column_names.append('pressure')
-            output_column_names.append('temp')
-        if self.orientation_sensor:
-            output_column_names.append('yaw')
-            output_column_names.append('roll')
-            output_column_names.append('pitch')
-            output_column_names.append('accel_x')
-            output_column_names.append('accel_y')
-            output_column_names.append('accel_z')
-        if self.light_sensor:
-            output_column_names.append('light')
-        return output_column_names
+    # def get_changed_sensor_values(self):
+    #     self.sensor_values_have_changed_flag = False
+    #     return self.current_sensor_state
+
+    # def get_connected_sensor_column_names(self):
+    #     output_column_names = ['date_time']
+    #     if self.pressure_sensor:
+    #         output_column_names.append('pressure')
+    #         output_column_names.append('temp')
+    #     if self.orientation_sensor:
+    #         output_column_names.append('yaw')
+    #         output_column_names.append('roll')
+    #         output_column_names.append('pitch')
+    #         output_column_names.append('accel_x')
+    #         output_column_names.append('accel_y')
+    #         output_column_names.append('accel_z')
+    #     if self.light_sensor:
+    #         output_column_names.append('light')
+    #     return output_column_names

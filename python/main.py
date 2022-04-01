@@ -16,15 +16,15 @@ import asyncio
 from unix_socket_datachannel import Unix_Socket_Datachannel
 from motion_controller import Motion_Controller
 from sensor_log import Sensor_Log
-from sensors import sensor_ctrl
-from mesage_handler import handle_socket_message
+from sensors import Sensor_Controller
+from mesage_handler import socket_incoming_message_handler_loop, socket_update_message_sender_loop
 from utilities import *
 
 ############################
 ##### Setup Variables #####
 unix_socket_datachannel = Unix_Socket_Datachannel()
-sensors = sensor_ctrl()
-sensr_log = Sensor_Log()
+sensors = Sensor_Controller()
+sensor_log = Sensor_Log(sensors.all_sensors)
 motion_ctrl = Motion_Controller()
 
 ############################
@@ -38,27 +38,17 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 
-async def socket_message_loop():
-    while True:
-        # get the next message from the socket
-        message = await unix_socket_datachannel.messages_from_socket_queue.get(
-        )
-        if message:
-            print("got message: {}".format(message))
-            # await handle_socket_message(message)
-
-
 ######################################
 ######## Main Program Loop ###########
 ######################################
 async def main():
     # setup the asyncio loop to run each of these functions aka "tasks" aka "coroutines" concurently
-    await asyncio.gather(
-        sensors.sensor_setup_loop(),
-        motion_ctrl.motor_setup_loop(),
-        unix_socket_datachannel.socket_relay_setup_loop(),
-        socket_message_loop(),
-    )
+    await asyncio.gather(sensors.sensor_setup_loop(),
+                         motion_ctrl.motor_setup_loop(),
+                         unix_socket_datachannel.socket_relay_setup_loop(),
+                         socket_incoming_message_handler_loop(),
+                         socket_update_message_sender_loop())
+
 
 asyncio.run(main())
 

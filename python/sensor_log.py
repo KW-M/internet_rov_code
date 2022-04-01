@@ -16,7 +16,15 @@ class Sensor_Log:
     sensor_log_file = None
     sensor_log_csv_writer = None
 
-    def setup_sensor_log(self, column_names):
+    async def start_sensor_log_loop(self):
+        """
+        Starts the async loop that writes to the csv log.
+        """
+        while True:
+            await asyncio.sleep(0.1)
+            self.write_sensor_log_line(self.measured_values)
+
+    async def setup_sensor_log(self, column_names):
         """
         Opens a new sensor_log file and writes the column names to it.
         """
