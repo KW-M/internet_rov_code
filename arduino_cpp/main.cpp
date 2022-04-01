@@ -1,4 +1,5 @@
 #include <iostream>
+#include <math.h>
 using namespace std;
 
 // Include arduPi library
@@ -67,7 +68,7 @@ void setup()
     SPI_PORT.begin();
 #else
     Wire.begin();
-    Wire.setClock(400000);
+    // Wire.setClock(400000);
 #endif
 
 #ifndef QUAT_ANIMATION
@@ -209,37 +210,37 @@ void loop()
             double q1 = ((double)data.Quat9.Data.Q1) / 1073741824.0; // Convert to double. Divide by 2^30
             double q2 = ((double)data.Quat9.Data.Q2) / 1073741824.0; // Convert to double. Divide by 2^30
             double q3 = ((double)data.Quat9.Data.Q3) / 1073741824.0; // Convert to double. Divide by 2^30
-            double q0 = sqrt(1.0 - ((q1 * q1) + (q2 * q2) + (q3 * q3)));
+            double q0 = 0.0;                                         // sqrt(1.0 - ((q1 * q1) + (q2 * q2) + (q3 * q3)));
 
             // convert Tait-Bryan XYZ (commonly called Euler angles) to
             // a quaternion. 'revision_1_fma_s' in toy code
             // http://marc-b-reynolds.github.io/math/2017/04/18/TaitEuler.html
 
-            double w = q0;
-            double x = q1;
-            double y = q2;
-            double z = q3;
+            // double w = q0;
+            // double x = q1;
+            // double y = q2;
+            // double z = q3;
 
-            double t0 = (x + z) * (x - z); // x^2-z^2
-            double t1 = (w + y) * (w - y); // w^2-y^2
-            double xx = 0.5f * (t0 + t1);
-            double xy = f32_mma(x, y, w, z);
-            double xz = f32_mms(w, y, x, z);
-            double yz = 2.f * (f32_mma(y, z, w, x));
-            double t = xx * xx + xy * xy;
+            // double t0 = (x + z) * (x - z); // x^2-z^2
+            // double t1 = (w + y) * (w - y); // w^2-y^2
+            // double xx = 0.5f * (t0 + t1);
+            // double xy = f32_mma(x, y, w, z);
+            // double xz = f32_mms(w, y, x, z);
+            // double yz = 2.f * (f32_mma(y, z, w, x));
+            // double t = xx * xx + xy * xy;
 
-            double yaw = atan2f(xy, xx);
-            double pitch = atanf(xz / sqrtf(t));
-            double roll = 0;
+            // double yaw = atan2f(xy, xx);
+            // double pitch = atanf(xz / sqrtf(t));
+            // double roll = 0;
 
-            if (t != 0)
-            {
-                roll = atan2f(yz, t1 - t0);
-            }
-            else
-            {
-                roll = 2.f * atan2f(x, w) - sgn(xz) * yaw;
-            }
+            // if (t != 0)
+            // {
+            //     roll = atan2f(yz, t1 - t0);
+            // }
+            // else
+            // {
+            //     roll = 2.f * atan2f(x, w) - sgn(xz) * yaw;
+            // }
 
             // cout << "Roll:";
             // cout << roll, 1;
