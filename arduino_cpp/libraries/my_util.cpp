@@ -13,38 +13,38 @@ public:
     }
     static void print(const char *str)
     {
-        cout << str;
+        std::cout << str;
     }
     static void print(const float num, const int precision)
     {
-        cout << num;
+        std::cout << num;
     }
     template <typename T>
     static void print(const T num)
     {
-        cout << num;
+        std::cout << num;
     }
     template <typename T>
     static void print(const T num, const int precision)
     {
-        cout << num;
+        std::cout << num;
     }
     static void println(const char *str)
     {
-        cout << str << endl;
+        std::cout << str << std::endl;
     }
     static void println(const float num, const int precision)
     {
-        cout << num << endl;
+        std::cout << num << std::endl;
     }
     template <typename T>
     static void println(const T num)
     {
-        cout << num << endl;
+        std::cout << num << std::endl;
     }
     template <typename T>
     static void println(const T num, const int precision)
     {
-        cout << num << endl;
+        std::cout << num << std::endl;
     }
 };
