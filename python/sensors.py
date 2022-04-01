@@ -27,6 +27,7 @@ class Generic_Sensor:
         self.read_sensor_function = read_sensor_function
         self.sensor_error_flag = asyncio.Event()
         self.sensor_value_changed_flag = asyncio.Event()
+        return self
 
     async def start_sensor_loop(self):
         await asyncio.gather(
@@ -41,8 +42,12 @@ class Generic_Sensor:
             except IOError as e:
                 log.error("Error in setup_sensors() Sensor Not Responding: " +
                           str(e))
+                self.sensor_error_flag.set()
+                await asyncio.sleep(3)
             except Exception as e:
                 log.error("Error Setting Up Sensors:", exc_info=e)
+                self.sensor_error_flag.set()
+                await asyncio.sleep(3)
 
     async def sensor_read_loop(self):
         while True:
