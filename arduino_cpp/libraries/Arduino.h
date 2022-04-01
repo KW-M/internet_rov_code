@@ -2,5 +2,5 @@
 using namespace std;
 
 #include "arduPi/arduPi.h"
-typedef Stream SerialCout;
-typedef __FlashStringHelper char;
+typedef SerialCout Stream;
+typedef char __FlashStringHelper;
