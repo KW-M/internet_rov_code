@@ -27,7 +27,6 @@ class Generic_Sensor:
         self.read_sensor_function = read_sensor_function
         self.sensor_error_flag = asyncio.Event()
         self.sensor_value_changed_flag = asyncio.Event()
-        return self
 
     async def start_sensor_loop(self):
         await asyncio.gather(
