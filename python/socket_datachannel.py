@@ -27,7 +27,7 @@ class Unix_Socket_Datachannel:
         Relays all messages recived from the unix socket onto the messages_from_socket_queue.
         """
         while True:
-            if self.sock is None or self.sock.closed:
+            if self.sock is None:
                 return
 
             try:
@@ -48,7 +48,7 @@ class Unix_Socket_Datachannel:
         Relays all messages pushed onto the send_to_socket_queue to the unix socket.
         """
         while True:
-            if self.sock is None or self.sock.closed:
+            if self.sock is None:
                 return
 
             message = await self.messages_to_send_to_socket_queue.get()
@@ -70,9 +70,6 @@ class Unix_Socket_Datachannel:
         if asyncLoop is None:
             asyncLoop = asyncio.get_event_loop()
 
-        self.sock = socket.socket(socket.AddressFamily.AF_UNIX,
-                                  socket.SocketKind.SOCK_SEQPACKET)
-
         self.messages_from_socket_queue = asyncio.Queue(
             maxsize=self.MAX_QUEUE_SIZE, loop=asyncLoop)
         self.messages_to_send_to_socket_queue = asyncio.Queue(
@@ -83,6 +80,8 @@ class Unix_Socket_Datachannel:
 
         while True:
             try:
+                self.sock = socket.socket(socket.AddressFamily.AF_UNIX,
+                                          socket.SocketKind.SOCK_SEQPACKET)
                 self.sock.connect(self.SOCKET_PATH)
                 self.sock.settimeout(self.SOCKET_TIMEOUT)
                 # workaround for: https://bugs.python.org/issue38285
@@ -114,6 +113,7 @@ class Unix_Socket_Datachannel:
                 write_task.cancel()
                 write_task = None
             self.sock.close()
+            self.sock = None
 
             await asyncio.sleep(3)  # wait 3 seconds before trying again
 
