@@ -30,7 +30,7 @@ typedef WirePi TwoWire;
 class __FlashStringHelper;
 const char *pgm_read_byte_near(const char *addr)
 {
-  return *addr;
+  return const * addr;
 }
 
 // undefine the F() macro normally used to store strings in arduino program memory
