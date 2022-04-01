@@ -2,6 +2,7 @@ from array import array
 import asyncio
 from cmath import nan
 import logging
+from types import MethodType
 import ms5803py
 
 from utilities import *
@@ -13,8 +14,7 @@ log = logging.getLogger(__name__)
 class Generic_Sensor:
     def __init__(self, name: str, sensor_read_interval: float,
                  measurement_names: str, measurement_units: str,
-                 setup_sensor_function: function,
-                 read_sensor_function: function):
+                 setup_sensor_function, read_sensor_function):
         self.sensor_name = name
         self.sensor_connection = None
         self.sensor_read_interval = sensor_read_interval
