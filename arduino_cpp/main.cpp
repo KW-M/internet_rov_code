@@ -126,7 +126,7 @@ ICM_20948_Status_e my_write_i2c(uint8_t reg, uint8_t *data, uint32_t len, void *
 {
     WIRE_PORT.beginTransmission(I2C_ADDR);
     WIRE_PORT.write(reg);
-    WIRE_PORT.write(data, len);
+    WIRE_PORT.write(const data, len);
     WIRE_PORT.endTransmission();
 
     return ICM_20948_Stat_Ok;
