@@ -218,15 +218,15 @@ public:
 // I2C
 
 // Forward declarations of TwoWire and Wire for board/variant combinations that don't have a default 'SPI'
-class TwoWire;       // Commented by PaulZC 21/2/8 - this was causing compilation to fail on the Arduino NANO 33 BLE
-extern TwoWire Wire; // Commented by PaulZC 21/2/8 - this was causing compilation to fail on the Arduino NANO 33 BLE
+// class TwoWire;       // Commented by PaulZC 21/2/8 - this was causing compilation to fail on the Arduino NANO 33 BLE
+// extern TwoWire Wire; // Commented by PaulZC 21/2/8 - this was causing compilation to fail on the Arduino NANO 33 BLE
 
 class ICM_20948_I2C : public ICM_20948
 {
 private:
 protected:
 public:
-  TwoWire *_i2c;
+  Wire *_i2c;
   uint8_t _addr;
   uint8_t _ad0;
   bool _ad0val;
@@ -234,7 +234,7 @@ public:
 
   ICM_20948_I2C(); // Constructor
 
-  virtual ICM_20948_Status_e begin(TwoWire &wirePort = Wire, bool ad0val = true, uint8_t ad0pin = ICM_20948_ARD_UNUSED_PIN);
+  virtual ICM_20948_Status_e begin(Wire &wirePort = Wire, bool ad0val = true, uint8_t ad0pin = ICM_20948_ARD_UNUSED_PIN);
 };
 
 // SPI

@@ -1653,7 +1653,7 @@ ICM_20948_Status_e ICM_20948_write_I2C(uint8_t reg, uint8_t *data, uint32_t len,
   {
     return ICM_20948_Stat_ParamErr;
   }
-  TwoWire *_i2c = ((ICM_20948_I2C *)user)->_i2c; // Cast user field to ICM_20948_I2C type and extract the I2C interface pointer
+  Wire *_i2c = ((ICM_20948_I2C *)user)->_i2c; // Cast user field to ICM_20948_I2C type and extract the I2C interface pointer
   uint8_t addr = ((ICM_20948_I2C *)user)->_addr;
   if (_i2c == NULL)
   {
