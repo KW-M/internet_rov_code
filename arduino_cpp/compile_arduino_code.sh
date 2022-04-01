@@ -11,7 +11,7 @@ pwd;
 
 # compile the arduino code
 g++ -c ./libraries/arduPi/arduPi.cpp -o ./libraries/arduPi/arduPi.o
-g++ -lrt -lpthread main.cpp ./libraries/arduPi/arduPi.o -o arduino_program
+g++ -lrt -pthread main.cpp ./libraries/arduPi/arduPi.o -o arduino_program
 
 # change directory back to what it was previously
 popd;
