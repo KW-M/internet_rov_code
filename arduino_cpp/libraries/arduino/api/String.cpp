@@ -22,9 +22,8 @@
 #include "String.h"
 #include "Common.h"
 #include "itoa.h"
-#include "deprecated-avr-comp/avr/dtostrf.h"
 
-#include <float.h>
+// #include <float.h>
 
 namespace arduino {
 
@@ -240,10 +239,10 @@ void String::move(String &rhs)
 String & String::operator = (const String &rhs)
 {
 	if (this == &rhs) return *this;
-	
+
 	if (rhs.buffer) copy(rhs.buffer, rhs.len);
 	else invalidate();
-	
+
 	return *this;
 }
 
@@ -265,7 +264,7 @@ String & String::operator = (const char *cstr)
 {
 	if (cstr) copy(cstr, strlen(cstr));
 	else invalidate();
-	
+
 	return *this;
 }
 
@@ -496,7 +495,7 @@ unsigned char String::equalsIgnoreCase( const String &s2 ) const
 	const char *p2 = s2.buffer;
 	while (*p1) {
 		if (tolower(*p1++) != tolower(*p2++)) return 0;
-	} 
+	}
 	return 1;
 }
 
@@ -527,7 +526,7 @@ char String::charAt(unsigned int loc) const
 	return operator[](loc);
 }
 
-void String::setCharAt(unsigned int loc, char c) 
+void String::setCharAt(unsigned int loc, char c)
 {
 	if (loc < len) buffer[loc] = c;
 }
