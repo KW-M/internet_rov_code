@@ -13,10 +13,9 @@ MESSAGE_METADATA_SEPARATOR = '|"|'
 async def socket_incoming_message_handler_loop(unix_socket_datachannel,
                                                motion_ctrl):
     """
-    Called when a new message is recieved on the socket.
-    :param message: The message recieved from the socket in utf-8 text.
+    Waits for new messages to be recieved on the socket.
+    :param socket_datachannel: the unix socket class with a queue of recived messages from the socket in utf-8 text.
     :param motion_ctrl: The motion_ctrl object.
-    :return: The reply message, or None if no reply is needed.
     """
 
     # state to keep track of who is allowed to drive the rov & who to send the reply to:
@@ -148,7 +147,8 @@ async def socket_incoming_message_handler_loop(unix_socket_datachannel,
                 reply_metadata) + MESSAGE_METADATA_SEPARATOR + json.dumps(
                     reply_msg_data)
             log.debug("Reply: " + reply_message)
-            return reply_message
+            unix_socket_datachannel.messages_to_socket_queue.put_nowait(
+                reply_message)
 
 
 async def socket_update_message_sender_loop(unix_socket_datachannel, sensors):

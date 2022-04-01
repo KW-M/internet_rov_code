@@ -34,8 +34,8 @@ cd ./go/
 go build -o ~/GOROV
 cd ../
 
-echo "Compiling Arduino code..."
-./arduino_cpp/compile_arduino_code.sh
+# echo "Compiling Arduino code..."
+# ./arduino_cpp/compile_arduino_code.sh
 
 # echo "Copying over boot config file..."
 # backup_then_overwrite_file "/boot/config.txt" "./new_config_files/boot_config.txt"
