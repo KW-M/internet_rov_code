@@ -95,20 +95,20 @@ class Adafruit_Pwm_Motor:
 
 
 class Motion_Controller:
-    gpio_issue_flag = asyncio.Event()
+    gpio_issue_flag = None
 
     ### -----------------------
 
-    current_motor_state = {
-        'left': 0,
-        'right': 0,
-        'vertical': 0,
-        'strafe': 0,
-        'claw': 0,
-        # 'lights': 0,
-    }
-
+    # current_motor_state = {
+    #     'left': 0,
+    #     'right': 0,
+    #     'vertical': 0,
+    #     'strafe': 0,
+    #     'claw': 0,
+    #     # 'lights': 0,
+    # }
     async def motor_setup_loop(self):
+        self.gpio_issue_flag = asyncio.Event()
         while True:
             self.gpio_issue_flag.clear()
             asyncio.create_task(self.init_motor_controllers())
