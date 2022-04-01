@@ -16,9 +16,9 @@ using namespace std;
 // Include arduPi library
 // arduino pi documentation:
 // https://www.cooking-hacks.com/documentation/tutorials/raspberry-pi-to-arduino-shields-connection-bridge.html
-#include "./libraries/arduPi/arduPi.h"
+#include "Arduino.h"
 
-#include "./my_util.cpp"
+// #include "./my_util.cpp"
 
 // include the library for the 9axis compass:
 // #define ICM_20948_USE_DMP
