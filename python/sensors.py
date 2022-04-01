@@ -52,18 +52,20 @@ class Generic_Sensor:
         while True:
             new_readings: list[float]
             try:
+
+                if (self.sensor_connection is None):
+                    await asyncio.sleep(self.sensor_read_interval)
+                    continue
                 new_readings = await self.read_sensor_function(
                     self.sensor_connection)
                 if new_readings != self.measured_values:
                     self.value = new_readings
                     self.sensor_value_changed_flag.set()
-                break
             except IOError as e:
-                log.warning(
-                    "IO Error reading pressure sensor, is it disconnected? " +
-                    str(e))
+                log.warning("IO Error reading " + self.sensor_name +
+                            " sensor, is it disconnected? " + str(e))
             except Exception as e:
-                log.error("Error Reading " + self.sensor_name + " Sensor:",
+                log.error("Error reading " + self.sensor_name + " sensor:",
                           exc_info=e)
                 self.sensor_error_flag.set()
 
