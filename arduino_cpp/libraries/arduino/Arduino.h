@@ -24,7 +24,7 @@
 
 #include "arduPi/arduPi.h"
 // #include "api/Stream.h"
-// typedef SerialCout Stream;
+typedef Serial Stream;
 typedef const char __FlashStringHelper;
 const char *pgm_read_byte_near(const char *addr)
 {
