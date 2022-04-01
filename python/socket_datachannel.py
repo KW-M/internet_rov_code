@@ -72,7 +72,6 @@ class Unix_Socket_Datachannel:
 
         self.sock = socket.socket(socket.AddressFamily.AF_UNIX,
                                   socket.SocketKind.SOCK_SEQPACKET)
-        self.sock.settimeout(self.SOCKET_TIMEOUT)
 
         self.messages_from_socket_queue = asyncio.Queue(
             maxsize=self.MAX_QUEUE_SIZE, loop=asyncLoop)
@@ -84,7 +83,6 @@ class Unix_Socket_Datachannel:
 
         while True:
             try:
-                self.sock.settimeout(3)
                 self.sock.connect(self.SOCKET_PATH)
                 self.sock.settimeout(self.SOCKET_TIMEOUT)
                 # workaround for: https://bugs.python.org/issue38285
@@ -95,6 +93,7 @@ class Unix_Socket_Datachannel:
 
             except FileNotFoundError as e:
                 log.warning('Unix socket file does not yet exist!')
+                await asyncio.sleep(5)
 
             # if the socket file cannot be opened before the timeout, return false:
             except socket.timeout as e:
