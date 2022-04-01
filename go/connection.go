@@ -229,7 +229,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLo
 			// handle incoming messages from this browser peer
 			browserPeerDataConnection.On("data", func(msgBytes interface{}) {
 				var msgString string = string(msgBytes.([]byte))
-				log.Printf("pilotDataConnection GOT MESSAGE: %s\n", msgString)
+				log.Printf("pilotDataConnection GOT MESSAGE: %s", msgString)
 				var socketString string = msgString
 				// send a metadata message down the unix socket that a new peer has connected
 				if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
