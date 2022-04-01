@@ -46,74 +46,28 @@ using namespace std;
 
 #include "./libraries/SparkFun_9DoF_IMU_Breakout_-_ICM_20948_-_Arduino_Library/src/ICM_20948.h" // Click here to get the library: http://librarymanager/All#SparkFun_ICM_20948_IMU
 
-//#define USE_SPI       // Uncomment this to use SPI
-
-#define SERIAL_PORT Serial
-
-#define SPI_PORT SPI // Your desired SPI port.       Used only when "USE_SPI" is defined
-#define CS_PIN 2     // Which pin you connect CS to. Used only when "USE_SPI" is defined
-
-#define WIRE_PORT Wire // Your desired Wire port.      Used when "USE_SPI" is not defined
 #define AD0_VAL 1      // The value of the last bit of the I2C address.                \
                        // On the SparkFun 9DoF IMU breakout the default is 1, and when \
                        // the ADR jumper is closed the value becomes 0
 
-#ifdef USE_SPI
-ICM_20948_SPI myICM; // If using SPI create an ICM_20948_SPI object
-#else
 ICM_20948_I2C myICM; // Otherwise create an ICM_20948_I2C object
-#endif
-
-inline float sgn(float x)
-{
-    return copysignf(1.f, x);
-}
-
-// ab+cd
-inline float f32_mma(float a, float b, float c, float d)
-{
-    float t = c * d;
-    float e = fmaf(c, d, -t);
-    float f = fmaf(a, b, t);
-    return f + e;
-}
-
-// ab-cd
-inline float f32_mms(float a, float b, float c, float d)
-{
-    float t = c * d;
-    float e = fmaf(c, d, -t);
-    float f = fmaf(a, b, -t);
-    return f - e;
-}
 
 void setup()
 {
 
-    SERIAL_PORT.begin(115200); // Start the serial console
 
     delay(2000);
 #ifndef QUAT_ANIMATION
-    SERIAL_PORT.println(F("ICM-20948 Example"));
+    cout << "ICM-20948 Example" << endl;
 #endif
 
     delay(100);
 
-#ifndef QUAT_ANIMATION
-    while (SERIAL_PORT.available()) // Make sure the serial RX buffer is empty
-        SERIAL_PORT.read();
-
-    SERIAL_PORT.println(F("Press any key to continue..."));
-
-    while (!SERIAL_PORT.available()) // Wait for the user to press a key (send any serial character)
-        ;
-#endif
-
 #ifdef USE_SPI
     SPI_PORT.begin();
 #else
-    WIRE_PORT.begin();
-    WIRE_PORT.setClock(400000);
+    Wire.begin();
+    Wire.setClock(400000);
 #endif
 
 #ifndef QUAT_ANIMATION
@@ -129,17 +83,17 @@ void setup()
 #ifdef USE_SPI
         myICM.begin(CS_PIN, SPI_PORT);
 #else
-        myICM.begin(WIRE_PORT, AD0_VAL);
+        myICM.begin(Wire, AD0_VAL);
 #endif
 
 #ifndef QUAT_ANIMATION
-        SERIAL_PORT.print(F("Initialization of the sensor returned: "));
+        cout << "Initialization of the sensor returned: ";
         SERIAL_PORT.println(myICM.statusString());
 #endif
         if (myICM.status != ICM_20948_Stat_Ok)
         {
 #ifndef QUAT_ANIMATION
-            SERIAL_PORT.println(F("Trying again..."));
+            cout << "Trying again..." << endl;
 #endif
             delay(500);
         }
@@ -150,7 +104,7 @@ void setup()
     }
 
 #ifndef QUAT_ANIMATION
-    SERIAL_PORT.println(F("Device connected!"));
+    cout << "Device connected!" << endl;
 #endif
 
     bool success = true; // Use success to show if the DMP configuration was successful
@@ -211,13 +165,13 @@ void setup()
     if (success)
     {
 #ifndef QUAT_ANIMATION
-        SERIAL_PORT.println(F("DMP enabled!"));
+        cout << "DMP enabled!" << endl;
 #endif
     }
     else
     {
-        SERIAL_PORT.println(F("Enable DMP failed!"));
-        SERIAL_PORT.println(F("Please check that you have uncommented line 29 (#define ICM_20948_USE_DMP) in ICM_20948_C.h..."));
+        cout << "Enable DMP failed!" << endl;
+        cout << "Please check that you have uncommented line 29 (#define ICM_20948_USE_DMP) in ICM_20948_C.h..." << endl;
         while (1)
             ; // Do nothing more
     }
@@ -237,10 +191,10 @@ void loop()
 
     if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail)) // Was valid data available?
     {
-        // SERIAL_PORT.print(F("Received data! Header: 0x")); // Print the header in HEX so we can see what data is arriving in the FIFO
-        // if ( data.header < 0x1000) SERIAL_PORT.print( "0" ); // Pad the zeros
-        // if ( data.header < 0x100) SERIAL_PORT.print( "0" );
-        // if ( data.header < 0x10) SERIAL_PORT.print( "0" );
+        // cout << "Received data! Header: 0x"; // Print the header in HEX so we can see what data is arriving in the FIFO
+        // if ( data.header < 0x1000) cout <<  "0" ; // Pad the zeros
+        // if ( data.header < 0x100) cout <<  "0" ;
+        // if ( data.header < 0x10) cout <<  "0" ;
         // SERIAL_PORT.println( data.header, HEX );
 
         if ((data.header & DMP_header_bitmap_Quat9) > 0) // We have asked for orientation data so we should receive Quat9
@@ -287,33 +241,33 @@ void loop()
                 roll = 2.f * atan2f(x, w) - sgn(xz) * yaw;
             }
 
-            // SERIAL_PORT.print(F("Roll:"));
-            // SERIAL_PORT.print(roll, 1);
-            // SERIAL_PORT.print(F(" Pitch:"));
-            // SERIAL_PORT.print(pitch, 1);
-            // SERIAL_PORT.print(F(" Yaw:"));
+            // cout << "Roll:";
+            // cout << roll, 1;
+            // cout << " Pitch:";
+            // cout << pitch, 1;
+            // cout << " Yaw:";
             // SERIAL_PORT.println(yaw, 1);
 
 #ifndef QUAT_ANIMATION
-            SERIAL_PORT.print(F(" Q1:"));
-            SERIAL_PORT.print(q1, 3);
-            SERIAL_PORT.print(F(" Q2:"));
-            SERIAL_PORT.print(q2, 3);
-            SERIAL_PORT.print(F(" Q3:"));
-            SERIAL_PORT.print(q3, 3);
-            // SERIAL_PORT.print(F(" Accuracy:"));
-            // SERIAL_PORT.println(data.Quat9.Data.Accuracy);
+            cout << " Q1:";
+            cout << q1;
+            cout << " Q2:";
+            cout << q2;
+            cout << " Q3:";
+            cout << q3;
+            // cout << " Accuracy:";
+            // cout << data.Quat9.Data.Accuracy << endl;
 #else
             // Output the Quaternion data in the format expected by ZaneL's Node.js Quaternion animation tool
-            SERIAL_PORT.print(F("{\"quat_w\":"));
-            SERIAL_PORT.print(q0, 3);
-            SERIAL_PORT.print(F(", \"quat_x\":"));
-            SERIAL_PORT.print(q1, 3);
-            SERIAL_PORT.print(F(", \"quat_y\":"));
-            SERIAL_PORT.print(q2, 3);
-            SERIAL_PORT.print(F(", \"quat_z\":"));
-            SERIAL_PORT.print(q3, 3);
-            SERIAL_PORT.println(F("}"));
+            cout << "{\"quat_w\":";
+            cout << q0;
+            cout << ", \"quat_x\":";
+            cout << q1;
+            cout << ", \"quat_y\":";
+            cout << q2;
+            cout << ", \"quat_z\":";
+            cout << q3;
+            cout << "}" << endl;
 #endif
         }
     }
