@@ -1,5 +1,11 @@
+#include <iostream>
+using namespace std;
+
 // Include arduPi library
 #include "./libraries/arduPi/arduPi.h"
+
+// arduino pi documentation:
+// https://www.cooking-hacks.com/documentation/tutorials/raspberry-pi-to-arduino-shields-connection-bridge.html
 
 /*********************************************************
  *  IF YOUR ARDUINO CODE HAS OTHER FUNCTIONS APART FROM  *
@@ -12,7 +18,7 @@
 
 void setup()
 {
-    cout << "Hello World!" << endl;
+    Serial.begin(1000);
 }
 
 void loop()
