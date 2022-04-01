@@ -14,7 +14,6 @@ class Unix_Socket_Datachannel:
                  max_queue_size=30,
                  socket_timeout=0.1):
         self.sock = None
-        self.socketOpen = False
         self.messages_from_socket_queue = None
         self.messages_to_send_to_socket_queue = None
         self.MAX_QUEUE_SIZE = max_queue_size
@@ -31,7 +30,7 @@ class Unix_Socket_Datachannel:
                 return
 
             try:
-                encodedMessage = await self.sock.recvmsg(self.MAX_MESSAGE_SIZE)
+                encodedMessage = self.sock.recvmsg(self.MAX_MESSAGE_SIZE)
                 if encodedMessage:
                     message = encodedMessage.decode('utf-8')
                     self.messages_from_socket_queue.put_nowait(message)
