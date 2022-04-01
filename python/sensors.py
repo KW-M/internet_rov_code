@@ -38,6 +38,7 @@ class Generic_Sensor:
         while True:
             try:
                 self.sensor_connection = await self.setup_sensor_function()
+                self.sensor_error_flag.clear()
             except IOError as e:
                 log.error("Error in setup_sensors() Sensor Not Responding: " +
                           str(e))
@@ -52,8 +53,8 @@ class Generic_Sensor:
         while True:
             new_readings: list[float]
             try:
-
-                if (self.sensor_connection is None):
+                if (self.sensor_connection is None
+                        or self.sensor_error_flag.is_set()):
                     await asyncio.sleep(self.sensor_read_interval)
                     continue
                 new_readings = await self.read_sensor_function(
