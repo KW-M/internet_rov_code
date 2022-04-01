@@ -56,7 +56,6 @@ ICM_20948_I2C myICM; // Otherwise create an ICM_20948_I2C object
 void setup()
 {
 
-
     delay(2000);
 #ifndef QUAT_ANIMATION
     cout << "ICM-20948 Example" << endl;
