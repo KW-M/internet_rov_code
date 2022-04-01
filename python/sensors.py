@@ -1,3 +1,6 @@
+from array import array
+import asyncio
+from cmath import nan
 import logging
 import ms5803py
 
@@ -7,7 +10,70 @@ from utilities import *
 log = logging.getLogger(__name__)
 
 
-class sensor_ctrl:
+class Generic_Sensor:
+    def __init__(self, name: str, sensor_read_interval: float, measurement_names: str, measurement_units: str,
+                 setup_sensor_function: function, read_sensor_function: function):
+        self.sensor_name = name
+        self.sensor_connection = None
+        self.sensor_read_interval = sensor_read_interval
+
+        self.measurement_names = measurement_names
+        self.measurement_units = measurement_units
+        self.measured_values = [nan] * len(measurement_names)
+
+        self.setup_sensor_function = setup_sensor_function
+        self.read_sensor_function = read_sensor_function
+        self.sensor_error_flag = asyncio.Event()
+        self.sensor_value_changed_flag = asyncio.Event()
+
+    async def start_sensor_loop(self):
+        await asyncio.gather(
+            self.sensor_setup_loop(),
+            self.sensor_read_loop(),
+        )
+
+    async def sensor_setup_loop(self):
+        while True:
+            try:
+                self.sensor_connection = await self.setup_sensor_function()
+            except IOError as e:
+                log.error("Error in setup_sensors() Sensor Not Responding: " +
+                          str(e))
+            except Exception as e:
+                log.error("Error Setting Up Sensors:", exc_info=e)
+
+    async def sensor_read_loop(self):
+        while True:
+            new_readings: list[float]
+            try:
+                new_readings = await self.read_sensor_function(self.sensor_connection)
+                if new_readings != self.measured_values:
+                    self.value = new_readings
+                    self.sensor_value_changed_flag.set()
+                break
+            except IOError as e:
+                log.warning(
+                    "IO Error reading pressure sensor, is it disconnected? " +
+                    str(e))
+            except Exception as e:
+                log.error("Error Reading " + self.sensor_name + " Sensor:",
+                          exc_info=e)
+                self.sensor_error_flag.set()
+
+            await asyncio.sleep(self.sensor_read_interval)
+
+
+async def setup_pressure_sensor():
+    return ms5803py.MS5803()
+async def read_pressure_sensor(sensor_connection):
+    list(sensor_connection.read(pressure_osr=4096))
+pressure_temp_sensor = Generic_Sensor('ms5803_pressure_temp', 1, ['pressure', 'temperature'], ['mPa', 'C'], setup_pressure_sensor,read_pressure_sensor),
+
+
+arduino_sensors_interface = Generic_Sensor('arduino_interface_sensors', 1, ['yaw', 'pitch', 'roll'], ['deg', 'deg','deg'], setup_pressure_sensor,read_pressure_sensor),
+
+all_sensors = [pressure_temp_sensor]
+class Sensor_Controller:
 
     sensor_values_have_changed_flag = False
     current_sensor_state = {
@@ -27,17 +93,19 @@ class sensor_ctrl:
     orientation_sensor = None
     light_sensor = None
 
-    def setup_sensors(self):
-        try:
-            log.info("Setting Up Sensors...")
-            self.pressure_sensor = self.pressure_sensor or ms5803py.MS5803()
-            self.orientation_sensor = None
-            self.light_sensor = None
-        except IOError as e:
-            log.error("Error in setup_sensors() Sensor Not Responding: " +
-                      str(e))
-        except Exception as e:
-            log.error("Error Setting Up Sensors:",  exc_info=e)
+    async def sensor_setup_loop(self):
+        log.info("Setting Up Sensors...")
+        setup_pressure_sensor(self)
+
+    async def setup_pressure_sensor(self):
+        while True:
+            try:
+                self.pressure_sensor = self.pressure_sensor or
+            except IOError as e:
+                log.error("Error in setup_sensors() Sensor Not Responding: " +
+                          str(e))
+            except Exception as e:
+                log.error("Error Setting Up Sensors:", exc_info=e)
 
     def update_sensor_value(self, sensor_name, new_value):
         if (self.current_sensor_state[sensor_name] != new_value):

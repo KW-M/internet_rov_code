@@ -1,6 +1,8 @@
+import asyncio
 import logging
 import math
 import pigpio
+#asyncpio
 
 from utilities import *
 
@@ -9,7 +11,6 @@ log = logging.getLogger(__name__)
 
 ###################################################
 ############### Motor / GPIO Stuff ################
-
 
 class Drok_Pwm_Motor:
     """ For the Drok 7A dual DC motor driver (Product SKU: 200206)
@@ -94,6 +95,7 @@ class Adafruit_Pwm_Motor:
 
 
 class Motion_Controller:
+    gpio_issue_flag = asyncio.Event()
 
     ### -----------------------
 
@@ -106,7 +108,16 @@ class Motion_Controller:
         # 'lights': 0,
     }
 
-    def init_motor_controllers(self):
+    async def motor_setup_loop(self):
+        while True:
+            self.gpio_issue_flag.clear()
+            asyncio.create_task(self.init_motor_controllers())
+
+            # pause this loop until a problem occurs with the gpio (like set motion) which will set this flag.
+            await self.gpio_issue_flag.wait()
+            self.cleanup_gpio()
+
+    async def init_motor_controllers(self):
         # Initilize the library for adafruit I2C 4 motor controller pi hat:
         log.info("Initializing motor controllers...")
         try:
@@ -114,30 +125,36 @@ class Motion_Controller:
             self.pigpio_instance = pigpio.pi()
 
             # initilize the motor controllers
-            # Motor Controller 1 (forward right)
+            # Motor Controller 1A (forward right)
             self.FORWARD_RIGHT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
-                                                      pin_ena=17,
-                                                      pin_in1=27,
-                                                      pin_in2=22)
-            # Motor Controller 2 (forward left)
-            self.FORWARD_LEFT_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance,
-                                                         pin_in1=13,
-                                                         pin_in2=26)
-            # Motor Controller 3 (up right)
-            self.UP_LEFT_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance,
-                                                    pin_in1=21,
-                                                    pin_in2=20)
-            # Motor Controller 4 (up left)
-            self.UP_RIGHT_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance,
-                                                     pin_in1=12,
-                                                     pin_in2=25)
+                                                      pin_ena=16,
+                                                      pin_in1=20,
+                                                      pin_in2=21)
+            # Motor Controller 1B (forward left)
+            self.FORWARD_LEFT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
+                                                     pin_ena=13,
+                                                     pin_in1=19,
+                                                     pin_in2=26)
+            # Motor Controller 2A (up right)
+            self.UP_LEFT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
+                                                pin_ena=17,
+                                                pin_in1=27,
+                                                pin_in2=22)
+            # Motor Controller 2B (up left)
+            self.UP_RIGHT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
+                                                 pin_ena=23,
+                                                 pin_in1=24,
+                                                 pin_in2=25)
             # Motor Controller 5 (claw)
             # self.CLAW_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance,
             #                             pin_in1=11,
             #                             pin_in2=NAN)
+
         except Exception as e:
             if type(e) != ValueError:
                 log.error("Error Initializing Motor Controllers: ", e)
+            await asyncio.sleep(1)
+            self.gpio_issue_flag.set()
 
     def set_rov_motion(self, thrust_vector=[0, 0, 0], turn_rate=0):
         """
@@ -145,6 +162,10 @@ class Motion_Controller:
         thrust_vector: a vector of the form [x,y,z] where x is strafe, y is forward, and z is vertical (all components should be between -1 & 1)
         turn_speed: a number between -1 & 1 coresponding to the amount of opposing thrust to apply on the two forward thrusters to turn the ROV at some rate (full clockwise = 1, full counterclokwise = -1).
         """
+
+        if self.gpio_issue_flag.is_set():
+            return
+
         turn_rate = float(turn_rate)  # make sure it's a float
         strafe_amt = float(thrust_vector[0])
         forward_amt = float(thrust_vector[1])
@@ -176,6 +197,7 @@ class Motion_Controller:
             self.FORWARD_RIGHT_MOTOR.set_speed(forward_right_thrust_amt)
         except Exception as e:
             log.warning("Error setting motor speed!", exc_info=e)
+            self.gpio_issue_flag.set()
 
     def stop_gpio_and_motors(self):
         try:
@@ -185,9 +207,10 @@ class Motion_Controller:
             self.UP_LEFT_MOTOR.set_speed(0)
             log.info("All Motors now STOPPED.")
         except Exception as e:
-            log.warning("Error stopping motors: ", e)
+            log.warning("Error stopping motors!", e)
+            self.gpio_issue_flag.set()
 
     def cleanup_gpio(self):
         """ Function to shut down the current pigpio.pi() instance. useful when turning off / exiting the rov program"""
-        # self.pigpio_instance.stop()
-        pass
+        if self.pigpio_instance:
+            self.pigpio_instance.stop()

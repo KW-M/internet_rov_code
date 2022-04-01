@@ -66,7 +66,7 @@ class Unix_Socket_Datachannel:
                     log.error('send_socket_messages(): Error', exc_info=e)
                     await asyncio.sleep(1)
 
-    async def socket_loop(self, asyncLoop=None):
+    async def socket_relay_setup_loop(self, asyncLoop=None):
         if asyncLoop is None:
             asyncLoop = asyncio.get_event_loop()
 
