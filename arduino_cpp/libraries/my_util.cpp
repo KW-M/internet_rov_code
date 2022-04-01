@@ -1,50 +1,41 @@
 #include <iostream>
 using namespace std;
 
-class SerialCout
+/* SerialPiStdout Class
+ * Class that provides the functionality of arduino Serial class but outputs to standard output
+ */
+class SerialPiStdout
 {
+
+private:
+    char *int2bin(int i);
+    char *int2hex(int i);
+    char *int2oct(int i);
+
 public:
-    SerialCout()
-    {
-    }
-    static void begin(int baud)
-    {
-        // Serial.begin(baud);
-    }
-    static void print(const char *str)
-    {
-        std::cout << str;
-    }
-    static void print(const float num, const int precision)
-    {
-        std::cout << num;
-    }
-    template <typename T>
-    static void print(const T num)
-    {
-        std::cout << num;
-    }
-    template <typename T>
-    static void print(const T num, const int precision)
-    {
-        std::cout << num;
-    }
-    static void println(const char *str)
-    {
-        std::cout << str << std::endl;
-    }
-    static void println(const float num, const int precision)
-    {
-        std::cout << num << std::endl;
-    }
-    template <typename T>
-    static void println(const T num)
-    {
-        std::cout << num << std::endl;
-    }
-    template <typename T>
-    static void println(const T num, const int precision)
-    {
-        std::cout << num << std::endl;
-    }
+    SerialPiCout();
+    void begin(int serialSpeed);
+    int available();
+    char read();
+    int readBytes(char message[], int size);
+    int readBytesUntil(char character, char buffer[], int length);
+    bool find(const char *target);
+    bool findUntil(const char *target, const char *terminal);
+    long parseInt();
+    float parseFloat();
+    char peek();
+    void print(const char *message);
+    void print(char message);
+    void print(unsigned char i, Representation rep);
+    void print(float f, int precission);
+    void println(const char *message);
+    void println(char message);
+    void println(int i, Representation rep);
+    void println(float f, int precission);
+    int write(unsigned char message);
+    int write(const char *message);
+    int write(char *message, int size);
+    void flush();
+    void setTimeout(long millis);
+    void end();
 };

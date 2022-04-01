@@ -24,7 +24,7 @@ using namespace std;
 // #define ICM_20948_USE_DMP
 #include "./libraries/SparkFun_9DoF_IMU_Breakout_-_ICM_20948_-_Arduino_Library/src/ICM_20948.h"
 
-#define SERIAL_PORT SerialCout
+#define SERIAL_PORT Serial
 
 #define WIRE_PORT Wire
 #define I2C_ADDR ICM_20948_I2C_ADDR_AD1
