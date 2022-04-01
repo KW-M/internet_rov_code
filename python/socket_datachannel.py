@@ -12,7 +12,7 @@ class Unix_Socket_Datachannel:
                  socket_path='/tmp/go_robot.socket',
                  max_message_size=1024,
                  max_queue_size=30,
-                 socket_timeout=5):
+                 socket_timeout=0.1):
         self.sock = None
         self.socketOpen = False
         self.messages_from_socket_queue = None
@@ -22,15 +22,18 @@ class Unix_Socket_Datachannel:
         self.SOCKET_TIMEOUT = socket_timeout
         self.MAX_MESSAGE_SIZE = max_message_size
 
-    async def read_socket_messages(self, sock_reader):
+    async def read_socket_messages(self):
         """
         Relays all messages recived from the unix socket onto the messages_from_socket_queue.
         """
         while True:
+            if self.sock is None or self.sock.closed:
+                return
+
             try:
-                encodedMessage = await sock_reader.read(self.MAX_MESSAGE_SIZE)
+                encodedMessage = await self.sock.recvmsg(self.MAX_MESSAGE_SIZE)
                 if encodedMessage:
-                    message = encodedMessage.decode()
+                    message = encodedMessage.decode('utf-8')
                     self.messages_from_socket_queue.put_nowait(message)
             except asyncio.CancelledError as e:
                 return
@@ -40,15 +43,20 @@ class Unix_Socket_Datachannel:
                 log.error('read_socket_messages(): Error', exc_info=e)
                 await asyncio.sleep(1)
 
-    async def send_socket_messages(self, sock_writer):
+    async def send_socket_messages(self):
         """
         Relays all messages pushed onto the send_to_socket_queue to the unix socket.
         """
         while True:
+            if self.sock is None or self.sock.closed:
+                return
+
             message = await self.messages_to_send_to_socket_queue.get()
             while True:
                 try:
-                    sock_writer.write(message.encode('utf-8'))
+                    messageBytes = message.encode('utf-8')
+                    numBytesSent = self.sock.sendmsg(messageBytes)
+                    assert numBytesSent == len(messageBytes)
                     break
                 except asyncio.CancelledError as e:
                     return
@@ -76,27 +84,12 @@ class Unix_Socket_Datachannel:
 
         while True:
             try:
+                self.sock.settimeout(3)
                 self.sock.connect(self.SOCKET_PATH)
-
-                # workaround hack from: https://bugs.python.org/issue38285
-                # Substitute class property getter with fixed value getter.
-                socket_property = socket.socket.type
-                socket.socket.type = property(
-                    lambda self: socket.SocketKind.SOCK_STREAM,
-                    None,
-                    None,
-                )
-
-                sockTask = asyncio.open_unix_connection(sock=self.sock,
-                                                        loop=asyncLoop)
-                # Revert the trick: Restore class property getter.
-                socket.socket.type = socket_property
-                sock_reader, sock_writer = await sockTask
-
-                read_task = asyncio.create_task(
-                    self.read_socket_messages(sock_reader))
-                write_task = asyncio.create_task(
-                    self.send_socket_messages(sock_writer))
+                self.sock.settimeout(self.SOCKET_TIMEOUT)
+                # workaround for: https://bugs.python.org/issue38285
+                read_task = asyncio.create_task(self.read_socket_messages())
+                write_task = asyncio.create_task(self.send_socket_messages())
                 await read_task
                 await write_task
 
@@ -190,31 +183,32 @@ class Unix_Socket_Datachannel:
     #         raise Exception("recieve_socket_message(): Socket Error") from e
 
     # def send_socket_message(self, socket_message):
-        """
-        Sends a message/data to socket previously setup by setup_socket(). Waits the timeout specified in the setup_socket() without hearing a message before returning False
-        :return: True if the message was sent successfully.
-        """
 
-        if (self.sock == None):
-            log.warning('send_socket_message(): Socket Not Setup!')
-            return False
+    #     """
+    #     Sends a message/data to socket previously setup by setup_socket(). Waits the timeout specified in the setup_socket() without hearing a message before returning False
+    #     :return: True if the message was sent successfully.
+    #     """
 
-        if (socket_message == None or len(socket_message) == 0):
-            return False
+    #     if (self.sock == None):
+    #         log.warning('send_socket_message(): Socket Not Setup!')
+    #         return False
 
-        try:
-            sucessful = self.sock.send(bytes(socket_message, 'utf-8'))
-            return int(sucessful) > 0
+    #     if (socket_message == None or len(socket_message) == 0):
+    #         return False
 
-        # if the socket was not opened/connected before the timeout, return None:
-        except socket.timeout as e:
-            return False
+    #     try:
+    #         sucessful = self.sock.send(bytes(socket_message, 'utf-8'))
+    #         return int(sucessful) > 0
 
-        # if there was some other socket error, close the socket and raise the error again:
-        except socket.error as e:
-            self.close_socket()
-            raise Exception("send_socket_message(): Socket Error") from e
+    #     # if the socket was not opened/connected before the timeout, return None:
+    #     except socket.timeout as e:
+    #         return False
 
-        # if there was some other error
-        except Exception as e:
-            raise Exception("send_socket_message(): Generic Error") from e
+    #     # if there was some other socket error, close the socket and raise the error again:
+    #     except socket.error as e:
+    #         self.close_socket()
+    #         raise Exception("send_socket_message(): Socket Error") from e
+
+    #     # if there was some other error
+    #     except Exception as e:
+    #         raise Exception("send_socket_message(): Generic Error") from e
