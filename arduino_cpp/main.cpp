@@ -1,5 +1,5 @@
 // Include arduPi library
-#include "libraries/arduPi.h"
+#include "./libraries/arduPi/arduPi.h"
 
 /*********************************************************
  *  IF YOUR ARDUINO CODE HAS OTHER FUNCTIONS APART FROM  *
