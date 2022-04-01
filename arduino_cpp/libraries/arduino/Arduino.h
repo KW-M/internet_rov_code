@@ -26,9 +26,9 @@
 // #include "api/Stream.h"
 // typedef SerialCout Stream;
 typedef const char __FlashStringHelper;
-void pgm_read_byte_near(const char *addr)
+const char *pgm_read_byte_near(const char *addr)
 {
-  return *addr
+  return *addr;
 }
 
 // undefine the F() macro normally used to store strings in arduino program memory
