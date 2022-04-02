@@ -57,7 +57,7 @@ func makePeerJsOptions() {
 	peerServerCloudOpts.Path = "/"
 	peerServerCloudOpts.Key = "peerjs"
 	peerServerCloudOpts.Secure = true
-	peerServerCloudOpts.Debug = 0
+	peerServerCloudOpts.Debug = 3
 	peerServerCloudOpts.PingInterval = 3000
 	// FOR LOCAL PEERJS SERVER RUNNING ON THIS raspberrypi (not heroku):
 	peerServerLocalOpts = peerjs.NewOptions()
@@ -66,7 +66,7 @@ func makePeerJsOptions() {
 	peerServerLocalOpts.Path = "/"
 	peerServerLocalOpts.Key = "peerjs"
 	peerServerLocalOpts.Secure = false
-	peerServerLocalOpts.Debug = 0
+	peerServerLocalOpts.Debug = 3
 	peerServerLocalOpts.PingInterval = 3000
 }
 
