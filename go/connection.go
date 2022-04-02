@@ -311,7 +311,7 @@ func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *U
 
 	robotPeer.On("error", func(message interface{}) {
 		errorMessage := message.(*peerjs.PeerError).Error()
-		errorType := message.(peerjs.PeerError).Type
+		errorType := message.(*peerjs.PeerError).Type
 		if (contains(FATAL_PEER_ERROR_TYPES, errorType)) {
 			exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
 		}
