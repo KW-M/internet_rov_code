@@ -29,12 +29,20 @@ type UnblockSignal struct {
 }
 
 func newUnblockSignal() *UnblockSignal {
-	p := UnblockSignal{exitSignal: make(chan bool), HasTriggered: false}
+	p := UnblockSignal{exitSignal: make(chan bool), HasTriggered: false, err: nil}
 	return &p
 }
 
 func (e *UnblockSignal) Trigger() {
 	if !e.HasTriggered {
+		e.HasTriggered = true
+		close(e.exitSignal)
+	}
+}
+
+func (e *UnblockSignal) TriggerWithError(err error) {
+	if !e.HasTriggered {
+		e.err = err
 		e.HasTriggered = true
 		close(e.exitSignal)
 	}
@@ -47,5 +55,9 @@ func (e *UnblockSignal) Wait() error {
 
 func (e *UnblockSignal) GetSignal() chan bool {
 	return e.exitSignal
+}
+
+func (e *UnblockSignal) GetError() error {
+	return e.err
 }
 

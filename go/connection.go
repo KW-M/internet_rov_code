@@ -47,13 +47,6 @@ var robotPeerIdEndingNum int = 0
 // map off all peer datachannels connected to this robot (includes both the robot peer associated with the local peerjs server and the robot peer associated with the cloud peerjs server)
 var activeDataConnectionsToThisRobot = make(map[string]*peerjs.DataConnection) // map of the open datachannel connection Ids to this peer.
 
-// ----- PeerJs-Go Client Settings -----
-
-func makePeerJsOptions() {
-	// FOR CLOUD HOSTED PEERJS SERVER running on heroku (or wherever, or you could use the default server):
-
-}
-
 func generateToUnixSocketMetadataMessage(srcPeerId string, peerEvent string, err string) string {
 	var metadata = new(DatachannelToUnixSocketMessageMetadata)
 	metadata.SrcPeerId = srcPeerId
@@ -98,6 +91,7 @@ func startPeerServerConnectionLoop(programShouldQuitSignal *UnblockSignal) {
 
 	internetAvailable := true
 	if internetAvailable {
+		// FOR CLOUD HOSTED PEERJS SERVER running on heroku (or wherever - you could use the default peerjs cloud server):
 		peerServerOptions.Host = "0.peerjs.com"
 		peerServerOptions.Port = 443
 		peerServerOptions.Path = "/"
@@ -193,7 +187,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 		browserPeerDataConnection.On("open", func(interface{}) {
 			activeDataConnectionsToThisRobot[pilotPeerId+"::"+peerServerOpts.Host] = browserPeerDataConnection // add this connection to the map of active connections
 
-			log.Printf("VIDEO CALLING browser peer with peer ID: %s\n", pilotPeerId)
+			log.Printf("VIDEO CALLING client peer with peer ID: %s\n", pilotPeerId)
 			_, err = robotPeer.Call(pilotPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
 			if err != nil {
 				log.Println("Error calling pilot id: ", pilotPeerId)
@@ -205,22 +199,22 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(pilotPeerId, "Connected", "")
 			}
 
-			// handle incoming messages from this browser peer
+			// handle incoming messages from this client peer
 			browserPeerDataConnection.On("data", func(msgBytes interface{}) {
 				var msgString string = string(msgBytes.([]byte))
 				log.Printf("pilotDataConnection GOT MESSAGE: %s", msgString)
-				var socketString string = msgString
-				// send a metadata message down the unix socket that a new peer has connected
+				var msgForSocket string = msgString
 				if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
 					var metadata string = generateToUnixSocketMetadataMessage(pilotPeerId, "", "")
-					socketString = metadata + UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR + socketString
+					msgForSocket = metadata + UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR + msgForSocket
 				}
-				sendMessagesToUnixSocketChan <- socketString
+				// send a message down the unix socket with the message from the client peer
+				sendMessagesToUnixSocketChan <- msgForSocket
 			})
 		})
 
 		browserPeerDataConnection.On("close", func(message interface{}) {
-			log.Println("BROWSER PEER DATACHANNEL CLOSE EVENT", message)
+			log.Println("CLIENT PEER DATACHANNEL CLOSE EVENT", message)
 			delete(activeDataConnectionsToThisRobot, pilotPeerId+"::"+peerServerOpts.Host) // remove this connection from the map of active connections
 
 			// send a metadata message down the unix socket that this peer connection has been closed
@@ -230,7 +224,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 		})
 
 		browserPeerDataConnection.On("disconnected", func(message interface{}) {
-			log.Println("BROWSER PEER DATACHANNEL DISCONNECTED EVENT", message)
+			log.Println("CLIENT PEER DATACHANNEL DISCONNECTED EVENT", message)
 
 			// send a metadata message down the unix socket that this peer has disconnected
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
@@ -240,7 +234,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 
 		browserPeerDataConnection.On("error", func(message interface{}) {
 			errMessage := message.(error).Error()
-			log.Printf("PILOT PEER DATACHANNEL ERROR EVENT: %s\n", errMessage)
+			log.Printf("CLIENT PEER DATACHANNEL ERROR EVENT: %s\n", errMessage)
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
 				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(pilotPeerId, "Error", errMessage)
 			}
@@ -254,9 +248,9 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
  * Then it waits for the peerjs server to "Open" initilize the
  * robot peer which then passes controll to the peerConnectionOpenHandler function.
  * This function also handles the "error", "disconnected" and "closed" events for the peerjs server connection.
- * This function is blocking and will not return until the connection fails or programShouldQuitSignal is triggered.
+ * This function is blocking and will not return until the connection fails (with the error) or programShouldQuitSignal is triggered.
  */
-func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *UnblockSignal) {
+func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *UnblockSignal) error {
 	exitFuncSignal := newUnblockSignal()
 	// NOTE: This func should be called in a goroutine, it will not return until the connection breaks or is closed, in which case this function should be run again.
 
@@ -277,7 +271,7 @@ func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *U
 
 	if err != nil {
 		robotConnLog.Println("Error creating robot peer: ", err)
-		return /// return and let the setupConnections loop take over
+		return err /// return and let the setupConnections loop take over
 	}
 
 	robotPeer.On("open", func(peerId interface{}) {
@@ -309,19 +303,24 @@ func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *U
 		}
 	})
 
-	robotPeer.On("error", func(message interface{}) {
-		errorMessage := message.(*peerjs.PeerError).Error()
-		errorType := message.(*peerjs.PeerError).Type
-		if (contains(FATAL_PEER_ERROR_TYPES, errorType)) {
-			exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
-		}
-		robotConnLog.Printf("ROBOT PEER ERROR EVENT: %s", errorMessage)
-		robotConnLog.Printf(" ....... %s\n", errorType)
+	robotPeer.On("error", func(err interface{}) {
+		errorMessage := err.(*peerjs.PeerError).Error()
+		errorType := err.(*peerjs.PeerError).Type
+		robotConnLog.Printf("ROBOT PEER $s error event: %s",errorType, errorMessage)
 
+		if (contains(FATAL_PEER_ERROR_TYPES, errorType)) {
+			exitFuncSignal.TriggerWithError(err.(*peerjs.PeerError)) // signal to this goroutine to exit and let the setupConnections loop take over
+		}
 	})
 
 	// ---------------------------------------------------------------------------------------------------------------------
-	exitFuncSignal.Wait() // block and wait for the exitFuncSignal to be triggerd before exiting this function
+	// block and wait for the exitFuncSignal to be triggerd before exiting this function
+	select {
+	case <-exitFuncSignal.GetSignal():
+		return exitFuncSignal.GetError()
+	case <-programShouldQuitSignal.GetSignal():
+		return nil
+	}
 }
 
 // // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs#avc_h.264
