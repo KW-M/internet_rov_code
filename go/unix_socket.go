@@ -23,7 +23,7 @@ type UnixSocketRelay struct {
 	messagesToSocket       chan string
 	messagesFromSocket     chan string
 	readBufferSize         int
-	debugLog               *log.Logger
+	debugLog               *log.Entry
 }
 
 /* ReadUnixSocketAsync (blocking goroutine)
@@ -125,10 +125,10 @@ func (sock *UnixSocketRelay) startSocketServer(unixSocketPath string) {
 	}
 
 	// wait for some program to connect to the socket (blocking)
-	sock.debugLog.Println("UNIX SOCKET Listening for Connection...")
+	sock.debugLog.Info("Listening for connection...")
 	sock.socketConnection, err = sock.socketListener.Accept()
 	if err != nil {
-		sock.debugLog.Println("Accept connection error: ", err)
+		sock.debugLog.Error("Accept connection error: ", err)
 		return
 	}
 
@@ -155,6 +155,7 @@ func CreateUnixSocketRelay(closeSocketSignal *UnblockSignal, messagesFromSocket 
 	sock.messagesToSocket = messagesToSocket
 	sock.messagesFromSocket = messagesFromSocket
 	sock.readBufferSize = readBufferSize
+	sock.debugLog = log.WithFields(log.Fields{"uSocket": unixSocketPath})
 
 	go func() {
 		for {
