@@ -260,7 +260,6 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLo
 		})
 
 		browserPeerDataConnection.On("error", func(message interface{}) {
-			errMessage := message.(error)
 			log.Printf("PILOT PEER DATACHANNEL ERROR EVENT: %s\n", message)
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
 				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(pilotPeerId, "Error", errMessage.Error())
@@ -310,7 +309,10 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 	})
 
 	robotPeer.On("error", func(message interface{}) {
-		robotConnLog.Printf("ROV PEER JS ERROR EVENT: %s\n", message)
+		errorMessage := message.(peerjs.PeerError).Err.Error()
+		errorType := message.(peerjs.PeerError).Type
+		robotConnLog.Printf("ROBOT PEER ERROR EVENT: %s", errorMessage)
+		robotConnLog.Printf(" ....... %s\n", errorType)
 		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
 	})
 
