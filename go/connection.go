@@ -121,7 +121,7 @@ func startPeerServerConnectionLoop(programShouldQuitSignal *UnblockSignal) {
 				log.Println("Closing down webrtc connection loop.")
 				return
 			default:
-				setupWebrtcConnection(peerServerOptions, programShouldQuitSignal)
+				setupRobotPeer(peerServerOptions, programShouldQuitSignal)
 			}
 		}
 	}()
@@ -181,7 +181,7 @@ func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
 	}
 }
 
-func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLog *log.Entry, peerServerOpts peerjs.Options) {
+func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerOpts peerjs.Options, robotConnLog *log.Entry) {
 	robotPeer.On("connection", func(data interface{}) {
 		browserPeerDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
 		var pilotPeerId string = browserPeerDataConnection.GetPeerID()
@@ -248,7 +248,14 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLo
 	})
 }
 
-func setupWebrtcConnection(peerServerOptions peerjs.Options, programShouldQuitSignal *UnblockSignal) {
+/* setupRobotPeer (blocking goroutine)
+ * This function sets up the peerjs peer for the robot
+ * Then it waits for the peerjs server to "Open" initilize the
+ * robot peer which then passes controll to the peerConnectionOpenHandler function.
+ * This function also handles the "error", "disconnected" and "closed" events for the peerjs server connection.
+ * This function is blocking and will not return until the connection fails or programShouldQuitSignal is triggered.
+ */
+func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *UnblockSignal) {
 	exitFuncSignal := newUnblockSignal()
 	// NOTE: This func should be called in a goroutine, it will not return until the connection breaks or is closed, in which case this function should be run again.
 
@@ -261,12 +268,28 @@ func setupWebrtcConnection(peerServerOptions peerjs.Options, programShouldQuitSi
 
 	// establish peer with peerjs server
 	var robotPeer, err = peerjs.NewPeer(robotPeerId, peerServerOptions)
-	defer robotPeer.Close() // close the websocket connection when this whole outer function exits
+	defer func() { // func to run when setupWebrtcConnection function exits (either normally or because of a panic)
+		if (robotPeer != nil && !robotPeer.GetDestroyed()) {
+			robotPeer.Close() // close the websocket connection
+		}
+	}()
 
 	if err != nil {
-		robotConnLog.Println("Error creating ROBOT peer: ", err)
-		exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
+		robotConnLog.Println("Error creating robot peer: ", err)
+		return /// return and let the setupConnections loop take over
 	}
+
+	robotPeer.On("open", func(peerId interface{}) {
+		var peerID string = peerId.(string) // typecast to string
+		if peerID != robotPeerId {
+			robotConnLog.Printf("Uh oh, server gave us peer id: %s (%s must be taken). Switching to next end number...\n", peerID, robotPeerId)
+			robotPeerIdEndingNum++   // increment the peer id ending integer and try again
+			exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
+		} else {
+			robotConnLog.Info("Robot Peer Established!")
+			peerConnectionOpenHandler(*robotPeer, robotPeerId, peerServerOptions, robotConnLog)
+		}
+	})
 
 	robotPeer.On("close", func(interface{}) {
 		robotConnLog.Println("ROBOT PEER JS CLOSE EVENT", exitFuncSignal.HasTriggered)
@@ -280,9 +303,7 @@ func setupWebrtcConnection(peerServerOptions peerjs.Options, programShouldQuitSi
 			err = robotPeer.Reconnect()
 			if err != nil {
 				robotConnLog.Println("ERROR RECONNECTING TO DISCONNECTED PEER SERVER: ", err)
-				if !exitFuncSignal.HasTriggered {
-					exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
-				}
+				exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
 			}
 		}
 	})
@@ -295,21 +316,8 @@ func setupWebrtcConnection(peerServerOptions peerjs.Options, programShouldQuitSi
 		exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
 	})
 
-	robotPeer.On("open", func(peerId interface{}) {
-		var peerID string = peerId.(string) // typecast to string
-		if peerID != robotPeerId {
-			robotConnLog.Printf("Uh oh, server gave us peer id: %s (%s must be taken). Switching to next end number...\n", peerID, robotPeerId)
-			robotPeerIdEndingNum++   // increment the peer id ending integer and try again
-			exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
-		} else {
-			robotConnLog.Println("Robot Peer Established!")
-			peerConnectionOpenHandler(*robotPeer, robotPeerId, robotConnLog, peerServerOptions)
-		}
-	})
-
 	// ---------------------------------------------------------------------------------------------------------------------
-	exitFuncSignal.Wait() // block and wait for the exitFuncSignal to be triggerd before exiting
-	robotConnLog.Println("exiting setupWebrtcConnection")
+	exitFuncSignal.Wait() // block and wait for the exitFuncSignal to be triggerd before exiting this function
 }
 
 // // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs#avc_h.264
