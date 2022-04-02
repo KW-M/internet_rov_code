@@ -37,6 +37,7 @@ import (
 // ERRO[0697] sendHeartbeat: Failed to send message: write tcp 192.168.1.79:42960->54.243.238.66:443: write: broken pipe  module=peer source=socket
 
 var err error // handy variable to stuff any error messages into
+var FATAL_PEER_ERROR_TYPES = []string{"network", "unavailable-id", "invalid-id", "invalid-key", "browser-incompatible", "webrtc","server-error", "ssl-unavailable",  "socket-error", "socket-closed" }
 
 // To handle the case where multiple robots are running at the same time,
 // we make the PeerId of this ROBOT the basePeerId plus this number tacked on
@@ -309,11 +310,14 @@ func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *U
 	})
 
 	robotPeer.On("error", func(message interface{}) {
-		errorMessage := message.(peerjs.PeerError).Err.Error()
+		errorMessage := message.(*peerjs.PeerError).Error()
 		errorType := message.(peerjs.PeerError).Type
+		if (contains(FATAL_PEER_ERROR_TYPES, errorType)) {
+			exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
+		}
 		robotConnLog.Printf("ROBOT PEER ERROR EVENT: %s", errorMessage)
 		robotConnLog.Printf(" ....... %s\n", errorType)
-		exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
+
 	})
 
 	// ---------------------------------------------------------------------------------------------------------------------
