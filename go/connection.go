@@ -38,36 +38,19 @@ import (
 
 var err error // handy variable to stuff any error messages into
 
-// To handle the case where multiple rovs are running at the same time,
-// we make the PeerId of this ROV the basePeerId plus this number tacked on
-// the end (eg: iROV-0) that we increment if the current peerId is already taken.
+// To handle the case where multiple robots are running at the same time,
+// we make the PeerId of this ROBOT the basePeerId plus this number tacked on
+// the end (eg: iROBOT-0) that we increment if the current peerId is already taken.
 var robotPeerIdEndingNum int = 0
 
 // map off all peer datachannels connected to this robot (includes both the robot peer associated with the local peerjs server and the robot peer associated with the cloud peerjs server)
 var activeDataConnectionsToThisRobot = make(map[string]*peerjs.DataConnection) // map of the open datachannel connection Ids to this peer.
 
 // ----- PeerJs-Go Client Settings -----
-var peerServerCloudOpts, peerServerLocalOpts peerjs.Options
 
 func makePeerJsOptions() {
 	// FOR CLOUD HOSTED PEERJS SERVER running on heroku (or wherever, or you could use the default server):
-	peerServerCloudOpts = peerjs.NewOptions()
-	peerServerCloudOpts.Host = "0.peerjs.com"
-	peerServerCloudOpts.Port = 443
-	peerServerCloudOpts.Path = "/"
-	peerServerCloudOpts.Key = "peerjs"
-	peerServerCloudOpts.Secure = true
-	peerServerCloudOpts.Debug = 3
-	peerServerCloudOpts.PingInterval = 3000
-	// FOR LOCAL PEERJS SERVER RUNNING ON THIS raspberrypi (not heroku):
-	peerServerLocalOpts = peerjs.NewOptions()
-	peerServerLocalOpts.Host = "localhost"
-	peerServerLocalOpts.Port = 9000
-	peerServerLocalOpts.Path = "/"
-	peerServerLocalOpts.Key = "peerjs"
-	peerServerLocalOpts.Secure = false
-	peerServerLocalOpts.Debug = 3
-	peerServerLocalOpts.PingInterval = 3000
+
 }
 
 func generateToUnixSocketMetadataMessage(srcPeerId string, peerEvent string, err string) string {
@@ -83,78 +66,73 @@ func generateToUnixSocketMetadataMessage(srcPeerId string, peerEvent string, err
 	return string(mtaDataJson)
 }
 
-func startLocalPeerJsServer(done chan bool) {
+func startLocalPeerJsServer(peerServerOptions peerjs.Options, programShouldQuitSignal *UnblockSignal) {
 	serverOptions := peerjsServer.NewOptions()
 	serverOptions.LogLevel = "Debug"
 	serverOptions.AllowDiscovery = true
-	serverOptions.Port = peerServerLocalOpts.Port
-	serverOptions.Host = peerServerLocalOpts.Host
-	serverOptions.Path = peerServerLocalOpts.Path
-	serverOptions.Key = peerServerLocalOpts.Key
-	server := peerjsServer.New(serverOptions)
-	var err = server.Start()
-	defer server.Stop()
-	if err != nil {
-		fmt.Printf("Error starting local peerjs server: %s\n", err)
-		return
-	}
-	for { // wait for the done channel to be triggered at which point this function will exit and the local peerjs server will stop
-		select {
-		case <-done:
-			return
-		default:
-			time.Sleep(time.Microsecond * 300)
+	serverOptions.Port = peerServerOptions.Port
+	serverOptions.Host = peerServerOptions.Host
+	serverOptions.Path = peerServerOptions.Path
+	serverOptions.Key = peerServerOptions.Key
+
+	for {
+		server := peerjsServer.New(serverOptions)
+		defer server.Stop()
+		if err := server.Start(); err != nil {
+			log.Printf("Error starting local peerjs server: %s", err)
+			time.Sleep(time.Second * 1)
+			continue
 		}
+
+		// wait for the programShouldQuitSignal channel to be closed at which point this function will exit and the local peerjs server will stop beacuse of the defer server.stop() function
+		programShouldQuitSignal.Wait()
+		return
 	}
 }
 
-func setupLocalAndCloudConnections(quitSignal chan bool) {
-	makePeerJsOptions()
+func startPeerServerConnectionLoop(programShouldQuitSignal *UnblockSignal) {
 
-	exitCloudGoroutineLoop := make(chan bool)
-	exitCloudConnection := make(chan bool)
+	var peerServerOptions = peerjs.NewOptions()
+	peerServerOptions.Debug = 3
+
+	internetAvailable := true
+	if internetAvailable {
+		peerServerOptions.Host = "0.peerjs.com"
+		peerServerOptions.Port = 443
+		peerServerOptions.Path = "/"
+		peerServerOptions.Key = "peerjs"
+		peerServerOptions.Secure = true
+		peerServerOptions.PingInterval = 3000
+	} else {
+		// FOR LOCAL PEERJS SERVER RUNNING ON THIS raspberrypi (not heroku):
+		peerServerOptions.Host = "localhost"
+		peerServerOptions.Port = 9000
+		peerServerOptions.Path = "/"
+		peerServerOptions.Key = "peerjs"
+		peerServerOptions.Secure = false
+		peerServerOptions.PingInterval = 3000
+		go startLocalPeerJsServer(peerServerOptions, programShouldQuitSignal)
+	}
+
 	go func() {
 		for {
 			select {
-			case <-exitCloudGoroutineLoop:
-				log.Println("Exiting cloud webrtc connection loop.")
+			case <-programShouldQuitSignal.GetSignal():
+				log.Println("Closing down webrtc connection loop.")
 				return
 			default:
-				println("Setting Up Cloud Connection")
-				setupWebrtcConnection(exitCloudConnection, peerServerCloudOpts)
+				setupWebrtcConnection(peerServerOptions, programShouldQuitSignal)
 			}
 		}
 	}()
 
-	// exitLocalGoroutineLoop := make(chan bool)
-	// exitLocalConnection := make(chan bool)
-	// go func() {
-	// 	go startLocalPeerJsServer(quitSignal) // WARNING _ DOES QUIT SIGNAL WORK HERE!!!!!!!?
-	// 	time.Sleep(time.Second * 1)           // wait a bit for the local peerJs server to start up
-	// 	for {
-	// 		select {
-	// 		case <-exitLocalGoroutineLoop:
-	// 			log.Println("Exiting local webrtc connection loop.")
-	// 			return
-	// 		default:
-	// 			return
-	// 			// setupWebrtcConnection(exitLocalConnection, peerServerLocalOpts)
-	// 		}
-	// 	}
-	// }()
-
 	// send messages recived from the socket to seperate channels for both the local and cloud peers
-	exitOutgoingMessageLoop := make(chan bool)
-	handleOutgoingDatachannelMessages(exitOutgoingMessageLoop)
+	go handleOutgoingDatachannelMessages(programShouldQuitSignal)
 
-	<-quitSignal // wait for the quitSignal channel to be triggered at which point close each of the local & cloud connection function channels
-	exitCloudGoroutineLoop <- true
-	// exitLocalGoroutineLoop <- true
-	// exitLocalConnection <- true
-	exitCloudConnection <- true
+	programShouldQuitSignal.Wait() // wait for the quitSignal channel to be triggered at which point this goroutine can exit
 }
 
-func handleOutgoingDatachannelMessages(exitOutgoingMessageLoop chan bool) {
+func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
 	for {
 		select {
 		case msgFromUnixSocket := <-messagesFromUnixSocketChan:
@@ -196,7 +174,7 @@ func handleOutgoingDatachannelMessages(exitOutgoingMessageLoop chan bool) {
 				}
 			}
 
-		case <-exitOutgoingMessageLoop:
+		case <-programShouldQuitSignal.GetSignal():
 			log.Println("Exiting handleOutgoingDatachannelMessages loop.")
 			return
 		}
@@ -215,7 +193,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLo
 			activeDataConnectionsToThisRobot[pilotPeerId+"::"+peerServerOpts.Host] = browserPeerDataConnection // add this connection to the map of active connections
 
 			log.Printf("VIDEO CALLING browser peer with peer ID: %s\n", pilotPeerId)
-			_, err = robotPeer.Call(pilotPeerId, rovLivestreamVideoTrack, peerjs.NewConnectionOptions())
+			_, err = robotPeer.Call(pilotPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
 			if err != nil {
 				log.Println("Error calling pilot id: ", pilotPeerId)
 				log.Fatal(err)
@@ -270,10 +248,12 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, robotConnLo
 	})
 }
 
-func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Options) {
-	// NOTE: This should be called as a goroutine, it will not return until the connection breaks or is closed, in which case this function should be run again.
+func setupWebrtcConnection(peerServerOptions peerjs.Options, programShouldQuitSignal *UnblockSignal) {
+	exitFuncSignal := newUnblockSignal()
+	// NOTE: This func should be called in a goroutine, it will not return until the connection breaks or is closed, in which case this function should be run again.
 
-	var alreadyExitingFunction bool = false
+	println("Setting up connection to peerjs server: " + peerServerOptions.Host + ":" + strconv.Itoa(peerServerOptions.Port))
+
 	var robotPeerId string = BASE_PEER_ID + strconv.Itoa(robotPeerIdEndingNum)
 
 	// setup logrus logger
@@ -284,26 +264,24 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 	defer robotPeer.Close() // close the websocket connection when this whole outer function exits
 
 	if err != nil {
-		robotConnLog.Println("Error creating ROV peer: ", err)
-		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
+		robotConnLog.Println("Error creating ROBOT peer: ", err)
+		exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
 	}
 
 	robotPeer.On("close", func(interface{}) {
-		robotConnLog.Println("ROV PEER JS CLOSE EVENT", alreadyExitingFunction)
-		if !alreadyExitingFunction {
-			exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
-		}
+		robotConnLog.Println("ROBOT PEER JS CLOSE EVENT", exitFuncSignal.HasTriggered)
+		exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
 	})
 
 	robotPeer.On("disconnected", func(message interface{}) {
-		robotConnLog.Println("ROV PEER JS DISCONNECTED EVENT", message)
-		if !alreadyExitingFunction {
+		robotConnLog.Println("ROBOT PEER JS DISCONNECTED EVENT", message)
+		if !exitFuncSignal.HasTriggered {
 			log.Debug("Reconnecting...")
 			err = robotPeer.Reconnect()
 			if err != nil {
 				robotConnLog.Println("ERROR RECONNECTING TO DISCONNECTED PEER SERVER: ", err)
-				if !alreadyExitingFunction {
-					exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
+				if !exitFuncSignal.HasTriggered {
+					exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
 				}
 			}
 		}
@@ -314,15 +292,15 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 		errorType := message.(peerjs.PeerError).Type
 		robotConnLog.Printf("ROBOT PEER ERROR EVENT: %s", errorMessage)
 		robotConnLog.Printf(" ....... %s\n", errorType)
-		exitFunction <- true // signal to this goroutine to exit and let the setupConnections loop take over
+		exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
 	})
 
 	robotPeer.On("open", func(peerId interface{}) {
 		var peerID string = peerId.(string) // typecast to string
 		if peerID != robotPeerId {
 			robotConnLog.Printf("Uh oh, server gave us peer id: %s (%s must be taken). Switching to next end number...\n", peerID, robotPeerId)
-			robotPeerIdEndingNum++ // increment the peer id ending integer and try again
-			exitFunction <- true   // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
+			robotPeerIdEndingNum++   // increment the peer id ending integer and try again
+			exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
 		} else {
 			robotConnLog.Println("Robot Peer Established!")
 			peerConnectionOpenHandler(*robotPeer, robotPeerId, robotConnLog, peerServerOptions)
@@ -330,9 +308,7 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 	})
 
 	// ---------------------------------------------------------------------------------------------------------------------
-	fmt.Println("starting setup WebrtcConnection goroutine sleep")
-	<-exitFunction // CONTINUE when a signal is sent on the 'exitFunction' channel from the the calling function to clean up because program is exiting or somthin, unblock this goroutine and exit.
-	alreadyExitingFunction = true
+	exitFuncSignal.Wait() // block and wait for the exitFuncSignal to be triggerd before exiting
 	robotConnLog.Println("exiting setupWebrtcConnection")
 }
 

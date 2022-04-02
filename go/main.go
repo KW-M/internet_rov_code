@@ -10,22 +10,32 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var sendMessagesToUnixSocketChan = make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
-var messagesFromUnixSocketChan = make(chan string, 12) // a channel with a buffer of 12 messages which can pile up until they are handled
-
-
-// flags
+// command line flag placeholder variables
 var videoShellCommand = ""
 var peerServerListenPort = ""
 var ADD_METADATA_TO_UNIX_SOCKET_MESSAGES = true
+func parseProgramCmdlineFlags() {
+	// Parse the command line parameters passed to program in the shell eg "-a" in "ls -a"
+	flag.StringVar(&videoShellCommand, "video-shell-cmd", "cat -", "Shell command that will send a h264 video stream to stdout, Default is \"cat -\"")
+	flag.StringVar(&peerServerListenPort, "peerserver-listen-port", "8181", "Port number for the go peerjs server to listen on. Default is 8181")
+	flag.BoolVar(&ADD_METADATA_TO_UNIX_SOCKET_MESSAGES, "add-metadata-to-messages", true, "If true, when a datachannel message is recived, metataa like the sender's peer id will be prepended to all message, followed by the delimeter before being sent to the unix socket. Default is false")
+	flag.Parse()
+}
+
+
+var sendMessagesToUnixSocketChan = make(chan string, 24) // a channel with a buffer of 24 messages which can pile up until they are handled
+var messagesFromUnixSocketChan = make(chan string, 24)   // a channel with a buffer of 24 messages which can pile up until they are handled
 
 func main() {
 
-	// Parse the flags passed to program
-	flag.StringVar(&videoShellCommand, "video-shell-cmd", "cat -", "Shell command that will send a h264 video stream to stdout, Default is \"cat -\"")
-	flag.StringVar(&peerServerListenPort, "peerserver-listen-port", "8181", "Port number for the go peerjs server to listen on. Default is 8181")
-	// flag.BoolVar(&ADD_METADATA_TO_UNIX_SOCKET_MESSAGES, "add-metadata-to-messages", true, "If true, when a datachannel message is recived, metataa like the sender's peer id will be prepended to all message, followed by the delimeter before being sent to the unix socket. Default is false")
-	flag.Parse()
+	// Create a simple boolean "channel" that we can close to signal to go subroutine functions that they should stop cleanly:
+	programShouldQuitSignal := newUnblockSignal()
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("Recovered from panic in main, exiting program...", r)
+			programShouldQuitSignal.Trigger()
+		}
+	}()
 
 	// Set up the logrus logger
 	log.SetFormatter(&log.TextFormatter{
@@ -33,19 +43,11 @@ func main() {
 		DisableTimestamp: true,
 	})
 
-	// Create a simple boolean "channel" that we can use to signal to go subroutine functions that they should stop when we close it:
-	quitProgramChan := make(chan bool)
-	defer func() {
-		if r := recover(); r != nil {
-			quitProgramChan <- true
-			log.Println("Recovered from panic in main, closing down...", r)
-		}
-	}()
+	parseProgramCmdlineFlags()
 
 	// Create the unix socket to send and receive data to - from python
-
-	sock := CreateUnixSocket(quitProgramChan, messagesFromUnixSocketChan, sendMessagesToUnixSocketChan, UNIX_SOCKET_PATH)
-	defer sock.CleanupSocket()
+	sock := CreateUnixSocketRelay(programShouldQuitSignal, messagesFromUnixSocketChan, sendMessagesToUnixSocketChan, UNIX_SOCKET_PATH, 2048)
+	defer sock.cleanupSocketServer()
 
 	// DEBUG FOR SOCKET MESSAGES
 	// go func() {
@@ -77,10 +79,10 @@ func main() {
 
 	// Setup the video stream and start the camera running
 	initVideoTrack()
-	go pipeVideoToStream(quitProgramChan)
+	go pipeVideoToStream(programShouldQuitSignal)
 
 	// Setup the peerjs client to accept webrtc connections
-	go setupLocalAndCloudConnections(quitProgramChan)
+	go startPeerServerConnectionLoop(programShouldQuitSignal)
 
 	// Wait for a signal to stop the program
 	systemExitCalled := make(chan os.Signal, 1) // Create a channel to listen for an interrupt signal from the OS.
@@ -88,12 +90,12 @@ func main() {
 	defer time.Sleep(time.Second) // sleep a Second at very end to allow everything to finish.
 	// wait until a signal on the done or systemExitCalled go channel variables is received.
 	select {
-	case <-quitProgramChan:
+	case <-programShouldQuitSignal.GetSignal():
 		log.Println("quit Program channel triggered, exiting")
 		return
 	case <-systemExitCalled:
 		log.Println("ctrl+c or other system interrupt received, exiting")
-		close(quitProgramChan) // tell the go subroutines to exit by closing the quitProgram channel
+		programShouldQuitSignal.Trigger() // tell the go subroutines to exit by closing the programShouldQuitSignal channel
 		return
 	}
 }

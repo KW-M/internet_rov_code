@@ -555,13 +555,9 @@ export const rovConnectionMachine =
                                                     },
                                                     SEND_MESSAGE_TO_ROV: {
                                                         actions: "sendMessageToRov",
-                                                        target:
-                                                            "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Data_Channel_Open",
                                                     },
                                                     GOT_MESSAGE_FROM_ROV: {
                                                         actions: "gotMessageFromRov",
-                                                        target:
-                                                            "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Data_Channel_Open",
                                                     },
                                                 },
                                             },

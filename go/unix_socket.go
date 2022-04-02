@@ -1,187 +1,174 @@
 package main
 
 import (
-	"log"
 	"net"
 	"os"
 	"time"
-	// log "github.com/sirupsen/logrus"
+
+	log "github.com/sirupsen/logrus"
 )
 
-// for passing messages back and forth to the python program
-// from https://go.dev/play/p/jupwWV8pdH
-type RobotUnixSocket struct {
-	socketOpen         bool
-	doReconnectSignal  chan bool
-	socketConnection   net.Conn
-	socketListener     net.Listener
-	socketWriteChannel chan string
-	socketReadChannel  chan string
+/*
+ * UnixSocketRelay
+ * Go class for sending and reciving messages to / from another program via a unix domain socket.
+ * Opens a socket server in SOCK_SEQ_PACKET mode at the given path and listens for connections.
+ * Will keep trying to reopen the socket if it is closed / has problems until the passed closeSocketSignal is triggered.
+ * Relays all messages from the messagesToSocket go channel to the socket
+ * and relays all messages from the socket to the messagesFromSocket go channel.
+ */
+type UnixSocketRelay struct {
+	socketConnection       net.Conn
+	socketListener         net.Listener
+	exitSocketLoopsSignal  *UnblockSignal
+	messagesToSocket       chan string
+	messagesFromSocket     chan string
+	readBufferSize         int
+	debugLog               *log.Logger
 }
 
-// ReadUnixSocketAsync: ment to be run as a goroutine
-// will call the onMessageCallback when a message is received with the message as a string
-func (sock *RobotUnixSocket) ReadUnixSocketAsync(readBufferSize int) {
-	buf := make([]byte, readBufferSize)
+/* ReadUnixSocketAsync (blocking goroutine)
+ * will push all recved messages as a string onto the messagesFromSocket channel */
+func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
+	buf := make([]byte, sock.readBufferSize)
 	for {
-		if sock.socketOpen {
-			sock.socketConnection.SetReadDeadline(time.Now().Add(time.Second * 10))
-			nr, err := sock.socketConnection.Read(buf)
-			if err != nil {
-				log.Println("UNIX SOCKET READ ERROR: ", err)
-				sock.doReconnectSignal <- true
+		switch {
+			case <-sock.exitSocketLoopsSignal.GetSignal():
 				return
-			}
+			default:
+				conn := sock.socketConnection
+				conn.SetReadDeadline(time.Now().Add(time.Second * 10))
+				numBytes, err := conn.Read(buf)
+				if err != nil {
+					sock.debugLog.Warn("Connection read error:", err)
+					sock.exitSocketLoopsSignal.Trigger()
+					return
+				}
 
-			message := string(buf[0:nr])
-			log.Println("UNIX SOCKET got message:", message)
-			sock.socketReadChannel <- message
-		} else {
-			log.Println("ReadUnixSocketAsync(): UNIX SOCKET NOT OPEN")
-			sock.doReconnectSignal <- true
-			return
-		}
+				// extract the string message (as a slice of bytes) from the buffer
+				message := string(buf[0:numBytes])
+				sock.messagesFromSocket <- message
+			}
 	}
 
 }
 
-func (sock *RobotUnixSocket) WriteUnixSocketAsync() {
+/* WriteUnixSocketAsync (blocking goroutine)
+ * will wait for messages on the messagesToSocket channel and send them to the socket in utf-8 encoded bytes */
+func (sock *UnixSocketRelay) WriteUnixSocketAsync() {
 	for {
-			msg, chanIsOpen := <-sock.socketWriteChannel
-			if sock.socketOpen && chanIsOpen && msg != "" {
+		switch {
+		case <-sock.exitSocketLoopsSignal.GetSignal():
+			return
+		default:
+			msg, chanIsOpen := <-sock.messagesToSocket
+			if chanIsOpen && msg != "" {
 				sock.socketConnection.SetWriteDeadline(time.Now().Add(time.Second * 10))
 				_, err := sock.socketConnection.Write([]byte(msg))
 				if err != nil {
-					log.Println("UNIX SOCKET WRITE ERROR: ", err)
-					sock.doReconnectSignal <- true
+					sock.debugLog.Warn("Connection write error: ", err)
+					sock.exitSocketLoopsSignal.Trigger()
 					return
 				}
 			}
-	}
-}
-
-// connect starts listening on a unix domain socket at the particular address using the SOCK_SEQPACKET socket format.
-// path is the name of the unix socket to connect to (eg. "/tmp/whatever.sock").
-func (*RobotUnixSocket) createSocketListener(path string) (*net.UnixListener, error) {
-
-	if _, err := os.Stat(path); err == nil {
-		// try to remove any old socket file if it is still exists
-		err := os.Remove(path)
-		if err != nil {
-			log.Println("ERROR REMOVING OLD SOCKET FILE: ",err)
 		}
 	}
-
-	log.Println("Creating socket listener...", path)
-	addr, err := net.ResolveUnixAddr("unixpacket", path)
-	if err != nil {
-		return nil, err
-	}
-	log.Println("Resolved addr socket listener...", path)
-	listener, err := net.ListenUnix("unixpacket", addr)
-	log.Println("listening to addr socket listener...", path)
-	return listener, err
 }
 
-/* Closes any open socket connections & removes the listener */
-func (sock *RobotUnixSocket) CleanupSocket() {
+/* cleanupSocketServer
+ * Closes any open socket connection & socket listener */
+func (sock *UnixSocketRelay) cleanupSocketServer() {
+	sock.debugLog.Info("Cleaning up unix socket server.")
+	sock.exitSocketLoopsSignal.Trigger()
 	if sock.socketConnection != nil {
 		sock.socketConnection.Close()
 	}
 	if sock.socketListener != nil {
 		sock.socketListener.Close()
 	}
-	sock.socketOpen = false
 }
 
-func (sock *RobotUnixSocket) openSocket(closeSocketSignal chan bool, unixSocketPath string) bool {
-	// catch any errors or returns gracefully and CleanupSocket
+/* startSocketServer (blocking goroutine)
+ * starts listening on a unix domain socket at the given file path using the SOCK_SEQPACKET socket format.
+ * PARAM: unixSocketPath is the file path of the unix socket to create (eg. "/tmp/whatever.socket").
+ */
+func (sock *UnixSocketRelay) startSocketServer(unixSocketPath string) {
+
+	// exit gracefully if the goroutine panics by calling CleanupSocket()
 	defer func() {
 		if r := recover(); r != nil {
-			log.Println("Recovered in openSocket()...", r)
+			sock.debugLog.Info("Recovered from panic in startSocketServer()...", r)
 		}
-		sock.CleanupSocket()
+		sock.cleanupSocketServer()
 	}()
 
-	// attempt to open socket
-	sock.socketListener, err = sock.createSocketListener(unixSocketPath)
-	if err != nil {
-		log.Println("UNIX SOCKET Initilization Error: ", err)
-		return false
+	// attempt to remove the socket file if it already exists:
+	if _, err := os.Stat(unixSocketPath); err == nil {
+		// try to remove any old socket file if it is still exists
+		err := os.Remove(unixSocketPath)
+		if err != nil {
+			sock.debugLog.Warn("ERROR REMOVING EXISTING UNIX SOCKET FILE: ",err)
+		}
 	}
-	log.Println("UNIX SOCKET Listening for Connection...")
+
+	// get a reference to the unix socket given the socket file location
+	addr, err := net.ResolveUnixAddr("unixpacket", unixSocketPath)
+	if err != nil {
+		sock.debugLog.Error("Error resolving socket path: ", err)
+		return
+	}
+
+	// create the socket file and listen for connections
+	sock.socketListener, err = net.ListenUnix("unixpacket", addr)
+	if err != nil {
+		sock.debugLog.Error("Listen error: ", err)
+		return
+	}
+
+	// wait for some program to connect to the socket (blocking)
+	sock.debugLog.Println("UNIX SOCKET Listening for Connection...")
 	sock.socketConnection, err = sock.socketListener.Accept()
 	if err != nil {
-		log.Println("UNIX SOCKET ACCEPT ERROR: ", err)
-		return false
+		sock.debugLog.Println("Accept connection error: ", err)
+		return
 	}
 
-	sock.socketOpen = true
-	go sock.ReadUnixSocketAsync(1024)
+	// start the goroutines that will relay messages to/from the socket
+	go sock.ReadUnixSocketAsync()
 	go sock.WriteUnixSocketAsync()
-	log.Println("Unix socket open! Listening for messages on: ", unixSocketPath)
-	select {
-	case <-sock.doReconnectSignal:
-		sock.socketOpen = false
-		return false
-	case <-closeSocketSignal:
-		sock.socketOpen = false
-		return true
-	}
+
+	sock.debugLog.Println("Unix socket open! Listening for messages on: ", unixSocketPath)
+	sock.exitSocketLoopsSignal.Wait()
+
 }
 
-// connect starts listening on a unix domain socket at the particular address using the SOCK_SEQPACKET socket format.
-// closeSocketSignal is the channel that will signal to this goroutine to close the socket.
-// recivedMessageChannel is a string channel When a message is recived on the socket it will be sent to this channel.
-// sendMessageChannel is a string channel. When a message is sent on this channel, it will be sent to the socket.
-// unixSocketPath is the path the unix socket to connect to (eg. "/tmp/whatever.sock").
-func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan string, sendMessageChannel chan string, unixSocketPath string) *RobotUnixSocket {
-	var sock = new(RobotUnixSocket)
-	sock.socketOpen = false
-	sock.socketWriteChannel = sendMessageChannel
-	sock.socketReadChannel = recivedMessageChannel
-	sock.doReconnectSignal = make(chan bool)
+/* CreateUnixSocketRelay
+ * starts listening on a unix domain socket at the particular address using the SOCK_SEQPACKET socket format.
+ * PARAM: closeSocketSignal is the UnblockSignal that will signal to this goroutine to cleanup & close the socket.
+ * PARAM: messagesFromSocket is a buffered string channel. When a message is recived on the socket it will be sent to this channel.
+ * PARAM: messagesToSocket is a buffered string channel. When a message is sent on this channel, it will be sent to the socket.
+ * PARAM: unixSocketPath is the path the unix socket to connect to (eg. "/tmp/whatever.sock").
+ * PARAM: readBufferSize is the size of the read buffer for the socket connection.
+ * RETURNS: a UnixSocketRelay struct that is the new relay for the unix socket.
+ */
+func CreateUnixSocketRelay(closeSocketSignal *UnblockSignal, messagesFromSocket chan string, messagesToSocket chan string, unixSocketPath string, readBufferSize int) *UnixSocketRelay {
+	sock := new(UnixSocketRelay)
+	sock.messagesToSocket = messagesToSocket
+	sock.messagesFromSocket = messagesFromSocket
+	sock.readBufferSize = readBufferSize
 
 	go func() {
 		for {
-			var shouldExit bool = sock.openSocket(closeSocketSignal, unixSocketPath)
-			if shouldExit == true {
-				log.Println("Exiting socket reconnect loop...")
-				break
+			select {
+			case <-closeSocketSignal.GetSignal():
+				sock.exitSocketLoopsSignal.Trigger()
+				return
+			default:
+				sock.exitSocketLoopsSignal = newUnblockSignal()
+				sock.startSocketServer(unixSocketPath)
+				time.Sleep(time.Second) // wait a second before trying to reconnect
 			}
-			time.Sleep(time.Second * 2)
 		}
 	}()
 
 	return sock
 }
-
-// func CreateUnixSocket(closeSocketSignal chan bool, recivedMessageChannel chan string, sendMessageChannel chan string, unixSocketPath string) *RovUnixSocket {
-// 	// l, err := net.ListenUnix("unix",  &net.UnixAddr{"/tmp/go.sock", "unix"})
-// 	addr, err := net.ResolveUnixAddr("unixpacket", unixSocketPath)
-// 	if err != nil {
-// 		log.Println("UNIX SOCKET Filepath Resolve Error: ", err)
-// 	}
-// 	log.Println("Resolved addr socket listener...")
-// 	listener, err := net.ListenUnix("unixpacket", addr)
-// 	if err != nil {
-// 		log.Println("UNIX SOCKET Listen Error: ", err)
-// 	}
-// 	log.Println("listening to addr socket listener...", unixSocketPath)
-// 	defer listener.Close()
-// 	for {
-// 		conn, err := listener.AcceptUnix()
-// 		if err != nil {
-// 			log.Println("AcceptUnix ERR", err)
-// 			continue
-// 		}
-// 		var buf [1024]byte
-// 		n, err := conn.Read(buf[:])
-// 		if err != nil {
-// 			log.Println("READ ERR", err)
-// 			continue
-// 		}
-// 		log.Printf("%s\n", string(buf[:n]));
-// 		conn.Close()
-// 	}
-// }

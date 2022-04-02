@@ -30,21 +30,21 @@ const (
 var cameraLog = log.WithFields(log.Fields{})
 
 // videoTrack to hold the front camera video stream for all peers/pilots who connect
-var rovLivestreamVideoTrack = &webrtc.TrackLocalStaticSample{}
+var cameraLivestreamVideoTrack = &webrtc.TrackLocalStaticSample{}
 
 // Create the video track for the video stream data to go in.
 func initVideoTrack() *webrtc.TrackLocalStaticSample {
 	// Create the video track
 	var err error
-	rovLivestreamVideoTrack, err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/h264"}, "rov-front-cam", "rov-front-cam-stream")
+	cameraLivestreamVideoTrack, err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/h264"}, "rov-front-cam", "rov-front-cam-stream")
 	if err != nil {
 		log.Fatal("could not create video track. ", err)
 	}
 
-	return rovLivestreamVideoTrack
+	return cameraLivestreamVideoTrack
 }
 
-func pipeVideoToStream(done chan bool) error {
+func pipeVideoToStream(programShouldQuitSignal *UnblockSignal) error {
 	// Startup libcamera-vid command to get the video data from the camera exposed (locally) on a http/tcp port
 	//960x720
 	//"--width", "640", "--height", "480",
@@ -120,7 +120,7 @@ func pipeVideoToStream(done chan bool) error {
 				spsAndPpsCache = []byte{}
 			}
 
-			if h264WriteErr := rovLivestreamVideoTrack.WriteSample(media.Sample{Data: nal.Data, Duration: time.Second}); h264WriteErr != nil {
+			if h264WriteErr := cameraLivestreamVideoTrack.WriteSample(media.Sample{Data: nal.Data, Duration: time.Second}); h264WriteErr != nil {
 				cameraLog.Println("Error writing h264 video track sample: ", h264WriteErr)
 			}
 		}
