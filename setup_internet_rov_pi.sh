@@ -230,14 +230,14 @@ if grep "GOPATH=" ~/.profile; then
 	# ^checks if we have already added words "GOPATH=" to the  ~/.profile file:
 	echo -e "$Green Go path already setup in ~/.profile $Color_Off"
 else
-# https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/
+    # https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/
     echo -e "$Cyan Installing GO and adding GOPATH to ~/.profile $Color_Off"
     sudo rm -r /usr/local/go | true # remove any old version of go
     sudo apt install -y git wget
-    wget https://dl.google.com/go/go1.17.6.linux-armv6l.tar.gz
+    wget https://go.dev/dl/go1.18.linux-armv6l.tar.gz
 
-    sudo tar -C /usr/local -xzf go1.17.6.linux-armv6l.tar.gz
-    rm go1.17.6.linux-armv6l.tar.gz
+    sudo tar -C /usr/local -xzf go1.18.linux-armv6l.tar.gz
+    rm go1.18.linux-armv6l.tar.gz
     echo 'PATH=$PATH:/usr/local/go/bin' | sudo tee -a ~/.profile
     echo 'GOPATH=$HOME/golang' | sudo tee -a ~/.profile
     source ~/.profile
