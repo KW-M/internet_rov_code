@@ -60,6 +60,31 @@ func generateToUnixSocketMetadataMessage(srcPeerId string, peerEvent string, err
 	return string(mtaDataJson)
 }
 
+func getNextPeerServerOptions(tries int, programShouldQuitSignal *UnblockSignal) peerjs.Options {
+	var peerServerOptions = peerjs.NewOptions()
+	peerServerOptions.Debug = 3
+
+	if tries < 2 {
+		// FOR CLOUD HOSTED PEERJS SERVER running on heroku (or wherever - you could use the default peerjs cloud server):
+		peerServerOptions.Host = "0.peerjs.com"
+		peerServerOptions.Port = 443
+		peerServerOptions.Path = "/"
+		peerServerOptions.Key = "peerjs"
+		peerServerOptions.Secure = true
+		peerServerOptions.PingInterval = 3000
+	} else {
+		// FOR LOCAL PEERJS SERVER RUNNING ON THIS raspberrypi (not heroku):
+		peerServerOptions.Host = "localhost"
+		peerServerOptions.Port = 9000
+		peerServerOptions.Path = "/"
+		peerServerOptions.Key = "peerjs"
+		peerServerOptions.Secure = false
+		peerServerOptions.PingInterval = 3000
+		go startLocalPeerJsServer(peerServerOptions, programShouldQuitSignal)
+	}
+	return peerServerOptions
+}
+
 func startLocalPeerJsServer(peerServerOptions peerjs.Options, programShouldQuitSignal *UnblockSignal) {
 	serverOptions := peerjsServer.NewOptions()
 	serverOptions.LogLevel = "Debug"
@@ -86,28 +111,8 @@ func startLocalPeerJsServer(peerServerOptions peerjs.Options, programShouldQuitS
 
 func startPeerServerConnectionLoop(programShouldQuitSignal *UnblockSignal) {
 
-	var peerServerOptions = peerjs.NewOptions()
-	peerServerOptions.Debug = 3
-
-	internetAvailable := true
-	if internetAvailable {
-		// FOR CLOUD HOSTED PEERJS SERVER running on heroku (or wherever - you could use the default peerjs cloud server):
-		peerServerOptions.Host = "0.peerjs.com"
-		peerServerOptions.Port = 443
-		peerServerOptions.Path = "/"
-		peerServerOptions.Key = "peerjs"
-		peerServerOptions.Secure = true
-		peerServerOptions.PingInterval = 3000
-	} else {
-		// FOR LOCAL PEERJS SERVER RUNNING ON THIS raspberrypi (not heroku):
-		peerServerOptions.Host = "localhost"
-		peerServerOptions.Port = 9000
-		peerServerOptions.Path = "/"
-		peerServerOptions.Key = "peerjs"
-		peerServerOptions.Secure = false
-		peerServerOptions.PingInterval = 3000
-		go startLocalPeerJsServer(peerServerOptions, programShouldQuitSignal)
-	}
+	peerServerConnectionTries := 0
+	peerServerOptions := getNextPeerServerOptions(peerServerConnectionTries, programShouldQuitSignal)
 
 	go func() {
 		for {
@@ -116,7 +121,18 @@ func startPeerServerConnectionLoop(programShouldQuitSignal *UnblockSignal) {
 				log.Println("Closing down webrtc connection loop.")
 				return
 			default:
-				setupRobotPeer(peerServerOptions, programShouldQuitSignal)
+				err := setupRobotPeer(peerServerOptions, programShouldQuitSignal)
+				if e, ok := err.(*peerjs.PeerError); ok {
+					errorType := e.Type
+					if errorType == "unavailable-id" {
+						log.Printf("Peer id is unavailable. Switching to next peer id end number...\n")
+						robotPeerIdEndingNum++   // increment the peer id ending integer
+					}
+					if errorType == "network" {
+						log.Printf("Peer Js server is unavailable, switching to next peer server\n")
+						peerServerConnectionTries++   // increment the peer id ending integer
+						peerServerOptions = getNextPeerServerOptions(0, programShouldQuitSignal)
+					}}
 			}
 		}
 	}()
@@ -277,8 +293,6 @@ func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *U
 	robotPeer.On("open", func(peerId interface{}) {
 		var peerID string = peerId.(string) // typecast to string
 		if peerID != robotPeerId {
-			robotConnLog.Printf("Uh oh, server gave us peer id: %s (%s must be taken). Switching to next end number...\n", peerID, robotPeerId)
-			robotPeerIdEndingNum++   // increment the peer id ending integer and try again
 			exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
 		} else {
 			robotConnLog.Info("Robot Peer Established!")
@@ -306,8 +320,7 @@ func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *U
 	robotPeer.On("error", func(err interface{}) {
 		errorMessage := err.(*peerjs.PeerError).Error()
 		errorType := err.(*peerjs.PeerError).Type
-		robotConnLog.Printf("ROBOT PEER $s error event: %s",errorType, errorMessage)
-
+		robotConnLog.Printf("ROBOT PEER %s error event: %s",errorType, errorMessage)
 		if (contains(FATAL_PEER_ERROR_TYPES, errorType)) {
 			exitFuncSignal.TriggerWithError(err.(*peerjs.PeerError)) // signal to this goroutine to exit and let the setupConnections loop take over
 		}
