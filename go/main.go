@@ -38,6 +38,7 @@ func main() {
 	}()
 
 	// Set up the logrus logger
+	log.SetLevel(log.DebugLevel)
 	log.SetFormatter(&log.TextFormatter{
 		DisableColors: true,
 		DisableTimestamp: true,
@@ -46,8 +47,8 @@ func main() {
 	parseProgramCmdlineFlags()
 
 	// Create the unix socket to send and receive data to - from python
-	sock := CreateUnixSocketRelay(programShouldQuitSignal, messagesFromUnixSocketChan, sendMessagesToUnixSocketChan, UNIX_SOCKET_PATH, 2048)
-	defer sock.cleanupSocketServer()
+	// sock := CreateUnixSocketRelay(programShouldQuitSignal, messagesFromUnixSocketChan, sendMessagesToUnixSocketChan, UNIX_SOCKET_PATH, 2048)
+	// defer sock.cleanupSocketServer()
 
 	// DEBUG FOR SOCKET MESSAGES
 	// go func() {
@@ -78,8 +79,8 @@ func main() {
 	// }()
 
 	// Setup the video stream and start the camera running
-	initVideoTrack()
-	go pipeVideoToStream(programShouldQuitSignal)
+	// initVideoTrack()
+	// go pipeVideoToStream(programShouldQuitSignal)
 
 	// Setup the peerjs client to accept webrtc connections
 	go startPeerServerConnectionLoop(programShouldQuitSignal)
