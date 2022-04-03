@@ -52,6 +52,7 @@ class Unix_Socket_Datachannel:
                 return
 
             message = await self.messages_to_send_to_socket_queue.get()
+            log.debug("Sending message: " + message)
             while True:
                 try:
                     messageBytes = message.encode('utf-8')
@@ -59,6 +60,7 @@ class Unix_Socket_Datachannel:
                     assert numBytesSent == len(messageBytes)
                     break
                 except asyncio.CancelledError as e:
+                    log.debug("canceled message: " + message)
                     return
                 except socket.timeout as e:
                     await asyncio.sleep(1)
