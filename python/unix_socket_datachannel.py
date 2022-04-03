@@ -51,14 +51,13 @@ class Unix_Socket_Datachannel:
             if self.sock is None:
                 return
 
-            log.debug("awiating message from send_to_socket_queue")
-
             message = await self.messages_to_send_to_socket_queue.get()
             log.debug("Sending message: " + message)
             while True:
                 try:
                     messageBytes = message.encode('utf-8')
                     numBytesSent = self.sock.send(messageBytes)
+                    log.debug("Sent x bytes: " + numBytesSent)
                     assert numBytesSent == len(messageBytes)
                     break
                 except asyncio.CancelledError as e:
