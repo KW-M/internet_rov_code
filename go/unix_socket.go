@@ -20,8 +20,8 @@ type UnixSocketRelay struct {
 	socketConnection      net.Conn
 	socketListener        net.Listener
 	exitSocketLoopsSignal *UnblockSignal
-	messagesToSocket      chan string
-	messagesFromSocket    chan string
+	messagesToSocket      *chan string
+	messagesFromSocket    *chan string
 	readBufferSize        int
 	debugLog              *log.Entry
 }
@@ -154,7 +154,7 @@ func (sock *UnixSocketRelay) startSocketServer(unixSocketPath string) {
  * PARAM: readBufferSize is the size of the read buffer for the socket connection.
  * RETURNS: a UnixSocketRelay struct that is the new relay for the unix socket.
  */
-func CreateUnixSocketRelay(closeSocketSignal *UnblockSignal, messagesFromSocket chan string, messagesToSocket chan string, unixSocketPath string, readBufferSize int) *UnixSocketRelay {
+func CreateUnixSocketRelay(closeSocketSignal *UnblockSignal, messagesFromSocket *chan string, messagesToSocket *chan string, unixSocketPath string, readBufferSize int) *UnixSocketRelay {
 	sock := new(UnixSocketRelay)
 	sock.messagesToSocket = messagesToSocket
 	sock.messagesFromSocket = messagesFromSocket

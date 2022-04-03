@@ -4,6 +4,9 @@ package main
 // if that peer id is taken, it will increment the integer and try again.
 var BASE_PEER_ID string = "iROV-"
 
+// FATAL_PEER_ERROR_TYPES is a list of peer error types that the peerjs-go module can throw which should be handled by closing the peer and restarting the whole peer init -> peer server -> peer conection process.
+var FATAL_PEER_ERROR_TYPES = []string{"network", "unavailable-id", "invalid-id", "invalid-key", "browser-incompatible", "webrtc","server-error", "ssl-unavailable",  "socket-error", "socket-closed" }
+
 // the file path where the unix socket should be created to act as a relay for messages sent from your prefered programming language (eg: python)
 var UNIX_SOCKET_PATH string = "/tmp/go_robot.socket"
 

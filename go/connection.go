@@ -37,7 +37,6 @@ import (
 // ERRO[0697] sendHeartbeat: Failed to send message: write tcp 192.168.1.79:42960->54.243.238.66:443: write: broken pipe  module=peer source=socket
 
 var err error // handy variable to stuff any error messages into
-var FATAL_PEER_ERROR_TYPES = []string{"network", "unavailable-id", "invalid-id", "invalid-key", "browser-incompatible", "webrtc","server-error", "ssl-unavailable",  "socket-error", "socket-closed" }
 
 // To handle the case where multiple robots are running at the same time,
 // we make the PeerId of this ROBOT the basePeerId plus this number tacked on
@@ -137,7 +136,7 @@ func startPeerServerConnectionLoop(programShouldQuitSignal *UnblockSignal) {
 		}
 	}()
 
-	// send messages recived from the socket to seperate channels for both the local and cloud peers
+	// relay all messages recived from the unix socket to all connected peers (unless the message metadata dictates which peers to send the message to)
 	go handleOutgoingDatachannelMessages(programShouldQuitSignal)
 
 	programShouldQuitSignal.Wait() // wait for the quitSignal channel to be triggered at which point this goroutine can exit
@@ -184,7 +183,6 @@ func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
 					dataChannel.Send([]byte(msgFromUnixSocket), false)
 				}
 			}
-
 		case <-programShouldQuitSignal.GetSignal():
 			log.Println("Exiting handleOutgoingDatachannelMessages loop.")
 			return
@@ -327,7 +325,7 @@ func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *U
 	})
 
 	// ---------------------------------------------------------------------------------------------------------------------
-	// block and wait for the exitFuncSignal to be triggerd before exiting this function
+	// block and wait for the exitFuncSignal or programShouldQuitSignal to be triggerd before exiting this function
 	select {
 	case <-exitFuncSignal.GetSignal():
 		return exitFuncSignal.GetError()
