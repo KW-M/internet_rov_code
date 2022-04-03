@@ -52,11 +52,13 @@ class Unix_Socket:
                 return
 
             message = await self.messages_to_send_to_socket_queue.get()
-            log.debug("Sending message: " + message)
+
             while True:
                 try:
+                    log.debug("Sending message: " + message)
                     messageBytes = message.encode('utf-8')
                     self.sock.sendall(messageBytes)
+                    log.debug("Message Sent!  " + message)
                     break
                 except asyncio.CancelledError as e:
                     log.debug("canceled message: " + message)

@@ -59,14 +59,13 @@ func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
  * will wait for messages on the messagesToSocket channel and send them to the socket in utf-8 encoded bytes */
 func (sock *UnixSocketRelay) WriteUnixSocketAsync() {
 	for {
-		sock.debugLog.Debug("Writing sock Loop...")
+		// sock.debugLog.Debug("Writing sock Loop...")
 		select {
 		case <-sock.exitSocketLoopsSignal.GetSignal():
 			sock.debugLog.Info("Exiting writing sock Loop...")
 			return
 		case msg, chanIsOpen := <-sock.messagesToSocket:
 			if chanIsOpen && msg != "" {
-				sock.debugLog.Info("Writing message to socket...")
 				sock.socketConnection.SetWriteDeadline(time.Now().Add(time.Second * 10))
 				_, err := sock.socketConnection.Write([]byte(msg))
 				if err != nil {
