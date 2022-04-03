@@ -28,11 +28,11 @@ type UnixSocketRelay struct {
 
 /* ReadUnixSocketAsync (blocking goroutine)
  * will push all recved messages as a string onto the messagesFromSocket channel */
-func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
+ func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
 	buf := make([]byte, sock.readBufferSize)
 	for {
 		sock.debugLog.Info("Reading sock Loop...")
-		switch {
+		select {
 		case <-sock.exitSocketLoopsSignal.GetSignal():
 			sock.debugLog.Info("Exiting reading sock Loop...")
 			return
@@ -52,8 +52,8 @@ func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
 			sock.messagesFromSocket <- message
 		}
 	}
-
 }
+
 
 /* WriteUnixSocketAsync (blocking goroutine)
  * will wait for messages on the messagesToSocket channel and send them to the socket in utf-8 encoded bytes */
