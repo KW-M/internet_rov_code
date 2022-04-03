@@ -42,6 +42,7 @@ func main() {
 	log.SetFormatter(&log.TextFormatter{
 		DisableColors: true,
 		DisableTimestamp: true,
+		DisableQuote: true,
 	})
 
 	parseProgramCmdlineFlags()

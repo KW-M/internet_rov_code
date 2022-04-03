@@ -81,7 +81,7 @@ async def setup_pressure_sensor():
 
 async def read_pressure_sensor(sensor_connection):
     pressure, temp = sensor_connection.read(pressure_osr=4096)
-    print("Sensors: pressure={} mBar, temperature={} C".format(pressure, temp))
+    # print("Sensors: pressure={} mBar, temperature={} C".format(pressure, temp))
     return [pressure, temp]
 
 
