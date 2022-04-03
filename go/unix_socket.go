@@ -17,13 +17,13 @@ import (
  * and relays all messages from the socket to the messagesFromSocket go channel.
  */
 type UnixSocketRelay struct {
-	socketConnection       net.Conn
-	socketListener         net.Listener
-	exitSocketLoopsSignal  *UnblockSignal
-	messagesToSocket       chan string
-	messagesFromSocket     chan string
-	readBufferSize         int
-	debugLog               *log.Entry
+	socketConnection      net.Conn
+	socketListener        net.Listener
+	exitSocketLoopsSignal *UnblockSignal
+	messagesToSocket      chan string
+	messagesFromSocket    chan string
+	readBufferSize        int
+	debugLog              *log.Entry
 }
 
 /* ReadUnixSocketAsync (blocking goroutine)
@@ -33,24 +33,24 @@ func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
 	for {
 		sock.debugLog.Info("Reading sock Loop...")
 		switch {
-			case <-sock.exitSocketLoopsSignal.GetSignal():
-				sock.debugLog.Info("Exiting reading sock Loop...")
+		case <-sock.exitSocketLoopsSignal.GetSignal():
+			sock.debugLog.Info("Exiting reading sock Loop...")
+			return
+		default:
+			sock.debugLog.Info("Reading from socket...")
+			conn := sock.socketConnection
+			conn.SetReadDeadline(time.Now().Add(time.Second * 10))
+			numBytes, err := conn.Read(buf)
+			if err != nil {
+				sock.debugLog.Warn("Connection read error:", err)
+				sock.exitSocketLoopsSignal.Trigger()
 				return
-			default:
-				sock.debugLog.Info("Reading from socket...")
-				conn := sock.socketConnection
-				conn.SetReadDeadline(time.Now().Add(time.Second * 10))
-				numBytes, err := conn.Read(buf)
-				if err != nil {
-					sock.debugLog.Warn("Connection read error:", err)
-					sock.exitSocketLoopsSignal.Trigger()
-					return
-				}
-
-				// extract the string message (as a slice of bytes) from the buffer
-				message := string(buf[0:numBytes])
-				sock.messagesFromSocket <- message
 			}
+
+			// extract the string message (as a slice of bytes) from the buffer
+			message := string(buf[0:numBytes])
+			sock.messagesFromSocket <- message
+		}
 	}
 
 }
@@ -60,12 +60,11 @@ func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
 func (sock *UnixSocketRelay) WriteUnixSocketAsync() {
 	for {
 		sock.debugLog.Debug("Writing sock Loop...")
-		switch {
+		select {
 		case <-sock.exitSocketLoopsSignal.GetSignal():
 			sock.debugLog.Info("Exiting writing sock Loop...")
 			return
-		default:
-			msg, chanIsOpen := <-sock.messagesToSocket
+		case msg, chanIsOpen := <-sock.messagesToSocket:
 			if chanIsOpen && msg != "" {
 				sock.debugLog.Info("Writing message to socket...")
 				sock.socketConnection.SetWriteDeadline(time.Now().Add(time.Second * 10))
@@ -112,7 +111,7 @@ func (sock *UnixSocketRelay) startSocketServer(unixSocketPath string) {
 		// try to remove any old socket file if it is still exists
 		err := os.Remove(unixSocketPath)
 		if err != nil {
-			sock.debugLog.Warn("ERROR REMOVING EXISTING UNIX SOCKET FILE: ",err)
+			sock.debugLog.Warn("ERROR REMOVING EXISTING UNIX SOCKET FILE: ", err)
 		}
 	}
 
