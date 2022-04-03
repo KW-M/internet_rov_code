@@ -25,6 +25,7 @@ async def socket_incoming_message_handler_loop(unix_socket_datachannel,
     # loop infinitely:
     while True:
 
+        log.debug("Awaiting message: ")
         # get the next message from the socket
         message = await unix_socket_datachannel.messages_from_socket_queue.get(
         )
