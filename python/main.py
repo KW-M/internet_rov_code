@@ -44,13 +44,10 @@ log = logging.getLogger(__name__)
 async def main():
     # setup the asyncio loop to run each of these functions aka "tasks" aka "coroutines" concurently
     await asyncio.gather(
-        sensors.sensor_setup_loop(),
-        motion_ctrl.motor_setup_loop(),
+        sensors.sensor_setup_loop(), motion_ctrl.motor_setup_loop(),
         unix_socket.socket_relay_setup_loop(),
         socket_incoming_message_handler_loop(unix_socket, motion_ctrl),
-        # socket_update_message_sender_loop(unix_socket,
-        #                                   sensors=sensors)
-    )
+        socket_update_message_sender_loop(unix_socket, sensors=sensors))
 
 
 asyncio.run(main())
