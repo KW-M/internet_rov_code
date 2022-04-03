@@ -122,13 +122,13 @@ echo "$(tput setaf 2)
  ~ (   ) (   ) ~  Memory.............: `cat /proc/meminfo | grep MemFree | awk {'print($2 * 0.001)'}`MB (Free) / `cat /proc/meminfo | grep MemTotal | awk {'print($2 * 0.001)'}`MB (Total)
 ( : '~'.~.'~' : ) Load Averages......: ${one}, ${five}, ${fifteen} (1, 5, 15 min)
  ~ .~ (   ) ~. ~  Running Processes..: `ps ax | wc -l | tr -d " "`
-  (  : '~' :  )   CPU Temperature....: `vcgencmd measure_temp | awk -F "[=\']" '{print($2)}'`'c
-   '~ .~~~. ~'    Disk Space.........: `df -h | grep /dev/root | awk {'print $5'}` full (`df -h | grep /dev/root | awk {'print $3'}` used of `df -h | grep /dev/root | awk {'print $2'}`)
+  (  : '~' :  )   Disk Space.........: `df -h | grep /dev/root | awk {'print $5'}` full (`df -h | grep /dev/root | awk {'print $3'}` used of `df -h | grep /dev/root | awk {'print $2'}`)
+   '~ .~~~. ~'
        '~'
 $(tput sgr0)"
 echo "========================="
 echo "";
-/bin/bash /home/pi/internet_rov_code/show_system_warnings.sh
+# /bin/bash /home/pi/internet_rov_code/show_system_warnings.sh
 
 
 
