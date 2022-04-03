@@ -31,11 +31,12 @@ type UnixSocketRelay struct {
 func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
 	buf := make([]byte, sock.readBufferSize)
 	for {
+		sock.debugLog.Info("Reading sock Loop...")
 		switch {
 			case <-sock.exitSocketLoopsSignal.GetSignal():
 				return
 			default:
-				log.Debug("Reading from socket...")
+				sock.debugLog.Info("Reading from socket...")
 				conn := sock.socketConnection
 				conn.SetReadDeadline(time.Now().Add(time.Second * 10))
 				numBytes, err := conn.Read(buf)
@@ -57,13 +58,14 @@ func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
  * will wait for messages on the messagesToSocket channel and send them to the socket in utf-8 encoded bytes */
 func (sock *UnixSocketRelay) WriteUnixSocketAsync() {
 	for {
+		sock.debugLog.Debug("Writing sock Loop...")
 		switch {
 		case <-sock.exitSocketLoopsSignal.GetSignal():
 			return
 		default:
 			msg, chanIsOpen := <-sock.messagesToSocket
 			if chanIsOpen && msg != "" {
-				log.Debug("Writing message to socket...")
+				sock.debugLog.Info("Writing message to socket...")
 				sock.socketConnection.SetWriteDeadline(time.Now().Add(time.Second * 10))
 				_, err := sock.socketConnection.Write([]byte(msg))
 				if err != nil {
