@@ -141,7 +141,8 @@ async def socket_incoming_message_handler_loop(unix_socket, motion_ctrl):
                 reply_msg_data["currentPiotPeerId"] = srcPeerId
 
         # Send the reply_msg_data as a json string if it has any data in it.
-        if len(reply_msg_data) > 0 or len(reply_metadata) > 0:
+        if len(reply_msg_data
+               ) > 0 or len(reply_metadata) > 0 and unix_socket.socket_open:
             reply_message = json.dumps(
                 reply_metadata) + MESSAGE_METADATA_SEPARATOR + json.dumps(
                     reply_msg_data)
@@ -160,7 +161,8 @@ async def socket_update_message_sender_loop(unix_socket, sensors):
         sensorUpdates = sensors.get_sensor_update_dict()
         reply_msg_data.update(sensorUpdates)
 
-        if len(reply_msg_data) > 0 or len(reply_metadata) > 0:
+        if len(reply_msg_data
+               ) > 0 or len(reply_metadata) > 0 and unix_socket.socket_open:
             update_message = json.dumps(
                 reply_metadata) + MESSAGE_METADATA_SEPARATOR + json.dumps(
                     reply_msg_data)

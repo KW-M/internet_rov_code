@@ -14,6 +14,7 @@ class Unix_Socket:
                  max_queue_size=30,
                  socket_timeout=1):
         self.sock = None
+        self.socket_open = False
         self.messages_from_socket_queue = None
         self.messages_to_send_to_socket_queue = None
         self.MAX_QUEUE_SIZE = max_queue_size
@@ -31,7 +32,6 @@ class Unix_Socket:
                 encodedMessage = self.sock.recv(self.MAX_MESSAGE_SIZE)
                 if encodedMessage:
                     message = str(encodedMessage, 'utf-8')
-                    print("Received message: " + message)
                     await self.messages_from_socket_queue.put(message)
                 continue
             except socket.timeout as e:
@@ -91,8 +91,9 @@ class Unix_Socket:
                                           socket.SocketKind.SOCK_SEQPACKET)
                 self.sock.connect(self.SOCKET_PATH)
                 self.sock.settimeout(self.SOCKET_TIMEOUT)
+                self.socket_open = True
                 log.info("Unix socket connection open!")
-                # workaround for: https://bugs.python.org/issue38285
+                # sync workaround for: https://bugs.python.org/issue38285
                 read_task = asyncio.create_task(self.read_socket_messages())
                 write_task = asyncio.create_task(self.send_socket_messages())
                 await asyncio.wait([read_task, write_task],
@@ -121,6 +122,7 @@ class Unix_Socket:
                 write_task.cancel()
                 write_task = None
             self.sock.close()
+            self.socket_open = False
 
             await asyncio.sleep(3)  # wait 3 seconds before trying again
 

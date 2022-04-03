@@ -76,6 +76,7 @@ const machineFunctions = {
             rovDataConnection.send(encodedMessage);
         },
         gotMessageFromRov: sendParent((context, event) => {
+            console.warn("Got Message from ROV: ", event.data);
             return {
                 type: "GOT_MESSAGE_FROM_ROV",
                 data: event.data,
