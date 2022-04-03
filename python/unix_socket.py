@@ -20,54 +20,55 @@ class Unix_Socket:
         self.SOCKET_PATH = socket_path
         self.SOCKET_TIMEOUT = socket_timeout
         self.MAX_MESSAGE_SIZE = max_message_size
+        self.current_outgoing_message = None
 
     async def read_socket_messages(self):
         """
         Relays all messages recived from the unix socket onto the messages_from_socket_queue.
         """
         while True:
-            if self.sock is None:
-                return
-
             try:
                 encodedMessage = self.sock.recv(self.MAX_MESSAGE_SIZE)
                 if encodedMessage:
                     message = str(encodedMessage, 'utf-8')
                     print("Received message: " + message)
                     await self.messages_from_socket_queue.put(message)
+                continue
+            except socket.timeout as e:
+                pass
+            except BrokenPipeError as e:
+                return
             except asyncio.CancelledError as e:
                 return
-            except socket.timeout as e:
-                await asyncio.sleep(1)
             except Exception as e:
                 log.error('read_socket_messages(): Error', exc_info=e)
-                await asyncio.sleep(1)
+            await asyncio.sleep(1)
 
     async def send_socket_messages(self):
         """
         Relays all messages pushed onto the send_to_socket_queue to the unix socket.
         """
         while True:
-            if self.sock is None:
+            try:
+                if self.current_outgoing_message is None:
+                    self.current_outgoing_message = await self.messages_to_send_to_socket_queue.get(
+                    )
+
+                log.debug("Sending message: " + self.current_outgoing_message)
+                messageBytes = self.current_outgoing_message.encode('utf-8')
+                self.sock.sendall(messageBytes)
+                self.current_outgoing_message is None
+                log.debug("Message Sent!  " + self.current_outgoing_message)
+                continue
+            except socket.timeout as e:
+                pass
+            except BrokenPipeError as e:
                 return
-
-            message = await self.messages_to_send_to_socket_queue.get()
-
-            while True:
-                try:
-                    log.debug("Sending message: " + message)
-                    messageBytes = message.encode('utf-8')
-                    self.sock.sendall(messageBytes)
-                    log.debug("Message Sent!  " + message)
-                    break
-                except asyncio.CancelledError as e:
-                    log.debug("canceled message: " + message)
-                    return
-                except socket.timeout as e:
-                    await asyncio.sleep(1)
-                except Exception as e:
-                    log.error('send_socket_messages(): Error', exc_info=e)
-                    await asyncio.sleep(1)
+            except asyncio.CancelledError as e:
+                return
+            except Exception as e:
+                log.error('send_socket_messages(): Error', exc_info=e)
+            await asyncio.sleep(1)
 
     async def socket_relay_setup_loop(self, asyncLoop=None):
         if asyncLoop is None:
@@ -91,8 +92,8 @@ class Unix_Socket:
                 # workaround for: https://bugs.python.org/issue38285
                 read_task = asyncio.create_task(self.read_socket_messages())
                 write_task = asyncio.create_task(self.send_socket_messages())
-                await read_task
-                await write_task
+                await asyncio.wait([read_task, write_task],
+                                   return_when=asyncio.FIRST_COMPLETED)
 
             except FileNotFoundError as e:
                 log.warning('Unix socket file does not yet exist!')
@@ -117,7 +118,6 @@ class Unix_Socket:
                 write_task.cancel()
                 write_task = None
             self.sock.close()
-            self.sock = None
 
             await asyncio.sleep(3)  # wait 3 seconds before trying again
 
