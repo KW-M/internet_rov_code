@@ -60,7 +60,6 @@ class Unix_Socket:
                 messageBytes = self.current_outgoing_message.encode('utf-8')
                 self.sock.sendall(messageBytes)
                 self.current_outgoing_message = None
-                log.debug("Message Sent!  " + self.current_outgoing_message)
                 continue
             except socket.timeout as e:
                 await asyncio.sleep(1)
