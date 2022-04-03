@@ -4,7 +4,6 @@ export const handleRovMessage = (message) => {
 
 export const sendRovMessage = (message) => {
     return (callback, onReceive) => {
-
         console.log("handleROVMessage: ", message);
     }
 }
