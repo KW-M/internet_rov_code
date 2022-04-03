@@ -332,6 +332,7 @@ func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *U
 	case <-exitFuncSignal.GetSignal():
 		return exitFuncSignal.GetError()
 	case <-programShouldQuitSignal.GetSignal():
+		exitFuncSignal.Trigger()
 		return nil
 	}
 }
