@@ -41,6 +41,8 @@ class Generic_Sensor:
                 self.sensor_connection = await self.setup_sensor_function()
                 self.sensor_error_flag.clear()
                 await self.sensor_error_flag.wait()
+            except asyncio.CancelledError:
+                return
             except IOError as e:
                 log.error("Error in setup_sensors() Sensor Not Responding: " +
                           str(e))
@@ -64,6 +66,8 @@ class Generic_Sensor:
                 if new_readings != self.measured_values:
                     self.measured_values = new_readings
                     self.sensor_value_changed_flag.set()
+            except asyncio.CancelledError:
+                return
             except IOError as e:
                 log.warning("IO Error reading " + self.sensor_name +
                             " sensor, is it disconnected? " + str(e))
@@ -114,6 +118,11 @@ class Sensor_Controller:
                     sensor_dict[measurement_name] = measured_value
 
         return sensor_dict
+
+    def cleanup(self):
+        for sensor in self.all_sensors:
+            # sensor.sensor_connection.close()
+            pass
 
     # def get_sensor_column_names(self):
     #     output_column_names = ['date_time']

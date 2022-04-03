@@ -95,9 +95,6 @@ class Adafruit_Pwm_Motor:
 
 
 class Motion_Controller:
-    gpio_issue_flag = None
-
-    ### -----------------------
 
     # current_motor_state = {
     #     'left': 0,
@@ -214,5 +211,6 @@ class Motion_Controller:
 
     def cleanup_gpio(self):
         """ Function to shut down the current pigpio.pi() instance. useful when turning off / exiting the rov program"""
+        self.stop_gpio_and_motors()
         if self.pigpio_instance:
             self.pigpio_instance.stop()

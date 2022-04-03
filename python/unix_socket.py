@@ -126,6 +126,13 @@ class Unix_Socket:
 
             await asyncio.sleep(3)  # wait 3 seconds before trying again
 
+    def cleanup(self):
+        if self.messages_from_socket_queue is not None:
+            self.messages_from_socket_queue.close()
+        if self.messages_to_send_to_socket_queue is not None:
+            self.messages_to_send_to_socket_queue.close()
+        if self.sock is not None:
+            self.sock.close()
     # def setup_socket(self,
     #                  socket_path='/tmp/go_robot.socket',
     #                  socket_timeout=.1):

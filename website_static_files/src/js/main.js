@@ -72,7 +72,7 @@ const mainMachine =
                                 rovIpAddr: (context, event) => context.rovIpAddr,
                                 peerServerConfig: (context, event) => context.peerServerConfig,
                             }
-                        }
+                        },
                     },
                     Gamepad_Support: {},
                     Message_Handler: {
@@ -83,9 +83,11 @@ const mainMachine =
                         on: {
                             SEND_MESSAGE_TO_ROV: {
                                 actions: "sendMessageToRov",
+                                internal: true,
                             },
                             GOT_MESSAGE_FROM_ROV: {
                                 actions: "gotMessageFromRov",
+                                internal: true,
                             },
                         },
                     },
@@ -112,7 +114,7 @@ const mainMachine =
                 return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
             }, { to: "rovConnectionMachine" }),
             gotMessageFromRov: (context, event) => {
-                (context, event) => { return handleRovMessage(event.data) }
+                (context, event) => { handleRovMessage(event.data) }
             },
             hideLoadingUi: hideLoadingUi
         },

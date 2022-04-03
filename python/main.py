@@ -50,7 +50,16 @@ async def main():
         socket_update_message_sender_loop(unix_socket, sensors=sensors))
 
 
-asyncio.run(main())
+try:
+    asyncio.run(main())
+except KeyboardInterrupt:
+    pass
+finally:
+    # cleanup
+    sensors.cleanup()
+    motion_ctrl.cleanup_gpio()
+    unix_socket.cleanup()
+
 
 # while True:
 

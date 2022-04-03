@@ -131,6 +131,7 @@ const machineFunctions = {
                 //         data: { source: "peer_server_error", error: err }
                 //     });
                 // }
+
                 const openHandler = generateStateChangeFunction(
                     sendStateChange, "PEERJS_SERVER_CONNECTION_ESTABLISHED", peerServer
                 )
@@ -555,9 +556,11 @@ export const rovConnectionMachine =
                                                     },
                                                     SEND_MESSAGE_TO_ROV: {
                                                         actions: "sendMessageToRov",
+                                                        internal: true,
                                                     },
                                                     GOT_MESSAGE_FROM_ROV: {
                                                         actions: "gotMessageFromRov",
+                                                        internal: true,
                                                     },
                                                 },
                                             },
