@@ -9,10 +9,10 @@ log = logging.getLogger(__name__)
 
 class Unix_Socket_Datachannel:
     def __init__(self,
-                 socket_path='/tmp/go_robot.socket',
+                 socket_path,
                  max_message_size=1024,
                  max_queue_size=30,
-                 socket_timeout=0.1):
+                 socket_timeout=1):
         self.sock = None
         self.messages_from_socket_queue = None
         self.messages_to_send_to_socket_queue = None

@@ -22,7 +22,8 @@ from utilities import *
 
 ############################
 ##### Setup Variables #####
-unix_socket_datachannel = Unix_Socket_Datachannel()
+unix_socket_datachannel = Unix_Socket_Datachannel(
+    socket_path="/tmp/go_robot.socket")
 sensors = Sensor_Controller()
 # sensor_log = Sensor_Log(sensors.all_sensors)
 motion_ctrl = Motion_Controller()
