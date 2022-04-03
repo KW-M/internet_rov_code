@@ -35,14 +35,16 @@ class Unix_Socket:
                     await self.messages_from_socket_queue.put(message)
                 continue
             except socket.timeout as e:
-                pass
+                await asyncio.sleep(1)
             except BrokenPipeError as e:
+                return
+            except ConnectionResetError as e:
                 return
             except asyncio.CancelledError as e:
                 return
             except Exception as e:
                 log.error('read_socket_messages(): Error', exc_info=e)
-            await asyncio.sleep(1)
+                return
 
     async def send_socket_messages(self):
         """
@@ -61,14 +63,16 @@ class Unix_Socket:
                 log.debug("Message Sent!  " + self.current_outgoing_message)
                 continue
             except socket.timeout as e:
-                pass
+                await asyncio.sleep(1)
             except BrokenPipeError as e:
+                return
+            except ConnectionResetError as e:
                 return
             except asyncio.CancelledError as e:
                 return
             except Exception as e:
                 log.error('send_socket_messages(): Error', exc_info=e)
-            await asyncio.sleep(1)
+                return
 
     async def socket_relay_setup_loop(self, asyncLoop=None):
         if asyncLoop is None:
