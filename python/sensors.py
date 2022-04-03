@@ -25,10 +25,11 @@ class Generic_Sensor:
 
         self.setup_sensor_function = setup_sensor_function
         self.read_sensor_function = read_sensor_function
-        self.sensor_error_flag = asyncio.Event()
+
         self.sensor_value_changed_flag = asyncio.Event()
 
     async def start_sensor_loop(self):
+        self.sensor_error_flag = asyncio.Event()
         await asyncio.gather(
             self.sensor_setup_loop(),
             self.sensor_read_loop(),
@@ -39,6 +40,7 @@ class Generic_Sensor:
             try:
                 self.sensor_connection = await self.setup_sensor_function()
                 self.sensor_error_flag.clear()
+                await self.sensor_error_flag.wait()
             except IOError as e:
                 log.error("Error in setup_sensors() Sensor Not Responding: " +
                           str(e))
@@ -77,8 +79,10 @@ async def setup_pressure_sensor():
     return ms5803py.MS5803()
 
 
-async def read_pressure_sensor(sensor_connection):
-    list(sensor_connection.read(pressure_osr=4096))
+def read_pressure_sensor(sensor_connection):
+    pressure, temp = sensor_connection.read(pressure_osr=4096)
+    print("Sensors: pressure={} mBar, temperature={} C".format(pressure, temp))
+    return [pressure, temp]
 
 
 pressure_temp_sensor = Generic_Sensor('ms5803_pressure_temp', 1,
@@ -89,17 +93,15 @@ pressure_temp_sensor = Generic_Sensor('ms5803_pressure_temp', 1,
 # arduino_sensors_interface = Generic_Sensor('arduino_interface_sensors', 1, ['yaw', 'pitch', 'roll'], ['deg', 'deg','deg'], setup_pressure_sensor,read_pressure_sensor),
 
 
-
 class Sensor_Controller:
     all_sensors = [pressure_temp_sensor]
 
     async def sensor_setup_loop(self):
         log.info("Setting Up Sensors...")
-        sensor_setup_tasks = [
+        sensor_tasks = [
             sensor.start_sensor_loop() for sensor in self.all_sensors
         ]
-        print(sensor_setup_tasks)
-        await asyncio.gather(*sensor_setup_tasks)
+        await asyncio.gather(*sensor_tasks)
 
     def get_sensor_update_dict(self):
         sensor_dict = {}
@@ -107,7 +109,10 @@ class Sensor_Controller:
             if sensor.sensor_value_changed_flag.is_set():
                 sensor.sensor_value_changed_flag.clear()
                 for i in range(len(sensor.measurement_names)):
-                    sensor_dict[sensor.measurement_names[i]] = sensor.measured_values[i]
+                    measurement_name = sensor.measurement_names[i]
+                    measured_value = sensor.measured_values[i]
+                    sensor_dict[measurement_name] = measured_value
+
         return sensor_dict
 
     # def get_sensor_column_names(self):
