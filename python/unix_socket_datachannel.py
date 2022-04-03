@@ -57,7 +57,7 @@ class Unix_Socket_Datachannel:
                 try:
                     messageBytes = message.encode('utf-8')
                     numBytesSent = self.sock.send(messageBytes)
-                    log.debug("Sent x bytes: " + numBytesSent)
+                    log.debug("Sent x bytes: " + str(numBytesSent))
                     assert numBytesSent == len(messageBytes)
                     break
                 except asyncio.CancelledError as e:
