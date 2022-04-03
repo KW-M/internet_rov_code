@@ -34,6 +34,7 @@ func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
 		sock.debugLog.Info("Reading sock Loop...")
 		switch {
 			case <-sock.exitSocketLoopsSignal.GetSignal():
+				sock.debugLog.Info("Exiting reading sock Loop...")
 				return
 			default:
 				sock.debugLog.Info("Reading from socket...")
@@ -61,6 +62,7 @@ func (sock *UnixSocketRelay) WriteUnixSocketAsync() {
 		sock.debugLog.Debug("Writing sock Loop...")
 		switch {
 		case <-sock.exitSocketLoopsSignal.GetSignal():
+			sock.debugLog.Info("Exiting writing sock Loop...")
 			return
 		default:
 			msg, chanIsOpen := <-sock.messagesToSocket
