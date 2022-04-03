@@ -48,9 +48,10 @@ class Unix_Socket_Datachannel:
         Relays all messages pushed onto the send_to_socket_queue to the unix socket.
         """
         while True:
-            log.debug("in send_socket_messages()")
             if self.sock is None:
                 return
+
+            log.debug("awiating message from send_to_socket_queue")
 
             message = await self.messages_to_send_to_socket_queue.get()
             log.debug("Sending message: " + message)

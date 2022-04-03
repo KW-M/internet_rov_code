@@ -165,7 +165,7 @@ async def socket_update_message_sender_loop(unix_socket_datachannel, sensors):
             update_message = json.dumps(
                 reply_metadata) + MESSAGE_METADATA_SEPARATOR + json.dumps(
                     reply_msg_data)
-            unix_socket_datachannel.messages_to_send_to_socket_queue.put_nowait(
+            await unix_socket_datachannel.messages_to_send_to_socket_queue.put(
                 update_message)
             log.debug("Sent update: " + update_message)
         await asyncio.sleep(1)
