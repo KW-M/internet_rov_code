@@ -147,7 +147,7 @@ func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
 	for {
 		select {
 		case msgFromUnixSocket := <-messagesFromUnixSocketChan:
-
+			log.Printf("msgFromUnixSocket GOT MESSAGE: %s", msgFromUnixSocket)
 			var TargetPeerIds = make(map[string]bool)
 
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
@@ -194,14 +194,14 @@ func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
 
 func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerOpts peerjs.Options, robotConnLog *log.Entry) {
 	robotPeer.On("connection", func(data interface{}) {
-		browserPeerDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
-		var pilotPeerId string = browserPeerDataConnection.GetPeerID()
+		clientPeerDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
+		var pilotPeerId string = clientPeerDataConnection.GetPeerID()
 
 		log := robotConnLog.WithField("peer", robotPeer.ID)
-		log.Println("Peer connection established with  Peer ID: ", browserPeerDataConnection.GetPeerID())
+		log.Println("Peer connection established with  Peer ID: ", clientPeerDataConnection.GetPeerID())
 
-		browserPeerDataConnection.On("open", func(interface{}) {
-			activeDataConnectionsToThisRobot[pilotPeerId+"::"+peerServerOpts.Host] = browserPeerDataConnection // add this connection to the map of active connections
+		clientPeerDataConnection.On("open", func(interface{}) {
+			activeDataConnectionsToThisRobot[pilotPeerId+"::"+peerServerOpts.Host] = clientPeerDataConnection // add this connection to the map of active connections
 
 			log.Printf("VIDEO CALLING client peer with peer ID: %s\n", pilotPeerId)
 			_, err = robotPeer.Call(pilotPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
@@ -216,9 +216,9 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 			}
 
 			// handle incoming messages from this client peer
-			browserPeerDataConnection.On("data", func(msgBytes interface{}) {
+			clientPeerDataConnection.On("data", func(msgBytes interface{}) {
 				var msgString string = string(msgBytes.([]byte))
-				log.Printf("pilotDataConnection GOT MESSAGE: %s", msgString)
+				log.Printf("clientDataConnection GOT MESSAGE: %s", msgString)
 				var msgForSocket string = msgString
 				if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
 					var metadata string = generateToUnixSocketMetadataMessage(pilotPeerId, "", "")
@@ -229,7 +229,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 			})
 		})
 
-		browserPeerDataConnection.On("close", func(message interface{}) {
+		clientPeerDataConnection.On("close", func(message interface{}) {
 			log.Println("CLIENT PEER DATACHANNEL CLOSE EVENT", message)
 			delete(activeDataConnectionsToThisRobot, pilotPeerId+"::"+peerServerOpts.Host) // remove this connection from the map of active connections
 
@@ -239,7 +239,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 			}
 		})
 
-		browserPeerDataConnection.On("disconnected", func(message interface{}) {
+		clientPeerDataConnection.On("disconnected", func(message interface{}) {
 			log.Println("CLIENT PEER DATACHANNEL DISCONNECTED EVENT", message)
 
 			// send a metadata message down the unix socket that this peer has disconnected
@@ -248,7 +248,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 			}
 		})
 
-		browserPeerDataConnection.On("error", func(message interface{}) {
+		clientPeerDataConnection.On("error", func(message interface{}) {
 			errMessage := message.(error).Error()
 			log.Printf("CLIENT PEER DATACHANNEL ERROR EVENT: %s\n", errMessage)
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
