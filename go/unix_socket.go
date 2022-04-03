@@ -39,7 +39,7 @@ type UnixSocketRelay struct {
 			conn := sock.socketConnection
 			conn.SetReadDeadline(time.Now().Add(time.Second * 10))
 			numBytes, err := conn.Read(buf)
-			if !sock.exitSocketLoopsSignal.HasTriggered {
+			if sock.exitSocketLoopsSignal.HasTriggered {
 				return
 			} else if err != nil {
 				sock.debugLog.Warn("Connection read error:", err)
