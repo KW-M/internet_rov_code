@@ -47,8 +47,8 @@ func main() {
 	parseProgramCmdlineFlags()
 
 	// Create the unix socket to send and receive data to - from python
-	// sock := CreateUnixSocketRelay(programShouldQuitSignal, messagesFromUnixSocketChan, sendMessagesToUnixSocketChan, UNIX_SOCKET_PATH, 2048)
-	// defer sock.cleanupSocketServer()
+	sock := CreateUnixSocketRelay(programShouldQuitSignal, messagesFromUnixSocketChan, sendMessagesToUnixSocketChan, UNIX_SOCKET_PATH, 2048)
+	defer sock.cleanupSocketServer()
 
 	// DEBUG FOR SOCKET MESSAGES
 	// go func() {
