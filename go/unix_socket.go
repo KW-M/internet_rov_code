@@ -31,17 +31,17 @@ type UnixSocketRelay struct {
  func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
 	buf := make([]byte, sock.readBufferSize)
 	for {
-		sock.debugLog.Info("Reading sock Loop...")
 		select {
 		case <-sock.exitSocketLoopsSignal.GetSignal():
-			sock.debugLog.Info("Exiting reading sock Loop...")
+			sock.debugLog.Info("Exiting reading unix socket loop...")
 			return
 		default:
-			sock.debugLog.Info("Reading from socket...")
 			conn := sock.socketConnection
 			conn.SetReadDeadline(time.Now().Add(time.Second * 10))
 			numBytes, err := conn.Read(buf)
-			if err != nil {
+			if !sock.exitSocketLoopsSignal.HasTriggered {
+				return
+			} else if err != nil {
 				sock.debugLog.Warn("Connection read error:", err)
 				sock.exitSocketLoopsSignal.Trigger()
 				return
@@ -62,7 +62,7 @@ func (sock *UnixSocketRelay) WriteUnixSocketAsync() {
 		// sock.debugLog.Debug("Writing sock Loop...")
 		select {
 		case <-sock.exitSocketLoopsSignal.GetSignal():
-			sock.debugLog.Info("Exiting writing sock Loop...")
+			sock.debugLog.Info("Exiting writing unix socket loop...")
 			return
 		case msg, chanIsOpen := <-sock.messagesToSocket:
 			if chanIsOpen && msg != "" {
