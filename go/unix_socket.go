@@ -35,6 +35,7 @@ func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
 			case <-sock.exitSocketLoopsSignal.GetSignal():
 				return
 			default:
+				log.Debug("Reading from socket...")
 				conn := sock.socketConnection
 				conn.SetReadDeadline(time.Now().Add(time.Second * 10))
 				numBytes, err := conn.Read(buf)
@@ -62,6 +63,7 @@ func (sock *UnixSocketRelay) WriteUnixSocketAsync() {
 		default:
 			msg, chanIsOpen := <-sock.messagesToSocket
 			if chanIsOpen && msg != "" {
+				log.Debug("Writing message to socket...")
 				sock.socketConnection.SetWriteDeadline(time.Now().Add(time.Second * 10))
 				_, err := sock.socketConnection.Write([]byte(msg))
 				if err != nil {
