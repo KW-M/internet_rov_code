@@ -62,7 +62,7 @@ class Generic_Sensor:
                 new_readings = await self.read_sensor_function(
                     self.sensor_connection)
                 if new_readings != self.measured_values:
-                    self.value = new_readings
+                    self.measured_values = new_readings
                     self.sensor_value_changed_flag.set()
             except IOError as e:
                 log.warning("IO Error reading " + self.sensor_name +

@@ -49,7 +49,6 @@ type UnixSocketRelay struct {
 
 			// extract the string message (as a slice of bytes) from the buffer
 			message := string(buf[0:numBytes])
-			sock.debugLog.Debug("GOT MESSAGE FROM SOCKET, forwarding to channel: ", message)
 			sock.messagesFromSocket <- message
 		}
 	}
