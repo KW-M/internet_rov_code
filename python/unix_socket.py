@@ -7,7 +7,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class Unix_Socket_Datachannel:
+class Unix_Socket:
     def __init__(self,
                  socket_path,
                  max_message_size=1024,

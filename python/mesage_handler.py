@@ -10,8 +10,7 @@ log = logging.getLogger(__name__)
 MESSAGE_METADATA_SEPARATOR = '|"|'
 
 
-async def socket_incoming_message_handler_loop(unix_socket_datachannel,
-                                               motion_ctrl):
+async def socket_incoming_message_handler_loop(unix_socket, motion_ctrl):
     """
     Waits for new messages to be recieved on the socket.
     :param socket_datachannel: the unix socket class with a queue of recived messages from the socket in utf-8 text.
@@ -27,8 +26,7 @@ async def socket_incoming_message_handler_loop(unix_socket_datachannel,
 
         log.debug("Awaiting message: ")
         # get the next message from the socket
-        message = await unix_socket_datachannel.messages_from_socket_queue.get(
-        )
+        message = await unix_socket.messages_from_socket_queue.get()
 
         # create empty dicts to hold the recived message data
         parsed_metadata = {}
@@ -148,11 +146,11 @@ async def socket_incoming_message_handler_loop(unix_socket_datachannel,
                 reply_metadata) + MESSAGE_METADATA_SEPARATOR + json.dumps(
                     reply_msg_data)
             log.debug("Reply: " + reply_message)
-            unix_socket_datachannel.messages_to_socket_queue.put_nowait(
+            unix_socket.messages_to_send_to_socket_queue.put_nowait(
                 reply_message)
 
 
-async def socket_update_message_sender_loop(unix_socket_datachannel, sensors):
+async def socket_update_message_sender_loop(unix_socket, sensors):
     while True:
 
         # create empty dicts to hold the reply message data:
@@ -166,7 +164,7 @@ async def socket_update_message_sender_loop(unix_socket_datachannel, sensors):
             update_message = json.dumps(
                 reply_metadata) + MESSAGE_METADATA_SEPARATOR + json.dumps(
                     reply_msg_data)
-            await unix_socket_datachannel.messages_to_send_to_socket_queue.put(
+            await unix_socket.messages_to_send_to_socket_queue.put(
                 update_message)
             log.debug("Sent update: " + update_message)
         await asyncio.sleep(1)

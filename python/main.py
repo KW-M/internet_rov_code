@@ -13,7 +13,7 @@ import asyncio
 
 # import our python files from the same directory
 # import logging_formatter
-from unix_socket_datachannel import Unix_Socket_Datachannel
+from unix_socket import Unix_Socket
 from motion_controller import Motion_Controller
 # from sensor_log import Sensor_Log
 from sensors import Sensor_Controller
@@ -22,8 +22,7 @@ from utilities import *
 
 ############################
 ##### Setup Variables #####
-unix_socket_datachannel = Unix_Socket_Datachannel(
-    socket_path="/tmp/go_robot.socket")
+unix_socket = Unix_Socket(socket_path="/tmp/go_robot.socket")
 sensors = Sensor_Controller()
 # sensor_log = Sensor_Log(sensors.all_sensors)
 motion_ctrl = Motion_Controller()
@@ -47,10 +46,9 @@ async def main():
     await asyncio.gather(
         sensors.sensor_setup_loop(),
         motion_ctrl.motor_setup_loop(),
-        unix_socket_datachannel.socket_relay_setup_loop(),
-        socket_incoming_message_handler_loop(unix_socket_datachannel,
-                                             motion_ctrl),
-        # socket_update_message_sender_loop(unix_socket_datachannel,
+        unix_socket.socket_relay_setup_loop(),
+        socket_incoming_message_handler_loop(unix_socket, motion_ctrl),
+        # socket_update_message_sender_loop(unix_socket,
         #                                   sensors=sensors)
     )
 

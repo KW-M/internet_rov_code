@@ -83,9 +83,6 @@ echo "Restarting systemd (systemctl) Services..."
 # daemon-reload makes the system load any new/changed services in the /lib/systemd/system/ directory
 sudo systemctl daemon-reload
 
-
-sudo rm "/tmp/go.sock" || true # remove the GO <-> Python unix socket file if it exists
-
 # echo "Restarting pigpiod.service..."
 # sudo systemctl restart pigpiod
 # echo "restarting rov_go_code.service..."
