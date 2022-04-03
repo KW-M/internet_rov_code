@@ -59,7 +59,7 @@ class Unix_Socket:
                 log.debug("Sending message: " + self.current_outgoing_message)
                 messageBytes = self.current_outgoing_message.encode('utf-8')
                 self.sock.sendall(messageBytes)
-                self.current_outgoing_message is None
+                self.current_outgoing_message = None
                 log.debug("Message Sent!  " + self.current_outgoing_message)
                 continue
             except socket.timeout as e:
