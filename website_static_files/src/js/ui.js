@@ -1,4 +1,3 @@
-// import "toastify-js/src/toastify.css"
 import Toastify from 'toastify-js'
 
 
@@ -67,47 +66,54 @@ export function showChoiceDialog(message, buttons, callback) {
 
 const connectBtn = document.getElementById('connect_btn');
 const disconnectBtn = document.getElementById('disconnect_btn');
-const connectedRovIndicatorButton = document.getElementById('connected_rov_indicator_btn');
-export function showROVDisconnectedUI() {
+const connectedRovLabel = document.getElementById('connected_rov_label');
+export function showROVDisconnectedUi() {
     connectBtn.style.display = 'block';
     disconnectBtn.style.display = 'none';
-    connectedRovIndicatorButton.parentElement.classList.add('hidden')
+    connectedRovLabel.parentElement.parentElement.classList.add('hidden')
     hideLoadingUi()
 }
 
-export function showROVConnectingUI() {
+export function showROVConnectingUi() {
     connectBtn.style.display = 'none';
-    connectedRovIndicatorButton.parentElement.classList.add('hidden')
-    showLoadingUi("Connecting to ROV...");
+    connectedRovLabel.parentElement.parentElement.classList.add('hidden')
+    showLoadingUi("Searching for ROV...");
 }
 
-export function showROVConnectedUI(rovName) {
+export function showROVConnectedUi(rovName) {
     connectBtn.style.display = 'none';
     disconnectBtn.style.display = 'block';
-    console.log(connectedRovIndicatorButton)
-    connectedRovIndicatorButton.parentElement.classList.remove('hidden')
-    if (rovName) connectedRovIndicatorButton.innerText = rovName
+    connectedRovLabel.parentElement.parentElement.classList.remove('hidden')
+    if (rovName) connectedRovLabel.innerText = rovName
     hideLoadingUi()
+}
+
+export function showReloadingWebsiteUi() {
+    connectBtn.style.display = 'none';
+    disconnectBtn.style.display = 'none';
+    connectedRovLabel.parentElement.parentElement.classList.add('hidden')
+    showLoadingUi("Reloading Page...");
 }
 
 export function setupConnectBtnClickHandler(callback) {
     connectBtn.addEventListener('click', callback);
-    return cleanupFunc = () => {
+    return () => { // cleanup function
         connectBtn.removeEventListener('click', callback);
     }
 }
 
 export function setupDisconnectBtnClickHandler(callback) {
     connectBtn.addEventListener('click', callback);
-    return cleanupFunc = () => {
+    return () => { // cleanup function
         connectBtn.removeEventListener('click', callback);
     }
 }
 
+const connectedRovButton = document.getElementById('connected_rov_indicator_btn');
 export function setupSwitchRovBtnClickHandler(callback) {
-    connectedRovIndicatorButton.addEventListener('click', callback);
-    return cleanupFunc = () => {
-        connectBtn.removeEventListener('click', callback);
+    connectedRovButton.addEventListener('click', callback);
+    return () => { // cleanup function
+        connectedRovButton.removeEventListener('click', callback);
     }
 }
 
@@ -130,10 +136,24 @@ export function hideLoadingUi() {
     loadingIndicator.style.display = 'none';
 }
 
-var connectionDisplay = document.getElementById('connection_display');
-export function updateConnectionDisplay(rovPeerId, isPilot) {
-    pingDisplay.innerText = pingTimeMs;
-    connectionDisplay.innerText = `Connected to: ${rovPeerId} | Your Role: ${isPilot ? "Pilot" : "Spectator"}`;
+const livestreamContainer = document.getElementById("livestream_container")
+export function showLivestreamUi() {
+    livestreamContainer.style.display = 'block';
+}
+
+export function hideLivestreamUi() {
+    livestreamContainer.style.display = 'none';
+}
+
+var roleDisplayText = document.getElementById('role_display_text');
+var takeControlButton = document.getElementById('take_control_btn');
+export function updateRoleDisplay(isPilot) {
+    roleDisplayText.innerText = isPilot ? "Pilot" : "Spectator";
+    if (isPilot) {
+        takeControlButton.classList.add('hidden')
+    } else {
+        takeControlButton.classList.remove('hidden')
+    }
 }
 
 var pingDisplay = document.getElementById('ping_value');
@@ -153,6 +173,8 @@ export function updateDisplayedSensorValues(sensorValues) {
     tempDisplay.innerText = sensorValues.temp;
 }
 
+
+
 // https://codepen.io/fueru/pen/JjjoXez
 var compassDisc = document.getElementById("compassDiscImg");
 const compassOffset = 135;
@@ -161,23 +183,33 @@ export function setCompassHeading(headingDeg) {
 
     // document.getElementById("direction").innerHTML = "dir: " + Math.ceil(dir) + " + offset(" + offset + ") = " + Math.ceil(totalDir);
     compassDisc.style.transform = `translateX(${totalDir}px)`;
-};
+}
+
+const gradientArtificialHorizonBackground = document.body//getElementById("artificial_horizon_gradient");
+export function setArtificialHorizonBackground(roll, pitch) {
+    var vShift = Math.min(Math.max(pitch, -90), 90) / 90 * 100;
+    gradientArtificialHorizonBackground.style.backgroundImage = `linear-gradient(${roll}deg, rgba(2,0,36,1) ${-100 + vShift}%, rgba(9,88,116,1) ${50 + vShift}%, rgba(10,109,140,1) ${50 + vShift}%, rgba(0,255,235,1) ${200 + vShift}%)`;
+}
 
 // FOR DEBUGGING COMPASS:
-document.addEventListener("DOMContentLoaded", function (event) {
+document.addEventListener("DOMContentLoaded", function () {
     if (window.DeviceOrientationEvent) {
         window.addEventListener('deviceorientation', function (eventData) {
             // gamma: Tilting the device from left to right. Tilting the device to the right will result in a positive value.
-            var tiltLR = eventData.gamma;
+            // var tiltLR = eventData.gamma;
 
             // beta: Tilting the device from the front to the back. Tilting the device to the front will result in a positive value.
             var tiltFB = eventData.beta;
+            // this.document.getElementById("connected_rov_display").innerHTML = "tiltLR: " + tiltLR + " tiltFB: " + (tiltFB - 90);
 
             // alpha: The direction the compass of the device aims to in degrees.
             var dir = eventData.alpha
-
+            setArtificialHorizonBackground(dir, -tiltFB);
             // Call the function to use the data on the page.
             setCompassHeading(dir);
         }, false);
     }
+    setArtificialHorizonBackground(0, 0);
 });
+
+

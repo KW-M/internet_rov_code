@@ -6,40 +6,46 @@
 // import {} from "./libraries/joymap.min.js";
 import { inspect } from "@xstate/inspect";
 
-import { calculateDesiredMotion, getURLQueryStringVariable } from "./util.js";
 // import {} from "./ui.js";
 // import {} from "./api.js";
 // import {} from "./connection.js";
 // import {} from "./gamepad-emulation.js";
 // import {} from "./gamepad-ui.js";
-// import {} from "./gamepad.js";
+import { gamepadController } from "./gamepad.js";
 
+import { handleRovMessage } from "./messageHandler";
+import { getURLQueryStringVariable } from "./util.js";
+import { setupConnectBtnClickHandler, setupDisconnectBtnClickHandler, showReloadingWebsiteUi, showROVDisconnectedUi, showToastDialog } from "./ui.js";
 
+// import { initGamepadSupport } from "./gamepad.js";
+// import { gamepadUi } from "./gamepad-ui.js";
+// import { gamepadEmulator } from "./gamepad-emulation.js";
 
-import { siteInitMachine } from "./siteInit";
-import { rovConnectionMachine } from "./rovConnStateMachine";
-
-import { initGamepadSupport } from "./gamepad.js";
-import { gamepadUi } from "./gamepad-ui.js";
-import { gamepadEmulator } from "./gamepad-emulation.js";
-
-// show an inspector
+// show an inspector if the query string is present
 if (getURLQueryStringVariable("debug-mode")) {
     inspect({
         iframe: false,
     });
 }
 
+import { createMachine, assign, send, interpret, spawn } from "xstate";
+import { stop } from "xstate/lib/actions";
+import { siteInitMachine } from "./siteInit";
+import { peerConnMachine } from "./peerConnStateMachine.js";
+import { peerServerConnMachine } from "./peerServerConnStateMachine.js";
 
-import { createMachine, assign, send, interpret } from "xstate";
-import { pure } from "xstate/lib/actions";
-import { handleRovMessage } from "./messageHandler";
-import { hideLoadingUi } from "./ui.js";
+new gamepadController();
 
 const mainMachine =
-    /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QBGAJxTssgKwAGZVIAsixQCYAzFIBsAGhABPRHOwB2Xcu3b1ADim6ZBg7oMBfLybRZsBgBXTEwsKGwAWThYVBg6AAlUTAgAGzAichoAOVY6SJpcXGYAcXoqAHlGCoA1MT4BIRExSQQHXWsPA2U5Ryt1OykTcwRbA2wtAylHR3dlGZkfPwwcYNDwqJi4sETktIzSEoqqfMLisroAMQYKyOq6pBAGwWFRR9aAWm0Jw1lfq2UNmUBm0w0QYwmiimMzmCyWIH8qxCYUwUFIAHUaAAhSi0OgAYQAMhVcDR6vwXs13ogdB1FBpdLN1LoWVJtI4wQgVI5sDJXOzgeoQY5XD5fCBMLwIHAxIi8IQSOTGq8Wogvh0PGz1NruoDdNqrJy+RN+iL1DIZFpLdpFPC5WsURF8SJMGAAMZNTB0Ki8Ri8ABuSspb1ArSkwIm2isimZNpU+pZnMUVis2Ec6is2gMzgz0ZcdpWgWRGxKqGQYG4qAgdFwQW4fEVj2entVCHDPJkPSjVkc9PTbMNZkQ-XGchtMhTGcBBYCDo20VgsXiSRS6SIQZb1LbqcU6YG7LZyn0+nUnPUNuwGeTuj0HlcMnUM6R61RG5VW6+43pUzkUwBQJBTk9DpPo7H3dM7HmJ9sFYEQwDfKlQxpZlsHcS1GQGKY9BkJNjWzFlNG0KR6U7KwnwQkMJDVFQfh-f49WBTlpk6cNdCsAxNHPcMyLFIA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QAmAGwBmbAEYAHMoAMAdg0BWbQBYVATkNyANCACeibQq0y9U1XLVqpclQF8P5tFmwMAV0xMLChsADlefDoAYRFMMABjfEhSAAUaGgY6XCyANSzYgHlw8JoYqgoSuhpcKmYAIQAZClwACRpWMT4BIRExSQRlQw1sdzkZRTk9ZTkRxT1zKwRHUbk5jVU9bXk1Q00vHwwcQODQ7DSwMCIc64A3a9j4pJSIchpw1joAWVrcZgA4vQqEVGEU8t1+IJhKIkBJEFN5NgpBpDG49HJtMo9GosUtEHptthXFN3DoZHtjIcQL4TkEQpgwpdHrh7o84sEXqkAUUqD8-oD6AAxBhFb5giFwnrQ-pwwaKRRuMYyZRSQzKDQUuSbRT4hCE7TEqSkxTkymGam0-z00KkVitGIlMoVOgNACqVBB4ToaSYuFyXSlUL6sNAgykyLUKqmalmemMmJserVemwqqkGbUihkunsUktx2tZ0Z6Uy2VyDAK2SFzHqTRqDFFDEhvRhA0QGlNRtVeh06k7ez1Mi02FRRhzKM7GYLflODKgpAA6jQGgwqDE6DW6w2my2ZaH4QhswZsMOMVIszttLrLIhpooxp2HFJtuo1BMZ3Tiwvlw1KLRYiaIpcj3EN2yPGQc2RXsDEggwUxkZMkW0QwVVjFVILkY05E-bBmAAdwwIRGQlJ5OWSV0AnwfARB9Ig4FgUhHVKco+XdT1ql9P5OlAts5TvHRsH0dZjUJEwnz1bZDDTbQXH0YZUOUTxqUwXgIDgMQrQIYh8F42Uw2kB9VRQ2ZDBsJT0T1XRR1mWZTW1KNZGxXC53OSJog5BJkkgPSD0GaMjQMLERMUNRtmTdQ0xxU0KXUbNjG0FybUZC4rhuVkiAeG5PK5CBfPAxV9mwNFcTMzQTCw5NO2RRRjAw1wUNRHDvBpQtXMZfL+IQHNRlcILZiw0LwtvBBrzGLDtRkScUL63CCKI0JSJyiiGiomjMDohjOoMhAAFodiEjNtA0TRjvsfZEJGmYZFHSlZijHYXGao4-FYEQwG2w8VEgoTNXVZQVW2RQkxGtVlFHDQ3E0ewsNxexP0+wZdsi7QjpOnRNXjKM9V241TwmJqs1cCY9i8LwgA */
     createMachine({
-        context: { peerServerConfig: {}, rovIpAddr: "" },
+        context: {
+            peerServerConfig: {},
+            rovIpAddr: "",
+            peerServerConnActor: null,
+            peerConnActor: null,
+            pingSenderActor: null,
+        },
         id: "main",
         initial: "Start",
         states: {
@@ -56,45 +62,63 @@ const mainMachine =
                 },
             },
             Running: {
-                type: "parallel",
-                entry: "hideLoadingUi",
+                entry: "startPeerServerConnMachine",
+                exit: "stopPeerServerConnMachine",
+                invoke: {
+                    src: "awaitDisconnectBtnPress",
+                    id: "awaitDisconnectBtnPress",
+                },
+                initial: "Not_Connected",
                 states: {
-                    Connection_To_Rov: {
-                        exit: send(
-                            { type: "CLEANUP_CONNECTIONS" },
-                            { to: "rovConnectionMachine" }
-                        ),
-                        invoke: {
-                            src: rovConnectionMachine,
-                            id: "rovConnectionMachine",
-                            data: {
-                                ...rovConnectionMachine.context, // spread syntax to fill in the rest of the context specified in the child machine (otherwise xstate removes the rest: https://github.com/statelyai/xstate/issues/993)
-                                rovIpAddr: (context, event) => context.rovIpAddr,
-                                peerServerConfig: (context, event) => context.peerServerConfig,
-                            }
+                    Not_Connected: {
+                        on: {
+                            PEER_SERVER_CONNECTION_ESTABLISHED: {
+                                target: "Peer_Server_Connected",
+                            },
                         },
                     },
-                    Gamepad_Support: {},
-                    Message_Handler: {
-                        invoke: {
-                            src: "handleSendingMessages",
-                            id: "handleSendingMessages",
-                        },
+                    Peer_Server_Connected: {
+                        entry: ["startPeerConnMachine", "startPingMessageGenerator"],
+                        exit: ["stopPeerConnMachine", "stopPingMessageGenerator"],
                         on: {
                             SEND_MESSAGE_TO_ROV: {
                                 actions: "sendMessageToRov",
-                                internal: true,
                             },
                             GOT_MESSAGE_FROM_ROV: {
                                 actions: "gotMessageFromRov",
-                                internal: true,
                             },
                         },
                     },
                 },
                 on: {
+                    DISCONNECT_BUTTON_PRESSED: {
+                        target: "Awaiting_ROV_Connect_Button_Press",
+                    },
+                    PEER_NOT_YET_READY_ERROR: {
+                        target: "Awaiting_ROV_Connect_Button_Press",
+                    },
+                    PEER_SERVER_FATAL_ERROR: {
+                        target: "Running", // retry
+                        internal: false,
+                    },
+                    WEBRTC_FATAL_ERROR: {
+                        actions: "reloadWebsite",
+                        target: "Done",
+                    },
                     WEBSITE_CLOSE: {
                         target: "Done",
+                    },
+                },
+            },
+            Awaiting_ROV_Connect_Button_Press: {
+                entry: "showDisconnectedUi",
+                invoke: {
+                    src: "awaitConnectBtnPress",
+                    id: "awaitConnectBtnPress",
+                },
+                on: {
+                    CONNECT_BUTTON_PRESSED: {
+                        target: "Running",
                     },
                 },
             },
@@ -104,44 +128,92 @@ const mainMachine =
         },
     }, {
         actions: {
+            showDisconnectedUi: () => { showROVDisconnectedUi() },
+            reloadWebsite: () => {
+                showReloadingWebsiteUi()
+                setTimeout(() => { window.location.reload() }, 2000)
+            },
             setRovIpAddr: assign({
                 rovIpAddr: (context, event) => event.data.rovIpAddr
             }),
             setPeerServerConfig: assign({
                 peerServerConfig: (context, event) => event.data.peerServerConfig
             }),
+            startPeerServerConnMachine: assign({
+                peerServerConnActor: (context) => spawn(peerServerConnMachine.withContext({
+                    ...peerServerConnMachine.context, // spread syntax to fill in the rest of the context specified in the child machine (otherwise xstate removes the rest: https://github.com/statelyai/xstate/issues/993)
+                    rovIpAddr: context.rovIpAddr,
+                    peerServerConfig: context.peerServerConfig,
+                }), "peerServerConnMachine"),
+            }),
+            startPeerConnMachine: assign({
+                peerServerConnActor: (context, event) => {
+                    return spawn(peerConnMachine.withContext({
+                        ...peerConnMachine.context, // spread syntax to fill in the rest of the context specified in the child machine (otherwise xstate removes the rest: https://github.com/statelyai/xstate/issues/993)
+                        thisPeer: event.data,
+                    }), "peerConnMachine")
+                },
+            }),
+            startPingMessageGenerator: assign({
+                pingSenderActor: spawn(() => {
+                    return (callback) => {
+                        const intervalId = setInterval(() => {
+                            callback({ type: "SEND_MESSAGE_TO_ROV", data: JSON.stringify({ "ping": Date.now() }) }, { to: "rovConnectionMachine" });
+                        }, 5000)
+                        return () => { clearInterval(intervalId) }
+                    }
+                }, "pingMessageGenerator"),
+            }),
+            stopPingMessageGenerator: stop("pingMessageGenerator"),
+            stopPeerServerConnMachine: stop("peerServerConnMachine"),
+            stopPeerConnMachine: stop("peerConnMachine"),
+            gotMessageFromRov: (context, event) => {
+                handleRovMessage(event.data)
+            },
             sendMessageToRov: send((context, event) => {
                 return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
-            }, { to: "rovConnectionMachine" }),
-            gotMessageFromRov: (context, event) => {
-                (context, event) => { handleRovMessage(event.data) }
-            },
-            hideLoadingUi: hideLoadingUi
+            }, { to: "peerConnMachine" }),
         },
         services: {
-            handleSendingMessages: (context, event) => {
-                return (callback, onReceive) => {
-                    intervalId = setInterval(() => {
-                        callback({ type: "SEND_MESSAGE_TO_ROV", data: JSON.stringify({ "ping": Date.now() }) });
-                    }, 5000)
-                    return () => { clearInterval(intervalId) }
-                }
-            }
+            awaitConnectBtnPress: (context, event) => {
+                return (sendStateChange) => {
+                    const err = event.data
+                    console.log(event)
+                    var toastMsg = null
+                    if (err && err.type == "peer-unavailable") {
+                        toastMsg = showToastDialog("ROV is not yet online!", 12000, false)
+                    }
+                    const cleanupFunc = setupConnectBtnClickHandler(() => {
+                        if (toastMsg) toastMsg.hideToast()
+                        sendStateChange("CONNECT_BUTTON_PRESSED");
+                    })
+                    return cleanupFunc;
+                };
+            },
+            awaitDisconnectBtnPress: () => {
+                return (sendStateChange) => {
+                    const cleanupFunc = setupDisconnectBtnClickHandler(() => {
+                        sendStateChange("DISCONNECT_BUTTON_PRESSED");
+                    })
+                    return cleanupFunc;
+                };
+            },
         },
         guards: {
         },
     })
 
 window.mainRovMachineService = interpret(mainMachine, { devTools: true })
+// window.mainRovMachineService.onChange(console.log)
 window.mainRovMachineService.start();
 
 window.onbeforeunload = () => {
     window.mainRovMachineService.send("WEBSITE_CLOSE");
 }
 
-function sendUpdateToROV(message) {
-    window.mainRovMachineService.send({ type: "SEND_MESSAGE_TO_ROV", data: message });
-}
+// function sendUpdateToROV(message) {
+//     window.mainRovMachineService.send({ type: "SEND_MESSAGE_TO_ROV", data: message });
+// }
 
 
 // var lastTimeRecvdPong = 0;

@@ -15,36 +15,37 @@ const btnLabels = ["button_1",
     "d_pad_left",
     "d_pad_right"]
 
+
+const onscreenGamepadLeft = document.getElementById("onscreen-gamepad-left");
+const onscreenGamepadRight = document.getElementById("onscreen-gamepad-right");
+const gamepadConnectNotice = document.getElementById("gamepad-connect-notice")
+const tooManyGamepadsNotice = document.getElementById("too-many-gamepads-notice")
 export const gamepadUi = {
-    showGamepadsConnected: function (gamepads) {
-        document.getElementById("gamepad-connect-notice").style.display = "none";
-        if (gamepads.length > 1) {
-            document.getElementById("too-many-gamepads-notice").style.display = "block";
-        } else {
-            document.getElementById("too-many-gamepads-notice").style.display = "none";
-        }
-        console.log("gamepads:", gamepads)
-        if (gamepads[0] && gamepads[0].emulated == true) {
-            document.getElementById("onscreen-gamepad-left").style.opacity = "1";
-            document.getElementById("onscreen-gamepad-right").style.opacity = "1";
-        } else {
-            document.getElementById("onscreen-gamepad-left").style.opacity = "0.5";
-            document.getElementById("onscreen-gamepad-right").style.opacity = "0.5";
-        }
+    showExtraniousGamepadsConnected: function (tooManyGamepads) {
+        tooManyGamepadsNotice.style.display = tooManyGamepads ? "block" : "none";
     },
 
-    showNoGamepads: function () {
-        document.getElementById("gamepad-connect-notice").style.display = "block";
-        document.getElementById("onscreen-gamepad-left").style.opacity = "1";
-        document.getElementById("onscreen-gamepad-right").style.opacity = "1";
+    showEmulatedGamepad: function (show) {
+        onscreenGamepadLeft.style.opacity = onscreenGamepadRight.style.opacity = show ? "1" : "0.5";
+    },
+
+    showNoGamepads: function (show) {
+        gamepadConnectNotice.style.display = show ? "block" : "none";
+    },
+
+    showGamepadStatus: function (connectedGamepadCount) {
+        this.showNoGamepads(connectedGamepadCount == 0);
+        this.showEmulatedGamepad(connectedGamepadCount == 0);
+        this.showExtraniousGamepadsConnected(connectedGamepadCount > 1);
     },
 
     showNotSupported: function () {
         alert('Gamepad interface not supported, please use a more modern browser.');
+        this.showEmulatedGamepad(true);
     },
 
     handleGamepadVisualFeedbackAxisEvents: (axiesMaping, axisHoveredClass, axisMovedClass) => {
-        axiesMaping.forEach(function (axisMap, index) {
+        axiesMaping.forEach(function (axisMap) {
             // if (axisValue > 0 || axisValue < 0) {
             var thumbstick = axisMap.thumbStickElement;
             var axisRange = axisMap.axisRange;
@@ -76,7 +77,7 @@ export const gamepadUi = {
             } else {
                 btnElem.classList.remove(btnPressedClass);
             }
-        };
+        }
     },
 
     getButtonHighlightElements: () => {

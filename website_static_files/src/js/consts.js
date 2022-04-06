@@ -1,4 +1,4 @@
-// FOR A PEERJS SERVER RUNNING IN THE CLOUD (Heroku, but could also be peerjs cloud or elsewhere)
+// FOR A PEERJS SERVER RUNNING IN THE CLOUD (Heroku, but could be changed to connect to the peerjs cloud or elsewhere)
 export const peerServerCloudOptions = {
     host: '0.peerjs.com',
     secure: true,
@@ -15,10 +15,4 @@ export const peerServerLocalOptions = {
 }
 
 export const rovPeerIdBase = "iROV-";
-
-// FOR CONVERTING TEXT TO/FROM BINARY FOR SENDING OVER THE WEBRTC DATACHANNEL
-export const messageEncoder = new TextEncoder(); // always utf-8
-export const messageDecoder = new TextDecoder(); // always utf-8
-
-
 

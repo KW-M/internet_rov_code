@@ -5,7 +5,6 @@
     <title>ROV Cockpit</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="../libraries/toastify.min.css" />
     <link rel="stylesheet" type="text/css" href="../css/style.css" />
 </head>
 
@@ -14,16 +13,18 @@
 
     <div id="site_loading_indicator" class="lds-circle" style="display: none;">
         <div></div>
-        <span id="site_loading_text">Checking Internet Access...</span>
+        <span id="site_loading_text">Loading...</span>
     </div>
     <button id='connect_btn' style="display: none;">Connect to ROV</button>
     <button id='scan_for_ip_btn' style="display: none;">Scan for ROV IP</button>
 
-    <div class="bottom-center hidden" id="connected_rov_display"><span>Connected to </span><button
-            id="connected_rov_indicator_btn">iROV-3</button>
-        <!-- <div id="pilot_mode_display"><span>Spectator Mode <button class="rounded-button">Take Over</button><em></div>
-                                            <div id="gamepad_help_display"><span>Gamepad not connected: </span><button class="rounded-button">?</button> -->
-    </div>
+    <div class="bottom-center hidden" id="connected_rov_display">
+        <span>Connected to </span>
+        <button id="connected_rov_indicator_btn"><span id="connected_rov_label"></span><img
+                src="../images/icons/Switch_Rov.svg"></button>
+        |
+        <span>Role:</span>
+        <button id="take_control_btn"> <span id="role_display_text">Spectator</span> Drive</button>
     </div>
 
     <div class="top-right-corner">
@@ -69,7 +70,7 @@
                 </ul>
         </div>-->
     </div>
-    <div class="livestream-container" onclick="toggleFullscreen(event,this)">
+    <div id="fullscreen_focus_mode_container" onclick="closeFullscreen(event)">
         <table class="top-left-corner">
             <tr>
                 <td><b>Net Ping:</b></td>
@@ -84,11 +85,14 @@
                 <td><span id="temp_value">--</span> ℃</td>
             </tr>
         </table>
-        <div class="compass">
-            <div class="line"></div>
-            <div class="bg" id="compassDiscImg"></div>
+        <div id="livestream_container">
+            <!-- style="display: none;" -->
+            <div class="compass">
+                <div class="line"></div>
+                <div class="bg" id="compassDiscImg"></div>
+            </div>
+            <video id='video-livestream' onclick="toggleFullscreen(event,this.parentElement.parentElement)"></video>
         </div>
-        <video id='video-livestream'></video>
     </div>
     <div id="gamepad-container">
         <!-- Gamepad Connected/Disconned Feedback -->

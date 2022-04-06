@@ -1,3 +1,7 @@
+function checkIfPointIsInRect(x, y, rect) {
+    return (x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height);
+}
+
 export const gamepadEmulator = {
 
     // The list of emulated gamepads, corresponds 1-1 to the list output by navigator.getGamepads().
@@ -12,31 +16,29 @@ export const gamepadEmulator = {
     DEFAULT_BUTTON_COUNT: 18,
 
     // A number of typical axes recognized by Gamepad API and mapped to
-    // standard controls. Any extraneous buttons will have larger indexes.
+    // standard controls. Any extraneous axies will have larger indexes.
     DEFAULT_AXIS_COUNT: 4,
 
     /* creates a new emmulated gamepad at the given index as would be read in navigator.getGamepads
-     * @param {number} gpadIndex - the index of the gamepad to create
+     * @param {number} gpadIndex - the index of the gamepad to create, pass null to create a new gamepad at the next available index
      * @param {number} buttonCount - normally 18, the number of buttons on the gamepad
      * @param {number} axisCount - normally 4, the number of axes on the gamepad
     */
     addEmulatedGamepad: function (gpadIndex, buttonCount, axisCount) {
+        // create the new gamepad object
         var gpad = {
             connected: true,
             timestamp: Math.floor(Date.now() / 1000),
-            buttons: [],
-            axes: [],
+            buttons: new Array(buttonCount).fill({ pressed: false, value: 0, touched: false }, 0, buttonCount),
+            axes: new Array(axisCount).fill(0, 0, axisCount),
             id: "Emulated Gamepad " + gpadIndex,
         };
-        for (var i = 0; i < buttonCount; i++) {
-            gpad.buttons.push({ pressed: false, value: 0, touched: false });
-        }
-        for (var i = 0; i < axisCount; i++) {
-            gpad.axes.push(0);
-        }
-        this.emulatedGamepads.push(gpad);
 
-        // trigger the (system) gamepad connected event on the window object
+        // Add the new gamepad object to the list of emulated gamepads
+        if (!gpadIndex) gpadIndex = this.emulatedGamepads.length
+        this.emulatedGamepads[gpadIndex] = gpad;
+
+        // Trigger the (system) gamepad connected event on the window object
         const event = new Event("gamepadconnected");
         event.gamepad = gpad;
         window.dispatchEvent(event);
@@ -59,9 +61,11 @@ export const gamepadEmulator = {
         }
     },
 
-
-    /* emulates pressing a button on the gamepad at the given index
-
+    /* emulates pressing a button on the gamepad at the given button index
+    gpadIndex - the index of the emulated gamepad to press the button on
+    buttonIndex - the index of the button to press
+    value - the value to set the button to between 0 and 1 (0 = unpressed, 1 = pressed)
+    touched - whether the button is considered "touched" or not, a "pressed" button is always considered "touched"
     */
     pressButton: function (gpadIndex, buttonIndex, value, touched) {
         var gpad = this.emulatedGamepads[gpadIndex];
@@ -76,6 +80,11 @@ export const gamepadEmulator = {
         };
     },
 
+    /* emulates moving an axis on the gamepad at the given axis index
+    gpadIndex - the index of the emulated gamepad to move the axis on
+    axisIndex - the index of the axis to move
+    value - the value to set the axis to between -1 and 1 (0 = center, -1 = left/up, 1 = right/down)
+    */
     moveAxis: function (gpadIndex, axisIndex, value) {
         var gpad = this.emulatedGamepads[gpadIndex];
         if (!gpad) gpad = this.addEmulatedGamepad(gpadIndex, this.DEFAULT_BUTTON_COUNT, this.DEFAULT_AXIS_COUNT);
@@ -83,36 +92,34 @@ export const gamepadEmulator = {
     },
 
     /* add event listeners to the html button elements of an onscreen gamepad to emulate gamepad input
-        * @param {number} gpadIndex - the index of the gamepad to register events for
+        * @param {number} gpadIndex - the index of the emulated gamepad to register events for
         * @param {array} buttonTapZoneElements - an array of elements that are the tap targets for the buttons on the onscreen gamepad, in same order as the gamepad api would use.
         * @param {array} buttonHighlightElements - an array of elements that should have the classes applied for the buttons on the onscreen gamepad, in same order as the gamepad api would use.
-        * @param {string} btnTouchedClass - the class to apply to the buttonHighlightElement when it is hovered over
+        * @param {string} btnTouchedClass - the class to apply to the buttonHighlightElement when it is hovered over or "touched"
         * @param {string} btnPressedClass - the class to apply to the buttonHighlightElement when it is pressed / clicked
     */
     registerOnScreenGamepadButtonEvents: function (gpadIndex, buttonTapZoneElements) {
         // for (var btnIndx = 0; btnIndx < buttonTapZoneElements.length; btnIndx++) {
         var self = this;
         buttonTapZoneElements.forEach(function (btnEl, btnIndx) {
-            var btnEl = buttonTapZoneElements[btnIndx];
-            btnEl.addEventListener("pointerover", (e) => {
+            btnEl.addEventListener("pointerover", () => {
                 // tell the emulator this button is being "touched", ie: hovered over
                 self.pressButton(gpadIndex, btnIndx, 0, true);
             });
-            btnEl.addEventListener("pointerleave", (e) => {
+            btnEl.addEventListener("pointerleave", () => {
                 // tell the emulator this button is no longer being "touched", ie: not hovered over
                 self.pressButton(gpadIndex, btnIndx, 0, false);
             });
-            btnEl.addEventListener("pointerdown", (e) => {
+            btnEl.addEventListener("pointerdown", () => {
                 // tell the emulator this button is being pressed, ie: clicked / tapped
                 self.pressButton(gpadIndex, btnIndx, 1, true);
             });
-            btnEl.addEventListener("pointerup", (e) => {
+            btnEl.addEventListener("pointerup", () => {
                 // tell the emulator this button is no longer being pressed
                 self.pressButton(gpadIndex, btnIndx, 0, true);
             });
         });
     },
-
 
     registerOnScreenGamepadAxisEvents: function (gpadIndex, joysticksTouchDetails) {
         var axisTouchRadius = 100;
@@ -145,18 +152,14 @@ export const gamepadEmulator = {
             }
         }
         document.addEventListener("pointerdown", function (de) {
-            joysticksTouchDetails.forEach(function (joystickTouchDetails) {
-                if (de.target === joystickTouchDetails.elem) {
-                    // axisTouchStartZone.elem.addEventListener("pointerover", function (e) {
-                    //     axisHighlightElements[index].classList.add(axisHoveredClass);
-                    // });
-                    // axisTouchStartZone.elem.addEventListener("pointerleave", function (e) {
-                    //     axisHighlightElements[index].classList.remove(axisHoveredClass);
-                    // });
+            joysticksTouchDetails.forEach(function (joystickTouchDetails, index) {
+                const targetRect = joystickTouchDetails.elem.getBoundingClientRect();
+                if (checkIfPointIsInRect(de.clientX, de.clientY, targetRect)) {
+                    console.log("pointerdown on joystick", index);
                     joystickTouchDetails.startX = de.clientX;
                     joystickTouchDetails.startY = de.clientY;
                     pointerToJoystickMapping[de.pointerId] = joystickTouchDetails;
-                };
+                }
             });
             if (Object.keys(pointerToJoystickMapping).length == 1) {
                 document.addEventListener("pointermove", pointerMoveHandler, false);
@@ -165,6 +168,8 @@ export const gamepadEmulator = {
         })
     },
 
+    /* overwrite the browser gamepad api getGamepads() to return the emulated gamepad data for gamepad indexes corresponding to emulated gamepads
+     so long as the same index don't have a real gamepad connected  */
     monkeyPatchGetGamepads: function () {
         var getNativeGamepads = navigator.getGamepads
         if (getNativeGamepads) getNativeGamepads = getNativeGamepads.bind(navigator);

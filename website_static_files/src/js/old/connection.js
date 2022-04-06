@@ -48,7 +48,7 @@ function connectToROV(signallingWebsocketURL, dataChannelMessageRecievedCallback
                 // this function runs when the websocket closes
                 videoElem.srcObject = null;
                 isStreaming = false;
-                showROVDisconnectedUI();
+                showROVDisconnectedUi();
                 showToastMessage("Signalling Websocket Closed! Click me to try a different server address.", () => {
                     webSocketUrl = window.prompt("Click Ok to reconnect. If you know the signalling server websocket url, enter it here (normally wss://<host>:<port>/stream/webrtc where <host> is the url or ip and port is the port", signallingWebsocketURL);
                     connectToROV(webSocketUrl, dataChannelMessageRecievedCallback, rovConnectedCallback);
@@ -67,7 +67,7 @@ function connectToROV(signallingWebsocketURL, dataChannelMessageRecievedCallback
                 dataChannel.onerror = function (error) {
                     console.error("Data Channel Error:", error);
                     signalObj.hangup();
-                    showROVDisconnectedUI();
+                    showROVDisconnectedUi();
                     showToastMessage("Data Channel Error:" + error);
                 };
 
@@ -79,7 +79,7 @@ function connectToROV(signallingWebsocketURL, dataChannelMessageRecievedCallback
                 dataChannel.onclose = function () {
                     dataChannel = null;
                     signalObj.hangup();
-                    showROVDisconnectedUI();
+                    showROVDisconnectedUi();
                     showToastMessage("Data Channel is Closed");
                 };
             }

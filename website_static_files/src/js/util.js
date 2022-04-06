@@ -4,6 +4,16 @@ export function clamp(number, max, min) {
     return Math.max(Math.min(number, max), min)
 }
 
+
+/* generateStateChangeFunction is a function generator for an xstate machine that will return a function that will run a callback and send the named state transition with the data or event from the calling transition */
+export function generateStateChangeFunction(sendStateChange, stateTransition, data, additionalCallback) {
+    const func = function (evt) {
+        if (additionalCallback) additionalCallback(evt)
+        sendStateChange({ type: stateTransition, data: (data || evt) });
+    }
+    return func;
+}
+
 export function calculateDesiredMotion(axes) {
     var turn = axes[0].toFixed(3);
     var forward = -1 * axes[1].toFixed(3);
@@ -29,7 +39,7 @@ export function getURLQueryStringVariable(variable) {
             return decodeURIComponent(pair[1]);
         }
     }
-    console.log('Query variable %s not found', variable);
+    // console.log('Query variable %s not found', variable);
 }
 
 export function isInternetAvailable(urlToCheck) {
@@ -50,12 +60,30 @@ export function isInternetAvailable(urlToCheck) {
     })
 }
 
-/* When the openFullscreen() export function is executed, open the passed element in fullscreen.
+window.closeFullscreen = () => {
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    if (fullscreenElement) {
+        const removeFullscreenUi = () => {
+            fullscreenElement.classList.remove('fullscreen-open');
+        };
+        if (document.exitFullscreen) {
+            document.exitFullscreen().then(removeFullscreenUi);
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen().then(removeFullscreenUi);
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen().then(removeFullscreenUi);
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen().then(removeFullscreenUi);
+        }
+    }
+}
+
+/* When the toggleFullscreen() export function is executed, open the passed element in fullscreen.
 Note that we must include prefixes for different browsers, as they don't support the requestFullscreen method yet */
 window.toggleFullscreen = (e, elem) => {
     elem = elem || document.documentElement;
     if (e && e.initialTarget) e.initialTarget.classList.toggle('fullscreen-open');
-    var fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
 
     const addFullscreenUi = () => {
         elem.classList.add('fullscreen-open');
