@@ -25,6 +25,7 @@
   "homepage": "https://github.com/KW-M/internet_rov_code#readme",
   "dependencies": {
     "@maulingmonkey/gamepad": "^0.0.5",
+    "@popperjs/core": "^2.11.5",
     "@xstate/inspect": "^0.6.4",
     "joymap": "^2.2.4",
     "peerjs": "^1.3.2",

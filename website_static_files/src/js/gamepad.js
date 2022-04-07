@@ -2,10 +2,14 @@
 import { startGamepadEventLoop, getGamepadsStandardized, gamepadApiSupported, onGamepadAxisValueChange, onGamepadButtonValueChange, onGamepadConnect, onGamepadDisconnect } from "./gamepad_mmk"
 import { gamepadEmulator } from "./gamepadEmulator"
 import { gamepadUi } from "./gamepad-ui"
+import { Gamepad } from "./libraries/gamepad";
+
+const gamepadLib = new Gamepad();
 
 export class gamepadController {
     constructor() {
-        this.connectedGamepadCount = 0
+        this.touchedGpadButtonCount = 0
+        this.buttonHighlightElements = gamepadUi.getButtonHighlightElements();
         if (!gamepadApiSupported()) gamepadUi.showNotSupported();
 
         // override the default browser gamepad api with the gamepad emulator before setting up the events,
@@ -13,15 +17,16 @@ export class gamepadController {
         gamepadEmulator.monkeyPatchGetGamepads();
 
         // setup maulingmonkey gamepad lib gamepad events and event loop.
-        onGamepadConnect((e) => { console.log("onGamepadConnect", e); this.connectedGamepadCount++; this.gamepadConnectDisconnectHandler() })
-        onGamepadDisconnect((e) => { console.log("onGamepadDisconnect", e); this.connectedGamepadCount--; this.gamepadConnectDisconnectHandler() })
-        onGamepadAxisValueChange((e) => { if (e) this.handleAxisChange(e) })
-        onGamepadButtonValueChange((e) => { if (e) this.handleButtonChange(e) })
-        startGamepadEventLoop();
+        gamepadLib.bind(Gamepad.Event.CONNECTED, (e) => { console.log("onGamepadConnect", e); this.gamepadConnectDisconnectHandler() })
+        gamepadLib.bind(Gamepad.Event.DISCONNECTED, (e) => { console.log("onGamepadDisconnect", e); this.gamepadConnectDisconnectHandler() })
+        gamepadLib.bind(Gamepad.Event.AXIS_CHANGED, (e) => { if (e) this.handleAxisChange(e) })
+        gamepadLib.bind(Gamepad.Event.BUTTON_DOWN, (e) => { if (e) this.handleButtonChange(e, true) })
+        gamepadLib.bind(Gamepad.Event.BUTTON_UP, (e) => { if (e) this.handleButtonChange(e, false) })
+        // startGamepadEventLoop();
+        console.log(gamepadLib)
 
         // setup onscreen emulated gamepad interaction events
-        const buttonHighlightElements = gamepadUi.getButtonHighlightElements();
-        gamepadEmulator.registerOnScreenGamepadButtonEvents(0, buttonHighlightElements);
+        gamepadEmulator.registerOnScreenGamepadButtonEvents(0, this.buttonHighlightElements.map((elm) => elm.id.startsWith("shoulder_trigger") ? null : elm), "touched", "pressed");
         gamepadEmulator.registerOnScreenGamepadAxisEvents(0, [{
             xAxisGpadAxis: 0,
             yAxisGpadAxis: 1,
@@ -34,48 +39,65 @@ export class gamepadController {
     }
     gamepadConnectDisconnectHandler() {
         const gamepads = getGamepadsStandardized()
+
+        console.log(gamepads)
         var connectedGamepadCount = gamepads.length;
         if (connectedGamepadCount != 0 && gamepads[0].emulated) connectedGamepadCount -= 1;
         gamepadUi.showGamepadStatus(connectedGamepadCount);
     }
-    handleButtonChange(e) {
-        console.log("onGamepadButtonValueChange", e);
+    handleButtonChange(e, pressed) {
+        console.log(e, pressed)
 
         const gamepad = getGamepadsStandardized()[0]
         if (!gamepad || !gamepad.buttons) return;
 
-        console.log(gamepad)
+        const buttonStates = gamepad.buttons
+        gamepadUi.handleGamepadVisualFeedbackButtonEvents(buttonStates, this.buttonHighlightElements, "touched", "pressed");
 
-        // console.log("g:", gpadMap.getGamepads())
-        // var buttonStates = joyMod.getAllButtons();
-        // if (buttonStates["A"]) {
-        //     buttonStates = DEFUALT_BUTTON_ORDER.map((key) => buttonStates[key])
-        //     gamepadUi.handleGamepadVisualFeedbackButtonEvents(buttonStates, buttonHighlightElements, "touched", "pressed");
-        // }
+        const variableButtonStates = [
+            {
+                thumbStickElement: document.getElementById("shoulder_trigger_left_back"),
+                axisRange: 26,
+                yValue: gamepad.buttons[6].value || 0,
+            },
+            {
+                thumbStickElement: document.getElementById("shoulder_trigger_right_back"),
+                axisRange: 26,
+                yValue: gamepad.buttons[7].value || 0,
+            },
+        ]
+        gamepadUi.handleGamepadVisualFeedbackAxisEvents(variableButtonStates, "axis-hovered", "axis-moved");
+        console.log("onGamepadButtonValueChange", buttonStates[e.buttonIndex], this.buttonHighlightElements[e.buttonIndex]);
+        if (e.buttonIndex && buttonStates[e.buttonIndex].touched) {
+            gamepadUi.showHelpTooltip(this.buttonHighlightElements[e.buttonIndex], e.buttonIndex);
+            this.touchedGpadButtonCount += 1;
+        } else {
+            this.touchedGpadButtonCount -= 1;
+        }
+        if (this.touchedGpadButtonCount == 0) {
+            gamepadUi.showHelpTooltip(null);
+        }
 
     }
-    handleAxisChange(e) {
+    handleAxisChange() {
 
         const gamepad = getGamepadsStandardized()[0]
         if (!gamepad || !gamepad.axes) return;
 
-        console.log("onGamepadAxisValueChange", e);
+        // console.log("onGamepadAxisValueChange", e);
 
-        const axisStates = [
-            {
-                thumbStickElement: document.getElementById("stick_left"),
-                axisRange: 14,
-                xValue: gamepad.axes[0] || 0,
-                yValue: gamepad.axes[1] || 0,
-            },
-            {
-                thumbStickElement: document.getElementById("stick_right"),
-                axisRange: 14,
-                xValue: gamepad.axes[2] || 0,
-                yValue: gamepad.axes[3] || 0,
-            }
-        ]
-
+        const axisStates = [{
+            thumbStickElement: document.getElementById("stick_left"),
+            axisRange: 14,
+            xValue: gamepad.axes[0] || 0,
+            yValue: gamepad.axes[1] || 0,
+        },
+        {
+            thumbStickElement: document.getElementById("stick_right"),
+            axisRange: 14,
+            xValue: gamepad.axes[2] || 0,
+            yValue: gamepad.axes[3] || 0,
+        }]
         gamepadUi.handleGamepadVisualFeedbackAxisEvents(axisStates, "axis-hovered", "axis-moved");
     }
 }

@@ -1,5 +1,6 @@
-import { getGamepads, isSupported, tryRemapStdLayout, poll, pollEvents } from "@maulingmonkey/gamepad/modular";
+import { getGamepads, isSupported, poll, pollEvents } from "@maulingmonkey/gamepad/modular";
 
+// TURNS OUT THESE AREN't USED BY THE library
 const gamepadLibPrefs = { deadZone: 0.15, standardize: true, keepNonstandard: false, keepInactive: true, keepNull: true }
 
 export const gamepadApiSupported = isSupported;
@@ -22,10 +23,8 @@ export function onGamepadAxisValueChange(callback) {
 
 export function getGamepadsStandardized() {
   return getGamepads(gamepadLibPrefs).map((gp) => {
-    var gpad = tryRemapStdLayout(gp);
-    // gpad.parsedId = parseGamepadId(gpad.id);
-    gpad.emulated = gpad.emulated || false;
-    return gpad;
+    gp.emulated = gp.id.startsWith("Emulated");
+    return gp;
   });
 }
 

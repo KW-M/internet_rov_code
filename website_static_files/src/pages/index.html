@@ -99,13 +99,16 @@
         <p id="gamepad-connect-notice">Connect a gamepad & press any button</p>
         <p id="too-many-gamepads-notice" style="display: none;">Multiple gamepads connected, only one will be used</p>
 
-        <!-- Gamepad Help Stuff -->
-        <h2 id="gamepad-help-text">Gamepad Help</h2>
-        <!-- <button id="gamepad-help-button">Gamepad Help</button> -->
+        <!-- Gamepad Help Tooltip Stuff -->
+        <div id="gamepad-help-tooltip" class="popper-tooltip" role="tooltip">
+            <!-- <div data-popper-arrow class="popper-tooltip-arrow"></div> -->
+            <span id="gamepad-help-text">Gamepad Help</span>
+        </div>
 
-        <!-- Gamepads on either side of Screen -->
+        <!-- Gamepad joystick touch start areas -->
         <div id="gamepad-joystick-touch-area-left" class="gamepad-joystick-touch-area"></div>
         <div id="gamepad-joystick-touch-area-right" class="gamepad-joystick-touch-area"></div>
+
         <!-- Gamepads on either side of Screen -->
         <div id="onscreen-gamepad-left" class="onscreen-gamepad">
             <svg width="100%" height="100%" viewBox="0 0 120 232" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -391,20 +394,6 @@
                         <path id="Path" d="M207.61,90.2l4.1,-8.28l4.09,8.27l-8.19,0l0,0.01Z"
                             style="fill:none;stroke:#000;stroke-width:1.52px;stroke-linejoin:round;" />
                     </g>
-                    <g id="shoulder_button_right_front" transform="matrix(1,0,0,0.901744,4,3.97791)">
-                        <g id="shoulder_btn_front_right_highlight" class="gamepad-btn-highlight"
-                            transform="matrix(0.574037,1.21771e-16,-1.40598e-16,0.497166,175.696,34.5115)">
-                            <path
-                                d="M10,0l103,0c5.523,0 10,4.477 10,10l0,32c0,2.194 -1.806,4 -4,4l-115,0c-2.194,0 -4,-1.806 -4,-4l0,-32c0,-5.523 4.477,-10 10,-10Z"
-                                style="fill:#419bf3;" />
-                        </g>
-                        <path id="shadow7"
-                            d="M188.97,37.51l47.65,0c3.149,0 5.74,2.591 5.74,5.74l0,6.89c0,1.262 -1.038,2.3 -2.3,2.3l-54.53,0c-1.262,0 -2.3,-1.038 -2.3,-2.3l0,-6.89c0,-3.149 2.591,-5.74 5.74,-5.74Z"
-                            style="fill-opacity:0.5;" />
-                        <path id="shoulder_btn_front_right"
-                            d="M187.16,37.86l47.68,0c2.513,0 4.58,2.067 4.58,4.58l0,6.91c0,0.625 -0.515,1.14 -1.14,1.14l-54.55,0c-0.631,0 -1.15,-0.519 -1.15,-1.15l0,-6.9c0,-2.513 2.067,-4.58 4.58,-4.58Z"
-                            style="fill:#fff;stroke:#000;stroke-width:2.3px;" />
-                    </g>
                     <g id="shoulder_trigger_right_back">
                         <g id="shoulder_trigger_back_right_highlight" class="gamepad-btn-highlight">
                             <g transform="matrix(-0.872799,-0.847483,0.529646,-0.545468,293.988,156.439)">
@@ -429,6 +418,21 @@
                             d="M197.71,31.21c-0.37,0 -0.72,-0.06 -0.98,-0.19c-0.25,-0.12 -0.4,-0.28 -0.4,-0.47l10.92,-23.07c0.28,-0.58 0.97,-1.1 1.95,-1.48c0.99,-0.37 2.2,-0.58 3.46,-0.58l11.8,0c3.44,0 6.56,0.67 8.82,1.75c2.34,1.11 3.66,2.63 3.65,4.2l0,19.18c0,0.19 -0.15,0.35 -0.4,0.47c-0.26,0.13 -0.62,0.2 -0.98,0.2l-37.85,0l0.01,-0.01Z"
                             style="fill:#fff;stroke:#000;stroke-width:2.17px;" />
                     </g>
+                    <g id="shoulder_button_right_front" transform="matrix(1,0,0,0.901744,4,3.97791)">
+                        <g id="shoulder_btn_front_right_highlight" class="gamepad-btn-highlight"
+                            transform="matrix(0.574037,1.21771e-16,-1.40598e-16,0.497166,175.696,34.5115)">
+                            <path
+                                d="M10,0l103,0c5.523,0 10,4.477 10,10l0,32c0,2.194 -1.806,4 -4,4l-115,0c-2.194,0 -4,-1.806 -4,-4l0,-32c0,-5.523 4.477,-10 10,-10Z"
+                                style="fill:#419bf3;" />
+                        </g>
+                        <path id="shadow7"
+                            d="M188.97,37.51l47.65,0c3.149,0 5.74,2.591 5.74,5.74l0,6.89c0,1.262 -1.038,2.3 -2.3,2.3l-54.53,0c-1.262,0 -2.3,-1.038 -2.3,-2.3l0,-6.89c0,-3.149 2.591,-5.74 5.74,-5.74Z"
+                            style="fill-opacity:0.5;" />
+                        <path id="shoulder_btn_front_right"
+                            d="M187.16,37.86l47.68,0c2.513,0 4.58,2.067 4.58,4.58l0,6.91c0,0.625 -0.515,1.14 -1.14,1.14l-54.55,0c-0.631,0 -1.15,-0.519 -1.15,-1.15l0,-6.9c0,-2.513 2.067,-4.58 4.58,-4.58Z"
+                            style="fill:#fff;stroke:#000;stroke-width:2.3px;" />
+                    </g>
+
                 </g>
             </svg>
 

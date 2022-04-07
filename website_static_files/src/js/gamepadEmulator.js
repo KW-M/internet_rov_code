@@ -31,7 +31,8 @@ export const gamepadEmulator = {
             timestamp: Math.floor(Date.now() / 1000),
             buttons: new Array(buttonCount).fill({ pressed: false, value: 0, touched: false }, 0, buttonCount),
             axes: new Array(axisCount).fill(0, 0, axisCount),
-            id: "Emulated Gamepad " + gpadIndex,
+            id: "Emulated Gamepad " + gpadIndex + " (Xinput STANDARD GAMEPAD)",
+            mapping: "standard",
         };
 
         // Add the new gamepad object to the list of emulated gamepads
@@ -41,7 +42,9 @@ export const gamepadEmulator = {
         // Trigger the (system) gamepad connected event on the window object
         const event = new Event("gamepadconnected");
         event.gamepad = gpad;
-        window.dispatchEvent(event);
+        // setTimeout(() => window.dispatchEvent(event), 0);
+        // window.dispatchEvent(event);
+        return gpad
     },
 
     /* removes the emmulated gamepad at the passed index as would be read from the list in navigator.getGamepads
@@ -75,7 +78,7 @@ export const gamepadEmulator = {
 
         this.emulatedGamepads[gpadIndex].buttons[buttonIndex] = {
             pressed: isPressed,
-            value: value || 0,
+            value: value || (touched ? 0.0000001 : 0),
             touched: isPressed || touched || false
         };
     },
@@ -102,6 +105,8 @@ export const gamepadEmulator = {
         // for (var btnIndx = 0; btnIndx < buttonTapZoneElements.length; btnIndx++) {
         var self = this;
         buttonTapZoneElements.forEach(function (btnEl, btnIndx) {
+            if (!btnEl) return;
+
             btnEl.addEventListener("pointerover", () => {
                 // tell the emulator this button is being "touched", ie: hovered over
                 self.pressButton(gpadIndex, btnIndx, 0, true);
@@ -109,6 +114,7 @@ export const gamepadEmulator = {
             btnEl.addEventListener("pointerleave", () => {
                 // tell the emulator this button is no longer being "touched", ie: not hovered over
                 self.pressButton(gpadIndex, btnIndx, 0, false);
+
             });
             btnEl.addEventListener("pointerdown", () => {
                 // tell the emulator this button is being pressed, ie: clicked / tapped
@@ -126,9 +132,12 @@ export const gamepadEmulator = {
         var self = this
         var pointerToJoystickMapping = {};
         const pointerMoveHandler = function (me) {
-            for (const key in pointerToJoystickMapping) {
-                if (key == me.pointerId) {
-                    const joystickData = pointerToJoystickMapping[key];
+            var pointerId = me.pointerId;
+
+            for (const pointerIdKey in pointerToJoystickMapping) {
+                if (pointerIdKey == pointerId) {
+
+                    const joystickData = pointerToJoystickMapping[pointerIdKey];
                     var deltaX = Math.max(Math.min((me.clientX - joystickData.startX) / axisTouchRadius, 1), -1)
                     var deltaY = Math.max(Math.min((me.clientY - joystickData.startY) / axisTouchRadius, 1), -1)
                     self.moveAxis(gpadIndex, joystickData.xAxisGpadAxis, deltaX);
@@ -137,12 +146,13 @@ export const gamepadEmulator = {
             }
         }
         const pointerUpHandler = function (me) {
-            for (const key in pointerToJoystickMapping) {
-                if (key == me.pointerId) {
-                    const joystickData = pointerToJoystickMapping[key];
+            var pointerId = me.pointerId;
+            for (const pointerIdKey in pointerToJoystickMapping) {
+                if (pointerIdKey == pointerId) {
+                    const joystickData = pointerToJoystickMapping[pointerIdKey];
                     self.moveAxis(gpadIndex, joystickData.xAxisGpadAxis, 0);
                     self.moveAxis(gpadIndex, joystickData.yAxisGpadAxis, 0);
-                    delete pointerToJoystickMapping[key];
+                    delete pointerToJoystickMapping[pointerIdKey];
                 }
             }
             if (Object.keys(pointerToJoystickMapping).length == 0) {
@@ -171,7 +181,7 @@ export const gamepadEmulator = {
     /* overwrite the browser gamepad api getGamepads() to return the emulated gamepad data for gamepad indexes corresponding to emulated gamepads
      so long as the same index don't have a real gamepad connected  */
     monkeyPatchGetGamepads: function () {
-        var getNativeGamepads = navigator.getGamepads
+        var getNativeGamepads = navigator.getGamepads || navigator.webkitGetGamepads || navigator.mozGetGamepads || navigator.msGetGamepads;
         if (getNativeGamepads) getNativeGamepads = getNativeGamepads.bind(navigator);
         var self = this;
         navigator.getGamepads = function () {

@@ -1,3 +1,7 @@
+import { createPopper } from '@popperjs/core/lib/popper-lite';
+// import flip from '@popperjs/core/lib/modifiers/flip';
+// import arrow from '@popperjs/core/lib/modifiers/arrow';
+
 const btnLabels = ["button_1",
     "button_2",
     "button_3",
@@ -20,6 +24,17 @@ const onscreenGamepadLeft = document.getElementById("onscreen-gamepad-left");
 const onscreenGamepadRight = document.getElementById("onscreen-gamepad-right");
 const gamepadConnectNotice = document.getElementById("gamepad-connect-notice")
 const tooManyGamepadsNotice = document.getElementById("too-many-gamepads-notice")
+const gamepadHelpTooltip = document.querySelector('#gamepad-help-tooltip');
+const defaultTooltipTarget = document.querySelector('#start_button');
+var currentPopperTarget = defaultTooltipTarget;
+const helpTooltip = createPopper({
+    getBoundingClientRect: () => currentPopperTarget.getBoundingClientRect(),
+    contextElement: document.body
+}, gamepadHelpTooltip, {
+    placement: 'left',
+    // strategy: 'fixed',
+
+});
 export const gamepadUi = {
     showExtraniousGamepadsConnected: function (tooManyGamepads) {
         tooManyGamepadsNotice.style.display = tooManyGamepads ? "block" : "none";
@@ -42,6 +57,16 @@ export const gamepadUi = {
     showNotSupported: function () {
         alert('Gamepad interface not supported, please use a more modern browser.');
         this.showEmulatedGamepad(true);
+    },
+
+    showHelpTooltip: function (btnElem) {
+        if (btnElem) {
+            currentPopperTarget = btnElem;
+        } else {
+            currentPopperTarget = defaultTooltipTarget;
+        }
+        console.log("currentPopperTarget", btnElem, currentPopperTarget == defaultTooltipTarget);
+        helpTooltip.update().then();
     },
 
     handleGamepadVisualFeedbackAxisEvents: (axiesMaping, axisHoveredClass, axisMovedClass) => {

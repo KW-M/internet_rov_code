@@ -16,3 +16,5 @@ export const peerServerLocalOptions = {
 
 export const rovPeerIdBase = "iROV-";
 
+export const TOUCHED_BUTTON_EQUIVELANT_VALUE = 0.5;
+
