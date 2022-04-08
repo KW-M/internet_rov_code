@@ -2,11 +2,15 @@
 <html>
 
 <head>
+    <script>navigator.getGamepads(console.log);
+
+</script>
     <title>ROV Cockpit</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="/index.5f3f8900.css">
+
     <link rel="stylesheet" type="text/css" href="/index.c92073ef.css">
+
 </head>
 
 <body>
@@ -14,16 +18,18 @@
 
     <div id="site_loading_indicator" class="lds-circle" style="display: none;">
         <div></div>
-        <span id="site_loading_text">Checking Internet Access...</span>
+        <span id="site_loading_text">Loading...</span>
     </div>
     <button id="connect_btn" style="display: none;">Connect to ROV</button>
     <button id="scan_for_ip_btn" style="display: none;">Scan for ROV IP</button>
 
-    <div class="bottom-center hidden" id="connected_rov_display"><span>Connected to </span><button id="connected_rov_indicator_btn">iROV-3</button>
-        <!-- <div id="pilot_mode_display"><span>Spectator Mode <button class="rounded-button">Take Over</button><em></div>
-                                            <div id="gamepad_help_display"><span>Gamepad not connected: </span><button class="rounded-button">?</button> -->
+    <div class="bottom-center hidden" id="connected_rov_display">
+        <span>Connected to </span>
+        <button id="connected_rov_indicator_btn"><span id="connected_rov_label"></span><img src="/Switch_Rov.900c5e36.svg"></button>
+        |
+        <span>Role:</span>
+        <button id="take_control_btn"> <span id="role_display_text">Spectator</span> Drive</button>
     </div>
-    
 
     <div class="top-right-corner">
         <button class="fullscreen-btn icon-btn transparent-btn" onclick="toggleFullscreen(event)"></button>
@@ -68,7 +74,7 @@
                 </ul>
         </div>-->
     </div>
-    <div class="livestream-container" onclick="toggleFullscreen(event,this)">
+    <div id="fullscreen_focus_mode_container" onclick="closeFullscreen(event)">
         <table class="top-left-corner">
             <tr>
                 <td><b>Net Ping:</b></td>
@@ -83,24 +89,29 @@
                 <td><span id="temp_value">--</span> ℃</td>
             </tr>
         </table>
-        <div class="compass">
-            <div class="line"></div>
-            <div class="bg" id="compassDiscImg"></div>
+        <div id="livestream_container">
+            <!-- style="display: none;" -->
+            <div class="compass">
+                <div class="line"></div>
+                <div class="bg" id="compassDiscImg"></div>
+            </div>
+            <video id="video-livestream" onclick="toggleFullscreen(event,this.parentElement.parentElement)"></video>
         </div>
-        <video id="video-livestream"></video>
     </div>
     <div id="gamepad-container">
         <!-- Gamepad Connected/Disconned Feedback -->
         <p id="gamepad-connect-notice">Connect a gamepad & press any button</p>
         <p id="too-many-gamepads-notice" style="display: none;">Multiple gamepads connected, only one will be used</p>
 
-        <!-- Gamepad Help Stuff -->
-        <h2 id="gamepad-help-text">Gamepad Help</h2>
-        <!-- <button id="gamepad-help-button">Gamepad Help</button> -->
+        <!-- Gamepad Help Tooltip Stuff -->
+        <div id="gamepad-help-tooltip" class="popper-tooltip" role="tooltip">
+            <span id="gamepad-help-text">Gamepad Help</span>
+        </div>
 
-        <!-- Gamepads on either side of Screen -->
+        <!-- Gamepad joystick touch start areas -->
         <div id="gamepad-joystick-touch-area-left" class="gamepad-joystick-touch-area"></div>
         <div id="gamepad-joystick-touch-area-right" class="gamepad-joystick-touch-area"></div>
+
         <!-- Gamepads on either side of Screen -->
         <div id="onscreen-gamepad-left" class="onscreen-gamepad">
             <svg width="100%" height="100%" viewbox="0 0 120 232" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
@@ -111,10 +122,6 @@
                     <g id="stick_button_left" style="pointer-events: none;" transform="matrix(1,0,0,1,-14.73,1.25)">
                         <g id="stick_button_left_highlight" class="gamepad-btn-highlight" style="pointer-events: none;" transform="matrix(0.622551,0,0,0.622551,61.2384,139.288)">
                             <circle cx="55.5" cy="55.5" r="55.5" style="fill:#419bf3;"></circle>
-                        </g>
-                        <g id="stick_bg_left">
-                            <circle id="shadow10" cx="97.04" cy="175.08" r="26.46" style="fill-opacity:0.5;"></circle>
-                            <circle id="Oval5" cx="95.79" cy="173.84" r="25.21" style="fill:#fff;stroke:#000;stroke-width:2.49px;"></circle>
                         </g>
                         <g id="l_stick_right_direction_highlight" class="gamepad-arrow-highlight" transform="matrix(0.412655,0,0,0.672778,28.1146,52.0672)">
                             <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z" style="fill:#ff00bf;"></path>
@@ -128,6 +135,11 @@
                         <g id="l_stick_up_direction_highlight" class="gamepad-arrow-highlight" transform="matrix(2.52678e-17,-0.412655,0.672778,4.11958e-17,-25.9828,241.515)">
                             <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z" style="fill:#ff00bf;"></path>
                         </g>
+                        <g id="stick_bg_left">
+                            <circle id="shadow10" cx="97.04" cy="175.08" r="26.46" style="fill-opacity:0.5;"></circle>
+                            <circle id="Oval5" cx="95.79" cy="173.84" r="25.21" style="fill:#fff;stroke:#000;stroke-width:2.49px;"></circle>
+                        </g>
+
                         <g transform="translate(95.79 173.84)">
                             <!--container for stick so it's transform can start at zero zero -->
                             <g id="stick_left">
@@ -213,10 +225,6 @@
                         <g id="stick_button_right_highlight" style="pointer-events: none;" class="gamepad-btn-highlight" transform="matrix(0.622551,0,0,0.622551,74.2846,141.118)">
                             <circle cx="188.5" cy="55.5" r="55.5" style="fill:#419bf3;"></circle>
                         </g>
-                        <g id="stick_bg_right">
-                            <circle id="shadow12" cx="192.96" cy="176.33" r="26.46" style="fill-opacity:0.5;"></circle>
-                            <circle id="Oval6" cx="191.72" cy="175.08" r="25.21" style="fill:#fff;stroke:#000;stroke-width:2.49px;"></circle>
-                        </g>
                         <g id="r_stick_right_direction_highlight" class="gamepad-arrow-highlight" transform="matrix(0.412655,0,0,0.672778,123.96,53.3372)">
                             <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z" style="fill:#ff00bf;"></path>
                         </g>
@@ -228,6 +236,10 @@
                         </g>
                         <g id="r_stick_up_direction_highlight" class="gamepad-arrow-highlight" transform="matrix(2.52678e-17,-0.412655,0.672778,4.11958e-17,69.8626,242.785)">
                             <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z" style="fill:#ff00bf;"></path>
+                        </g>
+                        <g id="stick_bg_right">
+                            <circle id="shadow12" cx="192.96" cy="176.33" r="26.46" style="fill-opacity:0.5;"></circle>
+                            <circle id="Oval6" cx="191.72" cy="175.08" r="25.21" style="fill:#fff;stroke:#000;stroke-width:2.49px;"></circle>
                         </g>
                         <g transform="translate(191.72 175.08)">
                             <!--container for stick so it's transform can start at zero zero -->
@@ -288,13 +300,6 @@
                         </g>
                         <path id="Path" d="M207.61,90.2l4.1,-8.28l4.09,8.27l-8.19,0l0,0.01Z" style="fill:none;stroke:#000;stroke-width:1.52px;stroke-linejoin:round;"></path>
                     </g>
-                    <g id="shoulder_button_right_front" transform="matrix(1,0,0,0.901744,4,3.97791)">
-                        <g id="shoulder_btn_front_right_highlight" class="gamepad-btn-highlight" transform="matrix(0.574037,1.21771e-16,-1.40598e-16,0.497166,175.696,34.5115)">
-                            <path d="M10,0l103,0c5.523,0 10,4.477 10,10l0,32c0,2.194 -1.806,4 -4,4l-115,0c-2.194,0 -4,-1.806 -4,-4l0,-32c0,-5.523 4.477,-10 10,-10Z" style="fill:#419bf3;"></path>
-                        </g>
-                        <path id="shadow7" d="M188.97,37.51l47.65,0c3.149,0 5.74,2.591 5.74,5.74l0,6.89c0,1.262 -1.038,2.3 -2.3,2.3l-54.53,0c-1.262,0 -2.3,-1.038 -2.3,-2.3l0,-6.89c0,-3.149 2.591,-5.74 5.74,-5.74Z" style="fill-opacity:0.5;"></path>
-                        <path id="shoulder_btn_front_right" d="M187.16,37.86l47.68,0c2.513,0 4.58,2.067 4.58,4.58l0,6.91c0,0.625 -0.515,1.14 -1.14,1.14l-54.55,0c-0.631,0 -1.15,-0.519 -1.15,-1.15l0,-6.9c0,-2.513 2.067,-4.58 4.58,-4.58Z" style="fill:#fff;stroke:#000;stroke-width:2.3px;"></path>
-                    </g>
                     <g id="shoulder_trigger_right_back">
                         <g id="shoulder_trigger_back_right_highlight" class="gamepad-btn-highlight">
                             <g transform="matrix(-0.872799,-0.847483,0.529646,-0.545468,293.988,156.439)">
@@ -310,6 +315,14 @@
                         <path id="shadow6" d="M237,33.57l-37.83,0c-1.52,0 -2.78,-0.6 -2.78,-1.32c0,-0.1 0.03,-0.2 0.07,-0.3l10.9,-22.92c0.71,-1.5 3.53,-2.57 6.76,-2.57l11.8,0c7.65,0 13.86,2.96 13.86,6.61l0,19.18c0,0.72 -1.25,1.32 -2.78,1.32Z" style="fill-opacity:0.5;"></path>
                         <path id="shoulder_trigger_back_right" d="M197.71,31.21c-0.37,0 -0.72,-0.06 -0.98,-0.19c-0.25,-0.12 -0.4,-0.28 -0.4,-0.47l10.92,-23.07c0.28,-0.58 0.97,-1.1 1.95,-1.48c0.99,-0.37 2.2,-0.58 3.46,-0.58l11.8,0c3.44,0 6.56,0.67 8.82,1.75c2.34,1.11 3.66,2.63 3.65,4.2l0,19.18c0,0.19 -0.15,0.35 -0.4,0.47c-0.26,0.13 -0.62,0.2 -0.98,0.2l-37.85,0l0.01,-0.01Z" style="fill:#fff;stroke:#000;stroke-width:2.17px;"></path>
                     </g>
+                    <g id="shoulder_button_right_front" transform="matrix(1,0,0,0.901744,4,3.97791)">
+                        <g id="shoulder_btn_front_right_highlight" class="gamepad-btn-highlight" transform="matrix(0.574037,1.21771e-16,-1.40598e-16,0.497166,175.696,34.5115)">
+                            <path d="M10,0l103,0c5.523,0 10,4.477 10,10l0,32c0,2.194 -1.806,4 -4,4l-115,0c-2.194,0 -4,-1.806 -4,-4l0,-32c0,-5.523 4.477,-10 10,-10Z" style="fill:#419bf3;"></path>
+                        </g>
+                        <path id="shadow7" d="M188.97,37.51l47.65,0c3.149,0 5.74,2.591 5.74,5.74l0,6.89c0,1.262 -1.038,2.3 -2.3,2.3l-54.53,0c-1.262,0 -2.3,-1.038 -2.3,-2.3l0,-6.89c0,-3.149 2.591,-5.74 5.74,-5.74Z" style="fill-opacity:0.5;"></path>
+                        <path id="shoulder_btn_front_right" d="M187.16,37.86l47.68,0c2.513,0 4.58,2.067 4.58,4.58l0,6.91c0,0.625 -0.515,1.14 -1.14,1.14l-54.55,0c-0.631,0 -1.15,-0.519 -1.15,-1.15l0,-6.9c0,-2.513 2.067,-4.58 4.58,-4.58Z" style="fill:#fff;stroke:#000;stroke-width:2.3px;"></path>
+                    </g>
+
                 </g>
             </svg>
 

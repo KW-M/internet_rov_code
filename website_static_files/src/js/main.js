@@ -11,7 +11,7 @@ import { inspect } from "@xstate/inspect";
 // import {} from "./connection.js";
 // import {} from "./gamepad-emulation.js";
 // import {} from "./gamepad-ui.js";
-import { gamepadController } from "./gamepad.js";
+import { GamepadController } from "./gamepad.js";
 
 import { handleRovMessage } from "./messageHandler";
 import { getURLQueryStringVariable } from "./util.js";
@@ -34,7 +34,7 @@ import { siteInitMachine } from "./siteInit";
 import { peerConnMachine } from "./peerConnStateMachine.js";
 import { peerServerConnMachine } from "./peerServerConnStateMachine.js";
 
-new gamepadController();
+new GamepadController();
 
 const mainMachine =
     /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QAmAGwBmbAEYAHMoAMAdg0BWbQBYVATkNyANCACeibQq0y9U1XLVqpclQF8P5tFmwMAV0xMLChsADlefDoAYRFMMABjfEhSAAUaGgY6XCyANSzYgHlw8JoYqgoSuhpcKmYAIQAZClwACRpWMT4BIRExSQRlQw1sdzkZRTk9ZTkRxT1zKwRHUbk5jVU9bXk1Q00vHwwcQODQ7DSwMCIc64A3a9j4pJSIchpw1joAWVrcZgA4vQqEVGEU8t1+IJhKIkBJEFN5NgpBpDG49HJtMo9GosUtEHptthXFN3DoZHtjIcQL4TkEQpgwpdHrh7o84sEXqkAUUqD8-oD6AAxBhFb5giFwnrQ-pwwaKRRuMYyZRSQzKDQUuSbRT4hCE7TEqSkxTkymGam0-z00KkVitGIlMoVOgNACqVBB4ToaSYuFyXSlUL6sNAgykyLUKqmalmemMmJserVemwqqkGbUihkunsUktx2tZ0Z6Uy2VyDAK2SFzHqTRqDFFDEhvRhA0QGlNRtVeh06k7ez1Mi02FRRhzKM7GYLflODKgpAA6jQGgwqDE6DW6w2my2ZaH4QhswZsMOMVIszttLrLIhpooxp2HFJtuo1BMZ3Tiwvlw1KLRYiaIpcj3EN2yPGQc2RXsDEggwUxkZMkW0QwVVjFVILkY05E-bBmAAdwwIRGQlJ5OWSV0AnwfARB9Ig4FgUhHVKco+XdT1ql9P5OlAts5TvHRsH0dZjUJEwnz1bZDDTbQXH0YZUOUTxqUwXgIDgMQrQIYh8F42Uw2kB9VRQ2ZDBsJT0T1XRR1mWZTW1KNZGxXC53OSJog5BJkkgPSD0GaMjQMLERMUNRtmTdQ0xxU0KXUbNjG0FybUZC4rhuVkiAeG5PK5CBfPAxV9mwNFcTMzQTCw5NO2RRRjAw1wUNRHDvBpQtXMZfL+IQHNRlcILZiw0LwtvBBrzGLDtRkScUL63CCKI0JSJyiiGiomjMDohjOoMhAAFodiEjNtA0TRjvsfZEJGmYZFHSlZijHYXGao4-FYEQwG2w8VEgoTNXVZQVW2RQkxGtVlFHDQ3E0ewsNxexP0+wZdsi7QjpOnRNXjKM9V241TwmJqs1cCY9i8LwgA */
@@ -205,7 +205,7 @@ const mainMachine =
 
 window.mainRovMachineService = interpret(mainMachine, { devTools: true })
 // window.mainRovMachineService.onChange(console.log)
-window.mainRovMachineService.start();
+// window.mainRovMachineService.start();
 
 window.onbeforeunload = () => {
     window.mainRovMachineService.send("WEBSITE_CLOSE");
@@ -263,22 +263,7 @@ window.onbeforeunload = () => {
 //     return false
 // }
 
-// var buttonMappingNames = {
-//     'A': { func: 'photo', desc: 'Take Photo' },
-//     'B': { func: 'record', desc: 'Start/Stop Recording' },
-//     'X': { func: 'None', desc: 'TBD' },
-//     'Y': { func: 'None', desc: 'TBD' },
-//     'L1': { func: 'clawOpen', mode: "btn_hold_allowed", desc: 'Open Claw' },
-//     'R1': { func: 'clawOpen', mode: "btn_hold_allowed", desc: 'Open Claw' },
-//     'L2': { func: 'clawClose', mode: "btn_hold_allowed", desc: 'Close Claw' },
-//     'R2': { func: 'clawClose', mode: "btn_hold_allowed", desc: 'Close Claw' },
-//     'SELECT': { func: 'bitrate-', mode: "btn_hold_allowed", desc: 'TODO: Decrease Video Quality (lowers latency)' },
-//     'START': { func: 'bitrate+', mode: "btn_hold_allowed", desc: 'TODO: Increase Video Quality (adds latency)' },
-//     'dpadUp': { func: 'lights+', mode: "btn_hold_allowed", desc: 'TODO: Increase Intensity of Lights' },
-//     'dpadDown': { func: 'lights-', mode: "btn_hold_allowed", desc: 'TODO: Decrease Intensity of Lights' },
-//     'dpadLeft': { func: 'exposure-', mode: "btn_hold_allowed", desc: 'TODO: Dim Camera Exposure' },
-//     'dpadRight': { func: 'exposure+', mode: "btn_hold_allowed", desc: 'TODO: Brighten Camera Exposure' },
-// }
+
 // var lastROVMotionMessage = {};
 // initGamepadSupport(gamepadUi, gamepadEmulator, handleGamepadInput);
 // function handleGamepadInput(buttonStates, axisState) {

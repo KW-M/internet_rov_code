@@ -1,29 +1,30 @@
 
-import { startGamepadEventLoop, getGamepadsStandardized, gamepadApiSupported, onGamepadAxisValueChange, onGamepadButtonValueChange, onGamepadConnect, onGamepadDisconnect } from "./gamepad_mmk"
+// import { startGamepadEventLoop, getGamepadsStandardized, gamepadApiSupported, onGamepadAxisValueChange, onGamepadButtonValueChange, onGamepadConnect, onGamepadDisconnect } from "./gamepad_mmk"
 import { gamepadEmulator } from "./gamepadEmulator"
-import { gamepadUi } from "./gamepad-ui"
-import { Gamepad } from "./libraries/gamepad";
+import { getButtonHighlightElements, handleGamepadVisualFeedbackAxisEvents, handleGamepadVisualFeedbackButtonEvents, handleGamepadVisualFeedbackVariableTriggerButtonEvents, showGamepadStatus, showHelpTooltip, showNotSupported as showGamepadNotSupported, toggleGamepadHelpScreen } from "./gamepad-ui"
+import { GamepadInterface } from "./libraries/gamepadInterface";
+import { GAME_CONTROLLER_BUTTON_CONFIG } from "./consts";
 
-const gamepadLib = new Gamepad();
 
-export class gamepadController {
+
+export class GamepadController {
     constructor() {
         this.touchedGpadButtonCount = 0
-        this.buttonHighlightElements = gamepadUi.getButtonHighlightElements();
-        if (!gamepadApiSupported()) gamepadUi.showNotSupported();
+        this.buttonHighlightElements = getButtonHighlightElements();
 
         // override the default browser gamepad api with the gamepad emulator before setting up the events,
         // the emulator will either use the real gamepad api if a gamepad is plugged in or it will inject the onscreen gamepad as if it were comming from the gamepad api.
         gamepadEmulator.monkeyPatchGetGamepads();
 
-        // setup maulingmonkey gamepad lib gamepad events and event loop.
-        gamepadLib.bind(Gamepad.Event.CONNECTED, (e) => { console.log("onGamepadConnect", e); this.gamepadConnectDisconnectHandler() })
-        gamepadLib.bind(Gamepad.Event.DISCONNECTED, (e) => { console.log("onGamepadDisconnect", e); this.gamepadConnectDisconnectHandler() })
-        gamepadLib.bind(Gamepad.Event.AXIS_CHANGED, (e) => { if (e) this.handleAxisChange(e) })
-        gamepadLib.bind(Gamepad.Event.BUTTON_DOWN, (e) => { if (e) this.handleButtonChange(e, true) })
-        gamepadLib.bind(Gamepad.Event.BUTTON_UP, (e) => { if (e) this.handleButtonChange(e, false) })
-        // startGamepadEventLoop();
-        console.log(gamepadLib)
+        // initilize the GamepadInterface class with the config from the consts file
+        const gamepad = new GamepadInterface(GAME_CONTROLLER_BUTTON_CONFIG);
+        if (!gamepad) showGamepadNotSupported();
+
+        // setupgamepad lib gamepad events.
+        gamepad.onGamepadConnect = this.gamepadConnectDisconnectHandler.bind(this)
+        gamepad.onGamepadDisconnect = this.gamepadConnectDisconnectHandler.bind(this)
+        gamepad.onGamepadAxisChange = this.handleAxisChange.bind(this)
+        gamepad.onGamepadButtonChange = this.handleButtonChange.bind(this)
 
         // setup onscreen emulated gamepad interaction events
         gamepadEmulator.registerOnScreenGamepadButtonEvents(0, this.buttonHighlightElements.map((elm) => elm.id.startsWith("shoulder_trigger") ? null : elm), "touched", "pressed");
@@ -37,68 +38,87 @@ export class gamepadController {
             elem: document.getElementById("gamepad-joystick-touch-area-right"),
         }]);
     }
+
     gamepadConnectDisconnectHandler() {
-        const gamepads = getGamepadsStandardized()
-
-        console.log(gamepads)
-        var connectedGamepadCount = gamepads.length;
+        // const gamepads = getGamepadsStandardized()
+        const gamepads = navigator.getGamepads();
+        var connectedGamepadCount = gamepads.reduce((acc, gpad) => gpad ? acc + 1 : acc, 0);
         if (connectedGamepadCount != 0 && gamepads[0].emulated) connectedGamepadCount -= 1;
-        gamepadUi.showGamepadStatus(connectedGamepadCount);
+        showGamepadStatus(connectedGamepadCount);
+        if (connectedGamepadCount > 1) console.log("WARNING: More than one gamepad connected!", gamepads);
     }
-    handleButtonChange(e, pressed) {
-        console.log(e, pressed)
 
-        const gamepad = getGamepadsStandardized()[0]
-        if (!gamepad || !gamepad.buttons) return;
+    handleButtonChange(gpadIndex, gamepad, buttonsChangedMask) {
+        if (gpadIndex != 0 || !gamepad || !gamepad.buttons) return;
 
-        const buttonStates = gamepad.buttons
-        gamepadUi.handleGamepadVisualFeedbackButtonEvents(buttonStates, this.buttonHighlightElements, "touched", "pressed");
+        handleGamepadVisualFeedbackButtonEvents(gamepad.buttons);
 
-        const variableButtonStates = [
-            {
-                thumbStickElement: document.getElementById("shoulder_trigger_left_back"),
-                axisRange: 26,
-                yValue: gamepad.buttons[6].value || 0,
-            },
-            {
-                thumbStickElement: document.getElementById("shoulder_trigger_right_back"),
-                axisRange: 26,
-                yValue: gamepad.buttons[7].value || 0,
-            },
-        ]
-        gamepadUi.handleGamepadVisualFeedbackAxisEvents(variableButtonStates, "axis-hovered", "axis-moved");
-        console.log("onGamepadButtonValueChange", buttonStates[e.buttonIndex], this.buttonHighlightElements[e.buttonIndex]);
-        if (e.buttonIndex && buttonStates[e.buttonIndex].touched) {
-            gamepadUi.showHelpTooltip(this.buttonHighlightElements[e.buttonIndex], e.buttonIndex);
-            this.touchedGpadButtonCount += 1;
-        } else {
-            this.touchedGpadButtonCount -= 1;
-        }
-        if (this.touchedGpadButtonCount == 0) {
-            gamepadUi.showHelpTooltip(null);
+        if (buttonsChangedMask[6] || buttonsChangedMask[7]) {
+            handleGamepadVisualFeedbackVariableTriggerButtonEvents(gamepad.buttons, [
+                {
+                    buttonIndex: 6,
+                    buttonElement: document.getElementById("shoulder_trigger_left_back"),
+                    axisRange: 26,
+                },
+                {
+                    buttonIndex: 7,
+                    buttonElement: document.getElementById("shoulder_trigger_right_back"),
+                    axisRange: 26,
+                },
+            ]);
         }
 
+        if ((buttonsChangedMask[8] && buttonsChangedMask[8].released) || (buttonsChangedMask[9] && buttonsChangedMask[9].released)) {
+            toggleGamepadHelpScreen();
+        }
+
+        let noGamepadButtonTouched = true;
+        for (let i = 0; i < buttonsChangedMask.length; i++) {
+            if (buttonsChangedMask[i] && buttonsChangedMask[i].touchDown) {
+                showHelpTooltip(this.buttonHighlightElements[i], GAME_CONTROLLER_BUTTON_CONFIG[i].helpLabel);
+                noGamepadButtonTouched = false;
+            } else if (gamepad.buttons[i] && gamepad.buttons[i].touched) {
+                noGamepadButtonTouched = false;
+            }
+        }
+
+        if (noGamepadButtonTouched) showHelpTooltip(null, "Gamepad Help");
     }
-    handleAxisChange() {
 
-        const gamepad = getGamepadsStandardized()[0]
-        if (!gamepad || !gamepad.axes) return;
+    handleAxisChange(gpadIndex, gamepad) {
 
-        // console.log("onGamepadAxisValueChange", e);
+        // console.log("handleAxisChange", gpadIndex, gamepad, axiesChangedMask)
+        if (gpadIndex != 0 || !gamepad || !gamepad.axes) return;
 
         const axisStates = [{
-            thumbStickElement: document.getElementById("stick_left"),
             axisRange: 14,
             xValue: gamepad.axes[0] || 0,
             yValue: gamepad.axes[1] || 0,
+            thumbStickElement: document.getElementById("stick_left"),
+            upIndicatorElement: document.getElementById("l_stick_up_direction_highlight"),
+            downIndicatorElement: document.getElementById("l_stick_down_direction_highlight"),
+            leftIndicatorElement: document.getElementById("l_stick_left_direction_highlight"),
+            rightIndicatorElement: document.getElementById("l_stick_right_direction_highlight"),
+            upHelpText: "Forward",
+            downHelpText: "Back",
+            leftHelpText: "Turn Left",
+            rightHelpText: "Turn Right",
         },
         {
-            thumbStickElement: document.getElementById("stick_right"),
             axisRange: 14,
             xValue: gamepad.axes[2] || 0,
             yValue: gamepad.axes[3] || 0,
+            thumbStickElement: document.getElementById("stick_right"),
+            upIndicatorElement: document.getElementById("r_stick_up_direction_highlight"),
+            downIndicatorElement: document.getElementById("r_stick_down_direction_highlight"),
+            leftIndicatorElement: document.getElementById("r_stick_left_direction_highlight"),
+            rightIndicatorElement: document.getElementById("r_stick_right_direction_highlight"),
+            upHelpText: "Up",
+            downHelpText: "Down",
+            leftHelpText: "Crabwalk Left",
+            rightHelpText: "Crabwalk Right",
         }]
-        gamepadUi.handleGamepadVisualFeedbackAxisEvents(axisStates, "axis-hovered", "axis-moved");
+        handleGamepadVisualFeedbackAxisEvents(axisStates, 0.4);
     }
 }
 
@@ -154,7 +174,7 @@ export class gamepadController {
 //     if (!gamepadSupportAvailable) {
 //         // It doesn't seem Gamepad API is available ' show a message telling
 //         // the visitor about it.
-//         gamepadUi.showNotSupported();
+//         showNotSupported();
 //         return false;
 //     }
 
@@ -185,7 +205,7 @@ export class gamepadController {
 //         const gamepadCount = gamepads.length;
 //         if (gamepadCount != lastGamepadCount || (gamepads[0] && gamepads[0].id != lastGamepadId)) {
 //             if (gamepadCount == 0) {
-//                 gamepadUi.showNoGamepads();
+//                 showNoGamepads();
 //                 lastGamepadCount = 0;
 //                 lastGamepadId = "";
 //                 return;
@@ -196,7 +216,7 @@ export class gamepadController {
 //                 gpadMap.addModule(joyMod);
 //                 console.log(joyMod)
 
-//                 gamepadUi.showGamepadsConnected(gamepads);
+//                 showGamepadsConnected(gamepads);
 //                 console.log(joyMod.getAllButtons(), joyMod.getAllSticks(), joyMod.getAllMappers())
 //             }
 //             lastGamepadCount = gamepadCount;

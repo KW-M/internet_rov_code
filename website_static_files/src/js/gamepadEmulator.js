@@ -78,9 +78,12 @@ export const gamepadEmulator = {
 
         this.emulatedGamepads[gpadIndex].buttons[buttonIndex] = {
             pressed: isPressed,
-            value: value || (touched ? 0.0000001 : 0),
+            value: value || 0,
             touched: isPressed || touched || false
         };
+
+        // console.log("pressButton", gpadIndex, buttonIndex, value, touched);
+        // console.log(navigator.getGamepads()[gpadIndex].buttons[buttonIndex]);
     },
 
     /* emulates moving an axis on the gamepad at the given axis index
@@ -162,10 +165,9 @@ export const gamepadEmulator = {
             }
         }
         document.addEventListener("pointerdown", function (de) {
-            joysticksTouchDetails.forEach(function (joystickTouchDetails, index) {
+            joysticksTouchDetails.forEach(function (joystickTouchDetails) {
                 const targetRect = joystickTouchDetails.elem.getBoundingClientRect();
                 if (checkIfPointIsInRect(de.clientX, de.clientY, targetRect)) {
-                    console.log("pointerdown on joystick", index);
                     joystickTouchDetails.startX = de.clientX;
                     joystickTouchDetails.startY = de.clientY;
                     pointerToJoystickMapping[de.pointerId] = joystickTouchDetails;
@@ -193,7 +195,7 @@ export const gamepadEmulator = {
                 var e_gpad = self.emulatedGamepads[i];
                 if (e_gpad && n_gpad) {
                     // if both an emulated gamepad and a real one is available for this index,
-                    n_gpad.emulated = false; // should have some kind of mixed indication value here
+                    n_gpad.emulated = true; // should have some kind of mixed indication value here
                     for (let btnIdx = 0; btnIdx < e_gpad.buttons.length; btnIdx++) {
                         const e_btn = e_gpad.buttons[btnIdx];
                         const n_btn = n_gpad.buttons[btnIdx];
@@ -219,11 +221,34 @@ export const gamepadEmulator = {
                     // if only the emulated gamepad is available, use it
                     e_gpad.emulated = true;
                     e_gpad.timestamp = Math.floor(Date.now() / 1000);
-                    nativeGamepads[i] = e_gpad;
-                    // console.log("eGamepad:", nativeGamepads[i])
+                    nativeGamepads[i] = self.cloneGamepad(e_gpad);
                 }
             }
             return nativeGamepads;
         }
     },
+
+    cloneGamepad: function (original) {
+        if (!original) return original;
+        let clone = {
+            id: original.id,
+            displayId: original.displayId,
+            mapping: original.mapping,
+            index: original.index,
+            emulated: original.emulated,
+            timestamp: original.timestamp,
+            connected: original.connected,
+            axes: new Array(original.axes.length),
+            buttons: new Array(original.buttons.length),
+        };
+        for (let i = 0; i < original.axes.length; ++i) {
+            clone.axes[i] = original.axes[i];
+        }
+        for (let i = 0; i < original.buttons.length; ++i) {
+            let { pressed, value, touched } = original.buttons[i];
+            touched = touched || false;
+            clone.buttons[i] = { pressed, value, touched };
+        }
+        return clone;
+    }
 };

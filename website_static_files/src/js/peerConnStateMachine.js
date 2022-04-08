@@ -213,7 +213,7 @@ export const peerConnMachine =
                 }
             },
             connectToRovPeerAndStartPeerConnectionEventHandler: assign((context) => {
-                const rovPeerId = consts.rovPeerIdBase + String(context.rovPeerIdEndNumber)
+                const rovPeerId = consts.ROV_PEERID_BASE + String(context.rovPeerIdEndNumber)
                 console.log("Connecting to ROV:" + rovPeerId);
                 const rovDataConnection = context.thisPeer.connect(rovPeerId, {
                     reliable: true,

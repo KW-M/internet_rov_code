@@ -2,10 +2,15 @@
 <html>
 
 <head>
+    <script>
+        navigator.getGamepads(console.log);
+    </script>
     <title>ROV Cockpit</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link rel="stylesheet" type="text/css" href="../css/style.css" />
+
 </head>
 
 <body>
@@ -101,7 +106,6 @@
 
         <!-- Gamepad Help Tooltip Stuff -->
         <div id="gamepad-help-tooltip" class="popper-tooltip" role="tooltip">
-            <!-- <div data-popper-arrow class="popper-tooltip-arrow"></div> -->
             <span id="gamepad-help-text">Gamepad Help</span>
         </div>
 
@@ -124,11 +128,6 @@
                             transform="matrix(0.622551,0,0,0.622551,61.2384,139.288)">
                             <circle cx="55.5" cy="55.5" r="55.5" style="fill:#419bf3;" />
                         </g>
-                        <g id="stick_bg_left">
-                            <circle id="shadow10" cx="97.04" cy="175.08" r="26.46" style="fill-opacity:0.5;" />
-                            <circle id="Oval5" cx="95.79" cy="173.84" r="25.21"
-                                style="fill:#fff;stroke:#000;stroke-width:2.49px;" />
-                        </g>
                         <g id="l_stick_right_direction_highlight" class="gamepad-arrow-highlight"
                             transform="matrix(0.412655,0,0,0.672778,28.1146,52.0672)">
                             <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z"
@@ -149,6 +148,12 @@
                             <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z"
                                 style="fill:#ff00bf;" />
                         </g>
+                        <g id="stick_bg_left">
+                            <circle id="shadow10" cx="97.04" cy="175.08" r="26.46" style="fill-opacity:0.5;" />
+                            <circle id="Oval5" cx="95.79" cy="173.84" r="25.21"
+                                style="fill:#fff;stroke:#000;stroke-width:2.49px;" />
+                        </g>
+
                         <g transform="translate(95.79 173.84)">
                             <!--container for stick so it's transform can start at zero zero -->
                             <g id="stick_left">
@@ -279,11 +284,6 @@
                             transform="matrix(0.622551,0,0,0.622551,74.2846,141.118)">
                             <circle cx="188.5" cy="55.5" r="55.5" style="fill:#419bf3;" />
                         </g>
-                        <g id="stick_bg_right">
-                            <circle id="shadow12" cx="192.96" cy="176.33" r="26.46" style="fill-opacity:0.5;" />
-                            <circle id="Oval6" cx="191.72" cy="175.08" r="25.21"
-                                style="fill:#fff;stroke:#000;stroke-width:2.49px;" />
-                        </g>
                         <g id="r_stick_right_direction_highlight" class="gamepad-arrow-highlight"
                             transform="matrix(0.412655,0,0,0.672778,123.96,53.3372)">
                             <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z"
@@ -303,6 +303,11 @@
                             transform="matrix(2.52678e-17,-0.412655,0.672778,4.11958e-17,69.8626,242.785)">
                             <path d="M164,187.3l0,-12.6l61.653,0l0,-11.7l29.347,18l-29.347,18l0,-11.7l-61.653,-0Z"
                                 style="fill:#ff00bf;" />
+                        </g>
+                        <g id="stick_bg_right">
+                            <circle id="shadow12" cx="192.96" cy="176.33" r="26.46" style="fill-opacity:0.5;" />
+                            <circle id="Oval6" cx="191.72" cy="175.08" r="25.21"
+                                style="fill:#fff;stroke:#000;stroke-width:2.49px;" />
                         </g>
                         <g transform="translate(191.72 175.08)">
                             <!--container for stick so it's transform can start at zero zero -->

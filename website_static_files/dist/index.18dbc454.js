@@ -525,31 +525,36 @@ function hmrAcceptRun(bundle, id) {
 // import {} from "./libraries/toastify-js.js";
 // import {} from "./libraries/joymap.min.js";
 var _inspect = require("@xstate/inspect");
-var _utilJs = require("./util.js");
 // import {} from "./ui.js";
 // import {} from "./api.js";
 // import {} from "./connection.js";
 // import {} from "./gamepad-emulation.js";
 // import {} from "./gamepad-ui.js";
-// import {} from "./gamepad.js";
-var _siteInit = require("./siteInit");
-var _rovConnStateMachine = require("./rovConnStateMachine");
 var _gamepadJs = require("./gamepad.js");
-var _gamepadUiJs = require("./gamepad-ui.js");
-var _gamepadEmulationJs = require("./gamepad-emulation.js");
+var _messageHandler = require("./messageHandler");
+var _utilJs = require("./util.js");
+var _uiJs = require("./ui.js");
 var _xstate = require("xstate");
 var _actions = require("xstate/lib/actions");
-var _messageHandler = require("./messageHandler");
-var _uiJs = require("./ui.js");
-// show an inspector
+var _siteInit = require("./siteInit");
+var _peerConnStateMachineJs = require("./peerConnStateMachine.js");
+var _peerServerConnStateMachineJs = require("./peerServerConnStateMachine.js");
+// import { initGamepadSupport } from "./gamepad.js";
+// import { gamepadUi } from "./gamepad-ui.js";
+// import { gamepadEmulator } from "./gamepad-emulation.js";
+// show an inspector if the query string is present
 if (_utilJs.getURLQueryStringVariable("debug-mode")) _inspect.inspect({
     iframe: false
 });
-const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QBGAJxTssgKwAGZVIAsixQCYAzFIBsAGhABPRHOwB2Xcu3b1ADim6ZBg7oMBfLybRZsBgBXTEwsKGwAWThYVBg6AAlUTAgAGzAichoAOVY6SJpcXGYAcXoqAHlGCoA1MT4BIRExSQQHXWsPA2U5Ryt1OykTcwRbA2wtAylHR3dlGZkfPwwcYNDwqJi4sETktIzSEoqqfMLisroAMQYKyOq6pBAGwWFRR9aAWm0Jw1lfq2UNmUBm0w0QYwmiimMzmCyWIH8qxCYUwUFIAHUaAAhSi0OgAYQAMhVcDR6vwXs13ogdB1FBpdLN1LoWVJtI4wQgVI5sDJXOzgeoQY5XD5fCBMLwIHAxIi8IQSOTGq8Wogvh0PGz1NruoDdNqrJy+RN+iL1DIZFpLdpFPC5WsURF8SJMGAAMZNTB0Ki8Ri8ABuSspb1ArSkwIm2isimZNpU+pZnMUVis2Ec6is2gMzgz0ZcdpWgWRGxKqGQYG4qAgdFwQW4fEVj2entVCHDPJkPSjVkc9PTbMNZkQ-XGchtMhTGcBBYCDo20VgsXiSRS6SIQZb1LbqcU6YG7LZyn0+nUnPUNuwGeTuj0HlcMnUM6R61RG5VW6+43pUzkUwBQJBTk9DpPo7H3dM7HmJ9sFYEQwDfKlQxpZlsHcS1GQGKY9BkJNjWzFlNG0KR6U7KwnwQkMJDVFQfh-f49WBTlpk6cNdCsAxNHPcMyLFIA */ _xstate.createMachine({
+new _gamepadJs.GamepadController();
+const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QAmAGwBmbAEYAHMoAMAdg0BWbQBYVATkNyANCACeibQq0y9U1XLVqpclQF8P5tFmwMAV0xMLChsADlefDoAYRFMMABjfEhSAAUaGgY6XCyANSzYgHlw8JoYqgoSuhpcKmYAIQAZClwACRpWMT4BIRExSQRlQw1sdzkZRTk9ZTkRxT1zKwRHUbk5jVU9bXk1Q00vHwwcQODQ7DSwMCIc64A3a9j4pJSIchpw1joAWVrcZgA4vQqEVGEU8t1+IJhKIkBJEFN5NgpBpDG49HJtMo9GosUtEHptthXFN3DoZHtjIcQL4TkEQpgwpdHrh7o84sEXqkAUUqD8-oD6AAxBhFb5giFwnrQ-pwwaKRRuMYyZRSQzKDQUuSbRT4hCE7TEqSkxTkymGam0-z00KkVitGIlMoVOgNACqVBB4ToaSYuFyXSlUL6sNAgykyLUKqmalmemMmJserVemwqqkGbUihkunsUktx2tZ0Z6Uy2VyDAK2SFzHqTRqDFFDEhvRhA0QGlNRtVeh06k7ez1Mi02FRRhzKM7GYLflODKgpAA6jQGgwqDE6DW6w2my2ZaH4QhswZsMOMVIszttLrLIhpooxp2HFJtuo1BMZ3Tiwvlw1KLRYiaIpcj3EN2yPGQc2RXsDEggwUxkZMkW0QwVVjFVILkY05E-bBmAAdwwIRGQlJ5OWSV0AnwfARB9Ig4FgUhHVKco+XdT1ql9P5OlAts5TvHRsH0dZjUJEwnz1bZDDTbQXH0YZUOUTxqUwXgIDgMQrQIYh8F42Uw2kB9VRQ2ZDBsJT0T1XRR1mWZTW1KNZGxXC53OSJog5BJkkgPSD0GaMjQMLERMUNRtmTdQ0xxU0KXUbNjG0FybUZC4rhuVkiAeG5PK5CBfPAxV9mwNFcTMzQTCw5NO2RRRjAw1wUNRHDvBpQtXMZfL+IQHNRlcILZiw0LwtvBBrzGLDtRkScUL63CCKI0JSJyiiGiomjMDohjOoMhAAFodiEjNtA0TRjvsfZEJGmYZFHSlZijHYXGao4-FYEQwG2w8VEgoTNXVZQVW2RQkxGtVlFHDQ3E0ewsNxexP0+wZdsi7QjpOnRNXjKM9V241TwmJqs1cCY9i8LwgA */ _xstate.createMachine({
     context: {
         peerServerConfig: {
         },
-        rovIpAddr: ""
+        rovIpAddr: "",
+        peerServerConnActor: null,
+        peerConnActor: null,
+        pingSenderActor: null
     },
     id: "main",
     initial: "Start",
@@ -570,33 +575,30 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
             }
         },
         Running: {
-            type: "parallel",
-            entry: "hideLoadingUi",
+            entry: "startPeerServerConnMachine",
+            exit: "stopPeerServerConnMachine",
+            invoke: {
+                src: "awaitDisconnectBtnPress",
+                id: "awaitDisconnectBtnPress"
+            },
+            initial: "Not_Connected",
             states: {
-                Connection_To_Rov: {
-                    exit: _xstate.send({
-                        type: "CLEANUP_CONNECTIONS"
-                    }, {
-                        to: "rovConnectionMachine"
-                    }),
-                    invoke: {
-                        src: _rovConnStateMachine.rovConnectionMachine,
-                        id: "rovConnectionMachine",
-                        data: {
-                            ..._rovConnStateMachine.rovConnectionMachine.context,
-                            rovIpAddr: (context, event)=>context.rovIpAddr
-                            ,
-                            peerServerConfig: (context, event)=>context.peerServerConfig
+                Not_Connected: {
+                    on: {
+                        PEER_SERVER_CONNECTION_ESTABLISHED: {
+                            target: "Peer_Server_Connected"
                         }
                     }
                 },
-                Gamepad_Support: {
-                },
-                Message_Handler: {
-                    invoke: {
-                        src: "handleSendingMessages",
-                        id: "handleSendingMessages"
-                    },
+                Peer_Server_Connected: {
+                    entry: [
+                        "startPeerConnMachine",
+                        "startPingMessageGenerator"
+                    ],
+                    exit: [
+                        "stopPeerConnMachine",
+                        "stopPingMessageGenerator"
+                    ],
                     on: {
                         SEND_MESSAGE_TO_ROV: {
                             actions: "sendMessageToRov"
@@ -608,8 +610,34 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
                 }
             },
             on: {
+                DISCONNECT_BUTTON_PRESSED: {
+                    target: "Awaiting_ROV_Connect_Button_Press"
+                },
+                PEER_NOT_YET_READY_ERROR: {
+                    target: "Awaiting_ROV_Connect_Button_Press"
+                },
+                PEER_SERVER_FATAL_ERROR: {
+                    target: "Running",
+                    internal: false
+                },
+                WEBRTC_FATAL_ERROR: {
+                    actions: "reloadWebsite",
+                    target: "Done"
+                },
                 WEBSITE_CLOSE: {
                     target: "Done"
+                }
+            }
+        },
+        Awaiting_ROV_Connect_Button_Press: {
+            entry: "showDisconnectedUi",
+            invoke: {
+                src: "awaitConnectBtnPress",
+                id: "awaitConnectBtnPress"
+            },
+            on: {
+                CONNECT_BUTTON_PRESSED: {
+                    target: "Running"
                 }
             }
         },
@@ -619,41 +647,90 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
     }
 }, {
     actions: {
+        showDisconnectedUi: ()=>{
+            _uiJs.showROVDisconnectedUi();
+        },
+        reloadWebsite: ()=>{
+            _uiJs.showReloadingWebsiteUi();
+            setTimeout(()=>{
+                window.location.reload();
+            }, 2000);
+        },
         setRovIpAddr: _xstate.assign({
             rovIpAddr: (context, event)=>event.data.rovIpAddr
         }),
         setPeerServerConfig: _xstate.assign({
             peerServerConfig: (context, event)=>event.data.peerServerConfig
         }),
+        startPeerServerConnMachine: _xstate.assign({
+            peerServerConnActor: (context)=>_xstate.spawn(_peerServerConnStateMachineJs.peerServerConnMachine.withContext({
+                    ..._peerServerConnStateMachineJs.peerServerConnMachine.context,
+                    rovIpAddr: context.rovIpAddr,
+                    peerServerConfig: context.peerServerConfig
+                }), "peerServerConnMachine")
+        }),
+        startPeerConnMachine: _xstate.assign({
+            peerServerConnActor: (context, event)=>{
+                return _xstate.spawn(_peerConnStateMachineJs.peerConnMachine.withContext({
+                    ..._peerConnStateMachineJs.peerConnMachine.context,
+                    thisPeer: event.data
+                }), "peerConnMachine");
+            }
+        }),
+        startPingMessageGenerator: _xstate.assign({
+            pingSenderActor: _xstate.spawn(()=>{
+                return (callback)=>{
+                    const intervalId = setInterval(()=>{
+                        callback({
+                            type: "SEND_MESSAGE_TO_ROV",
+                            data: JSON.stringify({
+                                "ping": Date.now()
+                            })
+                        }, {
+                            to: "rovConnectionMachine"
+                        });
+                    }, 5000);
+                    return ()=>{
+                        clearInterval(intervalId);
+                    };
+                };
+            }, "pingMessageGenerator")
+        }),
+        stopPingMessageGenerator: _actions.stop("pingMessageGenerator"),
+        stopPeerServerConnMachine: _actions.stop("peerServerConnMachine"),
+        stopPeerConnMachine: _actions.stop("peerConnMachine"),
+        gotMessageFromRov: (context, event)=>{
+            _messageHandler.handleRovMessage(event.data);
+        },
         sendMessageToRov: _xstate.send((context, event)=>{
             return {
                 type: 'SEND_MESSAGE_TO_ROV',
                 data: event.data
             };
         }, {
-            to: "rovConnectionMachine"
-        }),
-        gotMessageFromRov: (context, event1)=>{
-            (context, event)=>{
-                return _messageHandler.handleRovMessage(event.data);
-            };
-        },
-        hideLoadingUi: _uiJs.hideLoadingUi
+            to: "peerConnMachine"
+        })
     },
     services: {
-        handleSendingMessages: (context, event)=>{
-            return (callback, onReceive)=>{
-                intervalId = setInterval(()=>{
-                    callback({
-                        type: "SEND_MESSAGE_TO_ROV",
-                        data: JSON.stringify({
-                            "ping": Date.now()
-                        })
-                    });
-                }, 5000);
-                return ()=>{
-                    clearInterval(intervalId);
-                };
+        awaitConnectBtnPress: (context, event)=>{
+            return (sendStateChange)=>{
+                const err = event.data;
+                console.log(event);
+                var toastMsg = null;
+                if (err && err.type == "peer-unavailable") toastMsg = _uiJs.showToastDialog("ROV is not yet online!", 12000, false);
+                const cleanupFunc = _uiJs.setupConnectBtnClickHandler(()=>{
+                    if (toastMsg) toastMsg.hideToast();
+                    sendStateChange("CONNECT_BUTTON_PRESSED");
+                });
+                return cleanupFunc;
+            };
+        },
+        awaitDisconnectBtnPress: ()=>{
+            return (sendStateChange)=>{
+                const cleanupFunc = _uiJs.setupDisconnectBtnClickHandler(()=>{
+                    sendStateChange("DISCONNECT_BUTTON_PRESSED");
+                });
+                return cleanupFunc;
             };
         }
     },
@@ -663,16 +740,14 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
 window.mainRovMachineService = _xstate.interpret(mainMachine, {
     devTools: true
 });
-window.mainRovMachineService.start();
+// window.mainRovMachineService.onChange(console.log)
+// window.mainRovMachineService.start();
 window.onbeforeunload = ()=>{
     window.mainRovMachineService.send("WEBSITE_CLOSE");
-};
-function sendUpdateToROV(message) {
-    window.mainRovMachineService.send({
-        type: "SEND_MESSAGE_TO_ROV",
-        data: message
-    });
-} // var lastTimeRecvdPong = 0;
+} // function sendUpdateToROV(message) {
+ //     window.mainRovMachineService.send({ type: "SEND_MESSAGE_TO_ROV", data: message });
+ // }
+ // var lastTimeRecvdPong = 0;
  // const handleROVMessage = function (message) {
  //     msgData = JSON.parse(message);
  //     if (msgData['pong']) {
@@ -714,22 +789,6 @@ function sendUpdateToROV(message) {
  //     }
  //     return false
  // }
- // var buttonMappingNames = {
- //     'A': { func: 'photo', desc: 'Take Photo' },
- //     'B': { func: 'record', desc: 'Start/Stop Recording' },
- //     'X': { func: 'None', desc: 'TBD' },
- //     'Y': { func: 'None', desc: 'TBD' },
- //     'L1': { func: 'clawOpen', mode: "btn_hold_allowed", desc: 'Open Claw' },
- //     'R1': { func: 'clawOpen', mode: "btn_hold_allowed", desc: 'Open Claw' },
- //     'L2': { func: 'clawClose', mode: "btn_hold_allowed", desc: 'Close Claw' },
- //     'R2': { func: 'clawClose', mode: "btn_hold_allowed", desc: 'Close Claw' },
- //     'SELECT': { func: 'bitrate-', mode: "btn_hold_allowed", desc: 'TODO: Decrease Video Quality (lowers latency)' },
- //     'START': { func: 'bitrate+', mode: "btn_hold_allowed", desc: 'TODO: Increase Video Quality (adds latency)' },
- //     'dpadUp': { func: 'lights+', mode: "btn_hold_allowed", desc: 'TODO: Increase Intensity of Lights' },
- //     'dpadDown': { func: 'lights-', mode: "btn_hold_allowed", desc: 'TODO: Decrease Intensity of Lights' },
- //     'dpadLeft': { func: 'exposure-', mode: "btn_hold_allowed", desc: 'TODO: Dim Camera Exposure' },
- //     'dpadRight': { func: 'exposure+', mode: "btn_hold_allowed", desc: 'TODO: Brighten Camera Exposure' },
- // }
  // var lastROVMotionMessage = {};
  // initGamepadSupport(gamepadUi, gamepadEmulator, handleGamepadInput);
  // function handleGamepadInput(buttonStates, axisState) {
@@ -764,274 +823,378 @@ function sendUpdateToROV(message) {
  //         sendUpdateToROV(JSON.stringify(messageToRov));
  //     }
  // }
+;
 
-},{"./siteInit":"8TXLV","@xstate/inspect":"39FuP","./util.js":"doATT","./rovConnStateMachine":"j5PiZ","./gamepad.js":"2YxSr","./gamepad-ui.js":"2JE4J","./gamepad-emulation.js":"iwJat","xstate":"2sk4t","xstate/lib/actions":"b9dCp","./messageHandler":"at2SH","./ui.js":"efi6n"}],"8TXLV":[function(require,module,exports) {
+},{"@xstate/inspect":"39FuP","./gamepad.js":"2YxSr","./messageHandler":"at2SH","./util.js":"doATT","./ui.js":"efi6n","xstate":"2sk4t","xstate/lib/actions":"b9dCp","./siteInit":"8TXLV","./peerConnStateMachine.js":"hGSry","./peerServerConnStateMachine.js":"3YceA"}],"39FuP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "siteInitMachine", ()=>siteInitMachine
+parcelHelpers.export(exports, "createDevTools", ()=>_browserJs.createDevTools
 );
-var _xstate = require("xstate");
-var _actions = require("xstate/lib/actions");
-var _util = require("./util");
-var _ui = require("./ui");
-var _consts = require("./consts");
-// import { runRovConnectionMachine } from "./rovConnStateMachine";
-const machineFunctions = {
-    actions: {
-        setCloudPeerServerConfig: _xstate.assign({
-            peerServerConfig: _consts.peerServerCloudOptions
-        }),
-        setLocalPeerServerConfig: _xstate.assign({
-            peerServerConfig: _consts.peerServerLocalOptions
-        }),
-        setRovIpAddr: _xstate.assign({
-            rovIpAddr: (context, event)=>{
-                console.log(event);
-                return event.data;
-            }
-        }),
-        showIpScanButton: ()=>{
-            _ui.showToastMessage("Click scan to find the ROV locally.");
-            _ui.showToastMessage("No internet connection.");
-            _ui.showScanIpBtn();
-        },
-        hideIpScanButton: ()=>{
-            _ui.hideScanIpButton();
-        },
-        hideLoadingUi: ()=>{
-            _ui.hideLoadingUi();
-        },
-        showIpScanningUi: ()=>{
-            _ui.showLoadingUi("Scanning for ROV IP address...");
-        },
-        redirectBrowserToRovIp: (context, event)=>{
-            window.location = "http://" + event.data;
-        },
-        siteReady: _xstate.sendParent((context, event)=>{
-            return {
-                type: "SITE_READY",
-                data: context
-            };
-        })
-    },
-    services: {
-        checkInternetAvailable: (context, event)=>{
-            _ui.showLoadingUi("Checking internet connection...");
-            return (callback, onReceive)=>{
-                _util.isInternetAvailable("https://" + _consts.peerServerCloudOptions.host).then((internetOnline)=>{
-                    if (internetOnline) callback("INTERNET_AVAILABLE");
-                    else {
-                        // INTERNET OFFLINE
-                        // check if we are viewing this site at an IP ADDRESS or .local domain
-                        // indicating this page was served directly from the rov (presumably)
-                        const urlHostParts = window.location.host.split(".");
-                        if (urlHostParts.length == 4 && parseInt(urlHostParts[3]) != NaN || urlHostParts.length == 2 && urlHostParts[1] == "local") // in which case we are viewing this site at the rov's ip (presumably)
-                        callback("URL_IS_ROV_IP");
-                        else // otherwise the internet is just offline
-                        callback("INTERNET_OFFLINE");
-                    }
-                });
-            // }
-            };
-        },
-        setupWaitForUserScanButtonPress: (context, event)=>{
-            return (callback, onReceive)=>{
-                _ui.showScanIpBtn();
-                const onBtnClick = ()=>{
-                    callback("SCAN_BUTTON_CLICKED");
-                };
-                btnElem = document.getElementById("scan_for_ip_btn");
-                btnElem.addEventListener("click", onBtnClick);
-                // cleanup function on state exit:
-                return ()=>{
-                    btnElem.removeEventListener("click", onBtnClick);
-                // hideBtnElem()
-                };
-            };
-        },
-        scanForRovIP: (context, event)=>{
-            return (callback, onReceive)=>{
-                _ui.showLoadingUi("Scanning for ROV IP address...");
-            // setTimeout(() => {
-            // hideLoadingUi()
-            //   callback({
-            //     type: "ROV_IP_FOUND",
-            //     data: "UHhh the ip address man!",
-            //   });
-            // }, 3000);
-            };
-        }
-    },
-    guards: {
-    }
-};
-const siteInitMachine = /** @xstate-layout N4IgpgJg5mDOIC5SwJYBcwEkB26B0AwgBZgDGA1itlAPo4YBO2YaNAgqaXLAMQCqAJQAydAMo0BAeQBqdAAqJQABwD2qNChXZFIAB6IATAFYADHgBsADhMBOACxGAzOYCMJgw-MAaEAE9ELgDslnhGdo5GLkYGLpZGToEGAL5JPupYuGiEJBRUtPRgTCzsnNw8mAByACoAogIVNVXs0myYQmwAQkI1OqrqmtpIeoaWdhbBdpaBto52NoE2Rj7+CEY2eIEuLnYm0Zb2Jnbmiylp6Bn4xGSU1HTYjMysHFywvJW19Y00kgBiP0KVHpDProAY6fQIAC0bkCeH2LnMBlGNkO5kCdjsy0MYTwzhsCKCNkcBhMpOSqRA6Rw+AA6gBDUG3H4qBg0PiwQo0USkOnYGgdACuaDQWhocgYZVEBDYFX5fCqVUksoIAIIAGkagARXpqUFacGIRwmELxayRAyOBEGFGBLEIRyBWGORyWIIOywWzaWU6U87UrLc3m4JksiQyeQ8KSyTByGg-SR8Cra4G6jT6oYQzYuXGuWbBSxoozmbx+Q2TOGLV2k2ymGzeilUzJ4QPYYO0ZmsqMRmNc6UVCqVADiNDqUgEOv66dAEMt5jhLiNro8RkSBnRduic5MrhcdecrsRjhSFOwKggcB0jcuORu+XuhUeJRe8BTk8G08QkJJjjhTncxhMS0rQMO04jwOwoniaZAIxI1zB9K8snpRl21DdlORbfkhRFPlxW4Cc9XfYYoRJMYkU2YxFxdBFHDtOxjFCAxEUCWYbCYlxjAQv0mxbNs41DLsYwItMiIhIwCw2dx0RibZLDkyw6OOPAEUmaJJg8XcbC4jB-TwARIBQCVSFYDoGBUAB3DlWSqFQw2jBRX0Ig0EHMSJcTWTYbCsUxZhLFYDCYvATAXSiPXCRwbCJbSLgDc4JDAOkIBWZRUzBDNEGLMZTECcTAlcgsLSWUsEHmPA2I9FcPGCIkjwbbj0GEtKPxIpE8HIji-0sajzFo4roR-YxHTy45xN3fZyRSIA */ _xstate.createMachine({
-    context: {
-        peerServerConfig: {
-        },
-        rovIpAddr: null
-    },
-    id: "siteInit",
-    initial: "Checking_Internet_Access",
-    states: {
-        Checking_Internet_Access: {
-            invoke: {
-                src: "checkInternetAvailable",
-                id: "Check_Internet_Available"
-            },
-            on: {
-                URL_IS_ROV_IP: {
-                    actions: [
-                        "setLocalPeerServerConfig",
-                        "showHttpGamepadSupportDisabledAlert", 
-                    ],
-                    target: "#siteInit.Site_Ready"
-                },
-                INTERNET_AVAILABLE: {
-                    actions: "setCloudPeerServerConfig",
-                    target: "#siteInit.Site_Ready"
-                },
-                INTERNET_OFFLINE: {
-                    actions: [
-                        "showIpScanButton",
-                        "hideLoadingUi"
-                    ],
-                    target: "#siteInit.Waiting_For_User_Scan_Button_Press"
-                }
-            }
-        },
-        Waiting_For_User_Scan_Button_Press: {
-            description: "We need this because of browser popup blocking w/o user interaction",
-            invoke: {
-                src: "setupWaitForUserScanButtonPress",
-                id: "wait_for_scan_button_press"
-            },
-            on: {
-                SCAN_BUTTON_CLICKED: {
-                    actions: [
-                        "showIpScanningUi",
-                        "hideIpScanButton"
-                    ],
-                    target: "#siteInit.Scanning_For_ROV_IP"
-                }
-            }
-        },
-        Scanning_For_ROV_IP: {
-            invoke: {
-                src: "scanForRovIP",
-                id: "scan_for_rov_ip_addr"
-            },
-            on: {
-                ROV_IP_FOUND: {
-                    actions: "setRovIpAddr",
-                    target: "#siteInit.Redirect_Browser_To_ROV_IP"
-                },
-                IP_SCANNING_ERROR: {
-                    actions: [
-                        "showIpScanButton",
-                        "hideLoadingUi"
-                    ],
-                    target: "#siteInit.Waiting_For_User_Scan_Button_Press"
-                }
-            }
-        },
-        Redirect_Browser_To_ROV_IP: {
-            entry: "redirectBrowserToRovIp"
-        },
-        Site_Ready: {
-            entry: "siteReady",
-            type: "final"
-        }
-    }
-}, machineFunctions); // const machineFunctionsMock = {
- //   actions: {
- //     setCloudPeerServerConfig: assign({
- //       peerServerConfig: {
- //         hi: "clound",
- //       },
- //     }),
- //     setLocalPeerServerConfig: assign({
- //       peerServerConfig: {
- //         hi: "local",
- //       },
- //     }),
- //     setRovIpAddr: assign({
- //       rovIpAddr: (context, event) => {
- //         console.log(event);
- //         return "192.168.1.1.11.1";
- //       },
- //     }),
- //     setGamepadOnscreenFallback: () => { },
- //     redirectBrowserToRovIp: (context, event) => {
- //       // window.location = "http://" + event.data
- //     },
- //   },
- //   services: {
- //     checkInternetAvailable: (context, event) => {
- //       return (callback, onReceive) => {
- //         // // check if we are viewing this site at an IP ADDRESS or .local domain
- //         // // indicating this page was served directly from the rov (presumably)
- //         // const urlHostParts = window.location.host.split(".");
- //         // if (
- //         //   (urlHostParts.length == 4 && parseInt(urlHostParts[3]) != NaN) ||
- //         //   (urlHostParts.length == 2 && urlHostParts[1] == "local")
- //         // ) {
- //         //   callback("URL_IS_ROV_IP");
- //         // } else {
- //         // checkInternetAvailable().then(()=>{
- //         //   callback("INTERNET_AVAILABLE");
- //         // }).catch((e)=>{
- //         //   console.warn("Internet Offline, starting switch to local mode", e)
- //         //   callback("INTERNET_OFFLINE");
- //         // })
- //         // }
- //         setTimeout(() => {
- //           callback("URL_IS_ROV_IP");
- //           // INTERNET_OFFLINE
- //           // URL_IS_ROV_IP
- //         }, 3000);
- //       };
- //     },
- //     setupWaitForUserScanButtonPress: (context, event) => {
- //       return (callback, onReceive) => {
- //         const onBtnClick = () => {
- //           callback("SCAN_BUTTON_CLICKED");
- //         };
- //         // btnElem = makeButtonElem()
- //         // btnElem.addEventListener("click",onBtnClick)
- //         setTimeout(() => {
- //           onBtnClick();
- //         }, 3000);
- //         // cleanup function on state exit:
- //         return () => {
- //           // btnElem.removeEventListener("click",onBtnClick)
- //           // hideBtnElem()
- //         };
- //       };
- //     },
- //     scanForRovIP: (context, event) => {
- //       return (callback, onReceive) => {
- //         setTimeout(() => {
- //           callback({
- //             type: "ROV_IP_FOUND",
- //             data: "hids",
- //           });
- //         }, 3000);
- //       };
- //     },
- //     createGamepadHttpsIframe: (context, event) => {
- //       return (callback, onReceive) => {
- //         setTimeout(() => {
- //           // callback("GAMEPAD_IFRAME_LOADED");
- //           callback("GAMEPAD_IFRAME_LOAD_ERROR");
- //         }, 3000);
- //       };
- //     },
- //   },
- //   guards: {},
- // }
+parcelHelpers.export(exports, "createWebSocketReceiver", ()=>_browserJs.createWebSocketReceiver
+);
+parcelHelpers.export(exports, "createWindowReceiver", ()=>_browserJs.createWindowReceiver
+);
+parcelHelpers.export(exports, "inspect", ()=>_browserJs.inspect
+);
+var _browserJs = require("./browser.js");
 
-},{"xstate":"2sk4t","xstate/lib/actions":"b9dCp","./consts":"2J0f1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./ui":"efi6n","./util":"doATT"}],"2sk4t":[function(require,module,exports) {
+},{"./browser.js":"1CTUP","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1CTUP":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "createDevTools", ()=>createDevTools
+);
+parcelHelpers.export(exports, "createWebSocketReceiver", ()=>createWebSocketReceiver
+);
+parcelHelpers.export(exports, "createWindowReceiver", ()=>createWindowReceiver
+);
+parcelHelpers.export(exports, "inspect", ()=>inspect
+);
+parcelHelpers.export(exports, "serviceMap", ()=>serviceMap
+);
+var _tslibJs = require("./_virtual/_tslib.js");
+var _xstate = require("xstate");
+var _inspectMachineJs = require("./inspectMachine.js");
+var _serializeJs = require("./serialize.js");
+var _utilsJs = require("./utils.js");
+var serviceMap = new Map();
+function createDevTools() {
+    var services = new Set();
+    var serviceListeners = new Set();
+    return {
+        services: services,
+        register: function(service) {
+            services.add(service);
+            serviceMap.set(service.sessionId, service);
+            serviceListeners.forEach(function(listener) {
+                return listener(service);
+            });
+            service.onStop(function() {
+                services.delete(service);
+                serviceMap.delete(service.sessionId);
+            });
+        },
+        unregister: function(service) {
+            services.delete(service);
+            serviceMap.delete(service.sessionId);
+        },
+        onRegister: function(listener) {
+            serviceListeners.add(listener);
+            services.forEach(function(service) {
+                return listener(service);
+            });
+            return {
+                unsubscribe: function() {
+                    serviceListeners.delete(listener);
+                }
+            };
+        }
+    };
+}
+var defaultInspectorOptions = {
+    url: 'https://statecharts.io/inspect',
+    iframe: function() {
+        return document.querySelector('iframe[data-xstate]');
+    },
+    devTools: function() {
+        var devTools = createDevTools();
+        globalThis.__xstate__ = devTools;
+        return devTools;
+    },
+    serialize: undefined
+};
+var getFinalOptions = function(options) {
+    var withDefaults = _tslibJs.__assign(_tslibJs.__assign({
+    }, defaultInspectorOptions), options);
+    return _tslibJs.__assign(_tslibJs.__assign({
+    }, withDefaults), {
+        url: new URL(withDefaults.url),
+        iframe: _utilsJs.getLazy(withDefaults.iframe),
+        devTools: _utilsJs.getLazy(withDefaults.devTools)
+    });
+};
+function inspect(options) {
+    var _a1 = getFinalOptions(options), iframe = _a1.iframe, url = _a1.url, devTools = _a1.devTools;
+    if (iframe === null) {
+        console.warn('No suitable <iframe> found to embed the inspector. Please pass an <iframe> element to `inspect(iframe)` or create an <iframe data-xstate></iframe> element.');
+        return undefined;
+    }
+    var inspectMachine = _inspectMachineJs.createInspectMachine(devTools, options);
+    var inspectService = _xstate.interpret(inspectMachine).start();
+    var listeners = new Set();
+    var sub = inspectService.subscribe(function(state) {
+        listeners.forEach(function(listener) {
+            return listener.next(state);
+        });
+    });
+    var targetWindow;
+    var client;
+    var messageHandler = function(event) {
+        if (typeof event.data === 'object' && event.data !== null && 'type' in event.data) {
+            if (iframe && !targetWindow) targetWindow = iframe.contentWindow;
+            if (!client) client = {
+                send: function(e) {
+                    targetWindow.postMessage(e, url.origin);
+                }
+            };
+            var inspectEvent = _tslibJs.__assign(_tslibJs.__assign({
+            }, event.data), {
+                client: client
+            });
+            inspectService.send(inspectEvent);
+        }
+    };
+    window.addEventListener('message', messageHandler);
+    window.addEventListener('unload', function() {
+        inspectService.send({
+            type: 'unload'
+        });
+    });
+    var stringifyWithSerializer = function(value) {
+        return _utilsJs.stringify(value, options === null || options === void 0 ? void 0 : options.serialize);
+    };
+    devTools.onRegister(function(service) {
+        var _a;
+        var state1 = service.state || service.initialState;
+        inspectService.send({
+            type: 'service.register',
+            machine: _serializeJs.stringifyMachine(service.machine, options === null || options === void 0 ? void 0 : options.serialize),
+            state: _serializeJs.stringifyState(state1, options === null || options === void 0 ? void 0 : options.serialize),
+            sessionId: service.sessionId,
+            id: service.id,
+            parent: (_a = service.parent) === null || _a === void 0 ? void 0 : _a.sessionId
+        });
+        inspectService.send({
+            type: 'service.event',
+            event: stringifyWithSerializer(state1._event),
+            sessionId: service.sessionId
+        });
+        // monkey-patch service.send so that we know when an event was sent
+        // to a service *before* it is processed, since other events might occur
+        // while the sent one is being processed, which throws the order off
+        var originalSend = service.send.bind(service);
+        service.send = function inspectSend(event, payload) {
+            inspectService.send({
+                type: 'service.event',
+                event: stringifyWithSerializer(_xstate.toSCXMLEvent(_xstate.toEventObject(event, payload))),
+                sessionId: service.sessionId
+            });
+            return originalSend(event, payload);
+        };
+        service.subscribe(function(state) {
+            // filter out synchronous notification from within `.start()` call
+            // when the `service.state` has not yet been assigned
+            if (state === undefined) return;
+            inspectService.send({
+                type: 'service.state',
+                // TODO: investigate usage of structuredClone in browsers if available
+                state: _serializeJs.stringifyState(state, options === null || options === void 0 ? void 0 : options.serialize),
+                sessionId: service.sessionId
+            });
+        });
+        service.onStop(function() {
+            inspectService.send({
+                type: 'service.stop',
+                sessionId: service.sessionId
+            });
+        });
+    });
+    if (iframe) {
+        iframe.addEventListener('load', function() {
+            targetWindow = iframe.contentWindow;
+        });
+        iframe.setAttribute('src', String(url));
+    } else targetWindow = window.open(String(url), 'xstateinspector');
+    return {
+        send: function(event) {
+            inspectService.send(event);
+        },
+        subscribe: function(next, onError, onComplete) {
+            var observer = _xstate.toObserver(next, onError, onComplete);
+            listeners.add(observer);
+            observer.next(inspectService.state);
+            return {
+                unsubscribe: function() {
+                    listeners.delete(observer);
+                }
+            };
+        },
+        disconnect: function() {
+            inspectService.send('disconnect');
+            window.removeEventListener('message', messageHandler);
+            sub.unsubscribe();
+        }
+    };
+}
+function createWindowReceiver(options) {
+    var _a = options || {
+    }, _b = _a.window, ownWindow = _b === void 0 ? window : _b, _c = _a.targetWindow, targetWindow = _c === void 0 ? window.self === window.top ? window.opener : window.parent : _c;
+    var observers = new Set();
+    var latestEvent;
+    var handler = function(event) {
+        var data = event.data;
+        if (_utilsJs.isReceiverEvent(data)) {
+            latestEvent = _utilsJs.parseReceiverEvent(data);
+            observers.forEach(function(listener) {
+                return listener.next(latestEvent);
+            });
+        }
+    };
+    ownWindow.addEventListener('message', handler);
+    var actorRef = _xstate.toActorRef({
+        id: 'xstate.windowReceiver',
+        send: function(event) {
+            if (!targetWindow) return;
+            targetWindow.postMessage(event, '*');
+        },
+        subscribe: function(next, onError, onComplete) {
+            var observer = _xstate.toObserver(next, onError, onComplete);
+            observers.add(observer);
+            return {
+                unsubscribe: function() {
+                    observers.delete(observer);
+                }
+            };
+        },
+        stop: function() {
+            observers.clear();
+            ownWindow.removeEventListener('message', handler);
+        },
+        getSnapshot: function() {
+            return latestEvent;
+        }
+    });
+    actorRef.send({
+        type: 'xstate.inspecting'
+    });
+    return actorRef;
+}
+function createWebSocketReceiver(options) {
+    var _a2 = options.protocol, protocol = _a2 === void 0 ? 'ws' : _a2;
+    var ws = new WebSocket("".concat(protocol, "://").concat(options.server));
+    var observers = new Set();
+    var latestEvent;
+    var actorRef = _xstate.toActorRef({
+        id: 'xstate.webSocketReceiver',
+        send: function(event) {
+            ws.send(_utilsJs.stringify(event, options.serialize));
+        },
+        subscribe: function(next, onError, onComplete) {
+            var observer = _xstate.toObserver(next, onError, onComplete);
+            observers.add(observer);
+            return {
+                unsubscribe: function() {
+                    observers.delete(observer);
+                }
+            };
+        },
+        getSnapshot: function() {
+            return latestEvent;
+        }
+    });
+    ws.onopen = function() {
+        actorRef.send({
+            type: 'xstate.inspecting'
+        });
+    };
+    ws.onmessage = function(event) {
+        if (typeof event.data !== 'string') return;
+        try {
+            var eventObject = JSON.parse(event.data);
+            if (_utilsJs.isReceiverEvent(eventObject)) {
+                latestEvent = _utilsJs.parseReceiverEvent(eventObject);
+                observers.forEach(function(observer) {
+                    observer.next(latestEvent);
+                });
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+    ws.onerror = function(err) {
+        observers.forEach(function(observer) {
+            var _a;
+            (_a = observer.error) === null || _a === void 0 || _a.call(observer, err);
+        });
+    };
+    return actorRef;
+}
+
+},{"./_virtual/_tslib.js":"4WlGW","xstate":"2sk4t","./inspectMachine.js":"b4BjV","./serialize.js":"elII6","./utils.js":"aNc4j","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4WlGW":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "__assign", ()=>__assign
+);
+parcelHelpers.export(exports, "__values", ()=>__values
+);
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */ var __assign = function() {
+    __assign = Object.assign || function __assign(t) {
+        for(var s, i = 1, n = arguments.length; i < n; i++){
+            s = arguments[i];
+            for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+function __values(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function() {
+            if (o && i >= o.length) o = void 0;
+            return {
+                value: o && o[i++],
+                done: !o
+            };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, '__esModule', {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === 'default' || key === '__esModule' || dest.hasOwnProperty(key)) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"2sk4t":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "actions", ()=>_actionsJs
@@ -1102,7 +1265,7 @@ var _typesJs = require("./types.js");
 var _utilsJs = require("./utils.js");
 var assign = _actionsJs.assign, send = _actionsJs.send, sendParent = _actionsJs.sendParent, sendUpdate = _actionsJs.sendUpdate, forwardTo = _actionsJs.forwardTo, doneInvoke = _actionsJs.doneInvoke;
 
-},{"./actions.js":"fKWcO","./utils.js":"5Ce8y","./mapState.js":false,"./types.js":"5mTTI","./State.js":"h85Z6","./Actor.js":"itCIE","./StateNode.js":"jHv62","./Machine.js":"cVglJ","./interpreter.js":"imBPa","./match.js":false,"./schema.js":false,"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./behaviors.js":"7RjKM"}],"fKWcO":[function(require,module,exports) {
+},{"./actions.js":"fKWcO","./Actor.js":"itCIE","./interpreter.js":"imBPa","./Machine.js":"cVglJ","./mapState.js":false,"./match.js":false,"./schema.js":false,"./State.js":"h85Z6","./StateNode.js":"jHv62","./behaviors.js":"7RjKM","./types.js":"5mTTI","./utils.js":"5Ce8y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"fKWcO":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "actionTypes", ()=>_actionTypesJs
@@ -1594,7 +1757,7 @@ function resolveActions(machine, currentState, currentContext, _event, actions, 
     ];
 }
 
-},{"./_virtual/_tslib.js":"4So72","./environment.js":"fNNF6","./utils.js":"5Ce8y","./types.js":"5mTTI","./actionTypes.js":"2WTWb","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4So72":[function(require,module,exports) {
+},{"./_virtual/_tslib.js":"4So72","./types.js":"5mTTI","./actionTypes.js":"2WTWb","./utils.js":"5Ce8y","./environment.js":"fNNF6","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4So72":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "__assign", ()=>__assign
@@ -1682,44 +1845,104 @@ function __spreadArray(to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, '__esModule', {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === 'default' || key === '__esModule' || dest.hasOwnProperty(key)) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
-
-},{}],"fNNF6":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5mTTI":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "IS_PRODUCTION", ()=>IS_PRODUCTION
+parcelHelpers.export(exports, "ActionTypes", ()=>ActionTypes
 );
-var IS_PRODUCTION = false;
+parcelHelpers.export(exports, "SpecialTargets", ()=>SpecialTargets
+);
+var ActionTypes;
+(function(ActionTypes1) {
+    ActionTypes1["Start"] = "xstate.start";
+    ActionTypes1["Stop"] = "xstate.stop";
+    ActionTypes1["Raise"] = "xstate.raise";
+    ActionTypes1["Send"] = "xstate.send";
+    ActionTypes1["Cancel"] = "xstate.cancel";
+    ActionTypes1["NullEvent"] = "";
+    ActionTypes1["Assign"] = "xstate.assign";
+    ActionTypes1["After"] = "xstate.after";
+    ActionTypes1["DoneState"] = "done.state";
+    ActionTypes1["DoneInvoke"] = "done.invoke";
+    ActionTypes1["Log"] = "xstate.log";
+    ActionTypes1["Init"] = "xstate.init";
+    ActionTypes1["Invoke"] = "xstate.invoke";
+    ActionTypes1["ErrorExecution"] = "error.execution";
+    ActionTypes1["ErrorCommunication"] = "error.communication";
+    ActionTypes1["ErrorPlatform"] = "error.platform";
+    ActionTypes1["ErrorCustom"] = "xstate.error";
+    ActionTypes1["Update"] = "xstate.update";
+    ActionTypes1["Pure"] = "xstate.pure";
+    ActionTypes1["Choose"] = "xstate.choose";
+})(ActionTypes || (ActionTypes = {
+}));
+var SpecialTargets;
+(function(SpecialTargets1) {
+    SpecialTargets1["Parent"] = "#_parent";
+    SpecialTargets1["Internal"] = "#_internal";
+})(SpecialTargets || (SpecialTargets = {
+}));
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5Ce8y":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2WTWb":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "after", ()=>after
+);
+parcelHelpers.export(exports, "assign", ()=>assign
+);
+parcelHelpers.export(exports, "cancel", ()=>cancel
+);
+parcelHelpers.export(exports, "choose", ()=>choose
+);
+parcelHelpers.export(exports, "doneState", ()=>doneState
+);
+parcelHelpers.export(exports, "error", ()=>error
+);
+parcelHelpers.export(exports, "errorExecution", ()=>errorExecution
+);
+parcelHelpers.export(exports, "errorPlatform", ()=>errorPlatform
+);
+parcelHelpers.export(exports, "init", ()=>init
+);
+parcelHelpers.export(exports, "invoke", ()=>invoke
+);
+parcelHelpers.export(exports, "log", ()=>log
+);
+parcelHelpers.export(exports, "nullEvent", ()=>nullEvent
+);
+parcelHelpers.export(exports, "pure", ()=>pure
+);
+parcelHelpers.export(exports, "raise", ()=>raise
+);
+parcelHelpers.export(exports, "send", ()=>send
+);
+parcelHelpers.export(exports, "start", ()=>start
+);
+parcelHelpers.export(exports, "stop", ()=>stop
+);
+parcelHelpers.export(exports, "update", ()=>update
+);
+var _typesJs = require("./types.js");
+var start = _typesJs.ActionTypes.Start;
+var stop = _typesJs.ActionTypes.Stop;
+var raise = _typesJs.ActionTypes.Raise;
+var send = _typesJs.ActionTypes.Send;
+var cancel = _typesJs.ActionTypes.Cancel;
+var nullEvent = _typesJs.ActionTypes.NullEvent;
+var assign = _typesJs.ActionTypes.Assign;
+var after = _typesJs.ActionTypes.After;
+var doneState = _typesJs.ActionTypes.DoneState;
+var log = _typesJs.ActionTypes.Log;
+var init = _typesJs.ActionTypes.Init;
+var invoke = _typesJs.ActionTypes.Invoke;
+var errorExecution = _typesJs.ActionTypes.ErrorExecution;
+var errorPlatform = _typesJs.ActionTypes.ErrorPlatform;
+var error = _typesJs.ActionTypes.ErrorCustom;
+var update = _typesJs.ActionTypes.Update;
+var choose = _typesJs.ActionTypes.Choose;
+var pure = _typesJs.ActionTypes.Pure;
+
+},{"./types.js":"5mTTI","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5Ce8y":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "createInvokeId", ()=>createInvokeId
@@ -2314,104 +2537,1172 @@ var EMPTY_ACTIVITY_MAP = {
 var DEFAULT_GUARD_TYPE = 'xstate.guard';
 var TARGETLESS_KEY = '';
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5mTTI":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"fNNF6":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "ActionTypes", ()=>ActionTypes
+parcelHelpers.export(exports, "IS_PRODUCTION", ()=>IS_PRODUCTION
 );
-parcelHelpers.export(exports, "SpecialTargets", ()=>SpecialTargets
-);
-var ActionTypes;
-(function(ActionTypes1) {
-    ActionTypes1["Start"] = "xstate.start";
-    ActionTypes1["Stop"] = "xstate.stop";
-    ActionTypes1["Raise"] = "xstate.raise";
-    ActionTypes1["Send"] = "xstate.send";
-    ActionTypes1["Cancel"] = "xstate.cancel";
-    ActionTypes1["NullEvent"] = "";
-    ActionTypes1["Assign"] = "xstate.assign";
-    ActionTypes1["After"] = "xstate.after";
-    ActionTypes1["DoneState"] = "done.state";
-    ActionTypes1["DoneInvoke"] = "done.invoke";
-    ActionTypes1["Log"] = "xstate.log";
-    ActionTypes1["Init"] = "xstate.init";
-    ActionTypes1["Invoke"] = "xstate.invoke";
-    ActionTypes1["ErrorExecution"] = "error.execution";
-    ActionTypes1["ErrorCommunication"] = "error.communication";
-    ActionTypes1["ErrorPlatform"] = "error.platform";
-    ActionTypes1["ErrorCustom"] = "xstate.error";
-    ActionTypes1["Update"] = "xstate.update";
-    ActionTypes1["Pure"] = "xstate.pure";
-    ActionTypes1["Choose"] = "xstate.choose";
-})(ActionTypes || (ActionTypes = {
-}));
-var SpecialTargets;
-(function(SpecialTargets1) {
-    SpecialTargets1["Parent"] = "#_parent";
-    SpecialTargets1["Internal"] = "#_internal";
-})(SpecialTargets || (SpecialTargets = {
-}));
+var IS_PRODUCTION = false;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2WTWb":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"itCIE":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "after", ()=>after
+parcelHelpers.export(exports, "createDeferredActor", ()=>createDeferredActor
 );
-parcelHelpers.export(exports, "assign", ()=>assign
+parcelHelpers.export(exports, "createInvocableActor", ()=>createInvocableActor
 );
-parcelHelpers.export(exports, "cancel", ()=>cancel
+parcelHelpers.export(exports, "createNullActor", ()=>createNullActor
 );
-parcelHelpers.export(exports, "choose", ()=>choose
+parcelHelpers.export(exports, "isActor", ()=>isActor
 );
-parcelHelpers.export(exports, "doneState", ()=>doneState
+parcelHelpers.export(exports, "isSpawnedActor", ()=>isSpawnedActor
 );
-parcelHelpers.export(exports, "error", ()=>error
+parcelHelpers.export(exports, "toActorRef", ()=>toActorRef
 );
-parcelHelpers.export(exports, "errorExecution", ()=>errorExecution
+var _tslibJs = require("./_virtual/_tslib.js");
+var _utilsJs = require("./utils.js");
+var _serviceScopeJs = require("./serviceScope.js");
+function createNullActor(id) {
+    var _a;
+    return _a = {
+        id: id,
+        send: function() {
+            return void 0;
+        },
+        subscribe: function() {
+            return {
+                unsubscribe: function() {
+                    return void 0;
+                }
+            };
+        },
+        getSnapshot: function() {
+            return undefined;
+        },
+        toJSON: function() {
+            return {
+                id: id
+            };
+        }
+    }, _a[_utilsJs.symbolObservable] = function() {
+        return this;
+    }, _a;
+}
+/**
+ * Creates a deferred actor that is able to be invoked given the provided
+ * invocation information in its `.meta` value.
+ *
+ * @param invokeDefinition The meta information needed to invoke the actor.
+ */ function createInvocableActor(invokeDefinition, machine, context, _event) {
+    var _a;
+    var invokeSrc = _utilsJs.toInvokeSource(invokeDefinition.src);
+    var serviceCreator = (_a = machine === null || machine === void 0 ? void 0 : machine.options.services) === null || _a === void 0 ? void 0 : _a[invokeSrc.type];
+    var resolvedData = invokeDefinition.data ? _utilsJs.mapContext(invokeDefinition.data, context, _event) : undefined;
+    var tempActor = serviceCreator ? createDeferredActor(serviceCreator, invokeDefinition.id, resolvedData) : createNullActor(invokeDefinition.id); // @ts-ignore
+    tempActor.meta = invokeDefinition;
+    return tempActor;
+}
+function createDeferredActor(entity, id, data) {
+    var tempActor = createNullActor(id); // @ts-ignore
+    tempActor.deferred = true;
+    if (_utilsJs.isMachine(entity)) {
+        // "mute" the existing service scope so potential spawned actors within the `.initialState` stay deferred here
+        var initialState_1 = tempActor.state = _serviceScopeJs.provide(undefined, function() {
+            return (data ? entity.withContext(data) : entity).initialState;
+        });
+        tempActor.getSnapshot = function() {
+            return initialState_1;
+        };
+    }
+    return tempActor;
+}
+function isActor(item) {
+    try {
+        return typeof item.send === 'function';
+    } catch (e) {
+        return false;
+    }
+}
+function isSpawnedActor(item) {
+    return isActor(item) && 'id' in item;
+} // TODO: refactor the return type, this could be written in a better way but it's best to avoid unneccessary breaking changes now
+function toActorRef(actorRefLike) {
+    var _a;
+    return _tslibJs.__assign((_a = {
+        subscribe: function() {
+            return {
+                unsubscribe: function() {
+                    return void 0;
+                }
+            };
+        },
+        id: 'anonymous',
+        getSnapshot: function() {
+            return undefined;
+        }
+    }, _a[_utilsJs.symbolObservable] = function() {
+        return this;
+    }, _a), actorRefLike);
+}
+
+},{"./_virtual/_tslib.js":"4So72","./utils.js":"5Ce8y","./serviceScope.js":"jT5rp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jT5rp":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "consume", ()=>consume
 );
-parcelHelpers.export(exports, "errorPlatform", ()=>errorPlatform
+parcelHelpers.export(exports, "provide", ()=>provide
 );
-parcelHelpers.export(exports, "init", ()=>init
+/**
+ * Maintains a stack of the current service in scope.
+ * This is used to provide the correct service to spawn().
+ */ var serviceStack = [];
+var provide = function(service, fn) {
+    serviceStack.push(service);
+    var result = fn(service);
+    serviceStack.pop();
+    return result;
+};
+var consume = function(fn) {
+    return fn(serviceStack[serviceStack.length - 1]);
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"imBPa":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Interpreter", ()=>Interpreter
 );
-parcelHelpers.export(exports, "invoke", ()=>invoke
+parcelHelpers.export(exports, "InterpreterStatus", ()=>InterpreterStatus
 );
-parcelHelpers.export(exports, "log", ()=>log
+parcelHelpers.export(exports, "interpret", ()=>interpret
 );
-parcelHelpers.export(exports, "nullEvent", ()=>nullEvent
+parcelHelpers.export(exports, "spawn", ()=>spawn
 );
-parcelHelpers.export(exports, "pure", ()=>pure
-);
-parcelHelpers.export(exports, "raise", ()=>raise
-);
-parcelHelpers.export(exports, "send", ()=>send
-);
-parcelHelpers.export(exports, "start", ()=>start
-);
-parcelHelpers.export(exports, "stop", ()=>stop
-);
-parcelHelpers.export(exports, "update", ()=>update
-);
+var _tslibJs = require("./_virtual/_tslib.js");
 var _typesJs = require("./types.js");
-var start = _typesJs.ActionTypes.Start;
-var stop = _typesJs.ActionTypes.Stop;
-var raise = _typesJs.ActionTypes.Raise;
-var send = _typesJs.ActionTypes.Send;
-var cancel = _typesJs.ActionTypes.Cancel;
-var nullEvent = _typesJs.ActionTypes.NullEvent;
-var assign = _typesJs.ActionTypes.Assign;
-var after = _typesJs.ActionTypes.After;
-var doneState = _typesJs.ActionTypes.DoneState;
-var log = _typesJs.ActionTypes.Log;
-var init = _typesJs.ActionTypes.Init;
-var invoke = _typesJs.ActionTypes.Invoke;
-var errorExecution = _typesJs.ActionTypes.ErrorExecution;
-var errorPlatform = _typesJs.ActionTypes.ErrorPlatform;
-var error = _typesJs.ActionTypes.ErrorCustom;
-var update = _typesJs.ActionTypes.Update;
-var choose = _typesJs.ActionTypes.Choose;
-var pure = _typesJs.ActionTypes.Pure;
+var _stateJs = require("./State.js");
+var _actionTypesJs = require("./actionTypes.js");
+var _actionsJs = require("./actions.js");
+var _environmentJs = require("./environment.js");
+var _utilsJs = require("./utils.js");
+var _schedulerJs = require("./scheduler.js");
+var _actorJs = require("./Actor.js");
+var _stateUtilsJs = require("./stateUtils.js");
+var _registryJs = require("./registry.js");
+var _devToolsJs = require("./devTools.js");
+var _serviceScopeJs = require("./serviceScope.js");
+var _behaviorsJs = require("./behaviors.js");
+var DEFAULT_SPAWN_OPTIONS = {
+    sync: false,
+    autoForward: false
+};
+var InterpreterStatus;
+(function(InterpreterStatus1) {
+    InterpreterStatus1[InterpreterStatus1["NotStarted"] = 0] = "NotStarted";
+    InterpreterStatus1[InterpreterStatus1["Running"] = 1] = "Running";
+    InterpreterStatus1[InterpreterStatus1["Stopped"] = 2] = "Stopped";
+})(InterpreterStatus || (InterpreterStatus = {
+}));
+var Interpreter = /*#__PURE__*/ /** @class */ function() {
+    /**
+   * Creates a new Interpreter instance (i.e., service) for the given machine with the provided options, if any.
+   *
+   * @param machine The machine to be interpreted
+   * @param options Interpreter options
+   */ function Interpreter1(machine, options) {
+        var _this = this;
+        if (options === void 0) options = Interpreter1.defaultOptions;
+        this.machine = machine;
+        this.scheduler = new _schedulerJs.Scheduler();
+        this.delayedEventsMap = {
+        };
+        this.listeners = new Set();
+        this.contextListeners = new Set();
+        this.stopListeners = new Set();
+        this.doneListeners = new Set();
+        this.eventListeners = new Set();
+        this.sendListeners = new Set();
+        /**
+     * Whether the service is started.
+     */ this.initialized = false;
+        this.status = InterpreterStatus.NotStarted;
+        this.children = new Map();
+        this.forwardTo = new Set();
+        /**
+     * Alias for Interpreter.prototype.start
+     */ this.init = this.start;
+        /**
+     * Sends an event to the running interpreter to trigger a transition.
+     *
+     * An array of events (batched) can be sent as well, which will send all
+     * batched events to the running interpreter. The listeners will be
+     * notified only **once** when all events are processed.
+     *
+     * @param event The event(s) to send
+     */ this.send = function(event, payload) {
+            if (_utilsJs.isArray(event)) {
+                _this.batch(event);
+                return _this.state;
+            }
+            var _event = _utilsJs.toSCXMLEvent(_utilsJs.toEventObject(event, payload));
+            if (_this.status === InterpreterStatus.Stopped) {
+                // do nothing
+                if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "Event \"".concat(_event.name, "\" was sent to stopped service \"").concat(_this.machine.id, "\". This service has already reached its final state, and will not transition.\nEvent: ").concat(JSON.stringify(_event.data)));
+                return _this.state;
+            }
+            if (_this.status !== InterpreterStatus.Running && !_this.options.deferEvents) throw new Error("Event \"".concat(_event.name, "\" was sent to uninitialized service \"").concat(_this.machine.id // tslint:disable-next-line:max-line-length
+            , "\". Make sure .start() is called for this service, or set { deferEvents: true } in the service options.\nEvent: ").concat(JSON.stringify(_event.data)));
+            _this.scheduler.schedule(function() {
+                // Forward copy of event to child actors
+                _this.forward(_event);
+                var nextState = _this.nextState(_event);
+                _this.update(nextState, _event);
+            });
+            return _this._state; // TODO: deprecate (should return void)
+        // tslint:disable-next-line:semicolon
+        };
+        this.sendTo = function(event, to) {
+            var isParent = _this.parent && (to === _typesJs.SpecialTargets.Parent || _this.parent.id === to);
+            var target = isParent ? _this.parent : _utilsJs.isString(to) ? _this.children.get(to) || _registryJs.registry.get(to) : _utilsJs.isActor(to) ? to : undefined;
+            if (!target) {
+                if (!isParent) throw new Error("Unable to send event to child '".concat(to, "' from service '").concat(_this.id, "'."));
+                 // tslint:disable-next-line:no-console
+                if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "Service '".concat(_this.id, "' has no parent: unable to send event ").concat(event.type));
+                return;
+            }
+            if ('machine' in target) // Send SCXML events to machines
+            target.send(_tslibJs.__assign(_tslibJs.__assign({
+            }, event), {
+                name: event.name === _actionTypesJs.error ? "".concat(_actionsJs.error(_this.id)) : event.name,
+                origin: _this.sessionId
+            }));
+            else // Send normal events to other targets
+            target.send(event.data);
+        };
+        var resolvedOptions = _tslibJs.__assign(_tslibJs.__assign({
+        }, Interpreter1.defaultOptions), options);
+        var clock = resolvedOptions.clock, logger = resolvedOptions.logger, parent = resolvedOptions.parent, id = resolvedOptions.id;
+        var resolvedId = id !== undefined ? id : machine.id;
+        this.id = resolvedId;
+        this.logger = logger;
+        this.clock = clock;
+        this.parent = parent;
+        this.options = resolvedOptions;
+        this.scheduler = new _schedulerJs.Scheduler({
+            deferEvents: this.options.deferEvents
+        });
+        this.sessionId = _registryJs.registry.bookId();
+    }
+    Object.defineProperty(Interpreter1.prototype, "initialState", {
+        get: function() {
+            var _this = this;
+            if (this._initialState) return this._initialState;
+            return _serviceScopeJs.provide(this, function() {
+                _this._initialState = _this.machine.initialState;
+                return _this._initialState;
+            });
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Interpreter1.prototype, "state", {
+        get: function() {
+            if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(this.status !== InterpreterStatus.NotStarted, "Attempted to read state from uninitialized service '".concat(this.id, "'. Make sure the service is started first."));
+            return this._state;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    /**
+   * Executes the actions of the given state, with that state's `context` and `event`.
+   *
+   * @param state The state whose actions will be executed
+   * @param actionsConfig The action implementations to use
+   */ Interpreter1.prototype.execute = function(state, actionsConfig) {
+        var e_1, _a;
+        try {
+            for(var _b = _tslibJs.__values(state.actions), _c = _b.next(); !_c.done; _c = _b.next()){
+                var action = _c.value;
+                this.exec(action, state, actionsConfig);
+            }
+        } catch (e_1_1) {
+            e_1 = {
+                error: e_1_1
+            };
+        } finally{
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            } finally{
+                if (e_1) throw e_1.error;
+            }
+        }
+    };
+    Interpreter1.prototype.update = function(state, _event) {
+        var e_2, _a, e_3, _b, e_4, _c, e_5, _d;
+        var _this = this; // Attach session ID to state
+        state._sessionid = this.sessionId; // Update state
+        this._state = state; // Execute actions
+        if (this.options.execute) this.execute(this.state);
+         // Update children
+        this.children.forEach(function(child) {
+            _this.state.children[child.id] = child;
+        }); // Dev tools
+        if (this.devTools) this.devTools.send(_event.data, state);
+         // Execute listeners
+        if (state.event) try {
+            for(var _e = _tslibJs.__values(this.eventListeners), _f = _e.next(); !_f.done; _f = _e.next()){
+                var listener = _f.value;
+                listener(state.event);
+            }
+        } catch (e_2_1) {
+            e_2 = {
+                error: e_2_1
+            };
+        } finally{
+            try {
+                if (_f && !_f.done && (_a = _e.return)) _a.call(_e);
+            } finally{
+                if (e_2) throw e_2.error;
+            }
+        }
+        try {
+            for(var _g = _tslibJs.__values(this.listeners), _h = _g.next(); !_h.done; _h = _g.next()){
+                var listener = _h.value;
+                listener(state, state.event);
+            }
+        } catch (e_3_1) {
+            e_3 = {
+                error: e_3_1
+            };
+        } finally{
+            try {
+                if (_h && !_h.done && (_b = _g.return)) _b.call(_g);
+            } finally{
+                if (e_3) throw e_3.error;
+            }
+        }
+        try {
+            for(var _j = _tslibJs.__values(this.contextListeners), _k = _j.next(); !_k.done; _k = _j.next()){
+                var contextListener = _k.value;
+                contextListener(this.state.context, this.state.history ? this.state.history.context : undefined);
+            }
+        } catch (e_4_1) {
+            e_4 = {
+                error: e_4_1
+            };
+        } finally{
+            try {
+                if (_k && !_k.done && (_c = _j.return)) _c.call(_j);
+            } finally{
+                if (e_4) throw e_4.error;
+            }
+        }
+        var isDone = _stateUtilsJs.isInFinalState(state.configuration || [], this.machine);
+        if (this.state.configuration && isDone) {
+            // get final child state node
+            var finalChildStateNode = state.configuration.find(function(sn) {
+                return sn.type === 'final' && sn.parent === _this.machine;
+            });
+            var doneData = finalChildStateNode && finalChildStateNode.doneData ? _utilsJs.mapContext(finalChildStateNode.doneData, state.context, _event) : undefined;
+            try {
+                for(var _l = _tslibJs.__values(this.doneListeners), _m = _l.next(); !_m.done; _m = _l.next()){
+                    var listener = _m.value;
+                    listener(_actionsJs.doneInvoke(this.id, doneData));
+                }
+            } catch (e_5_1) {
+                e_5 = {
+                    error: e_5_1
+                };
+            } finally{
+                try {
+                    if (_m && !_m.done && (_d = _l.return)) _d.call(_l);
+                } finally{
+                    if (e_5) throw e_5.error;
+                }
+            }
+            this.stop();
+        }
+    };
+    /*
+   * Adds a listener that is notified whenever a state transition happens. The listener is called with
+   * the next state and the event object that caused the state transition.
+   *
+   * @param listener The state listener
+   */ Interpreter1.prototype.onTransition = function(listener) {
+        this.listeners.add(listener); // Send current state to listener
+        if (this.status === InterpreterStatus.Running) listener(this.state, this.state.event);
+        return this;
+    };
+    Interpreter1.prototype.subscribe = function(nextListenerOrObserver, _, completeListener) {
+        var _this = this;
+        if (!nextListenerOrObserver) return {
+            unsubscribe: function() {
+                return void 0;
+            }
+        };
+        var listener;
+        var resolvedCompleteListener = completeListener;
+        if (typeof nextListenerOrObserver === 'function') listener = nextListenerOrObserver;
+        else {
+            listener = nextListenerOrObserver.next.bind(nextListenerOrObserver);
+            resolvedCompleteListener = nextListenerOrObserver.complete.bind(nextListenerOrObserver);
+        }
+        this.listeners.add(listener); // Send current state to listener
+        if (this.status === InterpreterStatus.Running) listener(this.state);
+        if (resolvedCompleteListener) this.onDone(resolvedCompleteListener);
+        return {
+            unsubscribe: function() {
+                listener && _this.listeners.delete(listener);
+                resolvedCompleteListener && _this.doneListeners.delete(resolvedCompleteListener);
+            }
+        };
+    };
+    /**
+   * Adds an event listener that is notified whenever an event is sent to the running interpreter.
+   * @param listener The event listener
+   */ Interpreter1.prototype.onEvent = function(listener) {
+        this.eventListeners.add(listener);
+        return this;
+    };
+    /**
+   * Adds an event listener that is notified whenever a `send` event occurs.
+   * @param listener The event listener
+   */ Interpreter1.prototype.onSend = function(listener) {
+        this.sendListeners.add(listener);
+        return this;
+    };
+    /**
+   * Adds a context listener that is notified whenever the state context changes.
+   * @param listener The context listener
+   */ Interpreter1.prototype.onChange = function(listener) {
+        this.contextListeners.add(listener);
+        return this;
+    };
+    /**
+   * Adds a listener that is notified when the machine is stopped.
+   * @param listener The listener
+   */ Interpreter1.prototype.onStop = function(listener) {
+        this.stopListeners.add(listener);
+        return this;
+    };
+    /**
+   * Adds a state listener that is notified when the statechart has reached its final state.
+   * @param listener The state listener
+   */ Interpreter1.prototype.onDone = function(listener) {
+        this.doneListeners.add(listener);
+        return this;
+    };
+    /**
+   * Removes a listener.
+   * @param listener The listener to remove
+   */ Interpreter1.prototype.off = function(listener) {
+        this.listeners.delete(listener);
+        this.eventListeners.delete(listener);
+        this.sendListeners.delete(listener);
+        this.stopListeners.delete(listener);
+        this.doneListeners.delete(listener);
+        this.contextListeners.delete(listener);
+        return this;
+    };
+    /**
+   * Starts the interpreter from the given state, or the initial state.
+   * @param initialState The state to start the statechart from
+   */ Interpreter1.prototype.start = function(initialState) {
+        var _this = this;
+        if (this.status === InterpreterStatus.Running) // Do not restart the service if it is already started
+        return this;
+         // yes, it's a hack but we need the related cache to be populated for some things to work (like delayed transitions)
+        // this is usually called by `machine.getInitialState` but if we rehydrate from a state we might bypass this call
+        // we also don't want to call this method here as it resolves the full initial state which might involve calling assign actions
+        // and that could potentially lead to some unwanted side-effects (even such as creating some rogue actors)
+        this.machine._init();
+        _registryJs.registry.register(this.sessionId, this);
+        this.initialized = true;
+        this.status = InterpreterStatus.Running;
+        var resolvedState = initialState === undefined ? this.initialState : _serviceScopeJs.provide(this, function() {
+            return _stateJs.isStateConfig(initialState) ? _this.machine.resolveState(initialState) : _this.machine.resolveState(_stateJs.State.from(initialState, _this.machine.context));
+        });
+        if (this.options.devTools) this.attachDev();
+        this.scheduler.initialize(function() {
+            _this.update(resolvedState, _actionsJs.initEvent);
+        });
+        return this;
+    };
+    /**
+   * Stops the interpreter and unsubscribe all listeners.
+   *
+   * This will also notify the `onStop` listeners.
+   */ Interpreter1.prototype.stop = function() {
+        var e_6, _a1, e_7, _b1, e_8, _c1, e_9, _d, e_10, _e;
+        var _this = this;
+        try {
+            for(var _f = _tslibJs.__values(this.listeners), _g = _f.next(); !_g.done; _g = _f.next()){
+                var listener = _g.value;
+                this.listeners.delete(listener);
+            }
+        } catch (e_6_1) {
+            e_6 = {
+                error: e_6_1
+            };
+        } finally{
+            try {
+                if (_g && !_g.done && (_a1 = _f.return)) _a1.call(_f);
+            } finally{
+                if (e_6) throw e_6.error;
+            }
+        }
+        try {
+            for(var _h = _tslibJs.__values(this.stopListeners), _j = _h.next(); !_j.done; _j = _h.next()){
+                var listener = _j.value; // call listener, then remove
+                listener();
+                this.stopListeners.delete(listener);
+            }
+        } catch (e_7_1) {
+            e_7 = {
+                error: e_7_1
+            };
+        } finally{
+            try {
+                if (_j && !_j.done && (_b1 = _h.return)) _b1.call(_h);
+            } finally{
+                if (e_7) throw e_7.error;
+            }
+        }
+        try {
+            for(var _k = _tslibJs.__values(this.contextListeners), _l = _k.next(); !_l.done; _l = _k.next()){
+                var listener = _l.value;
+                this.contextListeners.delete(listener);
+            }
+        } catch (e_8_1) {
+            e_8 = {
+                error: e_8_1
+            };
+        } finally{
+            try {
+                if (_l && !_l.done && (_c1 = _k.return)) _c1.call(_k);
+            } finally{
+                if (e_8) throw e_8.error;
+            }
+        }
+        try {
+            for(var _m = _tslibJs.__values(this.doneListeners), _o = _m.next(); !_o.done; _o = _m.next()){
+                var listener = _o.value;
+                this.doneListeners.delete(listener);
+            }
+        } catch (e_9_1) {
+            e_9 = {
+                error: e_9_1
+            };
+        } finally{
+            try {
+                if (_o && !_o.done && (_d = _m.return)) _d.call(_m);
+            } finally{
+                if (e_9) throw e_9.error;
+            }
+        }
+        if (!this.initialized) // Interpreter already stopped; do nothing
+        return this;
+        _tslibJs.__spreadArray([], _tslibJs.__read(this.state.configuration), false).sort(function(a, b) {
+            return b.order - a.order;
+        }).forEach(function(stateNode) {
+            var e_11, _a;
+            try {
+                for(var _b = _tslibJs.__values(stateNode.definition.exit), _c = _b.next(); !_c.done; _c = _b.next()){
+                    var action = _c.value;
+                    _this.exec(action, _this.state);
+                }
+            } catch (e_11_1) {
+                e_11 = {
+                    error: e_11_1
+                };
+            } finally{
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                } finally{
+                    if (e_11) throw e_11.error;
+                }
+            }
+        }); // Stop all children
+        this.children.forEach(function(child) {
+            if (_utilsJs.isFunction(child.stop)) child.stop();
+        });
+        try {
+            // Cancel all delayed events
+            for(var _p = _tslibJs.__values(Object.keys(this.delayedEventsMap)), _q = _p.next(); !_q.done; _q = _p.next()){
+                var key = _q.value;
+                this.clock.clearTimeout(this.delayedEventsMap[key]);
+            }
+        } catch (e_10_1) {
+            e_10 = {
+                error: e_10_1
+            };
+        } finally{
+            try {
+                if (_q && !_q.done && (_e = _p.return)) _e.call(_p);
+            } finally{
+                if (e_10) throw e_10.error;
+            }
+        }
+        this.scheduler.clear();
+        this.initialized = false;
+        this.status = InterpreterStatus.Stopped;
+        _registryJs.registry.free(this.sessionId);
+        return this;
+    };
+    Interpreter1.prototype.batch = function(events) {
+        var _this = this;
+        if (this.status === InterpreterStatus.NotStarted && this.options.deferEvents) // tslint:disable-next-line:no-console
+        {
+            if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "".concat(events.length, " event(s) were sent to uninitialized service \"").concat(this.machine.id, "\" and are deferred. Make sure .start() is called for this service.\nEvent: ").concat(JSON.stringify(event)));
+        } else if (this.status !== InterpreterStatus.Running) throw new Error("".concat(events.length, " event(s) were sent to uninitialized service \"").concat(this.machine.id, "\". Make sure .start() is called for this service, or set { deferEvents: true } in the service options."));
+        this.scheduler.schedule(function() {
+            var e_12, _a;
+            var nextState = _this.state;
+            var batchChanged = false;
+            var batchedActions = [];
+            var _loop_1 = function(event_1) {
+                var _event = _utilsJs.toSCXMLEvent(event_1);
+                _this.forward(_event);
+                nextState = _serviceScopeJs.provide(_this, function() {
+                    return _this.machine.transition(nextState, _event);
+                });
+                batchedActions.push.apply(batchedActions, _tslibJs.__spreadArray([], _tslibJs.__read(nextState.actions.map(function(a) {
+                    return _stateJs.bindActionToState(a, nextState);
+                })), false));
+                batchChanged = batchChanged || !!nextState.changed;
+            };
+            try {
+                for(var events_1 = _tslibJs.__values(events), events_1_1 = events_1.next(); !events_1_1.done; events_1_1 = events_1.next()){
+                    var event_11 = events_1_1.value;
+                    _loop_1(event_11);
+                }
+            } catch (e_12_1) {
+                e_12 = {
+                    error: e_12_1
+                };
+            } finally{
+                try {
+                    if (events_1_1 && !events_1_1.done && (_a = events_1.return)) _a.call(events_1);
+                } finally{
+                    if (e_12) throw e_12.error;
+                }
+            }
+            nextState.changed = batchChanged;
+            nextState.actions = batchedActions;
+            _this.update(nextState, _utilsJs.toSCXMLEvent(events[events.length - 1]));
+        });
+    };
+    /**
+   * Returns a send function bound to this interpreter instance.
+   *
+   * @param event The event to be sent by the sender.
+   */ Interpreter1.prototype.sender = function(event) {
+        return this.send.bind(this, event);
+    };
+    /**
+   * Returns the next state given the interpreter's current state and the event.
+   *
+   * This is a pure method that does _not_ update the interpreter's state.
+   *
+   * @param event The event to determine the next state
+   */ Interpreter1.prototype.nextState = function(event) {
+        var _this = this;
+        var _event = _utilsJs.toSCXMLEvent(event);
+        if (_event.name.indexOf(_actionTypesJs.errorPlatform) === 0 && !this.state.nextEvents.some(function(nextEvent) {
+            return nextEvent.indexOf(_actionTypesJs.errorPlatform) === 0;
+        })) throw _event.data.data;
+        var nextState = _serviceScopeJs.provide(this, function() {
+            return _this.machine.transition(_this.state, _event);
+        });
+        return nextState;
+    };
+    Interpreter1.prototype.forward = function(event) {
+        var e_13, _a;
+        try {
+            for(var _b = _tslibJs.__values(this.forwardTo), _c = _b.next(); !_c.done; _c = _b.next()){
+                var id = _c.value;
+                var child = this.children.get(id);
+                if (!child) throw new Error("Unable to forward event '".concat(event, "' from interpreter '").concat(this.id, "' to nonexistant child '").concat(id, "'."));
+                child.send(event);
+            }
+        } catch (e_13_1) {
+            e_13 = {
+                error: e_13_1
+            };
+        } finally{
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            } finally{
+                if (e_13) throw e_13.error;
+            }
+        }
+    };
+    Interpreter1.prototype.defer = function(sendAction) {
+        var _this = this;
+        this.delayedEventsMap[sendAction.id] = this.clock.setTimeout(function() {
+            if (sendAction.to) _this.sendTo(sendAction._event, sendAction.to);
+            else _this.send(sendAction._event);
+        }, sendAction.delay);
+    };
+    Interpreter1.prototype.cancel = function(sendId) {
+        this.clock.clearTimeout(this.delayedEventsMap[sendId]);
+        delete this.delayedEventsMap[sendId];
+    };
+    Interpreter1.prototype.exec = function(action, state, actionFunctionMap) {
+        if (actionFunctionMap === void 0) actionFunctionMap = this.machine.options.actions;
+        var context = state.context, _event = state._event;
+        var actionOrExec = action.exec || _actionsJs.getActionFunction(action.type, actionFunctionMap);
+        var exec = _utilsJs.isFunction(actionOrExec) ? actionOrExec : actionOrExec ? actionOrExec.exec : action.exec;
+        if (exec) try {
+            return exec(context, _event.data, {
+                action: action,
+                state: this.state,
+                _event: _event
+            });
+        } catch (err) {
+            if (this.parent) this.parent.send({
+                type: 'xstate.error',
+                data: err
+            });
+            throw err;
+        }
+        switch(action.type){
+            case _actionTypesJs.send:
+                var sendAction = action;
+                if (typeof sendAction.delay === 'number') {
+                    this.defer(sendAction);
+                    return;
+                } else if (sendAction.to) this.sendTo(sendAction._event, sendAction.to);
+                else this.send(sendAction._event);
+                break;
+            case _actionTypesJs.cancel:
+                this.cancel(action.sendId);
+                break;
+            case _actionTypesJs.start:
+                if (this.status !== InterpreterStatus.Running) return;
+                var activity = action.activity; // If the activity will be stopped right after it's started
+                // (such as in transient states)
+                // don't bother starting the activity.
+                if (!this.state.activities[activity.id || activity.type]) break;
+                 // Invoked services
+                if (activity.type === _typesJs.ActionTypes.Invoke) {
+                    var invokeSource = _utilsJs.toInvokeSource(activity.src);
+                    var serviceCreator = this.machine.options.services ? this.machine.options.services[invokeSource.type] : undefined;
+                    var id = activity.id, data = activity.data;
+                    if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(!('forward' in activity), "`forward` property is deprecated (found in invocation of '".concat(activity.src, "' in in machine '").concat(this.machine.id, "'). ") + "Please use `autoForward` instead.");
+                    var autoForward = 'autoForward' in activity ? activity.autoForward : !!activity.forward;
+                    if (!serviceCreator) {
+                        // tslint:disable-next-line:no-console
+                        if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "No service found for invocation '".concat(activity.src, "' in machine '").concat(this.machine.id, "'."));
+                        return;
+                    }
+                    var resolvedData = data ? _utilsJs.mapContext(data, context, _event) : undefined;
+                    if (typeof serviceCreator === 'string') // TODO: warn
+                    return;
+                    var source = _utilsJs.isFunction(serviceCreator) ? serviceCreator(context, _event.data, {
+                        data: resolvedData,
+                        src: invokeSource,
+                        meta: activity.meta
+                    }) : serviceCreator;
+                    if (!source) // TODO: warn?
+                    return;
+                    var options = void 0;
+                    if (_utilsJs.isMachine(source)) {
+                        source = resolvedData ? source.withContext(resolvedData) : source;
+                        options = {
+                            autoForward: autoForward
+                        };
+                    }
+                    this.spawn(source, id, options);
+                } else this.spawnActivity(activity);
+                break;
+            case _actionTypesJs.stop:
+                this.stopChild(action.activity.id);
+                break;
+            case _actionTypesJs.log:
+                var label = action.label, value = action.value;
+                if (label) this.logger(label, value);
+                else this.logger(value);
+                break;
+            default:
+                if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "No implementation found for action type '".concat(action.type, "'"));
+                break;
+        }
+        return undefined;
+    };
+    Interpreter1.prototype.removeChild = function(childId) {
+        var _a;
+        this.children.delete(childId);
+        this.forwardTo.delete(childId); // this.state might not exist at the time this is called,
+        // such as when a child is added then removed while initializing the state
+        (_a = this.state) === null || _a === void 0 || delete _a.children[childId];
+    };
+    Interpreter1.prototype.stopChild = function(childId) {
+        var child = this.children.get(childId);
+        if (!child) return;
+        this.removeChild(childId);
+        if (_utilsJs.isFunction(child.stop)) child.stop();
+    };
+    Interpreter1.prototype.spawn = function(entity, name, options) {
+        if (_utilsJs.isPromiseLike(entity)) return this.spawnPromise(Promise.resolve(entity), name);
+        else if (_utilsJs.isFunction(entity)) return this.spawnCallback(entity, name);
+        else if (_actorJs.isSpawnedActor(entity)) return this.spawnActor(entity, name);
+        else if (_utilsJs.isObservable(entity)) return this.spawnObservable(entity, name);
+        else if (_utilsJs.isMachine(entity)) return this.spawnMachine(entity, _tslibJs.__assign(_tslibJs.__assign({
+        }, options), {
+            id: name
+        }));
+        else if (_utilsJs.isBehavior(entity)) return this.spawnBehavior(entity, name);
+        else throw new Error("Unable to spawn entity \"".concat(name, "\" of type \"").concat(typeof entity, "\"."));
+    };
+    Interpreter1.prototype.spawnMachine = function(machine, options) {
+        var _this = this;
+        if (options === void 0) options = {
+        };
+        var childService = new Interpreter1(machine, _tslibJs.__assign(_tslibJs.__assign({
+        }, this.options), {
+            parent: this,
+            id: options.id || machine.id
+        }));
+        var resolvedOptions = _tslibJs.__assign(_tslibJs.__assign({
+        }, DEFAULT_SPAWN_OPTIONS), options);
+        if (resolvedOptions.sync) childService.onTransition(function(state) {
+            _this.send(_actionTypesJs.update, {
+                state: state,
+                id: childService.id
+            });
+        });
+        var actor = childService;
+        this.children.set(childService.id, actor);
+        if (resolvedOptions.autoForward) this.forwardTo.add(childService.id);
+        childService.onDone(function(doneEvent) {
+            _this.removeChild(childService.id);
+            _this.send(_utilsJs.toSCXMLEvent(doneEvent, {
+                origin: childService.id
+            }));
+        }).start();
+        return actor;
+    };
+    Interpreter1.prototype.spawnBehavior = function(behavior, id) {
+        var actorRef = _behaviorsJs.spawnBehavior(behavior, {
+            id: id,
+            parent: this
+        });
+        this.children.set(id, actorRef);
+        return actorRef;
+    };
+    Interpreter1.prototype.spawnPromise = function(promise, id) {
+        var _a;
+        var _this = this;
+        var canceled = false;
+        var resolvedData;
+        promise.then(function(response) {
+            if (!canceled) {
+                resolvedData = response;
+                _this.removeChild(id);
+                _this.send(_utilsJs.toSCXMLEvent(_actionsJs.doneInvoke(id, response), {
+                    origin: id
+                }));
+            }
+        }, function(errorData) {
+            if (!canceled) {
+                _this.removeChild(id);
+                var errorEvent = _actionsJs.error(id, errorData);
+                try {
+                    // Send "error.platform.id" to this (parent).
+                    _this.send(_utilsJs.toSCXMLEvent(errorEvent, {
+                        origin: id
+                    }));
+                } catch (error) {
+                    _utilsJs.reportUnhandledExceptionOnInvocation(errorData, error, id);
+                    if (_this.devTools) _this.devTools.send(errorEvent, _this.state);
+                    if (_this.machine.strict) // it would be better to always stop the state machine if unhandled
+                    // exception/promise rejection happens but because we don't want to
+                    // break existing code so enforce it on strict mode only especially so
+                    // because documentation says that onError is optional
+                    _this.stop();
+                }
+            }
+        });
+        var actor = (_a = {
+            id: id,
+            send: function() {
+                return void 0;
+            },
+            subscribe: function(next, handleError, complete) {
+                var observer = _utilsJs.toObserver(next, handleError, complete);
+                var unsubscribed = false;
+                promise.then(function(response) {
+                    if (unsubscribed) return;
+                    observer.next(response);
+                    if (unsubscribed) return;
+                    observer.complete();
+                }, function(err) {
+                    if (unsubscribed) return;
+                    observer.error(err);
+                });
+                return {
+                    unsubscribe: function() {
+                        return unsubscribed = true;
+                    }
+                };
+            },
+            stop: function() {
+                canceled = true;
+            },
+            toJSON: function() {
+                return {
+                    id: id
+                };
+            },
+            getSnapshot: function() {
+                return resolvedData;
+            }
+        }, _a[_utilsJs.symbolObservable] = function() {
+            return this;
+        }, _a);
+        this.children.set(id, actor);
+        return actor;
+    };
+    Interpreter1.prototype.spawnCallback = function(callback, id) {
+        var _a;
+        var _this = this;
+        var canceled = false;
+        var receivers = new Set();
+        var listeners = new Set();
+        var emitted;
+        var receive = function(e) {
+            emitted = e;
+            listeners.forEach(function(listener) {
+                return listener(e);
+            });
+            if (canceled) return;
+            _this.send(_utilsJs.toSCXMLEvent(e, {
+                origin: id
+            }));
+        };
+        var callbackStop;
+        try {
+            callbackStop = callback(receive, function(newListener) {
+                receivers.add(newListener);
+            });
+        } catch (err) {
+            this.send(_actionsJs.error(id, err));
+        }
+        if (_utilsJs.isPromiseLike(callbackStop)) // it turned out to be an async function, can't reliably check this before calling `callback`
+        // because transpiled async functions are not recognizable
+        return this.spawnPromise(callbackStop, id);
+        var actor = (_a = {
+            id: id,
+            send: function(event) {
+                return receivers.forEach(function(receiver) {
+                    return receiver(event);
+                });
+            },
+            subscribe: function(next) {
+                var observer = _utilsJs.toObserver(next);
+                listeners.add(observer.next);
+                return {
+                    unsubscribe: function() {
+                        listeners.delete(observer.next);
+                    }
+                };
+            },
+            stop: function() {
+                canceled = true;
+                if (_utilsJs.isFunction(callbackStop)) callbackStop();
+            },
+            toJSON: function() {
+                return {
+                    id: id
+                };
+            },
+            getSnapshot: function() {
+                return emitted;
+            }
+        }, _a[_utilsJs.symbolObservable] = function() {
+            return this;
+        }, _a);
+        this.children.set(id, actor);
+        return actor;
+    };
+    Interpreter1.prototype.spawnObservable = function(source, id) {
+        var _a;
+        var _this = this;
+        var emitted;
+        var subscription = source.subscribe(function(value) {
+            emitted = value;
+            _this.send(_utilsJs.toSCXMLEvent(value, {
+                origin: id
+            }));
+        }, function(err) {
+            _this.removeChild(id);
+            _this.send(_utilsJs.toSCXMLEvent(_actionsJs.error(id, err), {
+                origin: id
+            }));
+        }, function() {
+            _this.removeChild(id);
+            _this.send(_utilsJs.toSCXMLEvent(_actionsJs.doneInvoke(id), {
+                origin: id
+            }));
+        });
+        var actor = (_a = {
+            id: id,
+            send: function() {
+                return void 0;
+            },
+            subscribe: function(next, handleError, complete) {
+                return source.subscribe(next, handleError, complete);
+            },
+            stop: function() {
+                return subscription.unsubscribe();
+            },
+            getSnapshot: function() {
+                return emitted;
+            },
+            toJSON: function() {
+                return {
+                    id: id
+                };
+            }
+        }, _a[_utilsJs.symbolObservable] = function() {
+            return this;
+        }, _a);
+        this.children.set(id, actor);
+        return actor;
+    };
+    Interpreter1.prototype.spawnActor = function(actor, name) {
+        this.children.set(name, actor);
+        return actor;
+    };
+    Interpreter1.prototype.spawnActivity = function(activity) {
+        var implementation = this.machine.options && this.machine.options.activities ? this.machine.options.activities[activity.type] : undefined;
+        if (!implementation) {
+            if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "No implementation found for activity '".concat(activity.type, "'"));
+             // tslint:disable-next-line:no-console
+            return;
+        } // Start implementation
+        var dispose = implementation(this.state.context, activity);
+        this.spawnEffect(activity.id, dispose);
+    };
+    Interpreter1.prototype.spawnEffect = function(id, dispose) {
+        var _a;
+        this.children.set(id, (_a = {
+            id: id,
+            send: function() {
+                return void 0;
+            },
+            subscribe: function() {
+                return {
+                    unsubscribe: function() {
+                        return void 0;
+                    }
+                };
+            },
+            stop: dispose || undefined,
+            getSnapshot: function() {
+                return undefined;
+            },
+            toJSON: function() {
+                return {
+                    id: id
+                };
+            }
+        }, _a[_utilsJs.symbolObservable] = function() {
+            return this;
+        }, _a));
+    };
+    Interpreter1.prototype.attachDev = function() {
+        var global = _devToolsJs.getGlobal();
+        if (this.options.devTools && global) {
+            if (global.__REDUX_DEVTOOLS_EXTENSION__) {
+                var devToolsOptions = typeof this.options.devTools === 'object' ? this.options.devTools : undefined;
+                this.devTools = global.__REDUX_DEVTOOLS_EXTENSION__.connect(_tslibJs.__assign(_tslibJs.__assign({
+                    name: this.id,
+                    autoPause: true,
+                    stateSanitizer: function(state) {
+                        return {
+                            value: state.value,
+                            context: state.context,
+                            actions: state.actions
+                        };
+                    }
+                }, devToolsOptions), {
+                    features: _tslibJs.__assign({
+                        jump: false,
+                        skip: false
+                    }, devToolsOptions ? devToolsOptions.features : undefined)
+                }), this.machine);
+                this.devTools.init(this.state);
+            } // add XState-specific dev tooling hook
+            _devToolsJs.registerService(this);
+        }
+    };
+    Interpreter1.prototype.toJSON = function() {
+        return {
+            id: this.id
+        };
+    };
+    Interpreter1.prototype[_utilsJs.symbolObservable] = function() {
+        return this;
+    };
+    Interpreter1.prototype.getSnapshot = function() {
+        if (this.status === InterpreterStatus.NotStarted) return this.initialState;
+        return this._state;
+    };
+    /**
+   * The default interpreter options:
+   *
+   * - `clock` uses the global `setTimeout` and `clearTimeout` functions
+   * - `logger` uses the global `console.log()` method
+   */ Interpreter1.defaultOptions = {
+        execute: true,
+        deferEvents: true,
+        clock: {
+            setTimeout: function(fn, ms) {
+                return setTimeout(fn, ms);
+            },
+            clearTimeout: function(id) {
+                return clearTimeout(id);
+            }
+        },
+        logger: /*#__PURE__*/ console.log.bind(console),
+        devTools: false
+    };
+    Interpreter1.interpret = interpret;
+    return Interpreter1;
+}();
+var resolveSpawnOptions = function(nameOrOptions) {
+    if (_utilsJs.isString(nameOrOptions)) return _tslibJs.__assign(_tslibJs.__assign({
+    }, DEFAULT_SPAWN_OPTIONS), {
+        name: nameOrOptions
+    });
+    return _tslibJs.__assign(_tslibJs.__assign(_tslibJs.__assign({
+    }, DEFAULT_SPAWN_OPTIONS), {
+        name: _utilsJs.uniqueId()
+    }), nameOrOptions);
+};
+function spawn(entity, nameOrOptions) {
+    var resolvedOptions = resolveSpawnOptions(nameOrOptions);
+    return _serviceScopeJs.consume(function(service) {
+        if (!_environmentJs.IS_PRODUCTION) {
+            var isLazyEntity = _utilsJs.isMachine(entity) || _utilsJs.isFunction(entity);
+            _utilsJs.warn(!!service || isLazyEntity, "Attempted to spawn an Actor (ID: \"".concat(_utilsJs.isMachine(entity) ? entity.id : 'undefined', "\") outside of a service. This will have no effect."));
+        }
+        if (service) return service.spawn(entity, resolvedOptions.name, resolvedOptions);
+        else return _actorJs.createDeferredActor(entity, resolvedOptions.name);
+    });
+}
+/**
+ * Creates a new Interpreter instance for the given machine with the provided options, if any.
+ *
+ * @param machine The machine to interpret
+ * @param options Interpreter options
+ */ function interpret(machine, options) {
+    var interpreter = new Interpreter(machine, options);
+    return interpreter;
+}
 
-},{"./types.js":"5mTTI","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"h85Z6":[function(require,module,exports) {
+},{"./_virtual/_tslib.js":"4So72","./types.js":"5mTTI","./State.js":"h85Z6","./actionTypes.js":"2WTWb","./actions.js":"fKWcO","./environment.js":"fNNF6","./utils.js":"5Ce8y","./scheduler.js":"gUstx","./Actor.js":"itCIE","./stateUtils.js":"1Q0v5","./registry.js":"dKYy9","./devTools.js":"iAAuP","./serviceScope.js":"jT5rp","./behaviors.js":"7RjKM","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"h85Z6":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "State", ()=>State
@@ -2641,7 +3932,7 @@ var State = /*#__PURE__*/ /** @class */ function() {
     return State1;
 }();
 
-},{"./_virtual/_tslib.js":"4So72","./constants.js":"lmFH5","./environment.js":"fNNF6","./utils.js":"5Ce8y","./stateUtils.js":"1Q0v5","./actions.js":"fKWcO","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1Q0v5":[function(require,module,exports) {
+},{"./_virtual/_tslib.js":"4So72","./constants.js":"lmFH5","./utils.js":"5Ce8y","./stateUtils.js":"1Q0v5","./actions.js":"fKWcO","./environment.js":"fNNF6","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1Q0v5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getAdjList", ()=>getAdjList
@@ -2867,129 +4158,258 @@ function getTagsFromConfiguration(configuration) {
     })));
 }
 
-},{"./_virtual/_tslib.js":"4So72","./utils.js":"5Ce8y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"itCIE":[function(require,module,exports) {
+},{"./_virtual/_tslib.js":"4So72","./utils.js":"5Ce8y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gUstx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "createDeferredActor", ()=>createDeferredActor
-);
-parcelHelpers.export(exports, "createInvocableActor", ()=>createInvocableActor
-);
-parcelHelpers.export(exports, "createNullActor", ()=>createNullActor
-);
-parcelHelpers.export(exports, "isActor", ()=>isActor
-);
-parcelHelpers.export(exports, "isSpawnedActor", ()=>isSpawnedActor
-);
-parcelHelpers.export(exports, "toActorRef", ()=>toActorRef
+parcelHelpers.export(exports, "Scheduler", ()=>Scheduler
 );
 var _tslibJs = require("./_virtual/_tslib.js");
-var _utilsJs = require("./utils.js");
-var _serviceScopeJs = require("./serviceScope.js");
-function createNullActor(id) {
-    var _a;
-    return _a = {
-        id: id,
-        send: function() {
-            return void 0;
-        },
-        subscribe: function() {
-            return {
-                unsubscribe: function() {
-                    return void 0;
-                }
-            };
-        },
-        getSnapshot: function() {
-            return undefined;
-        },
-        toJSON: function() {
-            return {
-                id: id
-            };
-        }
-    }, _a[_utilsJs.symbolObservable] = function() {
-        return this;
-    }, _a;
-}
-/**
- * Creates a deferred actor that is able to be invoked given the provided
- * invocation information in its `.meta` value.
- *
- * @param invokeDefinition The meta information needed to invoke the actor.
- */ function createInvocableActor(invokeDefinition, machine, context, _event) {
-    var _a;
-    var invokeSrc = _utilsJs.toInvokeSource(invokeDefinition.src);
-    var serviceCreator = (_a = machine === null || machine === void 0 ? void 0 : machine.options.services) === null || _a === void 0 ? void 0 : _a[invokeSrc.type];
-    var resolvedData = invokeDefinition.data ? _utilsJs.mapContext(invokeDefinition.data, context, _event) : undefined;
-    var tempActor = serviceCreator ? createDeferredActor(serviceCreator, invokeDefinition.id, resolvedData) : createNullActor(invokeDefinition.id); // @ts-ignore
-    tempActor.meta = invokeDefinition;
-    return tempActor;
-}
-function createDeferredActor(entity, id, data) {
-    var tempActor = createNullActor(id); // @ts-ignore
-    tempActor.deferred = true;
-    if (_utilsJs.isMachine(entity)) {
-        // "mute" the existing service scope so potential spawned actors within the `.initialState` stay deferred here
-        var initialState_1 = tempActor.state = _serviceScopeJs.provide(undefined, function() {
-            return (data ? entity.withContext(data) : entity).initialState;
-        });
-        tempActor.getSnapshot = function() {
-            return initialState_1;
-        };
+var defaultOptions = {
+    deferEvents: false
+};
+var Scheduler = /*#__PURE__*/ /** @class */ function() {
+    function Scheduler1(options) {
+        this.processingEvent = false;
+        this.queue = [];
+        this.initialized = false;
+        this.options = _tslibJs.__assign(_tslibJs.__assign({
+        }, defaultOptions), options);
     }
-    return tempActor;
-}
-function isActor(item) {
-    try {
-        return typeof item.send === 'function';
-    } catch (e) {
-        return false;
-    }
-}
-function isSpawnedActor(item) {
-    return isActor(item) && 'id' in item;
-} // TODO: refactor the return type, this could be written in a better way but it's best to avoid unneccessary breaking changes now
-function toActorRef(actorRefLike) {
-    var _a;
-    return _tslibJs.__assign((_a = {
-        subscribe: function() {
-            return {
-                unsubscribe: function() {
-                    return void 0;
-                }
-            };
-        },
-        id: 'anonymous',
-        getSnapshot: function() {
-            return undefined;
+    Scheduler1.prototype.initialize = function(callback) {
+        this.initialized = true;
+        if (callback) {
+            if (!this.options.deferEvents) {
+                this.schedule(callback);
+                return;
+            }
+            this.process(callback);
         }
-    }, _a[_utilsJs.symbolObservable] = function() {
-        return this;
-    }, _a), actorRefLike);
-}
+        this.flushEvents();
+    };
+    Scheduler1.prototype.schedule = function(task) {
+        if (!this.initialized || this.processingEvent) {
+            this.queue.push(task);
+            return;
+        }
+        if (this.queue.length !== 0) throw new Error('Event queue should be empty when it is not processing events');
+        this.process(task);
+        this.flushEvents();
+    };
+    Scheduler1.prototype.clear = function() {
+        this.queue = [];
+    };
+    Scheduler1.prototype.flushEvents = function() {
+        var nextCallback = this.queue.shift();
+        while(nextCallback){
+            this.process(nextCallback);
+            nextCallback = this.queue.shift();
+        }
+    };
+    Scheduler1.prototype.process = function(callback) {
+        this.processingEvent = true;
+        try {
+            callback();
+        } catch (e) {
+            // there is no use to keep the future events
+            // as the situation is not anymore the same
+            this.clear();
+            throw e;
+        } finally{
+            this.processingEvent = false;
+        }
+    };
+    return Scheduler1;
+}();
 
-},{"./_virtual/_tslib.js":"4So72","./utils.js":"5Ce8y","./serviceScope.js":"jT5rp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jT5rp":[function(require,module,exports) {
+},{"./_virtual/_tslib.js":"4So72","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dKYy9":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "consume", ()=>consume
+parcelHelpers.export(exports, "registry", ()=>registry
 );
-parcelHelpers.export(exports, "provide", ()=>provide
-);
-/**
- * Maintains a stack of the current service in scope.
- * This is used to provide the correct service to spawn().
- */ var serviceStack = [];
-var provide = function(service, fn) {
-    serviceStack.push(service);
-    var result = fn(service);
-    serviceStack.pop();
-    return result;
-};
-var consume = function(fn) {
-    return fn(serviceStack[serviceStack.length - 1]);
+var children = /*#__PURE__*/ new Map();
+var sessionIdIndex = 0;
+var registry = {
+    bookId: function() {
+        return "x:".concat(sessionIdIndex++);
+    },
+    register: function(id, actor) {
+        children.set(id, actor);
+        return id;
+    },
+    get: function(id) {
+        return children.get(id);
+    },
+    free: function(id) {
+        children.delete(id);
+    }
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jHv62":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iAAuP":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "getGlobal", ()=>getGlobal
+);
+parcelHelpers.export(exports, "registerService", ()=>registerService
+);
+var _environmentJs = require("./environment.js");
+var global = arguments[3];
+function getGlobal() {
+    if (typeof globalThis !== 'undefined') return globalThis;
+    if (typeof self !== 'undefined') return self;
+    if (typeof window !== 'undefined') return window;
+    if (typeof global !== 'undefined') return global;
+    if (!_environmentJs.IS_PRODUCTION) console.warn('XState could not find a global object in this environment. Please let the maintainers know and raise an issue here: https://github.com/statelyai/xstate/issues');
+}
+function getDevTools() {
+    var global1 = getGlobal();
+    if (global1 && '__xstate__' in global1) return global1.__xstate__;
+    return undefined;
+}
+function registerService(service) {
+    if (!getGlobal()) return;
+    var devTools = getDevTools();
+    if (devTools) devTools.register(service);
+}
+
+},{"./environment.js":"fNNF6","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7RjKM":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "fromPromise", ()=>fromPromise
+);
+parcelHelpers.export(exports, "fromReducer", ()=>fromReducer
+);
+parcelHelpers.export(exports, "spawnBehavior", ()=>spawnBehavior
+);
+var _actionsJs = require("./actions.js");
+var _actorJs = require("./Actor.js");
+var _utilsJs = require("./utils.js");
+/**
+ * Returns an actor behavior from a reducer and its initial state.
+ *
+ * @param transition The pure reducer that returns the next state given the current state and event.
+ * @param initialState The initial state of the reducer.
+ * @returns An actor behavior
+ */ function fromReducer(transition, initialState) {
+    return {
+        transition: transition,
+        initialState: initialState
+    };
+}
+function fromPromise(promiseFn) {
+    var initialState = {
+        error: undefined,
+        data: undefined,
+        status: 'pending'
+    };
+    return {
+        transition: function(state, event, _a) {
+            var parent = _a.parent, id = _a.id, observers = _a.observers;
+            switch(event.type){
+                case 'fulfill':
+                    parent === null || parent === void 0 || parent.send(_actionsJs.doneInvoke(id, event.data));
+                    return {
+                        error: undefined,
+                        data: event.data,
+                        status: 'fulfilled'
+                    };
+                case 'reject':
+                    parent === null || parent === void 0 || parent.send(_actionsJs.error(id, event.error));
+                    observers.forEach(function(observer) {
+                        observer.error(event.error);
+                    });
+                    return {
+                        error: event.error,
+                        data: undefined,
+                        status: 'rejected'
+                    };
+                default:
+                    return state;
+            }
+        },
+        initialState: initialState,
+        start: function(_a) {
+            var self = _a.self;
+            promiseFn().then(function(data) {
+                self.send({
+                    type: 'fulfill',
+                    data: data
+                });
+            }, function(reason) {
+                self.send({
+                    type: 'reject',
+                    error: reason
+                });
+            });
+            return initialState;
+        }
+    };
+}
+function spawnBehavior(behavior, options) {
+    if (options === void 0) options = {
+    };
+    var state = behavior.initialState;
+    var observers = new Set();
+    var mailbox = [];
+    var flushing = false;
+    var flush = function() {
+        if (flushing) return;
+        flushing = true;
+        while(mailbox.length > 0){
+            var event_1 = mailbox.shift();
+            state = behavior.transition(state, event_1, actorCtx);
+            observers.forEach(function(observer) {
+                return observer.next(state);
+            });
+        }
+        flushing = false;
+    };
+    var actor = _actorJs.toActorRef({
+        id: options.id,
+        send: function(event) {
+            mailbox.push(event);
+            flush();
+        },
+        getSnapshot: function() {
+            return state;
+        },
+        subscribe: function(next, handleError, complete) {
+            var observer = _utilsJs.toObserver(next, handleError, complete);
+            observers.add(observer);
+            observer.next(state);
+            return {
+                unsubscribe: function() {
+                    observers.delete(observer);
+                }
+            };
+        }
+    });
+    var actorCtx = {
+        parent: options.parent,
+        self: actor,
+        id: options.id || 'anonymous',
+        observers: observers
+    };
+    state = behavior.start ? behavior.start(actorCtx) : state;
+    return actor;
+}
+
+},{"./actions.js":"fKWcO","./Actor.js":"itCIE","./utils.js":"5Ce8y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cVglJ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Machine", ()=>Machine
+);
+parcelHelpers.export(exports, "createMachine", ()=>createMachine
+);
+var _stateNodeJs = require("./StateNode.js");
+function Machine(config, options, initialContext) {
+    if (initialContext === void 0) initialContext = config.context;
+    return new _stateNodeJs.StateNode(config, options, initialContext);
+}
+function createMachine(config, options) {
+    return new _stateNodeJs.StateNode(config, options);
+}
+
+},{"./StateNode.js":"jHv62","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jHv62":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "StateNode", ()=>StateNode
@@ -4175,7 +5595,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
     return StateNode1;
 }();
 
-},{"./_virtual/_tslib.js":"4So72","./constants.js":"lmFH5","./environment.js":"fNNF6","./utils.js":"5Ce8y","./types.js":"5mTTI","./stateUtils.js":"1Q0v5","./actionTypes.js":"2WTWb","./actions.js":"fKWcO","./State.js":"h85Z6","./Actor.js":"itCIE","./invokeUtils.js":"a1r7S","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"a1r7S":[function(require,module,exports) {
+},{"./_virtual/_tslib.js":"4So72","./utils.js":"5Ce8y","./types.js":"5mTTI","./State.js":"h85Z6","./actionTypes.js":"2WTWb","./actions.js":"fKWcO","./environment.js":"fNNF6","./constants.js":"lmFH5","./stateUtils.js":"1Q0v5","./Actor.js":"itCIE","./invokeUtils.js":"a1r7S","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"a1r7S":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "toInvokeDefinition", ()=>toInvokeDefinition
@@ -4219,1294 +5639,3765 @@ function toInvokeDefinition(invokeConfig) {
     });
 }
 
-},{"./_virtual/_tslib.js":"4So72","./environment.js":"fNNF6","./utils.js":"5Ce8y","./types.js":"5mTTI","./actionTypes.js":"2WTWb","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cVglJ":[function(require,module,exports) {
+},{"./_virtual/_tslib.js":"4So72","./types.js":"5mTTI","./actionTypes.js":"2WTWb","./utils.js":"5Ce8y","./environment.js":"fNNF6","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"b4BjV":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Machine", ()=>Machine
+parcelHelpers.export(exports, "createInspectMachine", ()=>createInspectMachine
 );
-parcelHelpers.export(exports, "createMachine", ()=>createMachine
-);
-var _stateNodeJs = require("./StateNode.js");
-function Machine(config, options, initialContext) {
-    if (initialContext === void 0) initialContext = config.context;
-    return new _stateNodeJs.StateNode(config, options, initialContext);
-}
-function createMachine(config, options) {
-    return new _stateNodeJs.StateNode(config, options);
+var _xstate = require("xstate");
+var _serializeJs = require("./serialize.js");
+function createInspectMachine(devTools, options) {
+    if (devTools === void 0) devTools = globalThis.__xstate__;
+    var serviceMap = new Map();
+    // Listen for services being registered and index them
+    // by their sessionId for quicker lookup
+    var sub = devTools.onRegister(function(service) {
+        serviceMap.set(service.sessionId, service);
+    });
+    return _xstate.createMachine({
+        initial: 'pendingConnection',
+        context: {
+            client: undefined
+        },
+        states: {
+            pendingConnection: {
+            },
+            connected: {
+                on: {
+                    'service.state': {
+                        actions: function(ctx, e) {
+                            return ctx.client.send(e);
+                        }
+                    },
+                    'service.event': {
+                        actions: function(ctx, e) {
+                            return ctx.client.send(e);
+                        }
+                    },
+                    'service.register': {
+                        actions: function(ctx, e) {
+                            return ctx.client.send(e);
+                        }
+                    },
+                    'service.stop': {
+                        actions: function(ctx, e) {
+                            return ctx.client.send(e);
+                        }
+                    },
+                    'xstate.event': {
+                        actions: function(_, e) {
+                            var event = e.event;
+                            var scxmlEventObject = JSON.parse(event);
+                            var service = serviceMap.get(scxmlEventObject.origin);
+                            service === null || service === void 0 || service.send(scxmlEventObject);
+                        }
+                    },
+                    unload: {
+                        actions: function(ctx) {
+                            ctx.client.send({
+                                type: 'xstate.disconnect'
+                            });
+                        }
+                    },
+                    disconnect: 'disconnected'
+                }
+            },
+            disconnected: {
+                entry: function() {
+                    sub.unsubscribe();
+                },
+                type: 'final'
+            }
+        },
+        on: {
+            'xstate.inspecting': {
+                target: '.connected',
+                actions: [
+                    _xstate.assign({
+                        client: function(_, e) {
+                            return e.client;
+                        }
+                    }),
+                    function(ctx) {
+                        devTools.services.forEach(function(service) {
+                            var _a;
+                            (_a = ctx.client) === null || _a === void 0 || _a.send({
+                                type: 'service.register',
+                                machine: _serializeJs.stringifyMachine(service.machine, options === null || options === void 0 ? void 0 : options.serialize),
+                                state: _serializeJs.stringifyState(service.state || service.initialState, options === null || options === void 0 ? void 0 : options.serialize),
+                                sessionId: service.sessionId
+                            });
+                        });
+                    }
+                ]
+            }
+        }
+    });
 }
 
-},{"./StateNode.js":"jHv62","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"imBPa":[function(require,module,exports) {
+},{"xstate":"2sk4t","./serialize.js":"elII6","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"elII6":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Interpreter", ()=>Interpreter
+parcelHelpers.export(exports, "selectivelyStringify", ()=>selectivelyStringify
 );
-parcelHelpers.export(exports, "InterpreterStatus", ()=>InterpreterStatus
+parcelHelpers.export(exports, "stringifyMachine", ()=>stringifyMachine
 );
-parcelHelpers.export(exports, "interpret", ()=>interpret
-);
-parcelHelpers.export(exports, "spawn", ()=>spawn
+parcelHelpers.export(exports, "stringifyState", ()=>stringifyState
 );
 var _tslibJs = require("./_virtual/_tslib.js");
-var _typesJs = require("./types.js");
-var _stateJs = require("./State.js");
-var _actionTypesJs = require("./actionTypes.js");
-var _actionsJs = require("./actions.js");
-var _environmentJs = require("./environment.js");
 var _utilsJs = require("./utils.js");
-var _schedulerJs = require("./scheduler.js");
-var _actorJs = require("./Actor.js");
-var _stateUtilsJs = require("./stateUtils.js");
-var _registryJs = require("./registry.js");
-var _devToolsJs = require("./devTools.js");
-var _serviceScopeJs = require("./serviceScope.js");
-var _behaviorsJs = require("./behaviors.js");
-var DEFAULT_SPAWN_OPTIONS = {
-    sync: false,
-    autoForward: false
-};
-var InterpreterStatus;
-(function(InterpreterStatus1) {
-    InterpreterStatus1[InterpreterStatus1["NotStarted"] = 0] = "NotStarted";
-    InterpreterStatus1[InterpreterStatus1["Running"] = 1] = "Running";
-    InterpreterStatus1[InterpreterStatus1["Stopped"] = 2] = "Stopped";
-})(InterpreterStatus || (InterpreterStatus = {
-}));
-var Interpreter = /*#__PURE__*/ /** @class */ function() {
-    /**
-   * Creates a new Interpreter instance (i.e., service) for the given machine with the provided options, if any.
-   *
-   * @param machine The machine to be interpreted
-   * @param options Interpreter options
-   */ function Interpreter1(machine, options) {
-        var _this = this;
-        if (options === void 0) options = Interpreter1.defaultOptions;
-        this.machine = machine;
-        this.scheduler = new _schedulerJs.Scheduler();
-        this.delayedEventsMap = {
+function selectivelyStringify(value, keys, replacer) {
+    var e_1, _a;
+    var selected = {
+    };
+    try {
+        for(var keys_1 = _tslibJs.__values(keys), keys_1_1 = keys_1.next(); !keys_1_1.done; keys_1_1 = keys_1.next()){
+            var key = keys_1_1.value;
+            selected[key] = value[key];
+        }
+    } catch (e_1_1) {
+        e_1 = {
+            error: e_1_1
         };
-        this.listeners = new Set();
-        this.contextListeners = new Set();
-        this.stopListeners = new Set();
-        this.doneListeners = new Set();
-        this.eventListeners = new Set();
-        this.sendListeners = new Set();
-        /**
-     * Whether the service is started.
-     */ this.initialized = false;
-        this.status = InterpreterStatus.NotStarted;
-        this.children = new Map();
-        this.forwardTo = new Set();
-        /**
-     * Alias for Interpreter.prototype.start
-     */ this.init = this.start;
-        /**
-     * Sends an event to the running interpreter to trigger a transition.
-     *
-     * An array of events (batched) can be sent as well, which will send all
-     * batched events to the running interpreter. The listeners will be
-     * notified only **once** when all events are processed.
-     *
-     * @param event The event(s) to send
-     */ this.send = function(event, payload) {
-            if (_utilsJs.isArray(event)) {
-                _this.batch(event);
-                return _this.state;
-            }
-            var _event = _utilsJs.toSCXMLEvent(_utilsJs.toEventObject(event, payload));
-            if (_this.status === InterpreterStatus.Stopped) {
-                // do nothing
-                if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "Event \"".concat(_event.name, "\" was sent to stopped service \"").concat(_this.machine.id, "\". This service has already reached its final state, and will not transition.\nEvent: ").concat(JSON.stringify(_event.data)));
-                return _this.state;
-            }
-            if (_this.status !== InterpreterStatus.Running && !_this.options.deferEvents) throw new Error("Event \"".concat(_event.name, "\" was sent to uninitialized service \"").concat(_this.machine.id // tslint:disable-next-line:max-line-length
-            , "\". Make sure .start() is called for this service, or set { deferEvents: true } in the service options.\nEvent: ").concat(JSON.stringify(_event.data)));
-            _this.scheduler.schedule(function() {
-                // Forward copy of event to child actors
-                _this.forward(_event);
-                var nextState = _this.nextState(_event);
-                _this.update(nextState, _event);
-            });
-            return _this._state; // TODO: deprecate (should return void)
-        // tslint:disable-next-line:semicolon
-        };
-        this.sendTo = function(event, to) {
-            var isParent = _this.parent && (to === _typesJs.SpecialTargets.Parent || _this.parent.id === to);
-            var target = isParent ? _this.parent : _utilsJs.isString(to) ? _this.children.get(to) || _registryJs.registry.get(to) : _utilsJs.isActor(to) ? to : undefined;
-            if (!target) {
-                if (!isParent) throw new Error("Unable to send event to child '".concat(to, "' from service '").concat(_this.id, "'."));
-                 // tslint:disable-next-line:no-console
-                if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "Service '".concat(_this.id, "' has no parent: unable to send event ").concat(event.type));
-                return;
-            }
-            if ('machine' in target) // Send SCXML events to machines
-            target.send(_tslibJs.__assign(_tslibJs.__assign({
+    } finally{
+        try {
+            if (keys_1_1 && !keys_1_1.done && (_a = keys_1.return)) _a.call(keys_1);
+        } finally{
+            if (e_1) throw e_1.error;
+        }
+    }
+    var serialized = JSON.parse(_utilsJs.stringify(selected, replacer));
+    return _utilsJs.stringify(_tslibJs.__assign(_tslibJs.__assign({
+    }, value), serialized));
+}
+function stringifyState(state, replacer) {
+    return selectivelyStringify(state, [
+        'context',
+        'event',
+        '_event'
+    ], replacer);
+}
+function stringifyMachine(machine, replacer) {
+    return selectivelyStringify(machine, [
+        'context'
+    ], replacer);
+}
+
+},{"./_virtual/_tslib.js":"4WlGW","./utils.js":"aNc4j","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"aNc4j":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "getLazy", ()=>getLazy
+);
+parcelHelpers.export(exports, "isReceiverEvent", ()=>isReceiverEvent
+);
+parcelHelpers.export(exports, "parseReceiverEvent", ()=>parseReceiverEvent
+);
+parcelHelpers.export(exports, "parseState", ()=>parseState
+);
+parcelHelpers.export(exports, "stringify", ()=>stringify
+);
+var _tslibJs = require("./_virtual/_tslib.js");
+var _fastSafeStringify = require("fast-safe-stringify");
+var _fastSafeStringifyDefault = parcelHelpers.interopDefault(_fastSafeStringify);
+var _xstate = require("xstate");
+function getLazy(value) {
+    return typeof value === 'function' ? value() : value;
+}
+function stringify(value, replacer) {
+    try {
+        return JSON.stringify(value, replacer);
+    } catch (e) {
+        return _fastSafeStringifyDefault.default(value, replacer);
+    }
+}
+function isReceiverEvent(event) {
+    if (!event) return false;
+    try {
+        if (typeof event === 'object' && 'type' in event && event.type.startsWith('service.')) return true;
+    } catch (e) {
+        return false;
+    }
+    return false;
+}
+function parseState(stateJSON) {
+    var state = _xstate.State.create(JSON.parse(stateJSON));
+    delete state.history;
+    return state;
+}
+function parseReceiverEvent(event) {
+    switch(event.type){
+        case 'service.event':
+            return _tslibJs.__assign(_tslibJs.__assign({
             }, event), {
-                name: event.name === _actionTypesJs.error ? "".concat(_actionsJs.error(_this.id)) : event.name,
-                origin: _this.sessionId
-            }));
-            else // Send normal events to other targets
-            target.send(event.data);
-        };
-        var resolvedOptions = _tslibJs.__assign(_tslibJs.__assign({
-        }, Interpreter1.defaultOptions), options);
-        var clock = resolvedOptions.clock, logger = resolvedOptions.logger, parent = resolvedOptions.parent, id = resolvedOptions.id;
-        var resolvedId = id !== undefined ? id : machine.id;
-        this.id = resolvedId;
-        this.logger = logger;
-        this.clock = clock;
-        this.parent = parent;
-        this.options = resolvedOptions;
-        this.scheduler = new _schedulerJs.Scheduler({
-            deferEvents: this.options.deferEvents
-        });
-        this.sessionId = _registryJs.registry.bookId();
+                event: JSON.parse(event.event)
+            });
+        case 'service.register':
+            return _tslibJs.__assign(_tslibJs.__assign({
+            }, event), {
+                machine: _xstate.createMachine(JSON.parse(event.machine)),
+                state: parseState(event.state)
+            });
+        case 'service.state':
+            return _tslibJs.__assign(_tslibJs.__assign({
+            }, event), {
+                state: parseState(event.state)
+            });
+        default:
+            return event;
     }
-    Object.defineProperty(Interpreter1.prototype, "initialState", {
-        get: function() {
-            var _this = this;
-            if (this._initialState) return this._initialState;
-            return _serviceScopeJs.provide(this, function() {
-                _this._initialState = _this.machine.initialState;
-                return _this._initialState;
+}
+
+},{"./_virtual/_tslib.js":"4WlGW","fast-safe-stringify":"dY7b6","xstate":"2sk4t","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dY7b6":[function(require,module,exports) {
+module.exports = stringify;
+stringify.default = stringify;
+stringify.stable = deterministicStringify;
+stringify.stableStringify = deterministicStringify;
+var LIMIT_REPLACE_NODE = '[...]';
+var CIRCULAR_REPLACE_NODE = '[Circular]';
+var arr = [];
+var replacerStack = [];
+function defaultOptions() {
+    return {
+        depthLimit: Number.MAX_SAFE_INTEGER,
+        edgesLimit: Number.MAX_SAFE_INTEGER
+    };
+}
+// Regular stringify
+function stringify(obj, replacer, spacer, options) {
+    if (typeof options === 'undefined') options = defaultOptions();
+    decirc(obj, '', 0, [], undefined, 0, options);
+    var res;
+    try {
+        if (replacerStack.length === 0) res = JSON.stringify(obj, replacer, spacer);
+        else res = JSON.stringify(obj, replaceGetterValues(replacer), spacer);
+    } catch (_) {
+        return JSON.stringify('[unable to serialize, circular reference is too complex to analyze]');
+    } finally{
+        while(arr.length !== 0){
+            var part = arr.pop();
+            if (part.length === 4) Object.defineProperty(part[0], part[1], part[3]);
+            else part[0][part[1]] = part[2];
+        }
+    }
+    return res;
+}
+function setReplace(replace, val, k, parent) {
+    var propertyDescriptor = Object.getOwnPropertyDescriptor(parent, k);
+    if (propertyDescriptor.get !== undefined) {
+        if (propertyDescriptor.configurable) {
+            Object.defineProperty(parent, k, {
+                value: replace
             });
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Interpreter1.prototype, "state", {
-        get: function() {
-            if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(this.status !== InterpreterStatus.NotStarted, "Attempted to read state from uninitialized service '".concat(this.id, "'. Make sure the service is started first."));
-            return this._state;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    /**
-   * Executes the actions of the given state, with that state's `context` and `event`.
-   *
-   * @param state The state whose actions will be executed
-   * @param actionsConfig The action implementations to use
-   */ Interpreter1.prototype.execute = function(state, actionsConfig) {
-        var e_1, _a;
-        try {
-            for(var _b = _tslibJs.__values(state.actions), _c = _b.next(); !_c.done; _c = _b.next()){
-                var action = _c.value;
-                this.exec(action, state, actionsConfig);
-            }
-        } catch (e_1_1) {
-            e_1 = {
-                error: e_1_1
-            };
-        } finally{
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            } finally{
-                if (e_1) throw e_1.error;
-            }
+            arr.push([
+                parent,
+                k,
+                val,
+                propertyDescriptor
+            ]);
+        } else replacerStack.push([
+            val,
+            k,
+            replace
+        ]);
+    } else {
+        parent[k] = replace;
+        arr.push([
+            parent,
+            k,
+            val
+        ]);
+    }
+}
+function decirc(val, k, edgeIndex, stack, parent, depth, options) {
+    depth += 1;
+    var i;
+    if (typeof val === 'object' && val !== null) {
+        for(i = 0; i < stack.length; i++)if (stack[i] === val) {
+            setReplace(CIRCULAR_REPLACE_NODE, val, k, parent);
+            return;
         }
-    };
-    Interpreter1.prototype.update = function(state, _event) {
-        var e_2, _a, e_3, _b, e_4, _c, e_5, _d;
-        var _this = this; // Attach session ID to state
-        state._sessionid = this.sessionId; // Update state
-        this._state = state; // Execute actions
-        if (this.options.execute) this.execute(this.state);
-         // Update children
-        this.children.forEach(function(child) {
-            _this.state.children[child.id] = child;
-        }); // Dev tools
-        if (this.devTools) this.devTools.send(_event.data, state);
-         // Execute listeners
-        if (state.event) try {
-            for(var _e = _tslibJs.__values(this.eventListeners), _f = _e.next(); !_f.done; _f = _e.next()){
-                var listener = _f.value;
-                listener(state.event);
-            }
-        } catch (e_2_1) {
-            e_2 = {
-                error: e_2_1
-            };
-        } finally{
-            try {
-                if (_f && !_f.done && (_a = _e.return)) _a.call(_e);
-            } finally{
-                if (e_2) throw e_2.error;
-            }
+        if (typeof options.depthLimit !== 'undefined' && depth > options.depthLimit) {
+            setReplace(LIMIT_REPLACE_NODE, val, k, parent);
+            return;
         }
-        try {
-            for(var _g = _tslibJs.__values(this.listeners), _h = _g.next(); !_h.done; _h = _g.next()){
-                var listener = _h.value;
-                listener(state, state.event);
-            }
-        } catch (e_3_1) {
-            e_3 = {
-                error: e_3_1
-            };
-        } finally{
-            try {
-                if (_h && !_h.done && (_b = _g.return)) _b.call(_g);
-            } finally{
-                if (e_3) throw e_3.error;
-            }
+        if (typeof options.edgesLimit !== 'undefined' && edgeIndex + 1 > options.edgesLimit) {
+            setReplace(LIMIT_REPLACE_NODE, val, k, parent);
+            return;
         }
-        try {
-            for(var _j = _tslibJs.__values(this.contextListeners), _k = _j.next(); !_k.done; _k = _j.next()){
-                var contextListener = _k.value;
-                contextListener(this.state.context, this.state.history ? this.state.history.context : undefined);
-            }
-        } catch (e_4_1) {
-            e_4 = {
-                error: e_4_1
-            };
-        } finally{
-            try {
-                if (_k && !_k.done && (_c = _j.return)) _c.call(_j);
-            } finally{
-                if (e_4) throw e_4.error;
-            }
-        }
-        var isDone = _stateUtilsJs.isInFinalState(state.configuration || [], this.machine);
-        if (this.state.configuration && isDone) {
-            // get final child state node
-            var finalChildStateNode = state.configuration.find(function(sn) {
-                return sn.type === 'final' && sn.parent === _this.machine;
-            });
-            var doneData = finalChildStateNode && finalChildStateNode.doneData ? _utilsJs.mapContext(finalChildStateNode.doneData, state.context, _event) : undefined;
-            try {
-                for(var _l = _tslibJs.__values(this.doneListeners), _m = _l.next(); !_m.done; _m = _l.next()){
-                    var listener = _m.value;
-                    listener(_actionsJs.doneInvoke(this.id, doneData));
-                }
-            } catch (e_5_1) {
-                e_5 = {
-                    error: e_5_1
-                };
-            } finally{
-                try {
-                    if (_m && !_m.done && (_d = _l.return)) _d.call(_l);
-                } finally{
-                    if (e_5) throw e_5.error;
-                }
-            }
-            this.stop();
-        }
-    };
-    /*
-   * Adds a listener that is notified whenever a state transition happens. The listener is called with
-   * the next state and the event object that caused the state transition.
-   *
-   * @param listener The state listener
-   */ Interpreter1.prototype.onTransition = function(listener) {
-        this.listeners.add(listener); // Send current state to listener
-        if (this.status === InterpreterStatus.Running) listener(this.state, this.state.event);
-        return this;
-    };
-    Interpreter1.prototype.subscribe = function(nextListenerOrObserver, _, completeListener) {
-        var _this = this;
-        if (!nextListenerOrObserver) return {
-            unsubscribe: function() {
-                return void 0;
-            }
-        };
-        var listener;
-        var resolvedCompleteListener = completeListener;
-        if (typeof nextListenerOrObserver === 'function') listener = nextListenerOrObserver;
+        stack.push(val);
+        // Optimize for Arrays. Big arrays could kill the performance otherwise!
+        if (Array.isArray(val)) for(i = 0; i < val.length; i++)decirc(val[i], i, i, stack, val, depth, options);
         else {
-            listener = nextListenerOrObserver.next.bind(nextListenerOrObserver);
-            resolvedCompleteListener = nextListenerOrObserver.complete.bind(nextListenerOrObserver);
-        }
-        this.listeners.add(listener); // Send current state to listener
-        if (this.status === InterpreterStatus.Running) listener(this.state);
-        if (resolvedCompleteListener) this.onDone(resolvedCompleteListener);
-        return {
-            unsubscribe: function() {
-                listener && _this.listeners.delete(listener);
-                resolvedCompleteListener && _this.doneListeners.delete(resolvedCompleteListener);
-            }
-        };
-    };
-    /**
-   * Adds an event listener that is notified whenever an event is sent to the running interpreter.
-   * @param listener The event listener
-   */ Interpreter1.prototype.onEvent = function(listener) {
-        this.eventListeners.add(listener);
-        return this;
-    };
-    /**
-   * Adds an event listener that is notified whenever a `send` event occurs.
-   * @param listener The event listener
-   */ Interpreter1.prototype.onSend = function(listener) {
-        this.sendListeners.add(listener);
-        return this;
-    };
-    /**
-   * Adds a context listener that is notified whenever the state context changes.
-   * @param listener The context listener
-   */ Interpreter1.prototype.onChange = function(listener) {
-        this.contextListeners.add(listener);
-        return this;
-    };
-    /**
-   * Adds a listener that is notified when the machine is stopped.
-   * @param listener The listener
-   */ Interpreter1.prototype.onStop = function(listener) {
-        this.stopListeners.add(listener);
-        return this;
-    };
-    /**
-   * Adds a state listener that is notified when the statechart has reached its final state.
-   * @param listener The state listener
-   */ Interpreter1.prototype.onDone = function(listener) {
-        this.doneListeners.add(listener);
-        return this;
-    };
-    /**
-   * Removes a listener.
-   * @param listener The listener to remove
-   */ Interpreter1.prototype.off = function(listener) {
-        this.listeners.delete(listener);
-        this.eventListeners.delete(listener);
-        this.sendListeners.delete(listener);
-        this.stopListeners.delete(listener);
-        this.doneListeners.delete(listener);
-        this.contextListeners.delete(listener);
-        return this;
-    };
-    /**
-   * Starts the interpreter from the given state, or the initial state.
-   * @param initialState The state to start the statechart from
-   */ Interpreter1.prototype.start = function(initialState) {
-        var _this = this;
-        if (this.status === InterpreterStatus.Running) // Do not restart the service if it is already started
-        return this;
-         // yes, it's a hack but we need the related cache to be populated for some things to work (like delayed transitions)
-        // this is usually called by `machine.getInitialState` but if we rehydrate from a state we might bypass this call
-        // we also don't want to call this method here as it resolves the full initial state which might involve calling assign actions
-        // and that could potentially lead to some unwanted side-effects (even such as creating some rogue actors)
-        this.machine._init();
-        _registryJs.registry.register(this.sessionId, this);
-        this.initialized = true;
-        this.status = InterpreterStatus.Running;
-        var resolvedState = initialState === undefined ? this.initialState : _serviceScopeJs.provide(this, function() {
-            return _stateJs.isStateConfig(initialState) ? _this.machine.resolveState(initialState) : _this.machine.resolveState(_stateJs.State.from(initialState, _this.machine.context));
-        });
-        if (this.options.devTools) this.attachDev();
-        this.scheduler.initialize(function() {
-            _this.update(resolvedState, _actionsJs.initEvent);
-        });
-        return this;
-    };
-    /**
-   * Stops the interpreter and unsubscribe all listeners.
-   *
-   * This will also notify the `onStop` listeners.
-   */ Interpreter1.prototype.stop = function() {
-        var e_6, _a1, e_7, _b1, e_8, _c1, e_9, _d, e_10, _e;
-        var _this = this;
-        try {
-            for(var _f = _tslibJs.__values(this.listeners), _g = _f.next(); !_g.done; _g = _f.next()){
-                var listener = _g.value;
-                this.listeners.delete(listener);
-            }
-        } catch (e_6_1) {
-            e_6 = {
-                error: e_6_1
-            };
-        } finally{
-            try {
-                if (_g && !_g.done && (_a1 = _f.return)) _a1.call(_f);
-            } finally{
-                if (e_6) throw e_6.error;
+            var keys = Object.keys(val);
+            for(i = 0; i < keys.length; i++){
+                var key = keys[i];
+                decirc(val[key], key, i, stack, val, depth, options);
             }
         }
-        try {
-            for(var _h = _tslibJs.__values(this.stopListeners), _j = _h.next(); !_j.done; _j = _h.next()){
-                var listener = _j.value; // call listener, then remove
-                listener();
-                this.stopListeners.delete(listener);
-            }
-        } catch (e_7_1) {
-            e_7 = {
-                error: e_7_1
-            };
-        } finally{
-            try {
-                if (_j && !_j.done && (_b1 = _h.return)) _b1.call(_h);
-            } finally{
-                if (e_7) throw e_7.error;
-            }
-        }
-        try {
-            for(var _k = _tslibJs.__values(this.contextListeners), _l = _k.next(); !_l.done; _l = _k.next()){
-                var listener = _l.value;
-                this.contextListeners.delete(listener);
-            }
-        } catch (e_8_1) {
-            e_8 = {
-                error: e_8_1
-            };
-        } finally{
-            try {
-                if (_l && !_l.done && (_c1 = _k.return)) _c1.call(_k);
-            } finally{
-                if (e_8) throw e_8.error;
-            }
-        }
-        try {
-            for(var _m = _tslibJs.__values(this.doneListeners), _o = _m.next(); !_o.done; _o = _m.next()){
-                var listener = _o.value;
-                this.doneListeners.delete(listener);
-            }
-        } catch (e_9_1) {
-            e_9 = {
-                error: e_9_1
-            };
-        } finally{
-            try {
-                if (_o && !_o.done && (_d = _m.return)) _d.call(_m);
-            } finally{
-                if (e_9) throw e_9.error;
-            }
-        }
-        if (!this.initialized) // Interpreter already stopped; do nothing
-        return this;
-        _tslibJs.__spreadArray([], _tslibJs.__read(this.state.configuration), false).sort(function(a, b) {
-            return b.order - a.order;
-        }).forEach(function(stateNode) {
-            var e_11, _a;
-            try {
-                for(var _b = _tslibJs.__values(stateNode.definition.exit), _c = _b.next(); !_c.done; _c = _b.next()){
-                    var action = _c.value;
-                    _this.exec(action, _this.state);
-                }
-            } catch (e_11_1) {
-                e_11 = {
-                    error: e_11_1
-                };
-            } finally{
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                } finally{
-                    if (e_11) throw e_11.error;
-                }
-            }
-        }); // Stop all children
-        this.children.forEach(function(child) {
-            if (_utilsJs.isFunction(child.stop)) child.stop();
-        });
-        try {
-            // Cancel all delayed events
-            for(var _p = _tslibJs.__values(Object.keys(this.delayedEventsMap)), _q = _p.next(); !_q.done; _q = _p.next()){
-                var key = _q.value;
-                this.clock.clearTimeout(this.delayedEventsMap[key]);
-            }
-        } catch (e_10_1) {
-            e_10 = {
-                error: e_10_1
-            };
-        } finally{
-            try {
-                if (_q && !_q.done && (_e = _p.return)) _e.call(_p);
-            } finally{
-                if (e_10) throw e_10.error;
-            }
-        }
-        this.scheduler.clear();
-        this.initialized = false;
-        this.status = InterpreterStatus.Stopped;
-        _registryJs.registry.free(this.sessionId);
-        return this;
-    };
-    Interpreter1.prototype.batch = function(events) {
-        var _this = this;
-        if (this.status === InterpreterStatus.NotStarted && this.options.deferEvents) // tslint:disable-next-line:no-console
-        {
-            if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "".concat(events.length, " event(s) were sent to uninitialized service \"").concat(this.machine.id, "\" and are deferred. Make sure .start() is called for this service.\nEvent: ").concat(JSON.stringify(event)));
-        } else if (this.status !== InterpreterStatus.Running) throw new Error("".concat(events.length, " event(s) were sent to uninitialized service \"").concat(this.machine.id, "\". Make sure .start() is called for this service, or set { deferEvents: true } in the service options."));
-        this.scheduler.schedule(function() {
-            var e_12, _a;
-            var nextState = _this.state;
-            var batchChanged = false;
-            var batchedActions = [];
-            var _loop_1 = function(event_1) {
-                var _event = _utilsJs.toSCXMLEvent(event_1);
-                _this.forward(_event);
-                nextState = _serviceScopeJs.provide(_this, function() {
-                    return _this.machine.transition(nextState, _event);
-                });
-                batchedActions.push.apply(batchedActions, _tslibJs.__spreadArray([], _tslibJs.__read(nextState.actions.map(function(a) {
-                    return _stateJs.bindActionToState(a, nextState);
-                })), false));
-                batchChanged = batchChanged || !!nextState.changed;
-            };
-            try {
-                for(var events_1 = _tslibJs.__values(events), events_1_1 = events_1.next(); !events_1_1.done; events_1_1 = events_1.next()){
-                    var event_11 = events_1_1.value;
-                    _loop_1(event_11);
-                }
-            } catch (e_12_1) {
-                e_12 = {
-                    error: e_12_1
-                };
-            } finally{
-                try {
-                    if (events_1_1 && !events_1_1.done && (_a = events_1.return)) _a.call(events_1);
-                } finally{
-                    if (e_12) throw e_12.error;
-                }
-            }
-            nextState.changed = batchChanged;
-            nextState.actions = batchedActions;
-            _this.update(nextState, _utilsJs.toSCXMLEvent(events[events.length - 1]));
-        });
-    };
-    /**
-   * Returns a send function bound to this interpreter instance.
-   *
-   * @param event The event to be sent by the sender.
-   */ Interpreter1.prototype.sender = function(event) {
-        return this.send.bind(this, event);
-    };
-    /**
-   * Returns the next state given the interpreter's current state and the event.
-   *
-   * This is a pure method that does _not_ update the interpreter's state.
-   *
-   * @param event The event to determine the next state
-   */ Interpreter1.prototype.nextState = function(event) {
-        var _this = this;
-        var _event = _utilsJs.toSCXMLEvent(event);
-        if (_event.name.indexOf(_actionTypesJs.errorPlatform) === 0 && !this.state.nextEvents.some(function(nextEvent) {
-            return nextEvent.indexOf(_actionTypesJs.errorPlatform) === 0;
-        })) throw _event.data.data;
-        var nextState = _serviceScopeJs.provide(this, function() {
-            return _this.machine.transition(_this.state, _event);
-        });
-        return nextState;
-    };
-    Interpreter1.prototype.forward = function(event) {
-        var e_13, _a;
-        try {
-            for(var _b = _tslibJs.__values(this.forwardTo), _c = _b.next(); !_c.done; _c = _b.next()){
-                var id = _c.value;
-                var child = this.children.get(id);
-                if (!child) throw new Error("Unable to forward event '".concat(event, "' from interpreter '").concat(this.id, "' to nonexistant child '").concat(id, "'."));
-                child.send(event);
-            }
-        } catch (e_13_1) {
-            e_13 = {
-                error: e_13_1
-            };
-        } finally{
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            } finally{
-                if (e_13) throw e_13.error;
-            }
-        }
-    };
-    Interpreter1.prototype.defer = function(sendAction) {
-        var _this = this;
-        this.delayedEventsMap[sendAction.id] = this.clock.setTimeout(function() {
-            if (sendAction.to) _this.sendTo(sendAction._event, sendAction.to);
-            else _this.send(sendAction._event);
-        }, sendAction.delay);
-    };
-    Interpreter1.prototype.cancel = function(sendId) {
-        this.clock.clearTimeout(this.delayedEventsMap[sendId]);
-        delete this.delayedEventsMap[sendId];
-    };
-    Interpreter1.prototype.exec = function(action, state, actionFunctionMap) {
-        if (actionFunctionMap === void 0) actionFunctionMap = this.machine.options.actions;
-        var context = state.context, _event = state._event;
-        var actionOrExec = action.exec || _actionsJs.getActionFunction(action.type, actionFunctionMap);
-        var exec = _utilsJs.isFunction(actionOrExec) ? actionOrExec : actionOrExec ? actionOrExec.exec : action.exec;
-        if (exec) try {
-            return exec(context, _event.data, {
-                action: action,
-                state: this.state,
-                _event: _event
-            });
-        } catch (err) {
-            if (this.parent) this.parent.send({
-                type: 'xstate.error',
-                data: err
-            });
-            throw err;
-        }
-        switch(action.type){
-            case _actionTypesJs.send:
-                var sendAction = action;
-                if (typeof sendAction.delay === 'number') {
-                    this.defer(sendAction);
-                    return;
-                } else if (sendAction.to) this.sendTo(sendAction._event, sendAction.to);
-                else this.send(sendAction._event);
-                break;
-            case _actionTypesJs.cancel:
-                this.cancel(action.sendId);
-                break;
-            case _actionTypesJs.start:
-                if (this.status !== InterpreterStatus.Running) return;
-                var activity = action.activity; // If the activity will be stopped right after it's started
-                // (such as in transient states)
-                // don't bother starting the activity.
-                if (!this.state.activities[activity.id || activity.type]) break;
-                 // Invoked services
-                if (activity.type === _typesJs.ActionTypes.Invoke) {
-                    var invokeSource = _utilsJs.toInvokeSource(activity.src);
-                    var serviceCreator = this.machine.options.services ? this.machine.options.services[invokeSource.type] : undefined;
-                    var id = activity.id, data = activity.data;
-                    if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(!('forward' in activity), "`forward` property is deprecated (found in invocation of '".concat(activity.src, "' in in machine '").concat(this.machine.id, "'). ") + "Please use `autoForward` instead.");
-                    var autoForward = 'autoForward' in activity ? activity.autoForward : !!activity.forward;
-                    if (!serviceCreator) {
-                        // tslint:disable-next-line:no-console
-                        if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "No service found for invocation '".concat(activity.src, "' in machine '").concat(this.machine.id, "'."));
-                        return;
-                    }
-                    var resolvedData = data ? _utilsJs.mapContext(data, context, _event) : undefined;
-                    if (typeof serviceCreator === 'string') // TODO: warn
-                    return;
-                    var source = _utilsJs.isFunction(serviceCreator) ? serviceCreator(context, _event.data, {
-                        data: resolvedData,
-                        src: invokeSource,
-                        meta: activity.meta
-                    }) : serviceCreator;
-                    if (!source) // TODO: warn?
-                    return;
-                    var options = void 0;
-                    if (_utilsJs.isMachine(source)) {
-                        source = resolvedData ? source.withContext(resolvedData) : source;
-                        options = {
-                            autoForward: autoForward
-                        };
-                    }
-                    this.spawn(source, id, options);
-                } else this.spawnActivity(activity);
-                break;
-            case _actionTypesJs.stop:
-                this.stopChild(action.activity.id);
-                break;
-            case _actionTypesJs.log:
-                var label = action.label, value = action.value;
-                if (label) this.logger(label, value);
-                else this.logger(value);
-                break;
-            default:
-                if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "No implementation found for action type '".concat(action.type, "'"));
-                break;
-        }
-        return undefined;
-    };
-    Interpreter1.prototype.removeChild = function(childId) {
-        var _a;
-        this.children.delete(childId);
-        this.forwardTo.delete(childId); // this.state might not exist at the time this is called,
-        // such as when a child is added then removed while initializing the state
-        (_a = this.state) === null || _a === void 0 || delete _a.children[childId];
-    };
-    Interpreter1.prototype.stopChild = function(childId) {
-        var child = this.children.get(childId);
-        if (!child) return;
-        this.removeChild(childId);
-        if (_utilsJs.isFunction(child.stop)) child.stop();
-    };
-    Interpreter1.prototype.spawn = function(entity, name, options) {
-        if (_utilsJs.isPromiseLike(entity)) return this.spawnPromise(Promise.resolve(entity), name);
-        else if (_utilsJs.isFunction(entity)) return this.spawnCallback(entity, name);
-        else if (_actorJs.isSpawnedActor(entity)) return this.spawnActor(entity, name);
-        else if (_utilsJs.isObservable(entity)) return this.spawnObservable(entity, name);
-        else if (_utilsJs.isMachine(entity)) return this.spawnMachine(entity, _tslibJs.__assign(_tslibJs.__assign({
-        }, options), {
-            id: name
-        }));
-        else if (_utilsJs.isBehavior(entity)) return this.spawnBehavior(entity, name);
-        else throw new Error("Unable to spawn entity \"".concat(name, "\" of type \"").concat(typeof entity, "\"."));
-    };
-    Interpreter1.prototype.spawnMachine = function(machine, options) {
-        var _this = this;
-        if (options === void 0) options = {
-        };
-        var childService = new Interpreter1(machine, _tslibJs.__assign(_tslibJs.__assign({
-        }, this.options), {
-            parent: this,
-            id: options.id || machine.id
-        }));
-        var resolvedOptions = _tslibJs.__assign(_tslibJs.__assign({
-        }, DEFAULT_SPAWN_OPTIONS), options);
-        if (resolvedOptions.sync) childService.onTransition(function(state) {
-            _this.send(_actionTypesJs.update, {
-                state: state,
-                id: childService.id
-            });
-        });
-        var actor = childService;
-        this.children.set(childService.id, actor);
-        if (resolvedOptions.autoForward) this.forwardTo.add(childService.id);
-        childService.onDone(function(doneEvent) {
-            _this.removeChild(childService.id);
-            _this.send(_utilsJs.toSCXMLEvent(doneEvent, {
-                origin: childService.id
-            }));
-        }).start();
-        return actor;
-    };
-    Interpreter1.prototype.spawnBehavior = function(behavior, id) {
-        var actorRef = _behaviorsJs.spawnBehavior(behavior, {
-            id: id,
-            parent: this
-        });
-        this.children.set(id, actorRef);
-        return actorRef;
-    };
-    Interpreter1.prototype.spawnPromise = function(promise, id) {
-        var _a;
-        var _this = this;
-        var canceled = false;
-        var resolvedData;
-        promise.then(function(response) {
-            if (!canceled) {
-                resolvedData = response;
-                _this.removeChild(id);
-                _this.send(_utilsJs.toSCXMLEvent(_actionsJs.doneInvoke(id, response), {
-                    origin: id
-                }));
-            }
-        }, function(errorData) {
-            if (!canceled) {
-                _this.removeChild(id);
-                var errorEvent = _actionsJs.error(id, errorData);
-                try {
-                    // Send "error.platform.id" to this (parent).
-                    _this.send(_utilsJs.toSCXMLEvent(errorEvent, {
-                        origin: id
-                    }));
-                } catch (error) {
-                    _utilsJs.reportUnhandledExceptionOnInvocation(errorData, error, id);
-                    if (_this.devTools) _this.devTools.send(errorEvent, _this.state);
-                    if (_this.machine.strict) // it would be better to always stop the state machine if unhandled
-                    // exception/promise rejection happens but because we don't want to
-                    // break existing code so enforce it on strict mode only especially so
-                    // because documentation says that onError is optional
-                    _this.stop();
-                }
-            }
-        });
-        var actor = (_a = {
-            id: id,
-            send: function() {
-                return void 0;
-            },
-            subscribe: function(next, handleError, complete) {
-                var observer = _utilsJs.toObserver(next, handleError, complete);
-                var unsubscribed = false;
-                promise.then(function(response) {
-                    if (unsubscribed) return;
-                    observer.next(response);
-                    if (unsubscribed) return;
-                    observer.complete();
-                }, function(err) {
-                    if (unsubscribed) return;
-                    observer.error(err);
-                });
-                return {
-                    unsubscribe: function() {
-                        return unsubscribed = true;
-                    }
-                };
-            },
-            stop: function() {
-                canceled = true;
-            },
-            toJSON: function() {
-                return {
-                    id: id
-                };
-            },
-            getSnapshot: function() {
-                return resolvedData;
-            }
-        }, _a[_utilsJs.symbolObservable] = function() {
-            return this;
-        }, _a);
-        this.children.set(id, actor);
-        return actor;
-    };
-    Interpreter1.prototype.spawnCallback = function(callback, id) {
-        var _a;
-        var _this = this;
-        var canceled = false;
-        var receivers = new Set();
-        var listeners = new Set();
-        var emitted;
-        var receive = function(e) {
-            emitted = e;
-            listeners.forEach(function(listener) {
-                return listener(e);
-            });
-            if (canceled) return;
-            _this.send(_utilsJs.toSCXMLEvent(e, {
-                origin: id
-            }));
-        };
-        var callbackStop;
-        try {
-            callbackStop = callback(receive, function(newListener) {
-                receivers.add(newListener);
-            });
-        } catch (err) {
-            this.send(_actionsJs.error(id, err));
-        }
-        if (_utilsJs.isPromiseLike(callbackStop)) // it turned out to be an async function, can't reliably check this before calling `callback`
-        // because transpiled async functions are not recognizable
-        return this.spawnPromise(callbackStop, id);
-        var actor = (_a = {
-            id: id,
-            send: function(event) {
-                return receivers.forEach(function(receiver) {
-                    return receiver(event);
-                });
-            },
-            subscribe: function(next) {
-                var observer = _utilsJs.toObserver(next);
-                listeners.add(observer.next);
-                return {
-                    unsubscribe: function() {
-                        listeners.delete(observer.next);
-                    }
-                };
-            },
-            stop: function() {
-                canceled = true;
-                if (_utilsJs.isFunction(callbackStop)) callbackStop();
-            },
-            toJSON: function() {
-                return {
-                    id: id
-                };
-            },
-            getSnapshot: function() {
-                return emitted;
-            }
-        }, _a[_utilsJs.symbolObservable] = function() {
-            return this;
-        }, _a);
-        this.children.set(id, actor);
-        return actor;
-    };
-    Interpreter1.prototype.spawnObservable = function(source, id) {
-        var _a;
-        var _this = this;
-        var emitted;
-        var subscription = source.subscribe(function(value) {
-            emitted = value;
-            _this.send(_utilsJs.toSCXMLEvent(value, {
-                origin: id
-            }));
-        }, function(err) {
-            _this.removeChild(id);
-            _this.send(_utilsJs.toSCXMLEvent(_actionsJs.error(id, err), {
-                origin: id
-            }));
-        }, function() {
-            _this.removeChild(id);
-            _this.send(_utilsJs.toSCXMLEvent(_actionsJs.doneInvoke(id), {
-                origin: id
-            }));
-        });
-        var actor = (_a = {
-            id: id,
-            send: function() {
-                return void 0;
-            },
-            subscribe: function(next, handleError, complete) {
-                return source.subscribe(next, handleError, complete);
-            },
-            stop: function() {
-                return subscription.unsubscribe();
-            },
-            getSnapshot: function() {
-                return emitted;
-            },
-            toJSON: function() {
-                return {
-                    id: id
-                };
-            }
-        }, _a[_utilsJs.symbolObservable] = function() {
-            return this;
-        }, _a);
-        this.children.set(id, actor);
-        return actor;
-    };
-    Interpreter1.prototype.spawnActor = function(actor, name) {
-        this.children.set(name, actor);
-        return actor;
-    };
-    Interpreter1.prototype.spawnActivity = function(activity) {
-        var implementation = this.machine.options && this.machine.options.activities ? this.machine.options.activities[activity.type] : undefined;
-        if (!implementation) {
-            if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "No implementation found for activity '".concat(activity.type, "'"));
-             // tslint:disable-next-line:no-console
-            return;
-        } // Start implementation
-        var dispose = implementation(this.state.context, activity);
-        this.spawnEffect(activity.id, dispose);
-    };
-    Interpreter1.prototype.spawnEffect = function(id, dispose) {
-        var _a;
-        this.children.set(id, (_a = {
-            id: id,
-            send: function() {
-                return void 0;
-            },
-            subscribe: function() {
-                return {
-                    unsubscribe: function() {
-                        return void 0;
-                    }
-                };
-            },
-            stop: dispose || undefined,
-            getSnapshot: function() {
-                return undefined;
-            },
-            toJSON: function() {
-                return {
-                    id: id
-                };
-            }
-        }, _a[_utilsJs.symbolObservable] = function() {
-            return this;
-        }, _a));
-    };
-    Interpreter1.prototype.attachDev = function() {
-        var global = _devToolsJs.getGlobal();
-        if (this.options.devTools && global) {
-            if (global.__REDUX_DEVTOOLS_EXTENSION__) {
-                var devToolsOptions = typeof this.options.devTools === 'object' ? this.options.devTools : undefined;
-                this.devTools = global.__REDUX_DEVTOOLS_EXTENSION__.connect(_tslibJs.__assign(_tslibJs.__assign({
-                    name: this.id,
-                    autoPause: true,
-                    stateSanitizer: function(state) {
-                        return {
-                            value: state.value,
-                            context: state.context,
-                            actions: state.actions
-                        };
-                    }
-                }, devToolsOptions), {
-                    features: _tslibJs.__assign({
-                        jump: false,
-                        skip: false
-                    }, devToolsOptions ? devToolsOptions.features : undefined)
-                }), this.machine);
-                this.devTools.init(this.state);
-            } // add XState-specific dev tooling hook
-            _devToolsJs.registerService(this);
-        }
-    };
-    Interpreter1.prototype.toJSON = function() {
-        return {
-            id: this.id
-        };
-    };
-    Interpreter1.prototype[_utilsJs.symbolObservable] = function() {
-        return this;
-    };
-    Interpreter1.prototype.getSnapshot = function() {
-        if (this.status === InterpreterStatus.NotStarted) return this.initialState;
-        return this._state;
-    };
-    /**
-   * The default interpreter options:
-   *
-   * - `clock` uses the global `setTimeout` and `clearTimeout` functions
-   * - `logger` uses the global `console.log()` method
-   */ Interpreter1.defaultOptions = {
-        execute: true,
-        deferEvents: true,
-        clock: {
-            setTimeout: function(fn, ms) {
-                return setTimeout(fn, ms);
-            },
-            clearTimeout: function(id) {
-                return clearTimeout(id);
-            }
-        },
-        logger: /*#__PURE__*/ console.log.bind(console),
-        devTools: false
-    };
-    Interpreter1.interpret = interpret;
-    return Interpreter1;
-}();
-var resolveSpawnOptions = function(nameOrOptions) {
-    if (_utilsJs.isString(nameOrOptions)) return _tslibJs.__assign(_tslibJs.__assign({
-    }, DEFAULT_SPAWN_OPTIONS), {
-        name: nameOrOptions
-    });
-    return _tslibJs.__assign(_tslibJs.__assign(_tslibJs.__assign({
-    }, DEFAULT_SPAWN_OPTIONS), {
-        name: _utilsJs.uniqueId()
-    }), nameOrOptions);
-};
-function spawn(entity, nameOrOptions) {
-    var resolvedOptions = resolveSpawnOptions(nameOrOptions);
-    return _serviceScopeJs.consume(function(service) {
-        if (!_environmentJs.IS_PRODUCTION) {
-            var isLazyEntity = _utilsJs.isMachine(entity) || _utilsJs.isFunction(entity);
-            _utilsJs.warn(!!service || isLazyEntity, "Attempted to spawn an Actor (ID: \"".concat(_utilsJs.isMachine(entity) ? entity.id : 'undefined', "\") outside of a service. This will have no effect."));
-        }
-        if (service) return service.spawn(entity, resolvedOptions.name, resolvedOptions);
-        else return _actorJs.createDeferredActor(entity, resolvedOptions.name);
-    });
-}
-/**
- * Creates a new Interpreter instance for the given machine with the provided options, if any.
- *
- * @param machine The machine to interpret
- * @param options Interpreter options
- */ function interpret(machine, options) {
-    var interpreter = new Interpreter(machine, options);
-    return interpreter;
-}
-
-},{"./_virtual/_tslib.js":"4So72","./environment.js":"fNNF6","./utils.js":"5Ce8y","./types.js":"5mTTI","./stateUtils.js":"1Q0v5","./actionTypes.js":"2WTWb","./actions.js":"fKWcO","./State.js":"h85Z6","./serviceScope.js":"jT5rp","./Actor.js":"itCIE","./scheduler.js":"gUstx","./registry.js":"dKYy9","./devTools.js":"iAAuP","./behaviors.js":"7RjKM","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gUstx":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Scheduler", ()=>Scheduler
-);
-var _tslibJs = require("./_virtual/_tslib.js");
-var defaultOptions = {
-    deferEvents: false
-};
-var Scheduler = /*#__PURE__*/ /** @class */ function() {
-    function Scheduler1(options) {
-        this.processingEvent = false;
-        this.queue = [];
-        this.initialized = false;
-        this.options = _tslibJs.__assign(_tslibJs.__assign({
-        }, defaultOptions), options);
+        stack.pop();
     }
-    Scheduler1.prototype.initialize = function(callback) {
-        this.initialized = true;
-        if (callback) {
-            if (!this.options.deferEvents) {
-                this.schedule(callback);
-                return;
-            }
-            this.process(callback);
+}
+// Stable-stringify
+function compareFunction(a, b) {
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
+}
+function deterministicStringify(obj, replacer, spacer, options) {
+    if (typeof options === 'undefined') options = defaultOptions();
+    var tmp = deterministicDecirc(obj, '', 0, [], undefined, 0, options) || obj;
+    var res;
+    try {
+        if (replacerStack.length === 0) res = JSON.stringify(tmp, replacer, spacer);
+        else res = JSON.stringify(tmp, replaceGetterValues(replacer), spacer);
+    } catch (_) {
+        return JSON.stringify('[unable to serialize, circular reference is too complex to analyze]');
+    } finally{
+        // Ensure that we restore the object as it was.
+        while(arr.length !== 0){
+            var part = arr.pop();
+            if (part.length === 4) Object.defineProperty(part[0], part[1], part[3]);
+            else part[0][part[1]] = part[2];
         }
-        this.flushEvents();
-    };
-    Scheduler1.prototype.schedule = function(task) {
-        if (!this.initialized || this.processingEvent) {
-            this.queue.push(task);
+    }
+    return res;
+}
+function deterministicDecirc(val, k, edgeIndex, stack, parent, depth, options) {
+    depth += 1;
+    var i;
+    if (typeof val === 'object' && val !== null) {
+        for(i = 0; i < stack.length; i++)if (stack[i] === val) {
+            setReplace(CIRCULAR_REPLACE_NODE, val, k, parent);
             return;
         }
-        if (this.queue.length !== 0) throw new Error('Event queue should be empty when it is not processing events');
-        this.process(task);
-        this.flushEvents();
-    };
-    Scheduler1.prototype.clear = function() {
-        this.queue = [];
-    };
-    Scheduler1.prototype.flushEvents = function() {
-        var nextCallback = this.queue.shift();
-        while(nextCallback){
-            this.process(nextCallback);
-            nextCallback = this.queue.shift();
-        }
-    };
-    Scheduler1.prototype.process = function(callback) {
-        this.processingEvent = true;
         try {
-            callback();
-        } catch (e) {
-            // there is no use to keep the future events
-            // as the situation is not anymore the same
-            this.clear();
-            throw e;
-        } finally{
-            this.processingEvent = false;
+            if (typeof val.toJSON === 'function') return;
+        } catch (_) {
+            return;
         }
+        if (typeof options.depthLimit !== 'undefined' && depth > options.depthLimit) {
+            setReplace(LIMIT_REPLACE_NODE, val, k, parent);
+            return;
+        }
+        if (typeof options.edgesLimit !== 'undefined' && edgeIndex + 1 > options.edgesLimit) {
+            setReplace(LIMIT_REPLACE_NODE, val, k, parent);
+            return;
+        }
+        stack.push(val);
+        // Optimize for Arrays. Big arrays could kill the performance otherwise!
+        if (Array.isArray(val)) for(i = 0; i < val.length; i++)deterministicDecirc(val[i], i, i, stack, val, depth, options);
+        else {
+            // Create a temporary object in the required way
+            var tmp = {
+            };
+            var keys = Object.keys(val).sort(compareFunction);
+            for(i = 0; i < keys.length; i++){
+                var key = keys[i];
+                deterministicDecirc(val[key], key, i, stack, val, depth, options);
+                tmp[key] = val[key];
+            }
+            if (typeof parent !== 'undefined') {
+                arr.push([
+                    parent,
+                    k,
+                    val
+                ]);
+                parent[k] = tmp;
+            } else return tmp;
+        }
+        stack.pop();
+    }
+}
+// wraps replacer function to handle values we couldn't replace
+// and mark them as replaced value
+function replaceGetterValues(replacer) {
+    replacer = typeof replacer !== 'undefined' ? replacer : function(k, v) {
+        return v;
     };
-    return Scheduler1;
-}();
+    return function(key, val) {
+        if (replacerStack.length > 0) for(var i = 0; i < replacerStack.length; i++){
+            var part = replacerStack[i];
+            if (part[1] === key && part[0] === val) {
+                val = part[2];
+                replacerStack.splice(i, 1);
+                break;
+            }
+        }
+        return replacer.call(this, key, val);
+    };
+}
 
-},{"./_virtual/_tslib.js":"4So72","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dKYy9":[function(require,module,exports) {
+},{}],"2YxSr":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "registry", ()=>registry
+parcelHelpers.export(exports, "GamepadController", ()=>GamepadController
+) // const DEFAULT_GAMEPAD_HELP_MSG = "Press any button on your controller or onscreen."
+ // const DEFUALT_BUTTON_ORDER = [
+ //     "A",
+ //     "B",
+ //     "X",
+ //     "Y",
+ //     "L1",
+ //     "R1",
+ //     "L2",
+ //     "R2",
+ //     "select",
+ //     "start",
+ //     "stick_button_left",
+ //     "stick_button_right",
+ //     "dpadUp",
+ //     "dpadDown",
+ //     "dpadLeft",
+ //     "dpadRight"
+ // ]
+ // // Gamepad help section
+ // var gamepadHelpVisible = false;
+ // const gamepadHelpText = document.getElementById("gamepad-help-text")
+ // function setupGamepadHelp() {
+ //     var gamepadContainer = document.getElementById("gamepad-container")
+ //     var gamepadHelpToggleButton = document.getElementById("gamepad-help-button")
+ //     gamepadHelpToggleButton.onclick = () => {
+ //         if (gamepadHelpVisible == false) {
+ //             gamepadContainer.classList.add("help-open")
+ //             gamepadHelpToggleButton.innerText = "Close Help"
+ //             gamepadHelpText.innerText = 'Press or click any button to see help'
+ //         } else {
+ //             gamepadContainer.classList.remove("help-open")
+ //             gamepadHelpToggleButton.innerText = "Gamepad Help"
+ //         }
+ //         gamepadHelpVisible = !gamepadHelpVisible // toggle it
+ //     }
+ // }
+ // export function initGamepadSupport(gamepadUi, gamepadEmulator, gamepadUpdatedCallback) {
+ //     // As of 2012, it seems impossible to detect Gamepad API support
+ //     // in Firefox, hence we need to hardcode it in gamepadSupportAvailable.
+ //     navigator.getGamepads = navigator.getGamepads || navigator.webkitGamepads || navigator.webkitGetGamepads
+ //     var gamepadSupportAvailable = !!navigator.getGamepads || (navigator.userAgent.indexOf('Firefox/') != -1);
+ //     if (!gamepadSupportAvailable) {
+ //         // It doesn't seem Gamepad API is available ' show a message telling
+ //         // the visitor about it.
+ //         showNotSupported();
+ //         return false;
+ //     }
+ //     gamepadEmulator.monkeyPatchGetGamepads()
+ //     // gamepadEmulator.addEmulatedGamepad(0, gamepadEmulator.DEFAULT_BUTTON_COUNT, gamepadEmulator.DEFAULT_AXIS_COUNT)
+ //     gamepadEmulator.registerOnScreenGamepadButtonEvents(0, buttonHighlightElements);
+ //     gamepadEmulator.registerOnScreenGamepadAxisEvents(0, [{
+ //         xAxisGpadAxis: 0,
+ //         yAxisGpadAxis: 1,
+ //         elem: document.getElementById("gamepad-joystick-touch-area-left"),
+ //     }, {
+ //         xAxisGpadAxis: 2,
+ //         yAxisGpadAxis: 3,
+ //         elem: document.getElementById("gamepad-joystick-touch-area-right"),
+ //     }]);
+ //     setupGamepadHelp();
+ //     // otherwise gamepad support is available. so initilize the joymap library
+ //     var lastGamepadCount = 0;
+ //     var lastGamepadId = "";
+ //     // do stuff immediately after each Gamepad Poll (should/will be called about 60 times per second)
+ //     function gamepadUpdate() {
+ //         // check if a gamepad was just connected or disconnected:
+ //         const gamepads = gpadMap.getGamepads()
+ //         const gamepadCount = gamepads.length;
+ //         if (gamepadCount != lastGamepadCount || (gamepads[0] && gamepads[0].id != lastGamepadId)) {
+ //             if (gamepadCount == 0) {
+ //                 showNoGamepads();
+ //                 lastGamepadCount = 0;
+ //                 lastGamepadId = "";
+ //                 return;
+ //             } else if (gamepadCount >= 1) {
+ //                 if (joyMod) gpadMap.removeModule(joyMod);
+ //                 console.log(joyMod)
+ //                 joyMod = joymap.createQueryModule({ threshold: 0.2, clampThreshold: true });
+ //                 gpadMap.addModule(joyMod);
+ //                 console.log(joyMod)
+ //                 showGamepadsConnected(gamepads);
+ //                 console.log(joyMod.getAllButtons(), joyMod.getAllSticks(), joyMod.getAllMappers())
+ //             }
+ //             lastGamepadCount = gamepadCount;
+ //             lastGamepadId = gamepads[0].id;
+ //         }
+ //         gamepadUpdatedCallback(joyMod.getAllButtons(), joyMod.getAllSticks(), joyMod.getAllMappers())
+ //     }
+ // }
+ // }
+;
+// import { startGamepadEventLoop, getGamepadsStandardized, gamepadApiSupported, onGamepadAxisValueChange, onGamepadButtonValueChange, onGamepadConnect, onGamepadDisconnect } from "./gamepad_mmk"
+var _gamepadEmulator = require("./gamepadEmulator");
+var _gamepadUi = require("./gamepad-ui");
+var _gamepadInterface = require("./libraries/gamepadInterface");
+var _consts = require("./consts");
+class GamepadController {
+    constructor(){
+        this.touchedGpadButtonCount = 0;
+        this.buttonHighlightElements = _gamepadUi.getButtonHighlightElements();
+        // override the default browser gamepad api with the gamepad emulator before setting up the events,
+        // the emulator will either use the real gamepad api if a gamepad is plugged in or it will inject the onscreen gamepad as if it were comming from the gamepad api.
+        _gamepadEmulator.gamepadEmulator.monkeyPatchGetGamepads();
+        // initilize the GamepadInterface class with the config from the consts file
+        const gamepad = new _gamepadInterface.GamepadInterface(_consts.GAME_CONTROLLER_BUTTON_CONFIG);
+        if (!gamepad) _gamepadUi.showNotSupported();
+        // setupgamepad lib gamepad events.
+        gamepad.onGamepadConnect = this.gamepadConnectDisconnectHandler.bind(this);
+        gamepad.onGamepadDisconnect = this.gamepadConnectDisconnectHandler.bind(this);
+        gamepad.onGamepadAxisChange = this.handleAxisChange.bind(this);
+        gamepad.onGamepadButtonChange = this.handleButtonChange.bind(this);
+        // setup onscreen emulated gamepad interaction events
+        _gamepadEmulator.gamepadEmulator.registerOnScreenGamepadButtonEvents(0, this.buttonHighlightElements.map((elm)=>elm.id.startsWith("shoulder_trigger") ? null : elm
+        ), "touched", "pressed");
+        _gamepadEmulator.gamepadEmulator.registerOnScreenGamepadAxisEvents(0, [
+            {
+                xAxisGpadAxis: 0,
+                yAxisGpadAxis: 1,
+                elem: document.getElementById("gamepad-joystick-touch-area-left")
+            },
+            {
+                xAxisGpadAxis: 2,
+                yAxisGpadAxis: 3,
+                elem: document.getElementById("gamepad-joystick-touch-area-right")
+            }
+        ]);
+    }
+    gamepadConnectDisconnectHandler() {
+        // const gamepads = getGamepadsStandardized()
+        const gamepads = navigator.getGamepads();
+        var connectedGamepadCount = gamepads.reduce((acc, gpad)=>gpad ? acc + 1 : acc
+        , 0);
+        if (connectedGamepadCount != 0 && gamepads[0].emulated) connectedGamepadCount -= 1;
+        _gamepadUi.showGamepadStatus(connectedGamepadCount);
+        if (connectedGamepadCount > 1) console.log("WARNING: More than one gamepad connected!", gamepads);
+    }
+    handleButtonChange(gpadIndex, gamepad, buttonsChangedMask) {
+        if (gpadIndex != 0 || !gamepad || !gamepad.buttons) return;
+        _gamepadUi.handleGamepadVisualFeedbackButtonEvents(gamepad.buttons);
+        if (buttonsChangedMask[6] || buttonsChangedMask[7]) _gamepadUi.handleGamepadVisualFeedbackVariableTriggerButtonEvents(gamepad.buttons, [
+            {
+                buttonIndex: 6,
+                buttonElement: document.getElementById("shoulder_trigger_left_back"),
+                axisRange: 26
+            },
+            {
+                buttonIndex: 7,
+                buttonElement: document.getElementById("shoulder_trigger_right_back"),
+                axisRange: 26
+            }, 
+        ]);
+        if (buttonsChangedMask[8] && buttonsChangedMask[8].released || buttonsChangedMask[9] && buttonsChangedMask[9].released) _gamepadUi.toggleGamepadHelpScreen();
+        let noGamepadButtonTouched = true;
+        for(let i = 0; i < buttonsChangedMask.length; i++){
+            if (buttonsChangedMask[i] && buttonsChangedMask[i].touchDown) {
+                _gamepadUi.showHelpTooltip(this.buttonHighlightElements[i], _consts.GAME_CONTROLLER_BUTTON_CONFIG[i].helpLabel);
+                noGamepadButtonTouched = false;
+            } else if (gamepad.buttons[i] && gamepad.buttons[i].touched) noGamepadButtonTouched = false;
+        }
+        if (noGamepadButtonTouched) _gamepadUi.showHelpTooltip(null, "Gamepad Help");
+    }
+    handleAxisChange(gpadIndex, gamepad) {
+        // console.log("handleAxisChange", gpadIndex, gamepad, axiesChangedMask)
+        if (gpadIndex != 0 || !gamepad || !gamepad.axes) return;
+        const axisStates = [
+            {
+                axisRange: 14,
+                xValue: gamepad.axes[0] || 0,
+                yValue: gamepad.axes[1] || 0,
+                thumbStickElement: document.getElementById("stick_left"),
+                upIndicatorElement: document.getElementById("l_stick_up_direction_highlight"),
+                downIndicatorElement: document.getElementById("l_stick_down_direction_highlight"),
+                leftIndicatorElement: document.getElementById("l_stick_left_direction_highlight"),
+                rightIndicatorElement: document.getElementById("l_stick_right_direction_highlight"),
+                upHelpText: "Forward",
+                downHelpText: "Back",
+                leftHelpText: "Turn Left",
+                rightHelpText: "Turn Right"
+            },
+            {
+                axisRange: 14,
+                xValue: gamepad.axes[2] || 0,
+                yValue: gamepad.axes[3] || 0,
+                thumbStickElement: document.getElementById("stick_right"),
+                upIndicatorElement: document.getElementById("r_stick_up_direction_highlight"),
+                downIndicatorElement: document.getElementById("r_stick_down_direction_highlight"),
+                leftIndicatorElement: document.getElementById("r_stick_left_direction_highlight"),
+                rightIndicatorElement: document.getElementById("r_stick_right_direction_highlight"),
+                upHelpText: "Up",
+                downHelpText: "Down",
+                leftHelpText: "Crabwalk Left",
+                rightHelpText: "Crabwalk Right"
+            }
+        ];
+        _gamepadUi.handleGamepadVisualFeedbackAxisEvents(axisStates, 0.4);
+    }
+}
+
+},{"./gamepadEmulator":"bkbwr","./gamepad-ui":"2JE4J","./libraries/gamepadInterface":"jRoqP","./consts":"2J0f1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bkbwr":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "gamepadEmulator", ()=>gamepadEmulator
 );
-var children = /*#__PURE__*/ new Map();
-var sessionIdIndex = 0;
-var registry = {
-    bookId: function() {
-        return "x:".concat(sessionIdIndex++);
+function checkIfPointIsInRect(x, y, rect) {
+    return x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height;
+}
+const gamepadEmulator = {
+    // The list of emulated gamepads, corresponds 1-1 to the list output by navigator.getGamepads().
+    // when an emulated gamepad is "connected" ie: call addEmulatedGamepad(), it is added to this list.
+    // when an emulated gamepad is "disconnected" ie: call removeEmulatedGamepad(), it is removed from this list.
+    // if a real gamepad is found at the same array index as an emulated gamepad, the navigator.getGamepads() list
+    // will report buttons pressed or axies moved on both the real gamepad and the emulated one.
+    emulatedGamepads: [],
+    // A number of typical buttons recognized by Gamepad API and mapped to
+    // standard controls. Any extraneous buttons will have larger indexes.
+    DEFAULT_BUTTON_COUNT: 18,
+    // A number of typical axes recognized by Gamepad API and mapped to
+    // standard controls. Any extraneous axies will have larger indexes.
+    DEFAULT_AXIS_COUNT: 4,
+    /* creates a new emmulated gamepad at the given index as would be read in navigator.getGamepads
+     * @param {number} gpadIndex - the index of the gamepad to create, pass null to create a new gamepad at the next available index
+     * @param {number} buttonCount - normally 18, the number of buttons on the gamepad
+     * @param {number} axisCount - normally 4, the number of axes on the gamepad
+    */ addEmulatedGamepad: function(gpadIndex, buttonCount, axisCount) {
+        // create the new gamepad object
+        var gpad = {
+            connected: true,
+            timestamp: Math.floor(Date.now() / 1000),
+            buttons: new Array(buttonCount).fill({
+                pressed: false,
+                value: 0,
+                touched: false
+            }, 0, buttonCount),
+            axes: new Array(axisCount).fill(0, 0, axisCount),
+            id: "Emulated Gamepad " + gpadIndex + " (Xinput STANDARD GAMEPAD)",
+            mapping: "standard"
+        };
+        // Add the new gamepad object to the list of emulated gamepads
+        if (!gpadIndex) gpadIndex = this.emulatedGamepads.length;
+        this.emulatedGamepads[gpadIndex] = gpad;
+        // Trigger the (system) gamepad connected event on the window object
+        const event = new Event("gamepadconnected");
+        event.gamepad = gpad;
+        // setTimeout(() => window.dispatchEvent(event), 0);
+        // window.dispatchEvent(event);
+        return gpad;
     },
-    register: function(id, actor) {
-        children.set(id, actor);
-        return id;
+    /* removes the emmulated gamepad at the passed index as would be read from the list in navigator.getGamepads
+     * @param {number} gpadIndex - the index of the gamepad to remove
+    */ disconnectEmulatedGamepad: function(gpadIndex) {
+        var gpad = this.emulatedGamepads[gpadIndex];
+        if (gpad) {
+            this.emulatedGamepads.splice(gpadIndex, 1);
+            if (!window.getGamepads()[gpadIndex]) {
+                const event = new Event("gamepaddisconnected");
+                gpad.connected = false;
+                gpad.timestamp = Math.floor(Date.now() / 1000);
+                event.gamepad = gpad;
+                window.dispatchEvent(event);
+            }
+        }
     },
-    get: function(id) {
-        return children.get(id);
+    /* emulates pressing a button on the gamepad at the given button index
+    gpadIndex - the index of the emulated gamepad to press the button on
+    buttonIndex - the index of the button to press
+    value - the value to set the button to between 0 and 1 (0 = unpressed, 1 = pressed)
+    touched - whether the button is considered "touched" or not, a "pressed" button is always considered "touched"
+    */ pressButton: function(gpadIndex, buttonIndex, value, touched) {
+        var gpad = this.emulatedGamepads[gpadIndex];
+        if (!gpad) gpad = this.addEmulatedGamepad(gpadIndex, this.DEFAULT_BUTTON_COUNT, this.DEFAULT_AXIS_COUNT);
+        var isPressed = value > 0.1;
+        this.emulatedGamepads[gpadIndex].buttons[buttonIndex] = {
+            pressed: isPressed,
+            value: value || 0,
+            touched: isPressed || touched || false
+        };
+    // console.log("pressButton", gpadIndex, buttonIndex, value, touched);
+    // console.log(navigator.getGamepads()[gpadIndex].buttons[buttonIndex]);
     },
-    free: function(id) {
-        children.delete(id);
+    /* emulates moving an axis on the gamepad at the given axis index
+    gpadIndex - the index of the emulated gamepad to move the axis on
+    axisIndex - the index of the axis to move
+    value - the value to set the axis to between -1 and 1 (0 = center, -1 = left/up, 1 = right/down)
+    */ moveAxis: function(gpadIndex, axisIndex, value) {
+        var gpad = this.emulatedGamepads[gpadIndex];
+        if (!gpad) gpad = this.addEmulatedGamepad(gpadIndex, this.DEFAULT_BUTTON_COUNT, this.DEFAULT_AXIS_COUNT);
+        this.emulatedGamepads[gpadIndex].axes[axisIndex] = value;
+    },
+    /* add event listeners to the html button elements of an onscreen gamepad to emulate gamepad input
+        * @param {number} gpadIndex - the index of the emulated gamepad to register events for
+        * @param {array} buttonTapZoneElements - an array of elements that are the tap targets for the buttons on the onscreen gamepad, in same order as the gamepad api would use.
+        * @param {array} buttonHighlightElements - an array of elements that should have the classes applied for the buttons on the onscreen gamepad, in same order as the gamepad api would use.
+        * @param {string} btnTouchedClass - the class to apply to the buttonHighlightElement when it is hovered over or "touched"
+        * @param {string} btnPressedClass - the class to apply to the buttonHighlightElement when it is pressed / clicked
+    */ registerOnScreenGamepadButtonEvents: function(gpadIndex, buttonTapZoneElements) {
+        // for (var btnIndx = 0; btnIndx < buttonTapZoneElements.length; btnIndx++) {
+        var self = this;
+        buttonTapZoneElements.forEach(function(btnEl, btnIndx) {
+            if (!btnEl) return;
+            btnEl.addEventListener("pointerover", ()=>{
+                // tell the emulator this button is being "touched", ie: hovered over
+                self.pressButton(gpadIndex, btnIndx, 0, true);
+            });
+            btnEl.addEventListener("pointerleave", ()=>{
+                // tell the emulator this button is no longer being "touched", ie: not hovered over
+                self.pressButton(gpadIndex, btnIndx, 0, false);
+            });
+            btnEl.addEventListener("pointerdown", ()=>{
+                // tell the emulator this button is being pressed, ie: clicked / tapped
+                self.pressButton(gpadIndex, btnIndx, 1, true);
+            });
+            btnEl.addEventListener("pointerup", ()=>{
+                // tell the emulator this button is no longer being pressed
+                self.pressButton(gpadIndex, btnIndx, 0, true);
+            });
+        });
+    },
+    registerOnScreenGamepadAxisEvents: function(gpadIndex, joysticksTouchDetails) {
+        var axisTouchRadius = 100;
+        var self = this;
+        var pointerToJoystickMapping = {
+        };
+        const pointerMoveHandler = function(me) {
+            var pointerId = me.pointerId;
+            for(const pointerIdKey in pointerToJoystickMapping)if (pointerIdKey == pointerId) {
+                const joystickData = pointerToJoystickMapping[pointerIdKey];
+                var deltaX = Math.max(Math.min((me.clientX - joystickData.startX) / axisTouchRadius, 1), -1);
+                var deltaY = Math.max(Math.min((me.clientY - joystickData.startY) / axisTouchRadius, 1), -1);
+                self.moveAxis(gpadIndex, joystickData.xAxisGpadAxis, deltaX);
+                self.moveAxis(gpadIndex, joystickData.yAxisGpadAxis, deltaY);
+            }
+        };
+        const pointerUpHandler = function(me) {
+            var pointerId = me.pointerId;
+            for(const pointerIdKey in pointerToJoystickMapping)if (pointerIdKey == pointerId) {
+                const joystickData = pointerToJoystickMapping[pointerIdKey];
+                self.moveAxis(gpadIndex, joystickData.xAxisGpadAxis, 0);
+                self.moveAxis(gpadIndex, joystickData.yAxisGpadAxis, 0);
+                delete pointerToJoystickMapping[pointerIdKey];
+            }
+            if (Object.keys(pointerToJoystickMapping).length == 0) {
+                // axisHighlightElements[index].classList.remove(axisMovedClass);
+                document.removeEventListener("pointermove", pointerMoveHandler, false);
+                document.removeEventListener("pointerup", pointerUpHandler, false);
+            }
+        };
+        document.addEventListener("pointerdown", function(de) {
+            joysticksTouchDetails.forEach(function(joystickTouchDetails) {
+                const targetRect = joystickTouchDetails.elem.getBoundingClientRect();
+                if (checkIfPointIsInRect(de.clientX, de.clientY, targetRect)) {
+                    joystickTouchDetails.startX = de.clientX;
+                    joystickTouchDetails.startY = de.clientY;
+                    pointerToJoystickMapping[de.pointerId] = joystickTouchDetails;
+                }
+            });
+            if (Object.keys(pointerToJoystickMapping).length == 1) {
+                document.addEventListener("pointermove", pointerMoveHandler, false);
+                document.addEventListener("pointerup", pointerUpHandler, false);
+            }
+        });
+    },
+    /* overwrite the browser gamepad api getGamepads() to return the emulated gamepad data for gamepad indexes corresponding to emulated gamepads
+     so long as the same index don't have a real gamepad connected  */ monkeyPatchGetGamepads: function() {
+        var getNativeGamepads = navigator.getGamepads || navigator.webkitGetGamepads || navigator.mozGetGamepads || navigator.msGetGamepads;
+        if (getNativeGamepads) getNativeGamepads = getNativeGamepads.bind(navigator);
+        var self = this;
+        navigator.getGamepads = function() {
+            var nativeGamepads = getNativeGamepads != undefined ? getNativeGamepads() : [];
+            nativeGamepads = Array.from(nativeGamepads);
+            // console.log("nativeGamepads:", nativeGamepads)
+            for(var i = 0; i < self.emulatedGamepads.length; i++){
+                var n_gpad = nativeGamepads[i];
+                var e_gpad = self.emulatedGamepads[i];
+                if (e_gpad && n_gpad) {
+                    // if both an emulated gamepad and a real one is available for this index,
+                    n_gpad.emulated = true; // should have some kind of mixed indication value here
+                    for(let btnIdx = 0; btnIdx < e_gpad.buttons.length; btnIdx++){
+                        const e_btn = e_gpad.buttons[btnIdx];
+                        const n_btn = n_gpad.buttons[btnIdx];
+                        if (!e_btn || !n_gpad.buttons[btnIdx]) continue;
+                        // nativeGamepads[i].buttons[btnIdx].touched = e_btn.touched || n_btn.touched || false;
+                        // nativeGamepads[i].buttons[btnIdx].pressed = e_btn.pressed || n_btn.pressed || false;
+                        // nativeGamepads[i].buttons[btnIdx].value = Math.max(e_btn.value, n_btn.value) || 0;
+                        nativeGamepads[i].buttons[btnIdx] = {
+                            touched: e_btn.touched || n_btn.touched || false,
+                            pressed: e_btn.pressed || n_btn.pressed || false,
+                            value: Math.max(e_btn.value, n_btn.value) || 0
+                        };
+                    }
+                    for(let axisIndex = 0; axisIndex < e_gpad.axes.length; axisIndex++){
+                        const e_axis = e_gpad.axes[axisIndex];
+                        const n_axis = n_gpad.axes[axisIndex];
+                        nativeGamepads[i].axes[axisIndex] = Math.max(e_axis, n_axis) || 0;
+                    }
+                // console.log("mixedGamepad:", nativeGamepads[i])
+                } else if (e_gpad) {
+                    // if only the emulated gamepad is available, use it
+                    e_gpad.emulated = true;
+                    e_gpad.timestamp = Math.floor(Date.now() / 1000);
+                    nativeGamepads[i] = self.cloneGamepad(e_gpad);
+                }
+            }
+            return nativeGamepads;
+        };
+    },
+    cloneGamepad: function(original) {
+        if (!original) return original;
+        let clone = {
+            id: original.id,
+            displayId: original.displayId,
+            mapping: original.mapping,
+            index: original.index,
+            emulated: original.emulated,
+            timestamp: original.timestamp,
+            connected: original.connected,
+            axes: new Array(original.axes.length),
+            buttons: new Array(original.buttons.length)
+        };
+        for(let i = 0; i < original.axes.length; ++i)clone.axes[i] = original.axes[i];
+        for(let i1 = 0; i1 < original.buttons.length; ++i1){
+            let { pressed , value , touched  } = original.buttons[i1];
+            touched = touched || false;
+            clone.buttons[i1] = {
+                pressed,
+                value,
+                touched
+            };
+        }
+        return clone;
     }
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iAAuP":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2JE4J":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "getGlobal", ()=>getGlobal
+parcelHelpers.export(exports, "showExtraniousGamepadsConnected", ()=>showExtraniousGamepadsConnected
 );
-parcelHelpers.export(exports, "registerService", ()=>registerService
+parcelHelpers.export(exports, "showGamepadConnected", ()=>showGamepadConnected
 );
-var _environmentJs = require("./environment.js");
-var global = arguments[3];
-function getGlobal() {
-    if (typeof globalThis !== 'undefined') return globalThis;
-    if (typeof self !== 'undefined') return self;
-    if (typeof window !== 'undefined') return window;
-    if (typeof global !== 'undefined') return global;
-    if (!_environmentJs.IS_PRODUCTION) console.warn('XState could not find a global object in this environment. Please let the maintainers know and raise an issue here: https://github.com/statelyai/xstate/issues');
+parcelHelpers.export(exports, "showNoGamepads", ()=>showNoGamepads
+);
+parcelHelpers.export(exports, "toggleGamepadHelpScreen", ()=>toggleGamepadHelpScreen
+);
+parcelHelpers.export(exports, "showGamepadStatus", ()=>showGamepadStatus
+);
+parcelHelpers.export(exports, "showNotSupported", ()=>showNotSupported
+);
+parcelHelpers.export(exports, "showHelpTooltip", ()=>showHelpTooltip
+);
+parcelHelpers.export(exports, "handleGamepadVisualFeedbackAxisEvents", ()=>handleGamepadVisualFeedbackAxisEvents
+);
+parcelHelpers.export(exports, "handleGamepadVisualFeedbackButtonEvents", ()=>handleGamepadVisualFeedbackButtonEvents
+);
+parcelHelpers.export(exports, "handleGamepadVisualFeedbackVariableTriggerButtonEvents", ()=>handleGamepadVisualFeedbackVariableTriggerButtonEvents
+);
+parcelHelpers.export(exports, "getButtonHighlightElements", ()=>getButtonHighlightElements
+);
+var _popperLite = require("@popperjs/core/lib/popper-lite");
+var _flip = require("@popperjs/core/lib/modifiers/flip");
+var _flipDefault = parcelHelpers.interopDefault(_flip);
+var _consts = require("./consts");
+const gpadButtonHighlightElements = _consts.ONSCREEN_GPAD_BUTTON_LABELS.map((btnLabel)=>document.getElementById(btnLabel + "_highlight")
+);
+const gamepadHelpTooltip = document.querySelector('#gamepad-help-tooltip');
+const gamepadHelpTooltipText = document.querySelector('#gamepad-help-text');
+const defaultTooltipTarget = document.querySelector('#select_button');
+var currentPopperTarget = defaultTooltipTarget;
+const helpTooltip = _popperLite.createPopper({
+    getBoundingClientRect: ()=>currentPopperTarget.getBoundingClientRect()
+    ,
+    contextElement: document.body
+}, gamepadHelpTooltip, {
+    modifiers: [
+        _flipDefault.default
+    ],
+    placement: 'right',
+    strategy: 'fixed'
+});
+const tooManyGamepadsNotice = document.getElementById("too-many-gamepads-notice");
+function showExtraniousGamepadsConnected(tooManyGamepads) {
+    tooManyGamepadsNotice.style.display = tooManyGamepads ? "block" : "none";
 }
-function getDevTools() {
-    var global1 = getGlobal();
-    if (global1 && '__xstate__' in global1) return global1.__xstate__;
-    return undefined;
+const gamepadContainer = document.getElementById("gamepad-container");
+function showGamepadConnected(show) {
+    if (show) gamepadContainer.classList.add("gamepad-connected");
+    else gamepadContainer.classList.remove("gamepad-connected");
 }
-function registerService(service) {
-    if (!getGlobal()) return;
-    var devTools = getDevTools();
-    if (devTools) devTools.register(service);
+const gamepadConnectNotice = document.getElementById("gamepad-connect-notice");
+function showNoGamepads(show) {
+    gamepadConnectNotice.style.display = show ? "block" : "none";
+}
+var gamepadHelpVisible = false;
+function toggleGamepadHelpScreen() {
+    gamepadHelpVisible = !gamepadHelpVisible // toggle it
+    ;
+    if (gamepadHelpVisible) {
+        gamepadContainer.classList.add("help-open");
+        this.showHelpTooltip(null);
+    } else gamepadContainer.classList.remove("help-open");
+    let count = 0;
+    var updateFunc = ()=>{
+        helpTooltip.update();
+        count++;
+        if (count < 60) requestAnimationFrame(updateFunc);
+    };
+    updateFunc();
+}
+function showGamepadStatus(connectedGamepadCount) {
+    this.showNoGamepads(connectedGamepadCount == 0);
+    this.showGamepadConnected(connectedGamepadCount == 0);
+    this.showExtraniousGamepadsConnected(connectedGamepadCount > 1);
+}
+function showNotSupported() {
+    alert('Gamepad interface not supported, please use a more modern browser.');
+    this.showGamepadConnected(true);
+}
+function showHelpTooltip(btnElem, btnHelpText) {
+    if (gamepadHelpVisible) {
+        if (btnElem) {
+            currentPopperTarget = btnElem;
+            gamepadHelpTooltipText.innerText = btnHelpText;
+            gamepadHelpTooltip.style.opacity = "0.9";
+        } else gamepadHelpTooltip.style.opacity = "0";
+    } else if (!btnHelpText) {
+        currentPopperTarget = defaultTooltipTarget;
+        gamepadHelpTooltipText.innerText = "Gamepad Help";
+        gamepadHelpTooltip.style.opacity = "0.8";
+    }
+    helpTooltip.update();
+}
+function handleGamepadVisualFeedbackAxisEvents(axiesMaping, directionalHelpThreshold) {
+    axiesMaping.forEach(function(axisMap) {
+        // if (axisValue > 0 || axisValue < 0) {
+        var thumbstick = axisMap.thumbStickElement;
+        var axisRange = axisMap.axisRange;
+        var xValue = axisMap.xValue || 0;
+        var yValue = axisMap.yValue || 0;
+        thumbstick.style.transform = `rotateY(${-xValue * 30}deg) rotateX(${yValue * 30}deg) translate(${xValue * axisRange}px,${yValue * axisRange}px)`;
+        if (gamepadHelpVisible) {
+            if (axisMap.upIndicatorElement && axisMap.downIndicatorElement) {
+                if (Math.abs(xValue) < directionalHelpThreshold) {
+                    if (yValue < -directionalHelpThreshold) {
+                        axisMap.upIndicatorElement.style.opacity = Math.max(-yValue, 0);
+                        axisMap.downIndicatorElement.style.opacity = 0;
+                        showHelpTooltip(axisMap.upIndicatorElement, axisMap.upHelpText || "None");
+                    } else if (yValue > directionalHelpThreshold) {
+                        axisMap.upIndicatorElement.style.opacity = 0;
+                        axisMap.downIndicatorElement.style.opacity = Math.max(yValue, 0);
+                        showHelpTooltip(axisMap.downIndicatorElement, axisMap.downHelpText || "None");
+                    } else {
+                        axisMap.upIndicatorElement.style.opacity = 0;
+                        axisMap.downIndicatorElement.style.opacity = 0;
+                    }
+                } else {
+                    axisMap.upIndicatorElement.style.opacity = 0;
+                    axisMap.downIndicatorElement.style.opacity = 0;
+                }
+            }
+            if (axisMap.leftIndicatorElement && axisMap.rightIndicatorElement) {
+                if (Math.abs(yValue) < directionalHelpThreshold) {
+                    if (xValue < -directionalHelpThreshold) {
+                        axisMap.leftIndicatorElement.style.opacity = Math.max(-xValue, 0);
+                        axisMap.rightIndicatorElement.style.opacity = 0;
+                        showHelpTooltip(axisMap.leftIndicatorElement, axisMap.leftHelpText || "None");
+                    } else if (xValue > directionalHelpThreshold) {
+                        axisMap.leftIndicatorElement.style.opacity = 0;
+                        axisMap.rightIndicatorElement.style.opacity = Math.max(xValue, 0);
+                        showHelpTooltip(axisMap.rightIndicatorElement, axisMap.rightHelpText || "None");
+                    } else {
+                        axisMap.leftIndicatorElement.style.opacity = 0;
+                        axisMap.rightIndicatorElement.style.opacity = 0;
+                    }
+                } else {
+                    axisMap.leftIndicatorElement.style.opacity = 0;
+                    axisMap.rightIndicatorElement.style.opacity = 0;
+                }
+            }
+        }
+    });
+}
+function setGamepadButtonClass(btnIndx, gamepadButtonStates) {
+    var gpadButton = gamepadButtonStates[btnIndx];
+    var btnElem = gpadButtonHighlightElements[btnIndx];
+    if (!gpadButton || !btnElem) return;
+    if (gpadButton.touched) btnElem.classList.add(_consts.ONSCREEN_GPAD_BUTTON_TOUCHED_CLASS);
+    else btnElem.classList.remove(_consts.ONSCREEN_GPAD_BUTTON_TOUCHED_CLASS);
+    if (gpadButton.pressed) btnElem.classList.add(_consts.ONSCREEN_GPAD_BUTTON_PRESSED_CLASS);
+    else btnElem.classList.remove(_consts.ONSCREEN_GPAD_BUTTON_PRESSED_CLASS);
+}
+function handleGamepadVisualFeedbackButtonEvents(gamepadButtonStates) {
+    for(var btnIndx = 0; btnIndx < gamepadButtonStates.length; btnIndx++)setGamepadButtonClass(btnIndx, gamepadButtonStates);
+}
+function handleGamepadVisualFeedbackVariableTriggerButtonEvents(gamepadButtonStates, triggerConfigs) {
+    for(var i = 0; i < triggerConfigs.length; i++){
+        const triggerConfig = triggerConfigs[i];
+        const btnIndx = triggerConfig.buttonIndex;
+        setGamepadButtonClass(btnIndx, gamepadButtonStates);
+        var yValue = gamepadButtonStates[btnIndx] ? gamepadButtonStates[btnIndx].value : 0;
+        triggerConfig.buttonElement.style.transform = `rotateX(${yValue * 30}deg) translateY(${yValue * triggerConfig.axisRange}px)`;
+    }
+}
+function getButtonHighlightElements() {
+    return gpadButtonHighlightElements;
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./environment.js":"fNNF6"}],"7RjKM":[function(require,module,exports) {
+},{"@popperjs/core/lib/popper-lite":"gKW1N","@popperjs/core/lib/modifiers/flip":"fv5wq","./consts":"2J0f1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gKW1N":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "fromPromise", ()=>fromPromise
+parcelHelpers.export(exports, "createPopper", ()=>createPopper
 );
-parcelHelpers.export(exports, "fromReducer", ()=>fromReducer
+parcelHelpers.export(exports, "popperGenerator", ()=>_createPopperJs.popperGenerator
 );
-parcelHelpers.export(exports, "spawnBehavior", ()=>spawnBehavior
+parcelHelpers.export(exports, "defaultModifiers", ()=>defaultModifiers
 );
-var _actionsJs = require("./actions.js");
-var _actorJs = require("./Actor.js");
-var _utilsJs = require("./utils.js");
-/**
- * Returns an actor behavior from a reducer and its initial state.
- *
- * @param transition The pure reducer that returns the next state given the current state and event.
- * @param initialState The initial state of the reducer.
- * @returns An actor behavior
- */ function fromReducer(transition, initialState) {
-    return {
-        transition: transition,
-        initialState: initialState
-    };
+parcelHelpers.export(exports, "detectOverflow", ()=>_createPopperJs.detectOverflow
+);
+var _createPopperJs = require("./createPopper.js");
+var _eventListenersJs = require("./modifiers/eventListeners.js");
+var _eventListenersJsDefault = parcelHelpers.interopDefault(_eventListenersJs);
+var _popperOffsetsJs = require("./modifiers/popperOffsets.js");
+var _popperOffsetsJsDefault = parcelHelpers.interopDefault(_popperOffsetsJs);
+var _computeStylesJs = require("./modifiers/computeStyles.js");
+var _computeStylesJsDefault = parcelHelpers.interopDefault(_computeStylesJs);
+var _applyStylesJs = require("./modifiers/applyStyles.js");
+var _applyStylesJsDefault = parcelHelpers.interopDefault(_applyStylesJs);
+var defaultModifiers = [
+    _eventListenersJsDefault.default,
+    _popperOffsetsJsDefault.default,
+    _computeStylesJsDefault.default,
+    _applyStylesJsDefault.default
+];
+var createPopper = /*#__PURE__*/ _createPopperJs.popperGenerator({
+    defaultModifiers: defaultModifiers
+}); // eslint-disable-next-line import/no-unused-modules
+
+},{"./createPopper.js":"cHuNp","./modifiers/eventListeners.js":"hBKsL","./modifiers/popperOffsets.js":"6I679","./modifiers/computeStyles.js":"gDlm2","./modifiers/applyStyles.js":"4iMn4","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cHuNp":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "popperGenerator", ()=>popperGenerator
+);
+parcelHelpers.export(exports, "createPopper", ()=>createPopper
+);
+parcelHelpers.export(exports, "detectOverflow", ()=>_detectOverflowJsDefault.default
+);
+var _getCompositeRectJs = require("./dom-utils/getCompositeRect.js");
+var _getCompositeRectJsDefault = parcelHelpers.interopDefault(_getCompositeRectJs);
+var _getLayoutRectJs = require("./dom-utils/getLayoutRect.js");
+var _getLayoutRectJsDefault = parcelHelpers.interopDefault(_getLayoutRectJs);
+var _listScrollParentsJs = require("./dom-utils/listScrollParents.js");
+var _listScrollParentsJsDefault = parcelHelpers.interopDefault(_listScrollParentsJs);
+var _getOffsetParentJs = require("./dom-utils/getOffsetParent.js");
+var _getOffsetParentJsDefault = parcelHelpers.interopDefault(_getOffsetParentJs);
+var _getComputedStyleJs = require("./dom-utils/getComputedStyle.js");
+var _getComputedStyleJsDefault = parcelHelpers.interopDefault(_getComputedStyleJs);
+var _orderModifiersJs = require("./utils/orderModifiers.js");
+var _orderModifiersJsDefault = parcelHelpers.interopDefault(_orderModifiersJs);
+var _debounceJs = require("./utils/debounce.js");
+var _debounceJsDefault = parcelHelpers.interopDefault(_debounceJs);
+var _validateModifiersJs = require("./utils/validateModifiers.js");
+var _validateModifiersJsDefault = parcelHelpers.interopDefault(_validateModifiersJs);
+var _uniqueByJs = require("./utils/uniqueBy.js");
+var _uniqueByJsDefault = parcelHelpers.interopDefault(_uniqueByJs);
+var _getBasePlacementJs = require("./utils/getBasePlacement.js");
+var _getBasePlacementJsDefault = parcelHelpers.interopDefault(_getBasePlacementJs);
+var _mergeByNameJs = require("./utils/mergeByName.js");
+var _mergeByNameJsDefault = parcelHelpers.interopDefault(_mergeByNameJs);
+var _detectOverflowJs = require("./utils/detectOverflow.js");
+var _detectOverflowJsDefault = parcelHelpers.interopDefault(_detectOverflowJs);
+var _instanceOfJs = require("./dom-utils/instanceOf.js");
+var _enumsJs = require("./enums.js");
+var INVALID_ELEMENT_ERROR = 'Popper: Invalid reference or popper argument provided. They must be either a DOM element or virtual element.';
+var INFINITE_LOOP_ERROR = 'Popper: An infinite loop in the modifiers cycle has been detected! The cycle has been interrupted to prevent a browser crash.';
+var DEFAULT_OPTIONS = {
+    placement: 'bottom',
+    modifiers: [],
+    strategy: 'absolute'
+};
+function areValidElements() {
+    for(var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++)args[_key] = arguments[_key];
+    return !args.some(function(element) {
+        return !(element && typeof element.getBoundingClientRect === 'function');
+    });
 }
-function fromPromise(promiseFn) {
-    var initialState = {
-        error: undefined,
-        data: undefined,
-        status: 'pending'
+function popperGenerator(generatorOptions) {
+    if (generatorOptions === void 0) generatorOptions = {
     };
-    return {
-        transition: function(state, event, _a) {
-            var parent = _a.parent, id = _a.id, observers = _a.observers;
-            switch(event.type){
-                case 'fulfill':
-                    parent === null || parent === void 0 || parent.send(_actionsJs.doneInvoke(id, event.data));
-                    return {
-                        error: undefined,
-                        data: event.data,
-                        status: 'fulfilled'
-                    };
-                case 'reject':
-                    parent === null || parent === void 0 || parent.send(_actionsJs.error(id, event.error));
-                    observers.forEach(function(observer) {
-                        observer.error(event.error);
+    var _generatorOptions = generatorOptions, _generatorOptions$def = _generatorOptions.defaultModifiers, defaultModifiers = _generatorOptions$def === void 0 ? [] : _generatorOptions$def, _generatorOptions$def2 = _generatorOptions.defaultOptions, defaultOptions = _generatorOptions$def2 === void 0 ? DEFAULT_OPTIONS : _generatorOptions$def2;
+    return function createPopper(reference1, popper1, options1) {
+        if (options1 === void 0) options1 = defaultOptions;
+        var state1 = {
+            placement: 'bottom',
+            orderedModifiers: [],
+            options: Object.assign({
+            }, DEFAULT_OPTIONS, defaultOptions),
+            modifiersData: {
+            },
+            elements: {
+                reference: reference1,
+                popper: popper1
+            },
+            attributes: {
+            },
+            styles: {
+            }
+        };
+        var effectCleanupFns = [];
+        var isDestroyed = false;
+        var instance = {
+            state: state1,
+            setOptions: function setOptions(setOptionsAction) {
+                var options = typeof setOptionsAction === 'function' ? setOptionsAction(state1.options) : setOptionsAction;
+                cleanupModifierEffects();
+                state1.options = Object.assign({
+                }, defaultOptions, state1.options, options);
+                state1.scrollParents = {
+                    reference: _instanceOfJs.isElement(reference1) ? _listScrollParentsJsDefault.default(reference1) : reference1.contextElement ? _listScrollParentsJsDefault.default(reference1.contextElement) : [],
+                    popper: _listScrollParentsJsDefault.default(popper1)
+                }; // Orders the modifiers based on their dependencies and `phase`
+                // properties
+                var orderedModifiers = _orderModifiersJsDefault.default(_mergeByNameJsDefault.default([].concat(defaultModifiers, state1.options.modifiers))); // Strip out disabled modifiers
+                state1.orderedModifiers = orderedModifiers.filter(function(m) {
+                    return m.enabled;
+                }); // Validate the provided modifiers so that the consumer will get warned
+                var modifiers = _uniqueByJsDefault.default([].concat(orderedModifiers, state1.options.modifiers), function(_ref) {
+                    var name = _ref.name;
+                    return name;
+                });
+                _validateModifiersJsDefault.default(modifiers);
+                if (_getBasePlacementJsDefault.default(state1.options.placement) === _enumsJs.auto) {
+                    var flipModifier = state1.orderedModifiers.find(function(_ref2) {
+                        var name = _ref2.name;
+                        return name === 'flip';
                     });
-                    return {
-                        error: event.error,
-                        data: undefined,
-                        status: 'rejected'
-                    };
-                default:
-                    return state;
+                    if (!flipModifier) console.error([
+                        'Popper: "auto" placements require the "flip" modifier be',
+                        'present and enabled to work.'
+                    ].join(' '));
+                }
+                var _getComputedStyle = _getComputedStyleJsDefault.default(popper1), marginTop = _getComputedStyle.marginTop, marginRight = _getComputedStyle.marginRight, marginBottom = _getComputedStyle.marginBottom, marginLeft = _getComputedStyle.marginLeft; // We no longer take into account `margins` on the popper, and it can
+                // cause bugs with positioning, so we'll warn the consumer
+                if ([
+                    marginTop,
+                    marginRight,
+                    marginBottom,
+                    marginLeft
+                ].some(function(margin) {
+                    return parseFloat(margin);
+                })) console.warn([
+                    'Popper: CSS "margin" styles cannot be used to apply padding',
+                    'between the popper and its reference element or boundary.',
+                    'To replicate margin, use the `offset` modifier, as well as',
+                    'the `padding` option in the `preventOverflow` and `flip`',
+                    'modifiers.'
+                ].join(' '));
+                runModifierEffects();
+                return instance.update();
+            },
+            // Sync update – it will always be executed, even if not necessary. This
+            // is useful for low frequency updates where sync behavior simplifies the
+            // logic.
+            // For high frequency updates (e.g. `resize` and `scroll` events), always
+            // prefer the async Popper#update method
+            forceUpdate: function forceUpdate() {
+                if (isDestroyed) return;
+                var _state$elements = state1.elements, reference = _state$elements.reference, popper = _state$elements.popper; // Don't proceed if `reference` or `popper` are not valid elements
+                // anymore
+                if (!areValidElements(reference, popper)) {
+                    console.error(INVALID_ELEMENT_ERROR);
+                    return;
+                } // Store the reference and popper rects to be read by modifiers
+                state1.rects = {
+                    reference: _getCompositeRectJsDefault.default(reference, _getOffsetParentJsDefault.default(popper), state1.options.strategy === 'fixed'),
+                    popper: _getLayoutRectJsDefault.default(popper)
+                }; // Modifiers have the ability to reset the current update cycle. The
+                // most common use case for this is the `flip` modifier changing the
+                // placement, which then needs to re-run all the modifiers, because the
+                // logic was previously ran for the previous placement and is therefore
+                // stale/incorrect
+                state1.reset = false;
+                state1.placement = state1.options.placement; // On each update cycle, the `modifiersData` property for each modifier
+                // is filled with the initial data specified by the modifier. This means
+                // it doesn't persist and is fresh on each update.
+                // To ensure persistent data, use `${name}#persistent`
+                state1.orderedModifiers.forEach(function(modifier) {
+                    return state1.modifiersData[modifier.name] = Object.assign({
+                    }, modifier.data);
+                });
+                var __debug_loops__ = 0;
+                for(var index = 0; index < state1.orderedModifiers.length; index++){
+                    __debug_loops__ += 1;
+                    if (__debug_loops__ > 100) {
+                        console.error(INFINITE_LOOP_ERROR);
+                        break;
+                    }
+                    if (state1.reset === true) {
+                        state1.reset = false;
+                        index = -1;
+                        continue;
+                    }
+                    var _state$orderedModifie = state1.orderedModifiers[index], fn = _state$orderedModifie.fn, _state$orderedModifie2 = _state$orderedModifie.options, _options = _state$orderedModifie2 === void 0 ? {
+                    } : _state$orderedModifie2, name = _state$orderedModifie.name;
+                    if (typeof fn === 'function') state1 = fn({
+                        state: state1,
+                        options: _options,
+                        name: name,
+                        instance: instance
+                    }) || state1;
+                }
+            },
+            // Async and optimistically optimized update – it will not be executed if
+            // not necessary (debounced to run at most once-per-tick)
+            update: _debounceJsDefault.default(function() {
+                return new Promise(function(resolve) {
+                    instance.forceUpdate();
+                    resolve(state1);
+                });
+            }),
+            destroy: function destroy() {
+                cleanupModifierEffects();
+                isDestroyed = true;
             }
-        },
-        initialState: initialState,
-        start: function(_a) {
-            var self = _a.self;
-            promiseFn().then(function(data) {
-                self.send({
-                    type: 'fulfill',
-                    data: data
-                });
-            }, function(reason) {
-                self.send({
-                    type: 'reject',
-                    error: reason
-                });
-            });
-            return initialState;
+        };
+        if (!areValidElements(reference1, popper1)) {
+            console.error(INVALID_ELEMENT_ERROR);
+            return instance;
         }
+        instance.setOptions(options1).then(function(state) {
+            if (!isDestroyed && options1.onFirstUpdate) options1.onFirstUpdate(state);
+        }); // Modifiers have the ability to execute arbitrary code before the first
+        // update cycle runs. They will be executed in the same order as the update
+        // cycle. This is useful when a modifier adds some persistent data that
+        // other modifiers need to use, but the modifier is run after the dependent
+        // one.
+        function runModifierEffects() {
+            state1.orderedModifiers.forEach(function(_ref3) {
+                var name = _ref3.name, _ref3$options = _ref3.options, options = _ref3$options === void 0 ? {
+                } : _ref3$options, effect = _ref3.effect;
+                if (typeof effect === 'function') {
+                    var cleanupFn = effect({
+                        state: state1,
+                        name: name,
+                        instance: instance,
+                        options: options
+                    });
+                    var noopFn = function noopFn() {
+                    };
+                    effectCleanupFns.push(cleanupFn || noopFn);
+                }
+            });
+        }
+        function cleanupModifierEffects() {
+            effectCleanupFns.forEach(function(fn) {
+                return fn();
+            });
+            effectCleanupFns = [];
+        }
+        return instance;
     };
 }
-function spawnBehavior(behavior, options) {
+var createPopper = /*#__PURE__*/ popperGenerator(); // eslint-disable-next-line import/no-unused-modules
+
+},{"./dom-utils/getCompositeRect.js":"ijPls","./dom-utils/getLayoutRect.js":"jvjuf","./dom-utils/listScrollParents.js":"2di3T","./dom-utils/getOffsetParent.js":"laoYw","./dom-utils/getComputedStyle.js":"3mZjB","./utils/orderModifiers.js":"N0VO0","./utils/debounce.js":"g6Chr","./utils/validateModifiers.js":"1S5dQ","./utils/uniqueBy.js":"hhl2M","./utils/getBasePlacement.js":"59Wp3","./utils/mergeByName.js":"2zTVN","./utils/detectOverflow.js":"ltCuw","./dom-utils/instanceOf.js":"gYFUC","./enums.js":"lCAq5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"ijPls":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getBoundingClientRectJs = require("./getBoundingClientRect.js");
+var _getBoundingClientRectJsDefault = parcelHelpers.interopDefault(_getBoundingClientRectJs);
+var _getNodeScrollJs = require("./getNodeScroll.js");
+var _getNodeScrollJsDefault = parcelHelpers.interopDefault(_getNodeScrollJs);
+var _getNodeNameJs = require("./getNodeName.js");
+var _getNodeNameJsDefault = parcelHelpers.interopDefault(_getNodeNameJs);
+var _instanceOfJs = require("./instanceOf.js");
+var _getWindowScrollBarXJs = require("./getWindowScrollBarX.js");
+var _getWindowScrollBarXJsDefault = parcelHelpers.interopDefault(_getWindowScrollBarXJs);
+var _getDocumentElementJs = require("./getDocumentElement.js");
+var _getDocumentElementJsDefault = parcelHelpers.interopDefault(_getDocumentElementJs);
+var _isScrollParentJs = require("./isScrollParent.js");
+var _isScrollParentJsDefault = parcelHelpers.interopDefault(_isScrollParentJs);
+var _mathJs = require("../utils/math.js");
+function isElementScaled(element) {
+    var rect = element.getBoundingClientRect();
+    var scaleX = _mathJs.round(rect.width) / element.offsetWidth || 1;
+    var scaleY = _mathJs.round(rect.height) / element.offsetHeight || 1;
+    return scaleX !== 1 || scaleY !== 1;
+} // Returns the composite rect of an element relative to its offsetParent.
+function getCompositeRect(elementOrVirtualElement, offsetParent, isFixed) {
+    if (isFixed === void 0) isFixed = false;
+    var isOffsetParentAnElement = _instanceOfJs.isHTMLElement(offsetParent);
+    var offsetParentIsScaled = _instanceOfJs.isHTMLElement(offsetParent) && isElementScaled(offsetParent);
+    var documentElement = _getDocumentElementJsDefault.default(offsetParent);
+    var rect = _getBoundingClientRectJsDefault.default(elementOrVirtualElement, offsetParentIsScaled);
+    var scroll = {
+        scrollLeft: 0,
+        scrollTop: 0
+    };
+    var offsets = {
+        x: 0,
+        y: 0
+    };
+    if (isOffsetParentAnElement || !isOffsetParentAnElement && !isFixed) {
+        if (_getNodeNameJsDefault.default(offsetParent) !== 'body' || _isScrollParentJsDefault.default(documentElement)) scroll = _getNodeScrollJsDefault.default(offsetParent);
+        if (_instanceOfJs.isHTMLElement(offsetParent)) {
+            offsets = _getBoundingClientRectJsDefault.default(offsetParent, true);
+            offsets.x += offsetParent.clientLeft;
+            offsets.y += offsetParent.clientTop;
+        } else if (documentElement) offsets.x = _getWindowScrollBarXJsDefault.default(documentElement);
+    }
+    return {
+        x: rect.left + scroll.scrollLeft - offsets.x,
+        y: rect.top + scroll.scrollTop - offsets.y,
+        width: rect.width,
+        height: rect.height
+    };
+}
+exports.default = getCompositeRect;
+
+},{"./getBoundingClientRect.js":"9CFSQ","./getNodeScroll.js":"bBjCr","./getNodeName.js":"a2Qom","./instanceOf.js":"gYFUC","./getWindowScrollBarX.js":"sz4Ld","./getDocumentElement.js":"eJ9Y1","./isScrollParent.js":"9rLGO","../utils/math.js":"gQqVe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"9CFSQ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _instanceOfJs = require("./instanceOf.js");
+var _mathJs = require("../utils/math.js");
+function getBoundingClientRect(element, includeScale) {
+    if (includeScale === void 0) includeScale = false;
+    var rect = element.getBoundingClientRect();
+    var scaleX = 1;
+    var scaleY = 1;
+    if (_instanceOfJs.isHTMLElement(element) && includeScale) {
+        var offsetHeight = element.offsetHeight;
+        var offsetWidth = element.offsetWidth; // Do not attempt to divide by 0, otherwise we get `Infinity` as scale
+        // Fallback to 1 in case both values are `0`
+        if (offsetWidth > 0) scaleX = _mathJs.round(rect.width) / offsetWidth || 1;
+        if (offsetHeight > 0) scaleY = _mathJs.round(rect.height) / offsetHeight || 1;
+    }
+    return {
+        width: rect.width / scaleX,
+        height: rect.height / scaleY,
+        top: rect.top / scaleY,
+        right: rect.right / scaleX,
+        bottom: rect.bottom / scaleY,
+        left: rect.left / scaleX,
+        x: rect.left / scaleX,
+        y: rect.top / scaleY
+    };
+}
+exports.default = getBoundingClientRect;
+
+},{"./instanceOf.js":"gYFUC","../utils/math.js":"gQqVe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gYFUC":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "isElement", ()=>isElement
+);
+parcelHelpers.export(exports, "isHTMLElement", ()=>isHTMLElement
+);
+parcelHelpers.export(exports, "isShadowRoot", ()=>isShadowRoot
+);
+var _getWindowJs = require("./getWindow.js");
+var _getWindowJsDefault = parcelHelpers.interopDefault(_getWindowJs);
+function isElement(node) {
+    var OwnElement = _getWindowJsDefault.default(node).Element;
+    return node instanceof OwnElement || node instanceof Element;
+}
+function isHTMLElement(node) {
+    var OwnElement = _getWindowJsDefault.default(node).HTMLElement;
+    return node instanceof OwnElement || node instanceof HTMLElement;
+}
+function isShadowRoot(node) {
+    // IE 11 has no ShadowRoot
+    if (typeof ShadowRoot === 'undefined') return false;
+    var OwnElement = _getWindowJsDefault.default(node).ShadowRoot;
+    return node instanceof OwnElement || node instanceof ShadowRoot;
+}
+
+},{"./getWindow.js":"2SkOo","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2SkOo":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function getWindow(node) {
+    if (node == null) return window;
+    if (node.toString() !== '[object Window]') {
+        var ownerDocument = node.ownerDocument;
+        return ownerDocument ? ownerDocument.defaultView || window : window;
+    }
+    return node;
+}
+exports.default = getWindow;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gQqVe":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "max", ()=>max
+);
+parcelHelpers.export(exports, "min", ()=>min
+);
+parcelHelpers.export(exports, "round", ()=>round
+);
+var max = Math.max;
+var min = Math.min;
+var round = Math.round;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bBjCr":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getWindowScrollJs = require("./getWindowScroll.js");
+var _getWindowScrollJsDefault = parcelHelpers.interopDefault(_getWindowScrollJs);
+var _getWindowJs = require("./getWindow.js");
+var _getWindowJsDefault = parcelHelpers.interopDefault(_getWindowJs);
+var _instanceOfJs = require("./instanceOf.js");
+var _getHTMLElementScrollJs = require("./getHTMLElementScroll.js");
+var _getHTMLElementScrollJsDefault = parcelHelpers.interopDefault(_getHTMLElementScrollJs);
+function getNodeScroll(node) {
+    if (node === _getWindowJsDefault.default(node) || !_instanceOfJs.isHTMLElement(node)) return _getWindowScrollJsDefault.default(node);
+    else return _getHTMLElementScrollJsDefault.default(node);
+}
+exports.default = getNodeScroll;
+
+},{"./getWindowScroll.js":"1XUtN","./getWindow.js":"2SkOo","./instanceOf.js":"gYFUC","./getHTMLElementScroll.js":"6pwY2","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1XUtN":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getWindowJs = require("./getWindow.js");
+var _getWindowJsDefault = parcelHelpers.interopDefault(_getWindowJs);
+function getWindowScroll(node) {
+    var win = _getWindowJsDefault.default(node);
+    var scrollLeft = win.pageXOffset;
+    var scrollTop = win.pageYOffset;
+    return {
+        scrollLeft: scrollLeft,
+        scrollTop: scrollTop
+    };
+}
+exports.default = getWindowScroll;
+
+},{"./getWindow.js":"2SkOo","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6pwY2":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function getHTMLElementScroll(element) {
+    return {
+        scrollLeft: element.scrollLeft,
+        scrollTop: element.scrollTop
+    };
+}
+exports.default = getHTMLElementScroll;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"a2Qom":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function getNodeName(element) {
+    return element ? (element.nodeName || '').toLowerCase() : null;
+}
+exports.default = getNodeName;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"sz4Ld":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getBoundingClientRectJs = require("./getBoundingClientRect.js");
+var _getBoundingClientRectJsDefault = parcelHelpers.interopDefault(_getBoundingClientRectJs);
+var _getDocumentElementJs = require("./getDocumentElement.js");
+var _getDocumentElementJsDefault = parcelHelpers.interopDefault(_getDocumentElementJs);
+var _getWindowScrollJs = require("./getWindowScroll.js");
+var _getWindowScrollJsDefault = parcelHelpers.interopDefault(_getWindowScrollJs);
+function getWindowScrollBarX(element) {
+    // If <html> has a CSS width greater than the viewport, then this will be
+    // incorrect for RTL.
+    // Popper 1 is broken in this case and never had a bug report so let's assume
+    // it's not an issue. I don't think anyone ever specifies width on <html>
+    // anyway.
+    // Browsers where the left scrollbar doesn't cause an issue report `0` for
+    // this (e.g. Edge 2019, IE11, Safari)
+    return _getBoundingClientRectJsDefault.default(_getDocumentElementJsDefault.default(element)).left + _getWindowScrollJsDefault.default(element).scrollLeft;
+}
+exports.default = getWindowScrollBarX;
+
+},{"./getBoundingClientRect.js":"9CFSQ","./getDocumentElement.js":"eJ9Y1","./getWindowScroll.js":"1XUtN","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"eJ9Y1":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _instanceOfJs = require("./instanceOf.js");
+function getDocumentElement(element) {
+    // $FlowFixMe[incompatible-return]: assume body is always available
+    return ((_instanceOfJs.isElement(element) ? element.ownerDocument : element.document) || window.document).documentElement;
+}
+exports.default = getDocumentElement;
+
+},{"./instanceOf.js":"gYFUC","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"9rLGO":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getComputedStyleJs = require("./getComputedStyle.js");
+var _getComputedStyleJsDefault = parcelHelpers.interopDefault(_getComputedStyleJs);
+function isScrollParent(element) {
+    // Firefox wants us to check `-x` and `-y` variations as well
+    var _getComputedStyle = _getComputedStyleJsDefault.default(element), overflow = _getComputedStyle.overflow, overflowX = _getComputedStyle.overflowX, overflowY = _getComputedStyle.overflowY;
+    return /auto|scroll|overlay|hidden/.test(overflow + overflowY + overflowX);
+}
+exports.default = isScrollParent;
+
+},{"./getComputedStyle.js":"3mZjB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3mZjB":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getWindowJs = require("./getWindow.js");
+var _getWindowJsDefault = parcelHelpers.interopDefault(_getWindowJs);
+function getComputedStyle(element) {
+    return _getWindowJsDefault.default(element).getComputedStyle(element);
+}
+exports.default = getComputedStyle;
+
+},{"./getWindow.js":"2SkOo","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jvjuf":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getBoundingClientRectJs = require("./getBoundingClientRect.js"); // Returns the layout rect of an element relative to its offsetParent. Layout
+var _getBoundingClientRectJsDefault = parcelHelpers.interopDefault(_getBoundingClientRectJs);
+function getLayoutRect(element) {
+    var clientRect = _getBoundingClientRectJsDefault.default(element); // Use the clientRect sizes if it's not been transformed.
+    // Fixes https://github.com/popperjs/popper-core/issues/1223
+    var width = element.offsetWidth;
+    var height = element.offsetHeight;
+    if (Math.abs(clientRect.width - width) <= 1) width = clientRect.width;
+    if (Math.abs(clientRect.height - height) <= 1) height = clientRect.height;
+    return {
+        x: element.offsetLeft,
+        y: element.offsetTop,
+        width: width,
+        height: height
+    };
+}
+exports.default = getLayoutRect;
+
+},{"./getBoundingClientRect.js":"9CFSQ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2di3T":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getScrollParentJs = require("./getScrollParent.js");
+var _getScrollParentJsDefault = parcelHelpers.interopDefault(_getScrollParentJs);
+var _getParentNodeJs = require("./getParentNode.js");
+var _getParentNodeJsDefault = parcelHelpers.interopDefault(_getParentNodeJs);
+var _getWindowJs = require("./getWindow.js");
+var _getWindowJsDefault = parcelHelpers.interopDefault(_getWindowJs);
+var _isScrollParentJs = require("./isScrollParent.js");
+var _isScrollParentJsDefault = parcelHelpers.interopDefault(_isScrollParentJs);
+function listScrollParents(element, list) {
+    var _element$ownerDocumen;
+    if (list === void 0) list = [];
+    var scrollParent = _getScrollParentJsDefault.default(element);
+    var isBody = scrollParent === ((_element$ownerDocumen = element.ownerDocument) == null ? void 0 : _element$ownerDocumen.body);
+    var win = _getWindowJsDefault.default(scrollParent);
+    var target = isBody ? [
+        win
+    ].concat(win.visualViewport || [], _isScrollParentJsDefault.default(scrollParent) ? scrollParent : []) : scrollParent;
+    var updatedList = list.concat(target);
+    return isBody ? updatedList : updatedList.concat(listScrollParents(_getParentNodeJsDefault.default(target)));
+}
+exports.default = listScrollParents;
+
+},{"./getScrollParent.js":"jy4ZS","./getParentNode.js":"bIHpd","./getWindow.js":"2SkOo","./isScrollParent.js":"9rLGO","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jy4ZS":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getParentNodeJs = require("./getParentNode.js");
+var _getParentNodeJsDefault = parcelHelpers.interopDefault(_getParentNodeJs);
+var _isScrollParentJs = require("./isScrollParent.js");
+var _isScrollParentJsDefault = parcelHelpers.interopDefault(_isScrollParentJs);
+var _getNodeNameJs = require("./getNodeName.js");
+var _getNodeNameJsDefault = parcelHelpers.interopDefault(_getNodeNameJs);
+var _instanceOfJs = require("./instanceOf.js");
+function getScrollParent(node) {
+    if ([
+        'html',
+        'body',
+        '#document'
+    ].indexOf(_getNodeNameJsDefault.default(node)) >= 0) // $FlowFixMe[incompatible-return]: assume body is always available
+    return node.ownerDocument.body;
+    if (_instanceOfJs.isHTMLElement(node) && _isScrollParentJsDefault.default(node)) return node;
+    return getScrollParent(_getParentNodeJsDefault.default(node));
+}
+exports.default = getScrollParent;
+
+},{"./getParentNode.js":"bIHpd","./isScrollParent.js":"9rLGO","./getNodeName.js":"a2Qom","./instanceOf.js":"gYFUC","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bIHpd":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getNodeNameJs = require("./getNodeName.js");
+var _getNodeNameJsDefault = parcelHelpers.interopDefault(_getNodeNameJs);
+var _getDocumentElementJs = require("./getDocumentElement.js");
+var _getDocumentElementJsDefault = parcelHelpers.interopDefault(_getDocumentElementJs);
+var _instanceOfJs = require("./instanceOf.js");
+function getParentNode(element) {
+    if (_getNodeNameJsDefault.default(element) === 'html') return element;
+    return(// $FlowFixMe[incompatible-return]
+    // $FlowFixMe[prop-missing]
+    element.assignedSlot || element.parentNode || (_instanceOfJs.isShadowRoot(element) ? element.host : null) || // $FlowFixMe[incompatible-call]: HTMLElement is a Node
+    _getDocumentElementJsDefault.default(element) // fallback
+    );
+}
+exports.default = getParentNode;
+
+},{"./getNodeName.js":"a2Qom","./getDocumentElement.js":"eJ9Y1","./instanceOf.js":"gYFUC","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"laoYw":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getWindowJs = require("./getWindow.js");
+var _getWindowJsDefault = parcelHelpers.interopDefault(_getWindowJs);
+var _getNodeNameJs = require("./getNodeName.js");
+var _getNodeNameJsDefault = parcelHelpers.interopDefault(_getNodeNameJs);
+var _getComputedStyleJs = require("./getComputedStyle.js");
+var _getComputedStyleJsDefault = parcelHelpers.interopDefault(_getComputedStyleJs);
+var _instanceOfJs = require("./instanceOf.js");
+var _isTableElementJs = require("./isTableElement.js");
+var _isTableElementJsDefault = parcelHelpers.interopDefault(_isTableElementJs);
+var _getParentNodeJs = require("./getParentNode.js");
+var _getParentNodeJsDefault = parcelHelpers.interopDefault(_getParentNodeJs);
+function getTrueOffsetParent(element) {
+    if (!_instanceOfJs.isHTMLElement(element) || _getComputedStyleJsDefault.default(element).position === 'fixed') return null;
+    return element.offsetParent;
+} // `.offsetParent` reports `null` for fixed elements, while absolute elements
+// return the containing block
+function getContainingBlock(element) {
+    var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') !== -1;
+    var isIE = navigator.userAgent.indexOf('Trident') !== -1;
+    if (isIE && _instanceOfJs.isHTMLElement(element)) {
+        // In IE 9, 10 and 11 fixed elements containing block is always established by the viewport
+        var elementCss = _getComputedStyleJsDefault.default(element);
+        if (elementCss.position === 'fixed') return null;
+    }
+    var currentNode = _getParentNodeJsDefault.default(element);
+    if (_instanceOfJs.isShadowRoot(currentNode)) currentNode = currentNode.host;
+    while(_instanceOfJs.isHTMLElement(currentNode) && [
+        'html',
+        'body'
+    ].indexOf(_getNodeNameJsDefault.default(currentNode)) < 0){
+        var css = _getComputedStyleJsDefault.default(currentNode); // This is non-exhaustive but covers the most common CSS properties that
+        // create a containing block.
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block
+        if (css.transform !== 'none' || css.perspective !== 'none' || css.contain === 'paint' || [
+            'transform',
+            'perspective'
+        ].indexOf(css.willChange) !== -1 || isFirefox && css.willChange === 'filter' || isFirefox && css.filter && css.filter !== 'none') return currentNode;
+        else currentNode = currentNode.parentNode;
+    }
+    return null;
+} // Gets the closest ancestor positioned element. Handles some edge cases,
+function getOffsetParent(element) {
+    var window = _getWindowJsDefault.default(element);
+    var offsetParent = getTrueOffsetParent(element);
+    while(offsetParent && _isTableElementJsDefault.default(offsetParent) && _getComputedStyleJsDefault.default(offsetParent).position === 'static')offsetParent = getTrueOffsetParent(offsetParent);
+    if (offsetParent && (_getNodeNameJsDefault.default(offsetParent) === 'html' || _getNodeNameJsDefault.default(offsetParent) === 'body' && _getComputedStyleJsDefault.default(offsetParent).position === 'static')) return window;
+    return offsetParent || getContainingBlock(element) || window;
+}
+exports.default = getOffsetParent;
+
+},{"./getWindow.js":"2SkOo","./getNodeName.js":"a2Qom","./getComputedStyle.js":"3mZjB","./instanceOf.js":"gYFUC","./isTableElement.js":"2qBb7","./getParentNode.js":"bIHpd","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2qBb7":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getNodeNameJs = require("./getNodeName.js");
+var _getNodeNameJsDefault = parcelHelpers.interopDefault(_getNodeNameJs);
+function isTableElement(element) {
+    return [
+        'table',
+        'td',
+        'th'
+    ].indexOf(_getNodeNameJsDefault.default(element)) >= 0;
+}
+exports.default = isTableElement;
+
+},{"./getNodeName.js":"a2Qom","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"N0VO0":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _enumsJs = require("../enums.js"); // source: https://stackoverflow.com/questions/49875255
+function order(modifiers) {
+    var map = new Map();
+    var visited = new Set();
+    var result = [];
+    modifiers.forEach(function(modifier) {
+        map.set(modifier.name, modifier);
+    }); // On visiting object, check for its dependencies and visit them recursively
+    function sort(modifier) {
+        visited.add(modifier.name);
+        var requires = [].concat(modifier.requires || [], modifier.requiresIfExists || []);
+        requires.forEach(function(dep) {
+            if (!visited.has(dep)) {
+                var depModifier = map.get(dep);
+                if (depModifier) sort(depModifier);
+            }
+        });
+        result.push(modifier);
+    }
+    modifiers.forEach(function(modifier) {
+        if (!visited.has(modifier.name)) // check for visited object
+        sort(modifier);
+    });
+    return result;
+}
+function orderModifiers(modifiers) {
+    // order based on dependencies
+    var orderedModifiers = order(modifiers); // order based on phase
+    return _enumsJs.modifierPhases.reduce(function(acc, phase) {
+        return acc.concat(orderedModifiers.filter(function(modifier) {
+            return modifier.phase === phase;
+        }));
+    }, []);
+}
+exports.default = orderModifiers;
+
+},{"../enums.js":"lCAq5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lCAq5":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "top", ()=>top
+);
+parcelHelpers.export(exports, "bottom", ()=>bottom
+);
+parcelHelpers.export(exports, "right", ()=>right
+);
+parcelHelpers.export(exports, "left", ()=>left
+);
+parcelHelpers.export(exports, "auto", ()=>auto
+);
+parcelHelpers.export(exports, "basePlacements", ()=>basePlacements
+);
+parcelHelpers.export(exports, "start", ()=>start
+);
+parcelHelpers.export(exports, "end", ()=>end
+);
+parcelHelpers.export(exports, "clippingParents", ()=>clippingParents
+);
+parcelHelpers.export(exports, "viewport", ()=>viewport
+);
+parcelHelpers.export(exports, "popper", ()=>popper
+);
+parcelHelpers.export(exports, "reference", ()=>reference
+);
+parcelHelpers.export(exports, "variationPlacements", ()=>variationPlacements
+);
+parcelHelpers.export(exports, "placements", ()=>placements
+);
+parcelHelpers.export(exports, "beforeRead", ()=>beforeRead
+);
+parcelHelpers.export(exports, "read", ()=>read
+);
+parcelHelpers.export(exports, "afterRead", ()=>afterRead
+);
+parcelHelpers.export(exports, "beforeMain", ()=>beforeMain
+);
+parcelHelpers.export(exports, "main", ()=>main
+);
+parcelHelpers.export(exports, "afterMain", ()=>afterMain
+);
+parcelHelpers.export(exports, "beforeWrite", ()=>beforeWrite
+);
+parcelHelpers.export(exports, "write", ()=>write
+);
+parcelHelpers.export(exports, "afterWrite", ()=>afterWrite
+);
+parcelHelpers.export(exports, "modifierPhases", ()=>modifierPhases
+);
+var top = 'top';
+var bottom = 'bottom';
+var right = 'right';
+var left = 'left';
+var auto = 'auto';
+var basePlacements = [
+    top,
+    bottom,
+    right,
+    left
+];
+var start = 'start';
+var end = 'end';
+var clippingParents = 'clippingParents';
+var viewport = 'viewport';
+var popper = 'popper';
+var reference = 'reference';
+var variationPlacements = /*#__PURE__*/ basePlacements.reduce(function(acc, placement) {
+    return acc.concat([
+        placement + "-" + start,
+        placement + "-" + end
+    ]);
+}, []);
+var placements = /*#__PURE__*/ [].concat(basePlacements, [
+    auto
+]).reduce(function(acc, placement) {
+    return acc.concat([
+        placement,
+        placement + "-" + start,
+        placement + "-" + end
+    ]);
+}, []); // modifiers that need to read the DOM
+var beforeRead = 'beforeRead';
+var read = 'read';
+var afterRead = 'afterRead'; // pure-logic modifiers
+var beforeMain = 'beforeMain';
+var main = 'main';
+var afterMain = 'afterMain'; // modifier with the purpose to write to the DOM (or write into a framework state)
+var beforeWrite = 'beforeWrite';
+var write = 'write';
+var afterWrite = 'afterWrite';
+var modifierPhases = [
+    beforeRead,
+    read,
+    afterRead,
+    beforeMain,
+    main,
+    afterMain,
+    beforeWrite,
+    write,
+    afterWrite
+];
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"g6Chr":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function debounce(fn) {
+    var pending;
+    return function() {
+        if (!pending) pending = new Promise(function(resolve) {
+            Promise.resolve().then(function() {
+                pending = undefined;
+                resolve(fn());
+            });
+        });
+        return pending;
+    };
+}
+exports.default = debounce;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1S5dQ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _formatJs = require("./format.js");
+var _formatJsDefault = parcelHelpers.interopDefault(_formatJs);
+var _enumsJs = require("../enums.js");
+var INVALID_MODIFIER_ERROR = 'Popper: modifier "%s" provided an invalid %s property, expected %s but got %s';
+var MISSING_DEPENDENCY_ERROR = 'Popper: modifier "%s" requires "%s", but "%s" modifier is not available';
+var VALID_PROPERTIES = [
+    'name',
+    'enabled',
+    'phase',
+    'fn',
+    'effect',
+    'requires',
+    'options'
+];
+function validateModifiers(modifiers) {
+    modifiers.forEach(function(modifier) {
+        [].concat(Object.keys(modifier), VALID_PROPERTIES) // IE11-compatible replacement for `new Set(iterable)`
+        .filter(function(value, index, self) {
+            return self.indexOf(value) === index;
+        }).forEach(function(key) {
+            switch(key){
+                case 'name':
+                    if (typeof modifier.name !== 'string') console.error(_formatJsDefault.default(INVALID_MODIFIER_ERROR, String(modifier.name), '"name"', '"string"', "\"" + String(modifier.name) + "\""));
+                    break;
+                case 'enabled':
+                    if (typeof modifier.enabled !== 'boolean') console.error(_formatJsDefault.default(INVALID_MODIFIER_ERROR, modifier.name, '"enabled"', '"boolean"', "\"" + String(modifier.enabled) + "\""));
+                    break;
+                case 'phase':
+                    if (_enumsJs.modifierPhases.indexOf(modifier.phase) < 0) console.error(_formatJsDefault.default(INVALID_MODIFIER_ERROR, modifier.name, '"phase"', "either " + _enumsJs.modifierPhases.join(', '), "\"" + String(modifier.phase) + "\""));
+                    break;
+                case 'fn':
+                    if (typeof modifier.fn !== 'function') console.error(_formatJsDefault.default(INVALID_MODIFIER_ERROR, modifier.name, '"fn"', '"function"', "\"" + String(modifier.fn) + "\""));
+                    break;
+                case 'effect':
+                    if (modifier.effect != null && typeof modifier.effect !== 'function') console.error(_formatJsDefault.default(INVALID_MODIFIER_ERROR, modifier.name, '"effect"', '"function"', "\"" + String(modifier.fn) + "\""));
+                    break;
+                case 'requires':
+                    if (modifier.requires != null && !Array.isArray(modifier.requires)) console.error(_formatJsDefault.default(INVALID_MODIFIER_ERROR, modifier.name, '"requires"', '"array"', "\"" + String(modifier.requires) + "\""));
+                    break;
+                case 'requiresIfExists':
+                    if (!Array.isArray(modifier.requiresIfExists)) console.error(_formatJsDefault.default(INVALID_MODIFIER_ERROR, modifier.name, '"requiresIfExists"', '"array"', "\"" + String(modifier.requiresIfExists) + "\""));
+                    break;
+                case 'options':
+                case 'data':
+                    break;
+                default:
+                    console.error("PopperJS: an invalid property has been provided to the \"" + modifier.name + "\" modifier, valid properties are " + VALID_PROPERTIES.map(function(s) {
+                        return "\"" + s + "\"";
+                    }).join(', ') + "; but \"" + key + "\" was provided.");
+            }
+            modifier.requires && modifier.requires.forEach(function(requirement) {
+                if (modifiers.find(function(mod) {
+                    return mod.name === requirement;
+                }) == null) console.error(_formatJsDefault.default(MISSING_DEPENDENCY_ERROR, String(modifier.name), requirement, requirement));
+            });
+        });
+    });
+}
+exports.default = validateModifiers;
+
+},{"./format.js":"baNIW","../enums.js":"lCAq5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"baNIW":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function format(str) {
+    for(var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++)args[_key - 1] = arguments[_key];
+    return [].concat(args).reduce(function(p, c) {
+        return p.replace(/%s/, c);
+    }, str);
+}
+exports.default = format;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hhl2M":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function uniqueBy(arr, fn) {
+    var identifiers = new Set();
+    return arr.filter(function(item) {
+        var identifier = fn(item);
+        if (!identifiers.has(identifier)) {
+            identifiers.add(identifier);
+            return true;
+        }
+    });
+}
+exports.default = uniqueBy;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"59Wp3":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _enumsJs = require("../enums.js");
+function getBasePlacement(placement) {
+    return placement.split('-')[0];
+}
+exports.default = getBasePlacement;
+
+},{"../enums.js":"lCAq5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2zTVN":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function mergeByName(modifiers) {
+    var merged1 = modifiers.reduce(function(merged, current) {
+        var existing = merged[current.name];
+        merged[current.name] = existing ? Object.assign({
+        }, existing, current, {
+            options: Object.assign({
+            }, existing.options, current.options),
+            data: Object.assign({
+            }, existing.data, current.data)
+        }) : current;
+        return merged;
+    }, {
+    }); // IE11 does not support Object.values
+    return Object.keys(merged1).map(function(key) {
+        return merged1[key];
+    });
+}
+exports.default = mergeByName;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"ltCuw":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getClippingRectJs = require("../dom-utils/getClippingRect.js");
+var _getClippingRectJsDefault = parcelHelpers.interopDefault(_getClippingRectJs);
+var _getDocumentElementJs = require("../dom-utils/getDocumentElement.js");
+var _getDocumentElementJsDefault = parcelHelpers.interopDefault(_getDocumentElementJs);
+var _getBoundingClientRectJs = require("../dom-utils/getBoundingClientRect.js");
+var _getBoundingClientRectJsDefault = parcelHelpers.interopDefault(_getBoundingClientRectJs);
+var _computeOffsetsJs = require("./computeOffsets.js");
+var _computeOffsetsJsDefault = parcelHelpers.interopDefault(_computeOffsetsJs);
+var _rectToClientRectJs = require("./rectToClientRect.js");
+var _rectToClientRectJsDefault = parcelHelpers.interopDefault(_rectToClientRectJs);
+var _enumsJs = require("../enums.js");
+var _instanceOfJs = require("../dom-utils/instanceOf.js");
+var _mergePaddingObjectJs = require("./mergePaddingObject.js");
+var _mergePaddingObjectJsDefault = parcelHelpers.interopDefault(_mergePaddingObjectJs);
+var _expandToHashMapJs = require("./expandToHashMap.js"); // eslint-disable-next-line import/no-unused-modules
+var _expandToHashMapJsDefault = parcelHelpers.interopDefault(_expandToHashMapJs);
+function detectOverflow(state, options) {
     if (options === void 0) options = {
     };
-    var state = behavior.initialState;
-    var observers = new Set();
-    var mailbox = [];
-    var flushing = false;
-    var flush = function() {
-        if (flushing) return;
-        flushing = true;
-        while(mailbox.length > 0){
-            var event_1 = mailbox.shift();
-            state = behavior.transition(state, event_1, actorCtx);
-            observers.forEach(function(observer) {
-                return observer.next(state);
-            });
-        }
-        flushing = false;
-    };
-    var actor = _actorJs.toActorRef({
-        id: options.id,
-        send: function(event) {
-            mailbox.push(event);
-            flush();
-        },
-        getSnapshot: function() {
-            return state;
-        },
-        subscribe: function(next, handleError, complete) {
-            var observer = _utilsJs.toObserver(next, handleError, complete);
-            observers.add(observer);
-            observer.next(state);
-            return {
-                unsubscribe: function() {
-                    observers.delete(observer);
-                }
-            };
-        }
+    var _options = options, _options$placement = _options.placement, placement = _options$placement === void 0 ? state.placement : _options$placement, _options$boundary = _options.boundary, boundary = _options$boundary === void 0 ? _enumsJs.clippingParents : _options$boundary, _options$rootBoundary = _options.rootBoundary, rootBoundary = _options$rootBoundary === void 0 ? _enumsJs.viewport : _options$rootBoundary, _options$elementConte = _options.elementContext, elementContext = _options$elementConte === void 0 ? _enumsJs.popper : _options$elementConte, _options$altBoundary = _options.altBoundary, altBoundary = _options$altBoundary === void 0 ? false : _options$altBoundary, _options$padding = _options.padding, padding = _options$padding === void 0 ? 0 : _options$padding;
+    var paddingObject = _mergePaddingObjectJsDefault.default(typeof padding !== 'number' ? padding : _expandToHashMapJsDefault.default(padding, _enumsJs.basePlacements));
+    var altContext = elementContext === _enumsJs.popper ? _enumsJs.reference : _enumsJs.popper;
+    var popperRect = state.rects.popper;
+    var element = state.elements[altBoundary ? altContext : elementContext];
+    var clippingClientRect = _getClippingRectJsDefault.default(_instanceOfJs.isElement(element) ? element : element.contextElement || _getDocumentElementJsDefault.default(state.elements.popper), boundary, rootBoundary);
+    var referenceClientRect = _getBoundingClientRectJsDefault.default(state.elements.reference);
+    var popperOffsets = _computeOffsetsJsDefault.default({
+        reference: referenceClientRect,
+        element: popperRect,
+        strategy: 'absolute',
+        placement: placement
     });
-    var actorCtx = {
-        parent: options.parent,
-        self: actor,
-        id: options.id || 'anonymous',
-        observers: observers
+    var popperClientRect = _rectToClientRectJsDefault.default(Object.assign({
+    }, popperRect, popperOffsets));
+    var elementClientRect = elementContext === _enumsJs.popper ? popperClientRect : referenceClientRect; // positive = overflowing the clipping rect
+    // 0 or negative = within the clipping rect
+    var overflowOffsets = {
+        top: clippingClientRect.top - elementClientRect.top + paddingObject.top,
+        bottom: elementClientRect.bottom - clippingClientRect.bottom + paddingObject.bottom,
+        left: clippingClientRect.left - elementClientRect.left + paddingObject.left,
+        right: elementClientRect.right - clippingClientRect.right + paddingObject.right
     };
-    state = behavior.start ? behavior.start(actorCtx) : state;
-    return actor;
+    var offsetData = state.modifiersData.offset; // Offsets can be applied only to the popper element
+    if (elementContext === _enumsJs.popper && offsetData) {
+        var offset = offsetData[placement];
+        Object.keys(overflowOffsets).forEach(function(key) {
+            var multiply = [
+                _enumsJs.right,
+                _enumsJs.bottom
+            ].indexOf(key) >= 0 ? 1 : -1;
+            var axis = [
+                _enumsJs.top,
+                _enumsJs.bottom
+            ].indexOf(key) >= 0 ? 'y' : 'x';
+            overflowOffsets[key] += offset[axis] * multiply;
+        });
+    }
+    return overflowOffsets;
+}
+exports.default = detectOverflow;
+
+},{"../dom-utils/getClippingRect.js":"eeg2s","../dom-utils/getDocumentElement.js":"eJ9Y1","../dom-utils/getBoundingClientRect.js":"9CFSQ","./computeOffsets.js":"7jtXk","./rectToClientRect.js":"cQ3tg","../enums.js":"lCAq5","../dom-utils/instanceOf.js":"gYFUC","./mergePaddingObject.js":"lEIf9","./expandToHashMap.js":"iQlH5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"eeg2s":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _enumsJs = require("../enums.js");
+var _getViewportRectJs = require("./getViewportRect.js");
+var _getViewportRectJsDefault = parcelHelpers.interopDefault(_getViewportRectJs);
+var _getDocumentRectJs = require("./getDocumentRect.js");
+var _getDocumentRectJsDefault = parcelHelpers.interopDefault(_getDocumentRectJs);
+var _listScrollParentsJs = require("./listScrollParents.js");
+var _listScrollParentsJsDefault = parcelHelpers.interopDefault(_listScrollParentsJs);
+var _getOffsetParentJs = require("./getOffsetParent.js");
+var _getOffsetParentJsDefault = parcelHelpers.interopDefault(_getOffsetParentJs);
+var _getDocumentElementJs = require("./getDocumentElement.js");
+var _getDocumentElementJsDefault = parcelHelpers.interopDefault(_getDocumentElementJs);
+var _getComputedStyleJs = require("./getComputedStyle.js");
+var _getComputedStyleJsDefault = parcelHelpers.interopDefault(_getComputedStyleJs);
+var _instanceOfJs = require("./instanceOf.js");
+var _getBoundingClientRectJs = require("./getBoundingClientRect.js");
+var _getBoundingClientRectJsDefault = parcelHelpers.interopDefault(_getBoundingClientRectJs);
+var _getParentNodeJs = require("./getParentNode.js");
+var _getParentNodeJsDefault = parcelHelpers.interopDefault(_getParentNodeJs);
+var _containsJs = require("./contains.js");
+var _containsJsDefault = parcelHelpers.interopDefault(_containsJs);
+var _getNodeNameJs = require("./getNodeName.js");
+var _getNodeNameJsDefault = parcelHelpers.interopDefault(_getNodeNameJs);
+var _rectToClientRectJs = require("../utils/rectToClientRect.js");
+var _rectToClientRectJsDefault = parcelHelpers.interopDefault(_rectToClientRectJs);
+var _mathJs = require("../utils/math.js");
+function getInnerBoundingClientRect(element) {
+    var rect = _getBoundingClientRectJsDefault.default(element);
+    rect.top = rect.top + element.clientTop;
+    rect.left = rect.left + element.clientLeft;
+    rect.bottom = rect.top + element.clientHeight;
+    rect.right = rect.left + element.clientWidth;
+    rect.width = element.clientWidth;
+    rect.height = element.clientHeight;
+    rect.x = rect.left;
+    rect.y = rect.top;
+    return rect;
+}
+function getClientRectFromMixedType(element, clippingParent) {
+    return clippingParent === _enumsJs.viewport ? _rectToClientRectJsDefault.default(_getViewportRectJsDefault.default(element)) : _instanceOfJs.isElement(clippingParent) ? getInnerBoundingClientRect(clippingParent) : _rectToClientRectJsDefault.default(_getDocumentRectJsDefault.default(_getDocumentElementJsDefault.default(element)));
+} // A "clipping parent" is an overflowable container with the characteristic of
+// clipping (or hiding) overflowing elements with a position different from
+// `initial`
+function getClippingParents(element) {
+    var clippingParents = _listScrollParentsJsDefault.default(_getParentNodeJsDefault.default(element));
+    var canEscapeClipping = [
+        'absolute',
+        'fixed'
+    ].indexOf(_getComputedStyleJsDefault.default(element).position) >= 0;
+    var clipperElement = canEscapeClipping && _instanceOfJs.isHTMLElement(element) ? _getOffsetParentJsDefault.default(element) : element;
+    if (!_instanceOfJs.isElement(clipperElement)) return [];
+     // $FlowFixMe[incompatible-return]: https://github.com/facebook/flow/issues/1414
+    return clippingParents.filter(function(clippingParent) {
+        return _instanceOfJs.isElement(clippingParent) && _containsJsDefault.default(clippingParent, clipperElement) && _getNodeNameJsDefault.default(clippingParent) !== 'body';
+    });
+} // Gets the maximum area that the element is visible in due to any number of
+function getClippingRect(element, boundary, rootBoundary) {
+    var mainClippingParents = boundary === 'clippingParents' ? getClippingParents(element) : [].concat(boundary);
+    var clippingParents = [].concat(mainClippingParents, [
+        rootBoundary
+    ]);
+    var firstClippingParent = clippingParents[0];
+    var clippingRect = clippingParents.reduce(function(accRect, clippingParent) {
+        var rect = getClientRectFromMixedType(element, clippingParent);
+        accRect.top = _mathJs.max(rect.top, accRect.top);
+        accRect.right = _mathJs.min(rect.right, accRect.right);
+        accRect.bottom = _mathJs.min(rect.bottom, accRect.bottom);
+        accRect.left = _mathJs.max(rect.left, accRect.left);
+        return accRect;
+    }, getClientRectFromMixedType(element, firstClippingParent));
+    clippingRect.width = clippingRect.right - clippingRect.left;
+    clippingRect.height = clippingRect.bottom - clippingRect.top;
+    clippingRect.x = clippingRect.left;
+    clippingRect.y = clippingRect.top;
+    return clippingRect;
+}
+exports.default = getClippingRect;
+
+},{"../enums.js":"lCAq5","./getViewportRect.js":"cnH2G","./getDocumentRect.js":"d94SC","./listScrollParents.js":"2di3T","./getOffsetParent.js":"laoYw","./getDocumentElement.js":"eJ9Y1","./getComputedStyle.js":"3mZjB","./instanceOf.js":"gYFUC","./getBoundingClientRect.js":"9CFSQ","./getParentNode.js":"bIHpd","./contains.js":"4QxRR","./getNodeName.js":"a2Qom","../utils/rectToClientRect.js":"cQ3tg","../utils/math.js":"gQqVe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cnH2G":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getWindowJs = require("./getWindow.js");
+var _getWindowJsDefault = parcelHelpers.interopDefault(_getWindowJs);
+var _getDocumentElementJs = require("./getDocumentElement.js");
+var _getDocumentElementJsDefault = parcelHelpers.interopDefault(_getDocumentElementJs);
+var _getWindowScrollBarXJs = require("./getWindowScrollBarX.js");
+var _getWindowScrollBarXJsDefault = parcelHelpers.interopDefault(_getWindowScrollBarXJs);
+function getViewportRect(element) {
+    var win = _getWindowJsDefault.default(element);
+    var html = _getDocumentElementJsDefault.default(element);
+    var visualViewport = win.visualViewport;
+    var width = html.clientWidth;
+    var height = html.clientHeight;
+    var x = 0;
+    var y = 0; // NB: This isn't supported on iOS <= 12. If the keyboard is open, the popper
+    // can be obscured underneath it.
+    // Also, `html.clientHeight` adds the bottom bar height in Safari iOS, even
+    // if it isn't open, so if this isn't available, the popper will be detected
+    // to overflow the bottom of the screen too early.
+    if (visualViewport) {
+        width = visualViewport.width;
+        height = visualViewport.height; // Uses Layout Viewport (like Chrome; Safari does not currently)
+        // In Chrome, it returns a value very close to 0 (+/-) but contains rounding
+        // errors due to floating point numbers, so we need to check precision.
+        // Safari returns a number <= 0, usually < -1 when pinch-zoomed
+        // Feature detection fails in mobile emulation mode in Chrome.
+        // Math.abs(win.innerWidth / visualViewport.scale - visualViewport.width) <
+        // 0.001
+        // Fallback here: "Not Safari" userAgent
+        if (!/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+            x = visualViewport.offsetLeft;
+            y = visualViewport.offsetTop;
+        }
+    }
+    return {
+        width: width,
+        height: height,
+        x: x + _getWindowScrollBarXJsDefault.default(element),
+        y: y
+    };
+}
+exports.default = getViewportRect;
+
+},{"./getWindow.js":"2SkOo","./getDocumentElement.js":"eJ9Y1","./getWindowScrollBarX.js":"sz4Ld","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"d94SC":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getDocumentElementJs = require("./getDocumentElement.js");
+var _getDocumentElementJsDefault = parcelHelpers.interopDefault(_getDocumentElementJs);
+var _getComputedStyleJs = require("./getComputedStyle.js");
+var _getComputedStyleJsDefault = parcelHelpers.interopDefault(_getComputedStyleJs);
+var _getWindowScrollBarXJs = require("./getWindowScrollBarX.js");
+var _getWindowScrollBarXJsDefault = parcelHelpers.interopDefault(_getWindowScrollBarXJs);
+var _getWindowScrollJs = require("./getWindowScroll.js");
+var _getWindowScrollJsDefault = parcelHelpers.interopDefault(_getWindowScrollJs);
+var _mathJs = require("../utils/math.js"); // Gets the entire size of the scrollable document area, even extending outside
+function getDocumentRect(element) {
+    var _element$ownerDocumen;
+    var html = _getDocumentElementJsDefault.default(element);
+    var winScroll = _getWindowScrollJsDefault.default(element);
+    var body = (_element$ownerDocumen = element.ownerDocument) == null ? void 0 : _element$ownerDocumen.body;
+    var width = _mathJs.max(html.scrollWidth, html.clientWidth, body ? body.scrollWidth : 0, body ? body.clientWidth : 0);
+    var height = _mathJs.max(html.scrollHeight, html.clientHeight, body ? body.scrollHeight : 0, body ? body.clientHeight : 0);
+    var x = -winScroll.scrollLeft + _getWindowScrollBarXJsDefault.default(element);
+    var y = -winScroll.scrollTop;
+    if (_getComputedStyleJsDefault.default(body || html).direction === 'rtl') x += _mathJs.max(html.clientWidth, body ? body.clientWidth : 0) - width;
+    return {
+        width: width,
+        height: height,
+        x: x,
+        y: y
+    };
+}
+exports.default = getDocumentRect;
+
+},{"./getDocumentElement.js":"eJ9Y1","./getComputedStyle.js":"3mZjB","./getWindowScrollBarX.js":"sz4Ld","./getWindowScroll.js":"1XUtN","../utils/math.js":"gQqVe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4QxRR":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _instanceOfJs = require("./instanceOf.js");
+function contains(parent, child) {
+    var rootNode = child.getRootNode && child.getRootNode(); // First, attempt with faster native method
+    if (parent.contains(child)) return true;
+    else if (rootNode && _instanceOfJs.isShadowRoot(rootNode)) {
+        var next = child;
+        do {
+            if (next && parent.isSameNode(next)) return true;
+             // $FlowFixMe[prop-missing]: need a better way to handle this...
+            next = next.parentNode || next.host;
+        }while (next)
+    } // Give up, the result is false
+    return false;
+}
+exports.default = contains;
+
+},{"./instanceOf.js":"gYFUC","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cQ3tg":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function rectToClientRect(rect) {
+    return Object.assign({
+    }, rect, {
+        left: rect.x,
+        top: rect.y,
+        right: rect.x + rect.width,
+        bottom: rect.y + rect.height
+    });
+}
+exports.default = rectToClientRect;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7jtXk":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getBasePlacementJs = require("./getBasePlacement.js");
+var _getBasePlacementJsDefault = parcelHelpers.interopDefault(_getBasePlacementJs);
+var _getVariationJs = require("./getVariation.js");
+var _getVariationJsDefault = parcelHelpers.interopDefault(_getVariationJs);
+var _getMainAxisFromPlacementJs = require("./getMainAxisFromPlacement.js");
+var _getMainAxisFromPlacementJsDefault = parcelHelpers.interopDefault(_getMainAxisFromPlacementJs);
+var _enumsJs = require("../enums.js");
+function computeOffsets(_ref) {
+    var reference = _ref.reference, element = _ref.element, placement = _ref.placement;
+    var basePlacement = placement ? _getBasePlacementJsDefault.default(placement) : null;
+    var variation = placement ? _getVariationJsDefault.default(placement) : null;
+    var commonX = reference.x + reference.width / 2 - element.width / 2;
+    var commonY = reference.y + reference.height / 2 - element.height / 2;
+    var offsets;
+    switch(basePlacement){
+        case _enumsJs.top:
+            offsets = {
+                x: commonX,
+                y: reference.y - element.height
+            };
+            break;
+        case _enumsJs.bottom:
+            offsets = {
+                x: commonX,
+                y: reference.y + reference.height
+            };
+            break;
+        case _enumsJs.right:
+            offsets = {
+                x: reference.x + reference.width,
+                y: commonY
+            };
+            break;
+        case _enumsJs.left:
+            offsets = {
+                x: reference.x - element.width,
+                y: commonY
+            };
+            break;
+        default:
+            offsets = {
+                x: reference.x,
+                y: reference.y
+            };
+    }
+    var mainAxis = basePlacement ? _getMainAxisFromPlacementJsDefault.default(basePlacement) : null;
+    if (mainAxis != null) {
+        var len = mainAxis === 'y' ? 'height' : 'width';
+        switch(variation){
+            case _enumsJs.start:
+                offsets[mainAxis] = offsets[mainAxis] - (reference[len] / 2 - element[len] / 2);
+                break;
+            case _enumsJs.end:
+                offsets[mainAxis] = offsets[mainAxis] + (reference[len] / 2 - element[len] / 2);
+                break;
+            default:
+        }
+    }
+    return offsets;
+}
+exports.default = computeOffsets;
+
+},{"./getBasePlacement.js":"59Wp3","./getVariation.js":"hIo7Y","./getMainAxisFromPlacement.js":"1Xlom","../enums.js":"lCAq5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hIo7Y":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function getVariation(placement) {
+    return placement.split('-')[1];
+}
+exports.default = getVariation;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1Xlom":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function getMainAxisFromPlacement(placement) {
+    return [
+        'top',
+        'bottom'
+    ].indexOf(placement) >= 0 ? 'x' : 'y';
+}
+exports.default = getMainAxisFromPlacement;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lEIf9":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getFreshSideObjectJs = require("./getFreshSideObject.js");
+var _getFreshSideObjectJsDefault = parcelHelpers.interopDefault(_getFreshSideObjectJs);
+function mergePaddingObject(paddingObject) {
+    return Object.assign({
+    }, _getFreshSideObjectJsDefault.default(), paddingObject);
+}
+exports.default = mergePaddingObject;
+
+},{"./getFreshSideObject.js":"g4xOt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"g4xOt":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function getFreshSideObject() {
+    return {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+    };
+}
+exports.default = getFreshSideObject;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iQlH5":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function expandToHashMap(value, keys) {
+    return keys.reduce(function(hashMap, key) {
+        hashMap[key] = value;
+        return hashMap;
+    }, {
+    });
+}
+exports.default = expandToHashMap;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hBKsL":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getWindowJs = require("../dom-utils/getWindow.js"); // eslint-disable-next-line import/no-unused-modules
+var _getWindowJsDefault = parcelHelpers.interopDefault(_getWindowJs);
+var passive = {
+    passive: true
+};
+function effect(_ref) {
+    var state = _ref.state, instance = _ref.instance, options = _ref.options;
+    var _options$scroll = options.scroll, scroll = _options$scroll === void 0 ? true : _options$scroll, _options$resize = options.resize, resize = _options$resize === void 0 ? true : _options$resize;
+    var window = _getWindowJsDefault.default(state.elements.popper);
+    var scrollParents = [].concat(state.scrollParents.reference, state.scrollParents.popper);
+    if (scroll) scrollParents.forEach(function(scrollParent) {
+        scrollParent.addEventListener('scroll', instance.update, passive);
+    });
+    if (resize) window.addEventListener('resize', instance.update, passive);
+    return function() {
+        if (scroll) scrollParents.forEach(function(scrollParent) {
+            scrollParent.removeEventListener('scroll', instance.update, passive);
+        });
+        if (resize) window.removeEventListener('resize', instance.update, passive);
+    };
+} // eslint-disable-next-line import/no-unused-modules
+exports.default = {
+    name: 'eventListeners',
+    enabled: true,
+    phase: 'write',
+    fn: function fn() {
+    },
+    effect: effect,
+    data: {
+    }
+};
+
+},{"../dom-utils/getWindow.js":"2SkOo","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6I679":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _computeOffsetsJs = require("../utils/computeOffsets.js");
+var _computeOffsetsJsDefault = parcelHelpers.interopDefault(_computeOffsetsJs);
+function popperOffsets(_ref) {
+    var state = _ref.state, name = _ref.name;
+    // Offsets are the actual position the popper needs to have to be
+    // properly positioned near its reference element
+    // This is the most basic placement, and will be adjusted by
+    // the modifiers in the next step
+    state.modifiersData[name] = _computeOffsetsJsDefault.default({
+        reference: state.rects.reference,
+        element: state.rects.popper,
+        strategy: 'absolute',
+        placement: state.placement
+    });
+} // eslint-disable-next-line import/no-unused-modules
+exports.default = {
+    name: 'popperOffsets',
+    enabled: true,
+    phase: 'read',
+    fn: popperOffsets,
+    data: {
+    }
+};
+
+},{"../utils/computeOffsets.js":"7jtXk","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gDlm2":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "mapToStyles", ()=>mapToStyles
+);
+var _enumsJs = require("../enums.js");
+var _getOffsetParentJs = require("../dom-utils/getOffsetParent.js");
+var _getOffsetParentJsDefault = parcelHelpers.interopDefault(_getOffsetParentJs);
+var _getWindowJs = require("../dom-utils/getWindow.js");
+var _getWindowJsDefault = parcelHelpers.interopDefault(_getWindowJs);
+var _getDocumentElementJs = require("../dom-utils/getDocumentElement.js");
+var _getDocumentElementJsDefault = parcelHelpers.interopDefault(_getDocumentElementJs);
+var _getComputedStyleJs = require("../dom-utils/getComputedStyle.js");
+var _getComputedStyleJsDefault = parcelHelpers.interopDefault(_getComputedStyleJs);
+var _getBasePlacementJs = require("../utils/getBasePlacement.js");
+var _getBasePlacementJsDefault = parcelHelpers.interopDefault(_getBasePlacementJs);
+var _getVariationJs = require("../utils/getVariation.js");
+var _getVariationJsDefault = parcelHelpers.interopDefault(_getVariationJs);
+var _mathJs = require("../utils/math.js"); // eslint-disable-next-line import/no-unused-modules
+var unsetSides = {
+    top: 'auto',
+    right: 'auto',
+    bottom: 'auto',
+    left: 'auto'
+}; // Round the offsets to the nearest suitable subpixel based on the DPR.
+// Zooming can change the DPR, but it seems to report a value that will
+// cleanly divide the values into the appropriate subpixels.
+function roundOffsetsByDPR(_ref) {
+    var x = _ref.x, y = _ref.y;
+    var win = window;
+    var dpr = win.devicePixelRatio || 1;
+    return {
+        x: _mathJs.round(x * dpr) / dpr || 0,
+        y: _mathJs.round(y * dpr) / dpr || 0
+    };
+}
+function mapToStyles(_ref2) {
+    var _Object$assign2;
+    var popper = _ref2.popper, popperRect = _ref2.popperRect, placement = _ref2.placement, variation = _ref2.variation, offsets = _ref2.offsets, position = _ref2.position, gpuAcceleration = _ref2.gpuAcceleration, adaptive = _ref2.adaptive, roundOffsets = _ref2.roundOffsets, isFixed = _ref2.isFixed;
+    var _offsets$x = offsets.x, x = _offsets$x === void 0 ? 0 : _offsets$x, _offsets$y = offsets.y, y = _offsets$y === void 0 ? 0 : _offsets$y;
+    var _ref3 = typeof roundOffsets === 'function' ? roundOffsets({
+        x: x,
+        y: y
+    }) : {
+        x: x,
+        y: y
+    };
+    x = _ref3.x;
+    y = _ref3.y;
+    var hasX = offsets.hasOwnProperty('x');
+    var hasY = offsets.hasOwnProperty('y');
+    var sideX = _enumsJs.left;
+    var sideY = _enumsJs.top;
+    var win = window;
+    if (adaptive) {
+        var offsetParent = _getOffsetParentJsDefault.default(popper);
+        var heightProp = 'clientHeight';
+        var widthProp = 'clientWidth';
+        if (offsetParent === _getWindowJsDefault.default(popper)) {
+            offsetParent = _getDocumentElementJsDefault.default(popper);
+            if (_getComputedStyleJsDefault.default(offsetParent).position !== 'static' && position === 'absolute') {
+                heightProp = 'scrollHeight';
+                widthProp = 'scrollWidth';
+            }
+        } // $FlowFixMe[incompatible-cast]: force type refinement, we compare offsetParent with window above, but Flow doesn't detect it
+        if (placement === _enumsJs.top || (placement === _enumsJs.left || placement === _enumsJs.right) && variation === _enumsJs.end) {
+            sideY = _enumsJs.bottom;
+            var offsetY = isFixed && offsetParent === win && win.visualViewport ? win.visualViewport.height : offsetParent[heightProp];
+            y -= offsetY - popperRect.height;
+            y *= gpuAcceleration ? 1 : -1;
+        }
+        if (placement === _enumsJs.left || (placement === _enumsJs.top || placement === _enumsJs.bottom) && variation === _enumsJs.end) {
+            sideX = _enumsJs.right;
+            var offsetX = isFixed && offsetParent === win && win.visualViewport ? win.visualViewport.width : offsetParent[widthProp];
+            x -= offsetX - popperRect.width;
+            x *= gpuAcceleration ? 1 : -1;
+        }
+    }
+    var commonStyles = Object.assign({
+        position: position
+    }, adaptive && unsetSides);
+    var _ref4 = roundOffsets === true ? roundOffsetsByDPR({
+        x: x,
+        y: y
+    }) : {
+        x: x,
+        y: y
+    };
+    x = _ref4.x;
+    y = _ref4.y;
+    if (gpuAcceleration) {
+        var _Object$assign;
+        return Object.assign({
+        }, commonStyles, (_Object$assign = {
+        }, _Object$assign[sideY] = hasY ? '0' : '', _Object$assign[sideX] = hasX ? '0' : '', _Object$assign.transform = (win.devicePixelRatio || 1) <= 1 ? "translate(" + x + "px, " + y + "px)" : "translate3d(" + x + "px, " + y + "px, 0)", _Object$assign));
+    }
+    return Object.assign({
+    }, commonStyles, (_Object$assign2 = {
+    }, _Object$assign2[sideY] = hasY ? y + "px" : '', _Object$assign2[sideX] = hasX ? x + "px" : '', _Object$assign2.transform = '', _Object$assign2));
+}
+function computeStyles(_ref5) {
+    var state = _ref5.state, options = _ref5.options;
+    var _options$gpuAccelerat = options.gpuAcceleration, gpuAcceleration = _options$gpuAccelerat === void 0 ? true : _options$gpuAccelerat, _options$adaptive = options.adaptive, adaptive = _options$adaptive === void 0 ? true : _options$adaptive, _options$roundOffsets = options.roundOffsets, roundOffsets = _options$roundOffsets === void 0 ? true : _options$roundOffsets;
+    var transitionProperty = _getComputedStyleJsDefault.default(state.elements.popper).transitionProperty || '';
+    if (adaptive && [
+        'transform',
+        'top',
+        'right',
+        'bottom',
+        'left'
+    ].some(function(property) {
+        return transitionProperty.indexOf(property) >= 0;
+    })) console.warn([
+        'Popper: Detected CSS transitions on at least one of the following',
+        'CSS properties: "transform", "top", "right", "bottom", "left".',
+        '\n\n',
+        'Disable the "computeStyles" modifier\'s `adaptive` option to allow',
+        'for smooth transitions, or remove these properties from the CSS',
+        'transition declaration on the popper element if only transitioning',
+        'opacity or background-color for example.',
+        '\n\n',
+        'We recommend using the popper element as a wrapper around an inner',
+        'element that can have any CSS property transitioned for animations.'
+    ].join(' '));
+    var commonStyles = {
+        placement: _getBasePlacementJsDefault.default(state.placement),
+        variation: _getVariationJsDefault.default(state.placement),
+        popper: state.elements.popper,
+        popperRect: state.rects.popper,
+        gpuAcceleration: gpuAcceleration,
+        isFixed: state.options.strategy === 'fixed'
+    };
+    if (state.modifiersData.popperOffsets != null) state.styles.popper = Object.assign({
+    }, state.styles.popper, mapToStyles(Object.assign({
+    }, commonStyles, {
+        offsets: state.modifiersData.popperOffsets,
+        position: state.options.strategy,
+        adaptive: adaptive,
+        roundOffsets: roundOffsets
+    })));
+    if (state.modifiersData.arrow != null) state.styles.arrow = Object.assign({
+    }, state.styles.arrow, mapToStyles(Object.assign({
+    }, commonStyles, {
+        offsets: state.modifiersData.arrow,
+        position: 'absolute',
+        adaptive: false,
+        roundOffsets: roundOffsets
+    })));
+    state.attributes.popper = Object.assign({
+    }, state.attributes.popper, {
+        'data-popper-placement': state.placement
+    });
+} // eslint-disable-next-line import/no-unused-modules
+exports.default = {
+    name: 'computeStyles',
+    enabled: true,
+    phase: 'beforeWrite',
+    fn: computeStyles,
+    data: {
+    }
+};
+
+},{"../enums.js":"lCAq5","../dom-utils/getOffsetParent.js":"laoYw","../dom-utils/getWindow.js":"2SkOo","../dom-utils/getDocumentElement.js":"eJ9Y1","../dom-utils/getComputedStyle.js":"3mZjB","../utils/getBasePlacement.js":"59Wp3","../utils/getVariation.js":"hIo7Y","../utils/math.js":"gQqVe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4iMn4":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getNodeNameJs = require("../dom-utils/getNodeName.js");
+var _getNodeNameJsDefault = parcelHelpers.interopDefault(_getNodeNameJs);
+var _instanceOfJs = require("../dom-utils/instanceOf.js"); // This modifier takes the styles prepared by the `computeStyles` modifier
+// and applies them to the HTMLElements such as popper and arrow
+function applyStyles(_ref) {
+    var state = _ref.state;
+    Object.keys(state.elements).forEach(function(name1) {
+        var style = state.styles[name1] || {
+        };
+        var attributes = state.attributes[name1] || {
+        };
+        var element = state.elements[name1]; // arrow is optional + virtual elements
+        if (!_instanceOfJs.isHTMLElement(element) || !_getNodeNameJsDefault.default(element)) return;
+         // Flow doesn't support to extend this property, but it's the most
+        // effective way to apply styles to an HTMLElement
+        // $FlowFixMe[cannot-write]
+        Object.assign(element.style, style);
+        Object.keys(attributes).forEach(function(name) {
+            var value = attributes[name];
+            if (value === false) element.removeAttribute(name);
+            else element.setAttribute(name, value === true ? '' : value);
+        });
+    });
+}
+function effect(_ref2) {
+    var state = _ref2.state;
+    var initialStyles = {
+        popper: {
+            position: state.options.strategy,
+            left: '0',
+            top: '0',
+            margin: '0'
+        },
+        arrow: {
+            position: 'absolute'
+        },
+        reference: {
+        }
+    };
+    Object.assign(state.elements.popper.style, initialStyles.popper);
+    state.styles = initialStyles;
+    if (state.elements.arrow) Object.assign(state.elements.arrow.style, initialStyles.arrow);
+    return function() {
+        Object.keys(state.elements).forEach(function(name) {
+            var element = state.elements[name];
+            var attributes = state.attributes[name] || {
+            };
+            var styleProperties = Object.keys(state.styles.hasOwnProperty(name) ? state.styles[name] : initialStyles[name]); // Set all values to an empty string to unset them
+            var style1 = styleProperties.reduce(function(style, property) {
+                style[property] = '';
+                return style;
+            }, {
+            }); // arrow is optional + virtual elements
+            if (!_instanceOfJs.isHTMLElement(element) || !_getNodeNameJsDefault.default(element)) return;
+            Object.assign(element.style, style1);
+            Object.keys(attributes).forEach(function(attribute) {
+                element.removeAttribute(attribute);
+            });
+        });
+    };
+} // eslint-disable-next-line import/no-unused-modules
+exports.default = {
+    name: 'applyStyles',
+    enabled: true,
+    phase: 'write',
+    fn: applyStyles,
+    effect: effect,
+    requires: [
+        'computeStyles'
+    ]
+};
+
+},{"../dom-utils/getNodeName.js":"a2Qom","../dom-utils/instanceOf.js":"gYFUC","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"fv5wq":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getOppositePlacementJs = require("../utils/getOppositePlacement.js");
+var _getOppositePlacementJsDefault = parcelHelpers.interopDefault(_getOppositePlacementJs);
+var _getBasePlacementJs = require("../utils/getBasePlacement.js");
+var _getBasePlacementJsDefault = parcelHelpers.interopDefault(_getBasePlacementJs);
+var _getOppositeVariationPlacementJs = require("../utils/getOppositeVariationPlacement.js");
+var _getOppositeVariationPlacementJsDefault = parcelHelpers.interopDefault(_getOppositeVariationPlacementJs);
+var _detectOverflowJs = require("../utils/detectOverflow.js");
+var _detectOverflowJsDefault = parcelHelpers.interopDefault(_detectOverflowJs);
+var _computeAutoPlacementJs = require("../utils/computeAutoPlacement.js");
+var _computeAutoPlacementJsDefault = parcelHelpers.interopDefault(_computeAutoPlacementJs);
+var _enumsJs = require("../enums.js");
+var _getVariationJs = require("../utils/getVariation.js"); // eslint-disable-next-line import/no-unused-modules
+var _getVariationJsDefault = parcelHelpers.interopDefault(_getVariationJs);
+function getExpandedFallbackPlacements(placement) {
+    if (_getBasePlacementJsDefault.default(placement) === _enumsJs.auto) return [];
+    var oppositePlacement = _getOppositePlacementJsDefault.default(placement);
+    return [
+        _getOppositeVariationPlacementJsDefault.default(placement),
+        oppositePlacement,
+        _getOppositeVariationPlacementJsDefault.default(oppositePlacement)
+    ];
+}
+function flip(_ref) {
+    var state = _ref.state, options = _ref.options, name = _ref.name;
+    if (state.modifiersData[name]._skip) return;
+    var _options$mainAxis = options.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options.altAxis, checkAltAxis = _options$altAxis === void 0 ? true : _options$altAxis, specifiedFallbackPlacements = options.fallbackPlacements, padding = options.padding, boundary = options.boundary, rootBoundary = options.rootBoundary, altBoundary = options.altBoundary, _options$flipVariatio = options.flipVariations, flipVariations = _options$flipVariatio === void 0 ? true : _options$flipVariatio, allowedAutoPlacements = options.allowedAutoPlacements;
+    var preferredPlacement = state.options.placement;
+    var basePlacement = _getBasePlacementJsDefault.default(preferredPlacement);
+    var isBasePlacement = basePlacement === preferredPlacement;
+    var fallbackPlacements = specifiedFallbackPlacements || (isBasePlacement || !flipVariations ? [
+        _getOppositePlacementJsDefault.default(preferredPlacement)
+    ] : getExpandedFallbackPlacements(preferredPlacement));
+    var placements = [
+        preferredPlacement
+    ].concat(fallbackPlacements).reduce(function(acc, placement) {
+        return acc.concat(_getBasePlacementJsDefault.default(placement) === _enumsJs.auto ? _computeAutoPlacementJsDefault.default(state, {
+            placement: placement,
+            boundary: boundary,
+            rootBoundary: rootBoundary,
+            padding: padding,
+            flipVariations: flipVariations,
+            allowedAutoPlacements: allowedAutoPlacements
+        }) : placement);
+    }, []);
+    var referenceRect = state.rects.reference;
+    var popperRect = state.rects.popper;
+    var checksMap = new Map();
+    var makeFallbackChecks = true;
+    var firstFittingPlacement = placements[0];
+    for(var i = 0; i < placements.length; i++){
+        var placement1 = placements[i];
+        var _basePlacement = _getBasePlacementJsDefault.default(placement1);
+        var isStartVariation = _getVariationJsDefault.default(placement1) === _enumsJs.start;
+        var isVertical = [
+            _enumsJs.top,
+            _enumsJs.bottom
+        ].indexOf(_basePlacement) >= 0;
+        var len = isVertical ? 'width' : 'height';
+        var overflow = _detectOverflowJsDefault.default(state, {
+            placement: placement1,
+            boundary: boundary,
+            rootBoundary: rootBoundary,
+            altBoundary: altBoundary,
+            padding: padding
+        });
+        var mainVariationSide = isVertical ? isStartVariation ? _enumsJs.right : _enumsJs.left : isStartVariation ? _enumsJs.bottom : _enumsJs.top;
+        if (referenceRect[len] > popperRect[len]) mainVariationSide = _getOppositePlacementJsDefault.default(mainVariationSide);
+        var altVariationSide = _getOppositePlacementJsDefault.default(mainVariationSide);
+        var checks = [];
+        if (checkMainAxis) checks.push(overflow[_basePlacement] <= 0);
+        if (checkAltAxis) checks.push(overflow[mainVariationSide] <= 0, overflow[altVariationSide] <= 0);
+        if (checks.every(function(check) {
+            return check;
+        })) {
+            firstFittingPlacement = placement1;
+            makeFallbackChecks = false;
+            break;
+        }
+        checksMap.set(placement1, checks);
+    }
+    if (makeFallbackChecks) {
+        // `2` may be desired in some cases – research later
+        var numberOfChecks = flipVariations ? 3 : 1;
+        var _loop = function _loop(_i) {
+            var fittingPlacement = placements.find(function(placement) {
+                var checks = checksMap.get(placement);
+                if (checks) return checks.slice(0, _i).every(function(check) {
+                    return check;
+                });
+            });
+            if (fittingPlacement) {
+                firstFittingPlacement = fittingPlacement;
+                return "break";
+            }
+        };
+        for(var _i1 = numberOfChecks; _i1 > 0; _i1--){
+            var _ret = _loop(_i1);
+            if (_ret === "break") break;
+        }
+    }
+    if (state.placement !== firstFittingPlacement) {
+        state.modifiersData[name]._skip = true;
+        state.placement = firstFittingPlacement;
+        state.reset = true;
+    }
+} // eslint-disable-next-line import/no-unused-modules
+exports.default = {
+    name: 'flip',
+    enabled: true,
+    phase: 'main',
+    fn: flip,
+    requiresIfExists: [
+        'offset'
+    ],
+    data: {
+        _skip: false
+    }
+};
+
+},{"../utils/getOppositePlacement.js":"a8CY0","../utils/getBasePlacement.js":"59Wp3","../utils/getOppositeVariationPlacement.js":"bKTLC","../utils/detectOverflow.js":"ltCuw","../utils/computeAutoPlacement.js":"gytMj","../enums.js":"lCAq5","../utils/getVariation.js":"hIo7Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"a8CY0":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var hash = {
+    left: 'right',
+    right: 'left',
+    bottom: 'top',
+    top: 'bottom'
+};
+function getOppositePlacement(placement) {
+    return placement.replace(/left|right|bottom|top/g, function(matched) {
+        return hash[matched];
+    });
+}
+exports.default = getOppositePlacement;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bKTLC":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var hash = {
+    start: 'end',
+    end: 'start'
+};
+function getOppositeVariationPlacement(placement) {
+    return placement.replace(/start|end/g, function(matched) {
+        return hash[matched];
+    });
+}
+exports.default = getOppositeVariationPlacement;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gytMj":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _getVariationJs = require("./getVariation.js");
+var _getVariationJsDefault = parcelHelpers.interopDefault(_getVariationJs);
+var _enumsJs = require("../enums.js");
+var _detectOverflowJs = require("./detectOverflow.js");
+var _detectOverflowJsDefault = parcelHelpers.interopDefault(_detectOverflowJs);
+var _getBasePlacementJs = require("./getBasePlacement.js");
+var _getBasePlacementJsDefault = parcelHelpers.interopDefault(_getBasePlacementJs);
+function computeAutoPlacement(state, options) {
+    if (options === void 0) options = {
+    };
+    var _options = options, placement1 = _options.placement, boundary = _options.boundary, rootBoundary = _options.rootBoundary, padding = _options.padding, flipVariations = _options.flipVariations, _options$allowedAutoP = _options.allowedAutoPlacements, allowedAutoPlacements = _options$allowedAutoP === void 0 ? _enumsJs.placements : _options$allowedAutoP;
+    var variation = _getVariationJsDefault.default(placement1);
+    var placements = variation ? flipVariations ? _enumsJs.variationPlacements : _enumsJs.variationPlacements.filter(function(placement) {
+        return _getVariationJsDefault.default(placement) === variation;
+    }) : _enumsJs.basePlacements;
+    var allowedPlacements = placements.filter(function(placement) {
+        return allowedAutoPlacements.indexOf(placement) >= 0;
+    });
+    if (allowedPlacements.length === 0) {
+        allowedPlacements = placements;
+        console.error([
+            'Popper: The `allowedAutoPlacements` option did not allow any',
+            'placements. Ensure the `placement` option matches the variation',
+            'of the allowed placements.',
+            'For example, "auto" cannot be used to allow "bottom-start".',
+            'Use "auto-start" instead.'
+        ].join(' '));
+    } // $FlowFixMe[incompatible-type]: Flow seems to have problems with two array unions...
+    var overflows = allowedPlacements.reduce(function(acc, placement) {
+        acc[placement] = _detectOverflowJsDefault.default(state, {
+            placement: placement,
+            boundary: boundary,
+            rootBoundary: rootBoundary,
+            padding: padding
+        })[_getBasePlacementJsDefault.default(placement)];
+        return acc;
+    }, {
+    });
+    return Object.keys(overflows).sort(function(a, b) {
+        return overflows[a] - overflows[b];
+    });
+}
+exports.default = computeAutoPlacement;
+
+},{"./getVariation.js":"hIo7Y","../enums.js":"lCAq5","./detectOverflow.js":"ltCuw","./getBasePlacement.js":"59Wp3","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2J0f1":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "ROV_PEERID_BASE", ()=>ROV_PEERID_BASE
+);
+parcelHelpers.export(exports, "peerServerCloudOptions", ()=>peerServerCloudOptions
+);
+parcelHelpers.export(exports, "peerServerLocalOptions", ()=>peerServerLocalOptions
+);
+parcelHelpers.export(exports, "GAME_CONTROLLER_BUTTON_CONFIG", ()=>GAME_CONTROLLER_BUTTON_CONFIG
+);
+parcelHelpers.export(exports, "ONSCREEN_GPAD_BUTTON_LABELS", ()=>ONSCREEN_GPAD_BUTTON_LABELS
+);
+parcelHelpers.export(exports, "ONSCREEN_GPAD_BUTTON_TOUCHED_CLASS", ()=>ONSCREEN_GPAD_BUTTON_TOUCHED_CLASS
+);
+parcelHelpers.export(exports, "ONSCREEN_GPAD_BUTTON_PRESSED_CLASS", ()=>ONSCREEN_GPAD_BUTTON_PRESSED_CLASS
+);
+const ROV_PEERID_BASE = "iROV-";
+const peerServerCloudOptions = {
+    host: '0.peerjs.com',
+    secure: true,
+    path: '/',
+    port: 443
+};
+const peerServerLocalOptions = {
+    host: 'raspberrypi.local',
+    path: '/',
+    secure: false,
+    port: 9000
+};
+const GAME_CONTROLLER_BUTTON_CONFIG = [
+    {
+        btnName: "button_1",
+        remoteAction: 'lights',
+        helpLabel: "Lights"
+    },
+    {
+        btnName: "button_2",
+        remoteAction: 'record',
+        helpLabel: "Start/Stop Recording"
+    },
+    {
+        btnName: "button_3",
+        remoteAction: 'photo',
+        helpLabel: "Take Phtoto"
+    },
+    {
+        btnName: "button_4",
+        remoteAction: null,
+        helpLabel: "Nothing"
+    },
+    {
+        btnName: "shoulder_btn_front_left",
+        remoteAction: null,
+        localAction: null,
+        helpLabel: "Nothing"
+    },
+    {
+        btnName: "shoulder_btn_front_right",
+        remoteAction: 'claw_open',
+        helpLabel: "TODO: Open Claw",
+        holdAllowed: true
+    },
+    {
+        btnName: "shoulder_trigger_back_left",
+        remoteAction: null,
+        helpLabel: "Nothing"
+    },
+    {
+        btnName: "shoulder_trigger_back_right",
+        remoteAction: 'claw_close',
+        helpLabel: "TODO: Close Claw",
+        holdAllowed: true
+    },
+    {
+        btnName: "select",
+        remoteAction: null,
+        helpLabel: "Show/Hide Gamepad Help"
+    },
+    {
+        btnName: "start",
+        remoteAction: null,
+        helpLabel: "Show/Hide Gamepad Help"
+    },
+    {
+        btnName: "stick_button_left",
+        remoteAction: null,
+        helpLabel: "Lock Vertical Thruster"
+    },
+    {
+        btnName: "stick_button_right",
+        remoteAction: null,
+        helpLabel: "Lock Horizontal"
+    },
+    {
+        btnName: "d_pad_up",
+        remoteAction: 'exposure_plus',
+        helpLabel: "Increase Camera Brightness",
+        holdAllowed: true
+    },
+    {
+        btnName: "d_pad_down",
+        remoteAction: 'exposure_minus',
+        helpLabel: "Decreases Camera Brightness",
+        holdAllowed: true
+    },
+    {
+        btnName: "d_pad_left",
+        remoteAction: 'v_quality_plus',
+        helpLabel: "Decrease Video Quality (reduces latency)",
+        holdAllowed: true
+    },
+    {
+        btnName: "d_pad_right",
+        remoteAction: 'v_quality_minus',
+        helpLabel: "Increase Video Quality (increases latency)",
+        holdAllowed: true
+    },
+    {
+        btnName: "vendor",
+        remoteAction: null,
+        helpLabel: "Nothing"
+    }
+];
+const ONSCREEN_GPAD_BUTTON_LABELS = [
+    "button_1",
+    "button_2",
+    "button_3",
+    "button_4",
+    "shoulder_btn_front_left",
+    "shoulder_btn_front_right",
+    "shoulder_trigger_back_left",
+    "shoulder_trigger_back_right",
+    "select",
+    "start",
+    "stick_button_left",
+    "stick_button_right",
+    "d_pad_up",
+    "d_pad_down",
+    "d_pad_left",
+    "d_pad_right"
+];
+const ONSCREEN_GPAD_BUTTON_TOUCHED_CLASS = "touched", ONSCREEN_GPAD_BUTTON_PRESSED_CLASS = "pressed"; //     'A': { remoteAction: 'photo', desc: 'Take Photo' },
+ //     'B': { remoteAction: 'record', desc: 'Start/Stop Recording' },
+ //     'X': { remoteAction: null, desc: 'TBD' },
+ //     'Y': { remoteAction: null, desc: 'TBD' },
+ //     'L1': { remoteAction: 'clawOpen', mode: "btn_hold_allowed", desc: 'Open Claw' },
+ //     'R1': { remoteAction: 'clawOpen', mode: "btn_hold_allowed", desc: 'Open Claw' },
+ //     'L2': { remoteAction: 'clawClose', mode: "btn_hold_allowed", desc: 'Close Claw' },
+ //     'R2': { remoteAction: 'clawClose', mode: "btn_hold_allowed", desc: 'Close Claw' },
+ //     'SELECT': { remoteAction: 'bitrate-', mode: "btn_hold_allowed", desc: 'TODO: Decrease Video Quality (lowers latency)' },
+ //     'START': { remoteAction: 'bitrate+', mode: "btn_hold_allowed", desc: 'TODO: Increase Video Quality (adds latency)' },
+ //     'dpadUp': { remoteAction: 'lights+', mode: "btn_hold_allowed", desc: 'TODO: Increase Intensity of Lights' },
+ //     'dpadDown': { remoteAction: 'lights-', mode: "btn_hold_allowed", desc: 'TODO: Decrease Intensity of Lights' },
+ //     'dpadLeft': { remoteAction: 'exposure-', mode: "btn_hold_allowed", desc: 'TODO: Dim Camera Exposure' },
+ //     'dpadRight': { remoteAction: 'exposure+', mode: "btn_hold_allowed", desc: 'TODO: Brighten Camera Exposure' },
+ // }
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jRoqP":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+// Note: this file was written by me (Kyle), and is not a library found on the web.
+parcelHelpers.export(exports, "GamepadInterface", ()=>GamepadInterface
+);
+class GamepadInterface {
+    constructor(buttonConfig, updateDelay){
+        this.updateDelay = updateDelay || 100;
+        this.buttonConfig = buttonConfig;
+        this.lastStateOfGamepads = [];
+        this.changeMaskOfGamepads = [];
+        this.gamepadConnectCallback = null;
+        this.gamepadDisconnectCallback = null;
+        this.gamepadButtonChangeCallback = null;
+        this.gamepadAxisChangeCallback = null;
+        this.extraGamepadMappings = [];
+        window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+        navigator.getGamepads = navigator.getGamepads || navigator.webkitGetGamepads || navigator.mozGetGamepads || navigator.msGetGamepads;
+        if (this.gamepadApiSupported()) this.tickLoop();
+    }
+    gamepadApiSupported() {
+        return !!navigator.getGamepads && !!navigator.getGamepads();
+    }
+    set buttonsConfig(buttonConfig) {
+        this.buttonConfig = buttonConfig;
+    }
+    set onGamepadConnect(callback) {
+        this.gamepadConnectCallback = callback;
+        window.addEventListener("gamepadconnected", this.gamepadConnectCallback, true);
+    }
+    set onGamepadDisconnect(callback) {
+        this.gamepadDisconnectCallback = callback;
+        window.addEventListener("gamepaddisconnected", this.gamepadDisconnectCallback, true);
+    }
+    set onGamepadAxisChange(callback) {
+        this.gamepadAxisChangeCallback = callback;
+    }
+    set onGamepadButtonChange(callback) {
+        this.gamepadButtonChangeCallback = callback;
+    }
+    addGamepadMapping(gamepadMapping) {
+        this.extraGamepadMappings.push(gamepadMapping);
+    }
+    tickLoop() {
+        // this.pollGamepads();
+        this.checkForGamepadChanges();
+        // setTimeout(() => {
+        requestAnimationFrame(this.tickLoop.bind(this));
+    // }, 500)
+    }
+    checkForGamepadChanges() {
+        let gamepads = navigator.getGamepads();
+        for(var gi = 0; gi < gamepads.length; gi++){
+            let gamepad = gamepads[gi];
+            if (!gamepad) continue;
+            if (!this.lastStateOfGamepads[gi]) this.lastStateOfGamepads[gi] = gamepad;
+            this.checkForAxisChanges(gi, gamepad);
+            this.checkForButtonChanges(gi, gamepad);
+            // clear the state for a fresh run
+            this.lastStateOfGamepads[gi] = gamepad;
+        }
+    }
+    checkForAxisChanges(gamepadIndex, gamepad) {
+        let axisState = gamepad.axes;
+        if (axisState.length == 0) return;
+        const lastGamepadState = this.lastStateOfGamepads[gamepadIndex];
+        let lastAxisState = lastGamepadState.axes;
+        let axiesChangeMask = [];
+        let i, aAxisChangedFlag;
+        for(i = 0; i < axisState.length; i++){
+            let axisValue = axisState[i];
+            let lastAxisValue = lastAxisState[i];
+            if (axisValue != lastAxisValue) {
+                axiesChangeMask[i] = true;
+                aAxisChangedFlag = true;
+            } else axiesChangeMask[i] = false;
+        }
+        // send out event if one or more axes changed
+        if (aAxisChangedFlag && this.gamepadAxisChangeCallback) this.gamepadAxisChangeCallback(gamepadIndex, gamepad, axiesChangeMask);
+    }
+    checkForButtonChanges(gamepadIndex, gamepad) {
+        let btnState = gamepad.buttons;
+        const lastGamepadState = this.lastStateOfGamepads[gamepadIndex];
+        let lastBtnState = lastGamepadState.buttons;
+        let buttonChangesMask = [];
+        let bi, aButtonChangedFlag = false;
+        for(bi = 0; bi < btnState.length; bi++){
+            let button = btnState[bi];
+            let lastButtonState = lastBtnState[bi];
+            let buttonConfig = this.buttonConfig[bi] || {
+            };
+            let btnChangeMask = {
+            };
+            if (button.touched && !lastButtonState.touched) {
+                btnChangeMask.touchDown = true;
+                aButtonChangedFlag = true;
+            } else if (!button.touched && lastButtonState.touched) {
+                btnChangeMask.touchUp = true;
+                aButtonChangedFlag = true;
+            }
+            if (button.pressed && !lastButtonState.pressed) {
+                btnChangeMask.pressed = true;
+                aButtonChangedFlag = true;
+            } else if (!button.pressed && lastButtonState.pressed) {
+                btnChangeMask.released = true;
+                aButtonChangedFlag = true;
+            }
+            if (buttonConfig && buttonConfig.holdAllowed && button.pressed && lastButtonState.pressed) {
+                btnChangeMask.heldDown = true;
+                aButtonChangedFlag = true;
+            }
+            if (button.value != lastButtonState.value) {
+                btnChangeMask.valueChanged = true;
+                aButtonChangedFlag = true;
+            }
+            const buttonDidChange = Object.keys(btnChangeMask).length > 0;
+            buttonChangesMask[bi] = buttonDidChange ? btnChangeMask : false;
+        }
+        // send out event if one or more buttons changed
+        if (aButtonChangedFlag && this.gamepadButtonChangeCallback) this.gamepadButtonChangeCallback(gamepadIndex, gamepad, buttonChangesMask);
+    }
 }
 
-},{"./utils.js":"5Ce8y","./Actor.js":"itCIE","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./actions.js":"fKWcO"}],"b9dCp":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"at2SH":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "handleRovMessage", ()=>handleRovMessage
+);
+parcelHelpers.export(exports, "sendRovMessage", ()=>sendRovMessage
+);
+const handleRovMessage = (message)=>{
+    console.log("Got ROV Message:", message);
+};
+const sendRovMessage = (message)=>{
+    return (callback, onReceive)=>{
+        console.log("handleROVMessage: ", message);
+    };
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"doATT":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "clamp", ()=>clamp
+);
+/* generateStateChangeFunction is a function generator for an xstate machine that will return a function that will run a callback and send the named state transition with the data or event from the calling transition */ parcelHelpers.export(exports, "generateStateChangeFunction", ()=>generateStateChangeFunction
+);
+parcelHelpers.export(exports, "calculateDesiredMotion", ()=>calculateDesiredMotion
+);
+/*
+* Gets just the passed name parameter from the query string the curent url:
+* Example: if the url is: https://example.com/abc?some-variable-name=somevalue&someotherthing=someothervalue
+* then getURLQueryStringVariable("some-variable-name") will return "somevalue"
+*/ parcelHelpers.export(exports, "getURLQueryStringVariable", ()=>getURLQueryStringVariable
+);
+parcelHelpers.export(exports, "isInternetAvailable", ()=>isInternetAvailable
+);
+parcelHelpers.export(exports, "toggleFullscreen", ()=>toggleFullscreen
+);
+// Downloads the given link, with an optional filename for the download
+parcelHelpers.export(exports, "download", ()=>download
+);
+function clamp(number, max, min) {
+    return Math.max(Math.min(number, max), min);
+}
+function generateStateChangeFunction(sendStateChange, stateTransition, data, additionalCallback) {
+    const func = function(evt) {
+        if (additionalCallback) additionalCallback(evt);
+        sendStateChange({
+            type: stateTransition,
+            data: data || evt
+        });
+    };
+    return func;
+}
+function calculateDesiredMotion(axes) {
+    var turn = axes[0].toFixed(3);
+    var forward = -1 * axes[1].toFixed(3);
+    var strafe = axes[2].toFixed(3);
+    var vertical = -1 * axes[3].toFixed(3);
+    return {
+        thrustVector: [
+            strafe,
+            forward,
+            vertical
+        ],
+        turnRate: turn
+    };
+}
+function getURLQueryStringVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split('&');
+    for(var i = 0; i < vars.length; i++){
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == variable) return decodeURIComponent(pair[1]);
+    }
+// console.log('Query variable %s not found', variable);
+}
+function isInternetAvailable(urlToCheck) {
+    return new Promise((resolve)=>{
+        console.info("checkingUrl", urlToCheck);
+        try {
+            fetch(urlToCheck).then(()=>{
+                resolve(true);
+            }).catch((e)=>{
+                console.warn("Internet Offline, starting switch to local mode", e);
+                resolve(false);
+            });
+        // setTimeout(() => {
+        //     resolve(false)
+        // }, 10000)
+        } catch (e) {
+            console.warn("Error Checking internet, starting switch to local mode", e);
+            resolve(false);
+        }
+    });
+}
+window.closeFullscreen = ()=>{
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    if (fullscreenElement) {
+        const removeFullscreenUi = ()=>{
+            fullscreenElement.classList.remove('fullscreen-open');
+        };
+        if (document.exitFullscreen) document.exitFullscreen().then(removeFullscreenUi);
+        else if (document.msExitFullscreen) document.msExitFullscreen().then(removeFullscreenUi);
+        else if (document.mozCancelFullScreen) document.mozCancelFullScreen().then(removeFullscreenUi);
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen().then(removeFullscreenUi);
+    }
+};
+/* When the toggleFullscreen() export function is executed, open the passed element in fullscreen.
+Note that we must include prefixes for different browsers, as they don't support the requestFullscreen method yet */ window.toggleFullscreen = (e, elem)=>{
+    elem = elem || document.documentElement;
+    if (e && e.initialTarget) e.initialTarget.classList.toggle('fullscreen-open');
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    const addFullscreenUi = ()=>{
+        elem.classList.add('fullscreen-open');
+    };
+    const removeFullscreenUi = ()=>{
+        fullscreenElement.classList.remove('fullscreen-open');
+        if (elem !== fullscreenElement) {
+            if (elem.requestFullscreen) elem.requestFullscreen().then(addFullscreenUi);
+            else if (elem.msRequestFullscreen) elem.msRequestFullscreen().then(addFullscreenUi);
+            else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen().then(addFullscreenUi);
+            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT).then(addFullscreenUi);
+        }
+    };
+    if (fullscreenElement) {
+        if (document.exitFullscreen) document.exitFullscreen().then(removeFullscreenUi);
+        else if (document.msExitFullscreen) document.msExitFullscreen().then(removeFullscreenUi);
+        else if (document.mozCancelFullScreen) document.mozCancelFullScreen().then(removeFullscreenUi);
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen().then(removeFullscreenUi);
+    } else {
+        if (elem.requestFullscreen) elem.requestFullscreen().then(addFullscreenUi);
+        else if (elem.msRequestFullscreen) elem.msRequestFullscreen().then(addFullscreenUi);
+        else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen().then(addFullscreenUi);
+        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT).then(addFullscreenUi);
+    }
+};
+function toggleFullscreen(event, elem) {
+    elem = elem || document.documentElement;
+    var fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    if (!fullscreenElement || elem !== fullscreenElement) {
+        const requestFullscreenFunc = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.mozRequestFullScreen || elem.msRequestFullscreen;
+        console.log(requestFullscreenFunc);
+        requestFullscreenFunc(Element.ALLOW_KEYBOARD_INPUT);
+    } else {
+        const exitFullscreenFunc = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exitFullscreenFunc().then(()=>{
+            fullscreenElement.classList.remove('fullscreen-open');
+        });
+    }
+}
+function download(url, filename) {
+    const a = document.createElement('a') // Create <a> hyperlink element
+    ;
+    a.href = url // Set the hyperlink URL
+    ;
+    a.download = filename || "" // if left blank the browser will guess the filename for the downloaded file
+    ;
+    document.body.appendChild(a) // Append the hyperlink to the document body
+    ;
+    a.click() // Click the hyperlink
+    ;
+    document.body.removeChild(a) // Remove the hyperlink from the document body
+    ;
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"efi6n":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+// -------------------------------------------------------------
+// ------ UI Stuff ---------------------------------------------
+// -------------------------------------------------------------
+parcelHelpers.export(exports, "showToastMessage", ()=>showToastMessage
+);
+parcelHelpers.export(exports, "showToastDialog", ()=>showToastDialog
+);
+parcelHelpers.export(exports, "showChoiceDialog", ()=>showChoiceDialog
+);
+parcelHelpers.export(exports, "showROVDisconnectedUi", ()=>showROVDisconnectedUi
+);
+parcelHelpers.export(exports, "showROVConnectingUi", ()=>showROVConnectingUi
+);
+parcelHelpers.export(exports, "showROVConnectedUi", ()=>showROVConnectedUi
+);
+parcelHelpers.export(exports, "showReloadingWebsiteUi", ()=>showReloadingWebsiteUi
+);
+parcelHelpers.export(exports, "setupConnectBtnClickHandler", ()=>setupConnectBtnClickHandler
+);
+parcelHelpers.export(exports, "setupDisconnectBtnClickHandler", ()=>setupDisconnectBtnClickHandler
+);
+parcelHelpers.export(exports, "setupSwitchRovBtnClickHandler", ()=>setupSwitchRovBtnClickHandler
+);
+parcelHelpers.export(exports, "showScanIpBtn", ()=>showScanIpBtn
+);
+parcelHelpers.export(exports, "hideScanIpButton", ()=>hideScanIpButton
+);
+parcelHelpers.export(exports, "showLoadingUi", ()=>showLoadingUi
+);
+parcelHelpers.export(exports, "hideLoadingUi", ()=>hideLoadingUi
+);
+parcelHelpers.export(exports, "showLivestreamUi", ()=>showLivestreamUi
+);
+parcelHelpers.export(exports, "hideLivestreamUi", ()=>hideLivestreamUi
+);
+parcelHelpers.export(exports, "updateRoleDisplay", ()=>updateRoleDisplay
+);
+parcelHelpers.export(exports, "updatePingDisplay", ()=>updatePingDisplay
+);
+parcelHelpers.export(exports, "updateBatteryDisplay", ()=>updateBatteryDisplay
+);
+parcelHelpers.export(exports, "updateDisplayedSensorValues", ()=>updateDisplayedSensorValues
+);
+parcelHelpers.export(exports, "setCompassHeading", ()=>setCompassHeading
+);
+parcelHelpers.export(exports, "setArtificialHorizonBackground", ()=>setArtificialHorizonBackground
+);
+var _toastifyJs = require("toastify-js");
+var _toastifyJsDefault = parcelHelpers.interopDefault(_toastifyJs);
+function showToastMessage(message, durration, callback) {
+    return _toastifyJsDefault.default({
+        text: message,
+        duration: durration || 5000,
+        close: true,
+        // className: "dialog-toast",
+        style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)"
+        },
+        gravity: "top",
+        position: "center",
+        stopOnFocus: true,
+        onClick: callback
+    }).showToast();
+}
+function showToastDialog(message, durration, btnName, callback) {
+    const toastContent = document.createElement("div");
+    toastContent.innerHTML = message;
+    if (btnName) {
+        const btn = document.createElement("button");
+        btn.innerHTML = btnName;
+        btn.addEventListener("click", callback);
+        toastContent.appendChild(btn);
+    }
+    return _toastifyJsDefault.default({
+        node: toastContent,
+        duration: durration || 15000,
+        close: btnName != false,
+        className: "dialog-toast",
+        gravity: "top",
+        position: "center",
+        stopOnFocus: true
+    }).showToast();
+}
+function showChoiceDialog(message, buttons, callback) {
+    const toastContent = document.createElement("div");
+    toastContent.innerHTML = message;
+    buttons.forEach((button)=>{
+        const btn = document.createElement("button");
+        btn.innerHTML = button.name;
+        btn.addEventListener("click", ()=>{
+            callback(button.value);
+        });
+        toastContent.appendChild(btn);
+    });
+    return _toastifyJsDefault.default({
+        node: toastContent,
+        duration: 0,
+        close: true,
+        className: "dialog-toast",
+        gravity: "top",
+        position: "center",
+        stopOnFocus: true
+    }).showToast();
+}
+const connectBtn = document.getElementById('connect_btn');
+const disconnectBtn = document.getElementById('disconnect_btn');
+const connectedRovLabel = document.getElementById('connected_rov_label');
+function showROVDisconnectedUi() {
+    connectBtn.style.display = 'block';
+    disconnectBtn.style.display = 'none';
+    connectedRovLabel.parentElement.parentElement.classList.add('hidden');
+    hideLoadingUi();
+}
+function showROVConnectingUi() {
+    connectBtn.style.display = 'none';
+    connectedRovLabel.parentElement.parentElement.classList.add('hidden');
+    showLoadingUi("Searching for ROV...");
+}
+function showROVConnectedUi(rovName) {
+    connectBtn.style.display = 'none';
+    disconnectBtn.style.display = 'block';
+    connectedRovLabel.parentElement.parentElement.classList.remove('hidden');
+    if (rovName) connectedRovLabel.innerText = rovName;
+    hideLoadingUi();
+}
+function showReloadingWebsiteUi() {
+    connectBtn.style.display = 'none';
+    disconnectBtn.style.display = 'none';
+    connectedRovLabel.parentElement.parentElement.classList.add('hidden');
+    showLoadingUi("Reloading Page...");
+}
+function setupConnectBtnClickHandler(callback) {
+    connectBtn.addEventListener('click', callback);
+    return ()=>{
+        connectBtn.removeEventListener('click', callback);
+    };
+}
+function setupDisconnectBtnClickHandler(callback) {
+    connectBtn.addEventListener('click', callback);
+    return ()=>{
+        connectBtn.removeEventListener('click', callback);
+    };
+}
+const connectedRovButton = document.getElementById('connected_rov_indicator_btn');
+function setupSwitchRovBtnClickHandler(callback) {
+    connectedRovButton.addEventListener('click', callback);
+    return ()=>{
+        connectedRovButton.removeEventListener('click', callback);
+    };
+}
+function showScanIpBtn() {
+    document.getElementById("scan_for_ip_btn").style.display = "block";
+}
+function hideScanIpButton() {
+    document.getElementById("scan_for_ip_btn").style.display = "none";
+}
+const loadingIndicator = document.getElementById("site_loading_indicator");
+const loadingIndicatorText = document.getElementById("site_loading_text");
+function showLoadingUi(loadingMessage) {
+    loadingIndicator.style.display = 'block';
+    loadingIndicatorText.innerHTML = loadingMessage;
+}
+function hideLoadingUi() {
+    loadingIndicator.style.display = 'none';
+}
+const livestreamContainer = document.getElementById("livestream_container");
+function showLivestreamUi() {
+    livestreamContainer.style.display = 'block';
+}
+function hideLivestreamUi() {
+    livestreamContainer.style.display = 'none';
+}
+var roleDisplayText = document.getElementById('role_display_text');
+var takeControlButton = document.getElementById('take_control_btn');
+function updateRoleDisplay(isPilot) {
+    roleDisplayText.innerText = isPilot ? "Pilot" : "Spectator";
+    if (isPilot) takeControlButton.classList.add('hidden');
+    else takeControlButton.classList.remove('hidden');
+}
+var pingDisplay = document.getElementById('ping_value');
+function updatePingDisplay(pingTimeMs) {
+    pingDisplay.innerText = pingTimeMs;
+}
+var battDisplay = document.getElementById('battery_value');
+function updateBatteryDisplay(batteryVolts, batteryPercent) {
+    battDisplay.innerText = batteryVolts + 'V (' + batteryPercent + '%)';
+}
+var pressureDisplay = document.getElementById('pressure_value');
+var tempDisplay = document.getElementById('temp_value');
+function updateDisplayedSensorValues(sensorValues) {
+    pressureDisplay.innerText = sensorValues.pressure;
+    tempDisplay.innerText = sensorValues.temp;
+}
+// https://codepen.io/fueru/pen/JjjoXez
+var compassDisc = document.getElementById("compassDiscImg");
+const compassOffset = 135;
+function setCompassHeading(headingDeg) {
+    var totalDir = -(headingDeg + compassOffset);
+    // document.getElementById("direction").innerHTML = "dir: " + Math.ceil(dir) + " + offset(" + offset + ") = " + Math.ceil(totalDir);
+    compassDisc.style.transform = `translateX(${totalDir}px)`;
+}
+const gradientArtificialHorizonBackground = document.body //getElementById("artificial_horizon_gradient");
+;
+function setArtificialHorizonBackground(roll, pitch) {
+    var vShift = Math.min(Math.max(pitch, -90), 90) / 90 * 100;
+    gradientArtificialHorizonBackground.style.backgroundImage = `linear-gradient(${roll}deg, rgba(2,0,36,1) ${-100 + vShift}%, rgba(9,88,116,1) ${50 + vShift}%, rgba(10,109,140,1) ${50 + vShift}%, rgba(0,255,235,1) ${200 + vShift}%)`;
+}
+// FOR DEBUGGING COMPASS:
+document.addEventListener("DOMContentLoaded", function() {
+    if (window.DeviceOrientationEvent) window.addEventListener('deviceorientation', function(eventData) {
+        // gamma: Tilting the device from left to right. Tilting the device to the right will result in a positive value.
+        // var tiltLR = eventData.gamma;
+        // beta: Tilting the device from the front to the back. Tilting the device to the front will result in a positive value.
+        var tiltFB = eventData.beta;
+        // this.document.getElementById("connected_rov_display").innerHTML = "tiltLR: " + tiltLR + " tiltFB: " + (tiltFB - 90);
+        // alpha: The direction the compass of the device aims to in degrees.
+        var dir = eventData.alpha;
+        setArtificialHorizonBackground(dir, -tiltFB);
+        // Call the function to use the data on the page.
+        setCompassHeading(dir);
+    }, false);
+    setArtificialHorizonBackground(0, 0);
+});
+
+},{"toastify-js":"96k49","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"96k49":[function(require,module,exports) {
+/*!
+ * Toastify js 1.11.2
+ * https://github.com/apvarun/toastify-js
+ * @license MIT licensed
+ *
+ * Copyright (C) 2018 Varun A P
+ */ (function(root, factory) {
+    if (typeof module === "object" && module.exports) module.exports = factory();
+    else root.Toastify = factory();
+})(this, function(global) {
+    // Object initialization
+    var Toastify = function(options) {
+        // Returning a new init object
+        return new Toastify.lib.init(options);
+    }, // Library version
+    version = "1.11.2";
+    // Set the default global options
+    Toastify.defaults = {
+        oldestFirst: true,
+        text: "Toastify is awesome!",
+        node: undefined,
+        duration: 3000,
+        selector: undefined,
+        callback: function() {
+        },
+        destination: undefined,
+        newWindow: false,
+        close: false,
+        gravity: "toastify-top",
+        positionLeft: false,
+        position: '',
+        backgroundColor: '',
+        avatar: "",
+        className: "",
+        stopOnFocus: true,
+        onClick: function() {
+        },
+        offset: {
+            x: 0,
+            y: 0
+        },
+        escapeMarkup: true,
+        style: {
+            background: ''
+        }
+    };
+    // Defining the prototype of the object
+    Toastify.lib = Toastify.prototype = {
+        toastify: version,
+        constructor: Toastify,
+        // Initializing the object with required parameters
+        init: function(options) {
+            // Verifying and validating the input object
+            if (!options) options = {
+            };
+            // Creating the options object
+            this.options = {
+            };
+            this.toastElement = null;
+            // Validating the options
+            this.options.text = options.text || Toastify.defaults.text; // Display message
+            this.options.node = options.node || Toastify.defaults.node; // Display content as node
+            this.options.duration = options.duration === 0 ? 0 : options.duration || Toastify.defaults.duration; // Display duration
+            this.options.selector = options.selector || Toastify.defaults.selector; // Parent selector
+            this.options.callback = options.callback || Toastify.defaults.callback; // Callback after display
+            this.options.destination = options.destination || Toastify.defaults.destination; // On-click destination
+            this.options.newWindow = options.newWindow || Toastify.defaults.newWindow; // Open destination in new window
+            this.options.close = options.close || Toastify.defaults.close; // Show toast close icon
+            this.options.gravity = options.gravity === "bottom" ? "toastify-bottom" : Toastify.defaults.gravity; // toast position - top or bottom
+            this.options.positionLeft = options.positionLeft || Toastify.defaults.positionLeft; // toast position - left or right
+            this.options.position = options.position || Toastify.defaults.position; // toast position - left or right
+            this.options.backgroundColor = options.backgroundColor || Toastify.defaults.backgroundColor; // toast background color
+            this.options.avatar = options.avatar || Toastify.defaults.avatar; // img element src - url or a path
+            this.options.className = options.className || Toastify.defaults.className; // additional class names for the toast
+            this.options.stopOnFocus = options.stopOnFocus === undefined ? Toastify.defaults.stopOnFocus : options.stopOnFocus; // stop timeout on focus
+            this.options.onClick = options.onClick || Toastify.defaults.onClick; // Callback after click
+            this.options.offset = options.offset || Toastify.defaults.offset; // toast offset
+            this.options.escapeMarkup = options.escapeMarkup !== undefined ? options.escapeMarkup : Toastify.defaults.escapeMarkup;
+            this.options.style = options.style || Toastify.defaults.style;
+            if (options.backgroundColor) this.options.style.background = options.backgroundColor;
+            // Returning the current object for chaining functions
+            return this;
+        },
+        // Building the DOM element
+        buildToast: function() {
+            // Validating if the options are defined
+            if (!this.options) throw "Toastify is not initialized";
+            // Creating the DOM object
+            var divElement = document.createElement("div");
+            divElement.className = "toastify on " + this.options.className;
+            // Positioning toast to left or right or center
+            if (!!this.options.position) divElement.className += " toastify-" + this.options.position;
+            else // To be depreciated in further versions
+            if (this.options.positionLeft === true) {
+                divElement.className += " toastify-left";
+                console.warn('Property `positionLeft` will be depreciated in further versions. Please use `position` instead.');
+            } else // Default position
+            divElement.className += " toastify-right";
+            // Assigning gravity of element
+            divElement.className += " " + this.options.gravity;
+            if (this.options.backgroundColor) // This is being deprecated in favor of using the style HTML DOM property
+            console.warn('DEPRECATION NOTICE: "backgroundColor" is being deprecated. Please use the "style.background" property.');
+            // Loop through our style object and apply styles to divElement
+            for(var property in this.options.style)divElement.style[property] = this.options.style[property];
+            // Adding the toast message/node
+            if (this.options.node && this.options.node.nodeType === Node.ELEMENT_NODE) // If we have a valid node, we insert it
+            divElement.appendChild(this.options.node);
+            else {
+                if (this.options.escapeMarkup) divElement.innerText = this.options.text;
+                else divElement.innerHTML = this.options.text;
+                if (this.options.avatar !== "") {
+                    var avatarElement = document.createElement("img");
+                    avatarElement.src = this.options.avatar;
+                    avatarElement.className = "toastify-avatar";
+                    if (this.options.position == "left" || this.options.positionLeft === true) // Adding close icon on the left of content
+                    divElement.appendChild(avatarElement);
+                    else // Adding close icon on the right of content
+                    divElement.insertAdjacentElement("afterbegin", avatarElement);
+                }
+            }
+            // Adding a close icon to the toast
+            if (this.options.close === true) {
+                // Create a span for close element
+                var closeElement = document.createElement("span");
+                closeElement.innerHTML = "&#10006;";
+                closeElement.className = "toast-close";
+                // Triggering the removal of toast from DOM on close click
+                closeElement.addEventListener("click", (function(event) {
+                    event.stopPropagation();
+                    this.removeElement(this.toastElement);
+                    window.clearTimeout(this.toastElement.timeOutValue);
+                }).bind(this));
+                //Calculating screen width
+                var width = window.innerWidth > 0 ? window.innerWidth : screen.width;
+                // Adding the close icon to the toast element
+                // Display on the right if screen width is less than or equal to 360px
+                if ((this.options.position == "left" || this.options.positionLeft === true) && width > 360) // Adding close icon on the left of content
+                divElement.insertAdjacentElement("afterbegin", closeElement);
+                else // Adding close icon on the right of content
+                divElement.appendChild(closeElement);
+            }
+            // Clear timeout while toast is focused
+            if (this.options.stopOnFocus && this.options.duration > 0) {
+                var self = this;
+                // stop countdown
+                divElement.addEventListener("mouseover", function(event) {
+                    window.clearTimeout(divElement.timeOutValue);
+                });
+                // add back the timeout
+                divElement.addEventListener("mouseleave", function() {
+                    divElement.timeOutValue = window.setTimeout(function() {
+                        // Remove the toast from DOM
+                        self.removeElement(divElement);
+                    }, self.options.duration);
+                });
+            }
+            // Adding an on-click destination path
+            if (typeof this.options.destination !== "undefined") divElement.addEventListener("click", (function(event) {
+                event.stopPropagation();
+                if (this.options.newWindow === true) window.open(this.options.destination, "_blank");
+                else window.location = this.options.destination;
+            }).bind(this));
+            if (typeof this.options.onClick === "function" && typeof this.options.destination === "undefined") divElement.addEventListener("click", (function(event) {
+                event.stopPropagation();
+                this.options.onClick();
+            }).bind(this));
+            // Adding offset
+            if (typeof this.options.offset === "object") {
+                var x = getAxisOffsetAValue("x", this.options);
+                var y = getAxisOffsetAValue("y", this.options);
+                var xOffset = this.options.position == "left" ? x : "-" + x;
+                var yOffset = this.options.gravity == "toastify-top" ? y : "-" + y;
+                divElement.style.transform = "translate(" + xOffset + "," + yOffset + ")";
+            }
+            // Returning the generated element
+            return divElement;
+        },
+        // Displaying the toast
+        showToast: function() {
+            // Creating the DOM object for the toast
+            this.toastElement = this.buildToast();
+            // Getting the root element to with the toast needs to be added
+            var rootElement;
+            if (typeof this.options.selector === "string") rootElement = document.getElementById(this.options.selector);
+            else if (this.options.selector instanceof HTMLElement || typeof ShadowRoot !== 'undefined' && this.options.selector instanceof ShadowRoot) rootElement = this.options.selector;
+            else rootElement = document.body;
+            // Validating if root element is present in DOM
+            if (!rootElement) throw "Root element is not defined";
+            // Adding the DOM element
+            var elementToInsert = Toastify.defaults.oldestFirst ? rootElement.firstChild : rootElement.lastChild;
+            rootElement.insertBefore(this.toastElement, elementToInsert);
+            // Repositioning the toasts in case multiple toasts are present
+            Toastify.reposition();
+            if (this.options.duration > 0) this.toastElement.timeOutValue = window.setTimeout((function() {
+                // Remove the toast from DOM
+                this.removeElement(this.toastElement);
+            }).bind(this), this.options.duration); // Binding `this` for function invocation
+            // Supporting function chaining
+            return this;
+        },
+        hideToast: function() {
+            if (this.toastElement.timeOutValue) clearTimeout(this.toastElement.timeOutValue);
+            this.removeElement(this.toastElement);
+        },
+        // Removing the element from the DOM
+        removeElement: function(toastElement) {
+            // Hiding the element
+            // toastElement.classList.remove("on");
+            toastElement.className = toastElement.className.replace(" on", "");
+            // Removing the element from DOM after transition end
+            window.setTimeout((function() {
+                // remove options node if any
+                if (this.options.node && this.options.node.parentNode) this.options.node.parentNode.removeChild(this.options.node);
+                // Remove the element from the DOM, only when the parent node was not removed before.
+                if (toastElement.parentNode) toastElement.parentNode.removeChild(toastElement);
+                // Calling the callback function
+                this.options.callback.call(toastElement);
+                // Repositioning the toasts again
+                Toastify.reposition();
+            }).bind(this), 400); // Binding `this` for function invocation
+        }
+    };
+    // Positioning the toasts on the DOM
+    Toastify.reposition = function() {
+        // Top margins with gravity
+        var topLeftOffsetSize = {
+            top: 15,
+            bottom: 15
+        };
+        var topRightOffsetSize = {
+            top: 15,
+            bottom: 15
+        };
+        var offsetSize = {
+            top: 15,
+            bottom: 15
+        };
+        // Get all toast messages on the DOM
+        var allToasts = document.getElementsByClassName("toastify");
+        var classUsed;
+        // Modifying the position of each toast element
+        for(var i = 0; i < allToasts.length; i++){
+            // Getting the applied gravity
+            if (containsClass(allToasts[i], "toastify-top") === true) classUsed = "toastify-top";
+            else classUsed = "toastify-bottom";
+            var height = allToasts[i].offsetHeight;
+            classUsed = classUsed.substr(9, classUsed.length - 1);
+            // Spacing between toasts
+            var offset = 15;
+            var width = window.innerWidth > 0 ? window.innerWidth : screen.width;
+            // Show toast in center if screen with less than or equal to 360px
+            if (width <= 360) {
+                // Setting the position
+                allToasts[i].style[classUsed] = offsetSize[classUsed] + "px";
+                offsetSize[classUsed] += height + offset;
+            } else if (containsClass(allToasts[i], "toastify-left") === true) {
+                // Setting the position
+                allToasts[i].style[classUsed] = topLeftOffsetSize[classUsed] + "px";
+                topLeftOffsetSize[classUsed] += height + offset;
+            } else {
+                // Setting the position
+                allToasts[i].style[classUsed] = topRightOffsetSize[classUsed] + "px";
+                topRightOffsetSize[classUsed] += height + offset;
+            }
+        }
+        // Supporting function chaining
+        return this;
+    };
+    // Helper function to get offset.
+    function getAxisOffsetAValue(axis, options) {
+        if (options.offset[axis]) {
+            if (isNaN(options.offset[axis])) return options.offset[axis];
+            else return options.offset[axis] + 'px';
+        }
+        return '0px';
+    }
+    function containsClass(elem, yourClass) {
+        if (!elem || typeof yourClass !== "string") return false;
+        else if (elem.className && elem.className.trim().split(/\s+/gi).indexOf(yourClass) > -1) return true;
+        else return false;
+    }
+    // Setting up the prototype for the init object
+    Toastify.lib.init.prototype = Toastify.lib;
+    // Returning the Toastify function to be assigned to the window object/module
+    return Toastify;
+});
+
+},{}],"b9dCp":[function(require,module,exports) {
 'use strict';
 Object.defineProperty(exports, '__esModule', {
     value: true
@@ -5969,7 +9860,7 @@ exports.toActionObject = toActionObject;
 exports.toActionObjects = toActionObjects;
 exports.toActivityDefinition = toActivityDefinition;
 
-},{"./_virtual/_tslib.js":"3Bp7b","./environment.js":"7oZy5","./utils.js":"8RFz3","./types.js":"84cIp","./actionTypes.js":"kEepo"}],"3Bp7b":[function(require,module,exports) {
+},{"./_virtual/_tslib.js":"3Bp7b","./types.js":"84cIp","./actionTypes.js":"kEepo","./utils.js":"8RFz3","./environment.js":"7oZy5"}],"3Bp7b":[function(require,module,exports) {
 'use strict';
 Object.defineProperty(exports, '__esModule', {
     value: true
@@ -6053,15 +9944,86 @@ exports.__rest = __rest;
 exports.__spreadArray = __spreadArray;
 exports.__values = __values;
 
-},{}],"7oZy5":[function(require,module,exports) {
+},{}],"84cIp":[function(require,module,exports) {
 'use strict';
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
-var IS_PRODUCTION = false;
-exports.IS_PRODUCTION = IS_PRODUCTION;
+exports.ActionTypes = void 0;
+(function(ActionTypes) {
+    ActionTypes["Start"] = "xstate.start";
+    ActionTypes["Stop"] = "xstate.stop";
+    ActionTypes["Raise"] = "xstate.raise";
+    ActionTypes["Send"] = "xstate.send";
+    ActionTypes["Cancel"] = "xstate.cancel";
+    ActionTypes["NullEvent"] = "";
+    ActionTypes["Assign"] = "xstate.assign";
+    ActionTypes["After"] = "xstate.after";
+    ActionTypes["DoneState"] = "done.state";
+    ActionTypes["DoneInvoke"] = "done.invoke";
+    ActionTypes["Log"] = "xstate.log";
+    ActionTypes["Init"] = "xstate.init";
+    ActionTypes["Invoke"] = "xstate.invoke";
+    ActionTypes["ErrorExecution"] = "error.execution";
+    ActionTypes["ErrorCommunication"] = "error.communication";
+    ActionTypes["ErrorPlatform"] = "error.platform";
+    ActionTypes["ErrorCustom"] = "xstate.error";
+    ActionTypes["Update"] = "xstate.update";
+    ActionTypes["Pure"] = "xstate.pure";
+    ActionTypes["Choose"] = "xstate.choose";
+})(exports.ActionTypes || (exports.ActionTypes = {
+}));
+exports.SpecialTargets = void 0;
+(function(SpecialTargets) {
+    SpecialTargets["Parent"] = "#_parent";
+    SpecialTargets["Internal"] = "#_internal";
+})(exports.SpecialTargets || (exports.SpecialTargets = {
+}));
 
-},{}],"8RFz3":[function(require,module,exports) {
+},{}],"kEepo":[function(require,module,exports) {
+'use strict';
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+var types = require('./types.js');
+var start = types.ActionTypes.Start;
+var stop = types.ActionTypes.Stop;
+var raise = types.ActionTypes.Raise;
+var send = types.ActionTypes.Send;
+var cancel = types.ActionTypes.Cancel;
+var nullEvent = types.ActionTypes.NullEvent;
+var assign = types.ActionTypes.Assign;
+var after = types.ActionTypes.After;
+var doneState = types.ActionTypes.DoneState;
+var log = types.ActionTypes.Log;
+var init = types.ActionTypes.Init;
+var invoke = types.ActionTypes.Invoke;
+var errorExecution = types.ActionTypes.ErrorExecution;
+var errorPlatform = types.ActionTypes.ErrorPlatform;
+var error = types.ActionTypes.ErrorCustom;
+var update = types.ActionTypes.Update;
+var choose = types.ActionTypes.Choose;
+var pure = types.ActionTypes.Pure;
+exports.after = after;
+exports.assign = assign;
+exports.cancel = cancel;
+exports.choose = choose;
+exports.doneState = doneState;
+exports.error = error;
+exports.errorExecution = errorExecution;
+exports.errorPlatform = errorPlatform;
+exports.init = init;
+exports.invoke = invoke;
+exports.log = log;
+exports.nullEvent = nullEvent;
+exports.pure = pure;
+exports.raise = raise;
+exports.send = send;
+exports.start = start;
+exports.stop = stop;
+exports.update = update;
+
+},{"./types.js":"84cIp"}],"8RFz3":[function(require,module,exports) {
 'use strict';
 Object.defineProperty(exports, '__esModule', {
     value: true
@@ -6610,1489 +10572,433 @@ exports.EMPTY_ACTIVITY_MAP = EMPTY_ACTIVITY_MAP;
 exports.STATE_DELIMITER = STATE_DELIMITER;
 exports.TARGETLESS_KEY = TARGETLESS_KEY;
 
-},{}],"84cIp":[function(require,module,exports) {
+},{}],"7oZy5":[function(require,module,exports) {
 'use strict';
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
-exports.ActionTypes = void 0;
-(function(ActionTypes) {
-    ActionTypes["Start"] = "xstate.start";
-    ActionTypes["Stop"] = "xstate.stop";
-    ActionTypes["Raise"] = "xstate.raise";
-    ActionTypes["Send"] = "xstate.send";
-    ActionTypes["Cancel"] = "xstate.cancel";
-    ActionTypes["NullEvent"] = "";
-    ActionTypes["Assign"] = "xstate.assign";
-    ActionTypes["After"] = "xstate.after";
-    ActionTypes["DoneState"] = "done.state";
-    ActionTypes["DoneInvoke"] = "done.invoke";
-    ActionTypes["Log"] = "xstate.log";
-    ActionTypes["Init"] = "xstate.init";
-    ActionTypes["Invoke"] = "xstate.invoke";
-    ActionTypes["ErrorExecution"] = "error.execution";
-    ActionTypes["ErrorCommunication"] = "error.communication";
-    ActionTypes["ErrorPlatform"] = "error.platform";
-    ActionTypes["ErrorCustom"] = "xstate.error";
-    ActionTypes["Update"] = "xstate.update";
-    ActionTypes["Pure"] = "xstate.pure";
-    ActionTypes["Choose"] = "xstate.choose";
-})(exports.ActionTypes || (exports.ActionTypes = {
-}));
-exports.SpecialTargets = void 0;
-(function(SpecialTargets) {
-    SpecialTargets["Parent"] = "#_parent";
-    SpecialTargets["Internal"] = "#_internal";
-})(exports.SpecialTargets || (exports.SpecialTargets = {
-}));
+var IS_PRODUCTION = false;
+exports.IS_PRODUCTION = IS_PRODUCTION;
 
-},{}],"kEepo":[function(require,module,exports) {
-'use strict';
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-var types = require('./types.js');
-var start = types.ActionTypes.Start;
-var stop = types.ActionTypes.Stop;
-var raise = types.ActionTypes.Raise;
-var send = types.ActionTypes.Send;
-var cancel = types.ActionTypes.Cancel;
-var nullEvent = types.ActionTypes.NullEvent;
-var assign = types.ActionTypes.Assign;
-var after = types.ActionTypes.After;
-var doneState = types.ActionTypes.DoneState;
-var log = types.ActionTypes.Log;
-var init = types.ActionTypes.Init;
-var invoke = types.ActionTypes.Invoke;
-var errorExecution = types.ActionTypes.ErrorExecution;
-var errorPlatform = types.ActionTypes.ErrorPlatform;
-var error = types.ActionTypes.ErrorCustom;
-var update = types.ActionTypes.Update;
-var choose = types.ActionTypes.Choose;
-var pure = types.ActionTypes.Pure;
-exports.after = after;
-exports.assign = assign;
-exports.cancel = cancel;
-exports.choose = choose;
-exports.doneState = doneState;
-exports.error = error;
-exports.errorExecution = errorExecution;
-exports.errorPlatform = errorPlatform;
-exports.init = init;
-exports.invoke = invoke;
-exports.log = log;
-exports.nullEvent = nullEvent;
-exports.pure = pure;
-exports.raise = raise;
-exports.send = send;
-exports.start = start;
-exports.stop = stop;
-exports.update = update;
-
-},{"./types.js":"84cIp"}],"2J0f1":[function(require,module,exports) {
+},{}],"8TXLV":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "peerServerCloudOptions", ()=>peerServerCloudOptions
-);
-parcelHelpers.export(exports, "peerServerLocalOptions", ()=>peerServerLocalOptions
-);
-parcelHelpers.export(exports, "rovPeerIdBase", ()=>rovPeerIdBase
-);
-parcelHelpers.export(exports, "messageEncoder", ()=>messageEncoder
-);
-parcelHelpers.export(exports, "messageDecoder", ()=>messageDecoder
-);
-const peerServerCloudOptions = {
-    host: '0.peerjs.com',
-    secure: true,
-    path: '/',
-    port: 443
-};
-const peerServerLocalOptions = {
-    host: 'raspberrypi.local',
-    path: '/',
-    secure: false,
-    port: 9000
-};
-const rovPeerIdBase = "iROV-";
-const messageEncoder = new TextEncoder(); // always utf-8
-const messageDecoder = new TextDecoder(); // always utf-8
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"efi6n":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-// -------------------------------------------------------------
-// ------ UI Stuff ---------------------------------------------
-// -------------------------------------------------------------
-parcelHelpers.export(exports, "showToastMessage", ()=>showToastMessage
-);
-parcelHelpers.export(exports, "showToastDialog", ()=>showToastDialog
-);
-parcelHelpers.export(exports, "showChoiceDialog", ()=>showChoiceDialog
-);
-parcelHelpers.export(exports, "showROVDisconnectedUI", ()=>showROVDisconnectedUI
-);
-parcelHelpers.export(exports, "showROVConnectingUI", ()=>showROVConnectingUI
-);
-parcelHelpers.export(exports, "showROVConnectedUI", ()=>showROVConnectedUI
-);
-parcelHelpers.export(exports, "setupConnectBtnClickHandler", ()=>setupConnectBtnClickHandler
-);
-parcelHelpers.export(exports, "setupDisconnectBtnClickHandler", ()=>setupDisconnectBtnClickHandler
-);
-parcelHelpers.export(exports, "setupSwitchRovBtnClickHandler", ()=>setupSwitchRovBtnClickHandler
-);
-parcelHelpers.export(exports, "showScanIpBtn", ()=>showScanIpBtn
-);
-parcelHelpers.export(exports, "hideScanIpButton", ()=>hideScanIpButton
-);
-parcelHelpers.export(exports, "showLoadingUi", ()=>showLoadingUi
-);
-parcelHelpers.export(exports, "hideLoadingUi", ()=>hideLoadingUi
-);
-parcelHelpers.export(exports, "updateConnectionDisplay", ()=>updateConnectionDisplay
-);
-parcelHelpers.export(exports, "updatePingDisplay", ()=>updatePingDisplay
-);
-parcelHelpers.export(exports, "updateBatteryDisplay", ()=>updateBatteryDisplay
-);
-parcelHelpers.export(exports, "updateDisplayedSensorValues", ()=>updateDisplayedSensorValues
-);
-parcelHelpers.export(exports, "setCompassHeading", ()=>setCompassHeading
-);
-// import "toastify-js/src/toastify.css"
-var _toastifyJs = require("toastify-js");
-var _toastifyJsDefault = parcelHelpers.interopDefault(_toastifyJs);
-function showToastMessage(message, durration, callback) {
-    return _toastifyJsDefault.default({
-        text: message,
-        duration: durration || 5000,
-        close: true,
-        // className: "dialog-toast",
-        style: {
-            background: "linear-gradient(to right, #00b09b, #96c93d)"
-        },
-        gravity: "top",
-        position: "center",
-        stopOnFocus: true,
-        onClick: callback
-    }).showToast();
-}
-function showToastDialog(message, durration, btnName, callback) {
-    const toastContent = document.createElement("div");
-    toastContent.innerHTML = message;
-    if (btnName) {
-        const btn = document.createElement("button");
-        btn.innerHTML = btnName;
-        btn.addEventListener("click", callback);
-        toastContent.appendChild(btn);
-    }
-    return _toastifyJsDefault.default({
-        node: toastContent,
-        duration: durration || 15000,
-        close: btnName != false,
-        className: "dialog-toast",
-        gravity: "top",
-        position: "center",
-        stopOnFocus: true
-    }).showToast();
-}
-function showChoiceDialog(message, buttons, callback) {
-    const toastContent = document.createElement("div");
-    toastContent.innerHTML = message;
-    buttons.forEach((button)=>{
-        const btn = document.createElement("button");
-        btn.innerHTML = button.name;
-        btn.addEventListener("click", ()=>{
-            callback(button.value);
-        });
-        toastContent.appendChild(btn);
-    });
-    return _toastifyJsDefault.default({
-        node: toastContent,
-        duration: 0,
-        close: true,
-        className: "dialog-toast",
-        gravity: "top",
-        position: "center",
-        stopOnFocus: true
-    }).showToast();
-}
-const connectBtn = document.getElementById('connect_btn');
-const disconnectBtn = document.getElementById('disconnect_btn');
-const connectedRovIndicatorButton = document.getElementById('connected_rov_indicator_btn');
-function showROVDisconnectedUI() {
-    connectBtn.style.display = 'block';
-    disconnectBtn.style.display = 'none';
-    connectedRovIndicatorButton.parentElement.classList.add('hidden');
-    hideLoadingUi();
-}
-function showROVConnectingUI() {
-    connectBtn.style.display = 'none';
-    connectedRovIndicatorButton.parentElement.classList.add('hidden');
-    showLoadingUi("Connecting to ROV...");
-}
-function showROVConnectedUI(rovName) {
-    connectBtn.style.display = 'none';
-    disconnectBtn.style.display = 'block';
-    console.log(connectedRovIndicatorButton);
-    connectedRovIndicatorButton.parentElement.classList.remove('hidden');
-    if (rovName) connectedRovIndicatorButton.innerText = rovName;
-    hideLoadingUi();
-}
-function setupConnectBtnClickHandler(callback) {
-    connectBtn.addEventListener('click', callback);
-    return cleanupFunc = ()=>{
-        connectBtn.removeEventListener('click', callback);
-    };
-}
-function setupDisconnectBtnClickHandler(callback) {
-    connectBtn.addEventListener('click', callback);
-    return cleanupFunc = ()=>{
-        connectBtn.removeEventListener('click', callback);
-    };
-}
-function setupSwitchRovBtnClickHandler(callback) {
-    connectedRovIndicatorButton.addEventListener('click', callback);
-    return cleanupFunc = ()=>{
-        connectBtn.removeEventListener('click', callback);
-    };
-}
-function showScanIpBtn() {
-    document.getElementById("scan_for_ip_btn").style.display = "block";
-}
-function hideScanIpButton() {
-    document.getElementById("scan_for_ip_btn").style.display = "none";
-}
-const loadingIndicator = document.getElementById("site_loading_indicator");
-const loadingIndicatorText = document.getElementById("site_loading_text");
-function showLoadingUi(loadingMessage) {
-    loadingIndicator.style.display = 'block';
-    loadingIndicatorText.innerHTML = loadingMessage;
-}
-function hideLoadingUi() {
-    loadingIndicator.style.display = 'none';
-}
-var connectionDisplay = document.getElementById('connection_display');
-function updateConnectionDisplay(rovPeerId, isPilot) {
-    pingDisplay.innerText = pingTimeMs;
-    connectionDisplay.innerText = `Connected to: ${rovPeerId} | Your Role: ${isPilot ? "Pilot" : "Spectator"}`;
-}
-var pingDisplay = document.getElementById('ping_value');
-function updatePingDisplay(pingTimeMs) {
-    pingDisplay.innerText = pingTimeMs;
-}
-var battDisplay = document.getElementById('battery_value');
-function updateBatteryDisplay(batteryVolts, batteryPercent) {
-    battDisplay.innerText = batteryVolts + 'V (' + batteryPercent + '%)';
-}
-var pressureDisplay = document.getElementById('pressure_value');
-var tempDisplay = document.getElementById('temp_value');
-function updateDisplayedSensorValues(sensorValues) {
-    pressureDisplay.innerText = sensorValues.pressure;
-    tempDisplay.innerText = sensorValues.temp;
-}
-// https://codepen.io/fueru/pen/JjjoXez
-var compassDisc = document.getElementById("compassDiscImg");
-const compassOffset = 135;
-function setCompassHeading(headingDeg) {
-    var totalDir = -(headingDeg + compassOffset);
-    // document.getElementById("direction").innerHTML = "dir: " + Math.ceil(dir) + " + offset(" + offset + ") = " + Math.ceil(totalDir);
-    compassDisc.style.transform = `translateX(${totalDir}px)`;
-}
-// FOR DEBUGGING COMPASS:
-document.addEventListener("DOMContentLoaded", function(event) {
-    if (window.DeviceOrientationEvent) window.addEventListener('deviceorientation', function(eventData) {
-        // gamma: Tilting the device from left to right. Tilting the device to the right will result in a positive value.
-        var tiltLR = eventData.gamma;
-        // beta: Tilting the device from the front to the back. Tilting the device to the front will result in a positive value.
-        var tiltFB = eventData.beta;
-        // alpha: The direction the compass of the device aims to in degrees.
-        var dir = eventData.alpha;
-        // Call the function to use the data on the page.
-        setCompassHeading(dir);
-    }, false);
-});
-
-},{"toastify-js":"96k49","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"96k49":[function(require,module,exports) {
-/*!
- * Toastify js 1.11.2
- * https://github.com/apvarun/toastify-js
- * @license MIT licensed
- *
- * Copyright (C) 2018 Varun A P
- */ (function(root, factory) {
-    if (typeof module === "object" && module.exports) module.exports = factory();
-    else root.Toastify = factory();
-})(this, function(global) {
-    // Object initialization
-    var Toastify = function(options) {
-        // Returning a new init object
-        return new Toastify.lib.init(options);
-    }, // Library version
-    version = "1.11.2";
-    // Set the default global options
-    Toastify.defaults = {
-        oldestFirst: true,
-        text: "Toastify is awesome!",
-        node: undefined,
-        duration: 3000,
-        selector: undefined,
-        callback: function() {
-        },
-        destination: undefined,
-        newWindow: false,
-        close: false,
-        gravity: "toastify-top",
-        positionLeft: false,
-        position: '',
-        backgroundColor: '',
-        avatar: "",
-        className: "",
-        stopOnFocus: true,
-        onClick: function() {
-        },
-        offset: {
-            x: 0,
-            y: 0
-        },
-        escapeMarkup: true,
-        style: {
-            background: ''
-        }
-    };
-    // Defining the prototype of the object
-    Toastify.lib = Toastify.prototype = {
-        toastify: version,
-        constructor: Toastify,
-        // Initializing the object with required parameters
-        init: function(options) {
-            // Verifying and validating the input object
-            if (!options) options = {
-            };
-            // Creating the options object
-            this.options = {
-            };
-            this.toastElement = null;
-            // Validating the options
-            this.options.text = options.text || Toastify.defaults.text; // Display message
-            this.options.node = options.node || Toastify.defaults.node; // Display content as node
-            this.options.duration = options.duration === 0 ? 0 : options.duration || Toastify.defaults.duration; // Display duration
-            this.options.selector = options.selector || Toastify.defaults.selector; // Parent selector
-            this.options.callback = options.callback || Toastify.defaults.callback; // Callback after display
-            this.options.destination = options.destination || Toastify.defaults.destination; // On-click destination
-            this.options.newWindow = options.newWindow || Toastify.defaults.newWindow; // Open destination in new window
-            this.options.close = options.close || Toastify.defaults.close; // Show toast close icon
-            this.options.gravity = options.gravity === "bottom" ? "toastify-bottom" : Toastify.defaults.gravity; // toast position - top or bottom
-            this.options.positionLeft = options.positionLeft || Toastify.defaults.positionLeft; // toast position - left or right
-            this.options.position = options.position || Toastify.defaults.position; // toast position - left or right
-            this.options.backgroundColor = options.backgroundColor || Toastify.defaults.backgroundColor; // toast background color
-            this.options.avatar = options.avatar || Toastify.defaults.avatar; // img element src - url or a path
-            this.options.className = options.className || Toastify.defaults.className; // additional class names for the toast
-            this.options.stopOnFocus = options.stopOnFocus === undefined ? Toastify.defaults.stopOnFocus : options.stopOnFocus; // stop timeout on focus
-            this.options.onClick = options.onClick || Toastify.defaults.onClick; // Callback after click
-            this.options.offset = options.offset || Toastify.defaults.offset; // toast offset
-            this.options.escapeMarkup = options.escapeMarkup !== undefined ? options.escapeMarkup : Toastify.defaults.escapeMarkup;
-            this.options.style = options.style || Toastify.defaults.style;
-            if (options.backgroundColor) this.options.style.background = options.backgroundColor;
-            // Returning the current object for chaining functions
-            return this;
-        },
-        // Building the DOM element
-        buildToast: function() {
-            // Validating if the options are defined
-            if (!this.options) throw "Toastify is not initialized";
-            // Creating the DOM object
-            var divElement = document.createElement("div");
-            divElement.className = "toastify on " + this.options.className;
-            // Positioning toast to left or right or center
-            if (!!this.options.position) divElement.className += " toastify-" + this.options.position;
-            else // To be depreciated in further versions
-            if (this.options.positionLeft === true) {
-                divElement.className += " toastify-left";
-                console.warn('Property `positionLeft` will be depreciated in further versions. Please use `position` instead.');
-            } else // Default position
-            divElement.className += " toastify-right";
-            // Assigning gravity of element
-            divElement.className += " " + this.options.gravity;
-            if (this.options.backgroundColor) // This is being deprecated in favor of using the style HTML DOM property
-            console.warn('DEPRECATION NOTICE: "backgroundColor" is being deprecated. Please use the "style.background" property.');
-            // Loop through our style object and apply styles to divElement
-            for(var property in this.options.style)divElement.style[property] = this.options.style[property];
-            // Adding the toast message/node
-            if (this.options.node && this.options.node.nodeType === Node.ELEMENT_NODE) // If we have a valid node, we insert it
-            divElement.appendChild(this.options.node);
-            else {
-                if (this.options.escapeMarkup) divElement.innerText = this.options.text;
-                else divElement.innerHTML = this.options.text;
-                if (this.options.avatar !== "") {
-                    var avatarElement = document.createElement("img");
-                    avatarElement.src = this.options.avatar;
-                    avatarElement.className = "toastify-avatar";
-                    if (this.options.position == "left" || this.options.positionLeft === true) // Adding close icon on the left of content
-                    divElement.appendChild(avatarElement);
-                    else // Adding close icon on the right of content
-                    divElement.insertAdjacentElement("afterbegin", avatarElement);
-                }
-            }
-            // Adding a close icon to the toast
-            if (this.options.close === true) {
-                // Create a span for close element
-                var closeElement = document.createElement("span");
-                closeElement.innerHTML = "&#10006;";
-                closeElement.className = "toast-close";
-                // Triggering the removal of toast from DOM on close click
-                closeElement.addEventListener("click", (function(event) {
-                    event.stopPropagation();
-                    this.removeElement(this.toastElement);
-                    window.clearTimeout(this.toastElement.timeOutValue);
-                }).bind(this));
-                //Calculating screen width
-                var width = window.innerWidth > 0 ? window.innerWidth : screen.width;
-                // Adding the close icon to the toast element
-                // Display on the right if screen width is less than or equal to 360px
-                if ((this.options.position == "left" || this.options.positionLeft === true) && width > 360) // Adding close icon on the left of content
-                divElement.insertAdjacentElement("afterbegin", closeElement);
-                else // Adding close icon on the right of content
-                divElement.appendChild(closeElement);
-            }
-            // Clear timeout while toast is focused
-            if (this.options.stopOnFocus && this.options.duration > 0) {
-                var self = this;
-                // stop countdown
-                divElement.addEventListener("mouseover", function(event) {
-                    window.clearTimeout(divElement.timeOutValue);
-                });
-                // add back the timeout
-                divElement.addEventListener("mouseleave", function() {
-                    divElement.timeOutValue = window.setTimeout(function() {
-                        // Remove the toast from DOM
-                        self.removeElement(divElement);
-                    }, self.options.duration);
-                });
-            }
-            // Adding an on-click destination path
-            if (typeof this.options.destination !== "undefined") divElement.addEventListener("click", (function(event) {
-                event.stopPropagation();
-                if (this.options.newWindow === true) window.open(this.options.destination, "_blank");
-                else window.location = this.options.destination;
-            }).bind(this));
-            if (typeof this.options.onClick === "function" && typeof this.options.destination === "undefined") divElement.addEventListener("click", (function(event) {
-                event.stopPropagation();
-                this.options.onClick();
-            }).bind(this));
-            // Adding offset
-            if (typeof this.options.offset === "object") {
-                var x = getAxisOffsetAValue("x", this.options);
-                var y = getAxisOffsetAValue("y", this.options);
-                var xOffset = this.options.position == "left" ? x : "-" + x;
-                var yOffset = this.options.gravity == "toastify-top" ? y : "-" + y;
-                divElement.style.transform = "translate(" + xOffset + "," + yOffset + ")";
-            }
-            // Returning the generated element
-            return divElement;
-        },
-        // Displaying the toast
-        showToast: function() {
-            // Creating the DOM object for the toast
-            this.toastElement = this.buildToast();
-            // Getting the root element to with the toast needs to be added
-            var rootElement;
-            if (typeof this.options.selector === "string") rootElement = document.getElementById(this.options.selector);
-            else if (this.options.selector instanceof HTMLElement || typeof ShadowRoot !== 'undefined' && this.options.selector instanceof ShadowRoot) rootElement = this.options.selector;
-            else rootElement = document.body;
-            // Validating if root element is present in DOM
-            if (!rootElement) throw "Root element is not defined";
-            // Adding the DOM element
-            var elementToInsert = Toastify.defaults.oldestFirst ? rootElement.firstChild : rootElement.lastChild;
-            rootElement.insertBefore(this.toastElement, elementToInsert);
-            // Repositioning the toasts in case multiple toasts are present
-            Toastify.reposition();
-            if (this.options.duration > 0) this.toastElement.timeOutValue = window.setTimeout((function() {
-                // Remove the toast from DOM
-                this.removeElement(this.toastElement);
-            }).bind(this), this.options.duration); // Binding `this` for function invocation
-            // Supporting function chaining
-            return this;
-        },
-        hideToast: function() {
-            if (this.toastElement.timeOutValue) clearTimeout(this.toastElement.timeOutValue);
-            this.removeElement(this.toastElement);
-        },
-        // Removing the element from the DOM
-        removeElement: function(toastElement) {
-            // Hiding the element
-            // toastElement.classList.remove("on");
-            toastElement.className = toastElement.className.replace(" on", "");
-            // Removing the element from DOM after transition end
-            window.setTimeout((function() {
-                // remove options node if any
-                if (this.options.node && this.options.node.parentNode) this.options.node.parentNode.removeChild(this.options.node);
-                // Remove the element from the DOM, only when the parent node was not removed before.
-                if (toastElement.parentNode) toastElement.parentNode.removeChild(toastElement);
-                // Calling the callback function
-                this.options.callback.call(toastElement);
-                // Repositioning the toasts again
-                Toastify.reposition();
-            }).bind(this), 400); // Binding `this` for function invocation
-        }
-    };
-    // Positioning the toasts on the DOM
-    Toastify.reposition = function() {
-        // Top margins with gravity
-        var topLeftOffsetSize = {
-            top: 15,
-            bottom: 15
-        };
-        var topRightOffsetSize = {
-            top: 15,
-            bottom: 15
-        };
-        var offsetSize = {
-            top: 15,
-            bottom: 15
-        };
-        // Get all toast messages on the DOM
-        var allToasts = document.getElementsByClassName("toastify");
-        var classUsed;
-        // Modifying the position of each toast element
-        for(var i = 0; i < allToasts.length; i++){
-            // Getting the applied gravity
-            if (containsClass(allToasts[i], "toastify-top") === true) classUsed = "toastify-top";
-            else classUsed = "toastify-bottom";
-            var height = allToasts[i].offsetHeight;
-            classUsed = classUsed.substr(9, classUsed.length - 1);
-            // Spacing between toasts
-            var offset = 15;
-            var width = window.innerWidth > 0 ? window.innerWidth : screen.width;
-            // Show toast in center if screen with less than or equal to 360px
-            if (width <= 360) {
-                // Setting the position
-                allToasts[i].style[classUsed] = offsetSize[classUsed] + "px";
-                offsetSize[classUsed] += height + offset;
-            } else if (containsClass(allToasts[i], "toastify-left") === true) {
-                // Setting the position
-                allToasts[i].style[classUsed] = topLeftOffsetSize[classUsed] + "px";
-                topLeftOffsetSize[classUsed] += height + offset;
-            } else {
-                // Setting the position
-                allToasts[i].style[classUsed] = topRightOffsetSize[classUsed] + "px";
-                topRightOffsetSize[classUsed] += height + offset;
-            }
-        }
-        // Supporting function chaining
-        return this;
-    };
-    // Helper function to get offset.
-    function getAxisOffsetAValue(axis, options) {
-        if (options.offset[axis]) {
-            if (isNaN(options.offset[axis])) return options.offset[axis];
-            else return options.offset[axis] + 'px';
-        }
-        return '0px';
-    }
-    function containsClass(elem, yourClass) {
-        if (!elem || typeof yourClass !== "string") return false;
-        else if (elem.className && elem.className.trim().split(/\s+/gi).indexOf(yourClass) > -1) return true;
-        else return false;
-    }
-    // Setting up the prototype for the init object
-    Toastify.lib.init.prototype = Toastify.lib;
-    // Returning the Toastify function to be assigned to the window object/module
-    return Toastify;
-});
-
-},{}],"doATT":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "clamp", ()=>clamp
-);
-parcelHelpers.export(exports, "calculateDesiredMotion", ()=>calculateDesiredMotion
-);
-/*
-* Gets just the passed name parameter from the query string the curent url:
-* Example: if the url is: https://example.com/abc?some-variable-name=somevalue&someotherthing=someothervalue
-* then getURLQueryStringVariable("some-variable-name") will return "somevalue"
-*/ parcelHelpers.export(exports, "getURLQueryStringVariable", ()=>getURLQueryStringVariable
-);
-parcelHelpers.export(exports, "isInternetAvailable", ()=>isInternetAvailable
-);
-parcelHelpers.export(exports, "toggleFullscreen", ()=>toggleFullscreen
-);
-// Downloads the given link, with an optional filename for the download
-parcelHelpers.export(exports, "download", ()=>download
-);
-function clamp(number, max, min) {
-    return Math.max(Math.min(number, max), min);
-}
-function calculateDesiredMotion(axes) {
-    var turn = axes[0].toFixed(3);
-    var forward = -1 * axes[1].toFixed(3);
-    var strafe = axes[2].toFixed(3);
-    var vertical = -1 * axes[3].toFixed(3);
-    return {
-        thrustVector: [
-            strafe,
-            forward,
-            vertical
-        ],
-        turnRate: turn
-    };
-}
-function getURLQueryStringVariable(variable) {
-    var query = window.location.search.substring(1);
-    var vars = query.split('&');
-    for(var i = 0; i < vars.length; i++){
-        var pair = vars[i].split('=');
-        if (decodeURIComponent(pair[0]) == variable) return decodeURIComponent(pair[1]);
-    }
-    console.log('Query variable %s not found', variable);
-}
-function isInternetAvailable(urlToCheck) {
-    return new Promise((resolve)=>{
-        console.info("checkingUrl", urlToCheck);
-        try {
-            fetch(urlToCheck).then(()=>{
-                resolve(true);
-            }).catch((e)=>{
-                console.warn("Internet Offline, starting switch to local mode", e);
-                resolve(false);
-            });
-        // setTimeout(() => {
-        //     resolve(false)
-        // }, 10000)
-        } catch (e) {
-            console.warn("Error Checking internet, starting switch to local mode", e);
-            resolve(false);
-        }
-    });
-}
-/* When the openFullscreen() export function is executed, open the passed element in fullscreen.
-Note that we must include prefixes for different browsers, as they don't support the requestFullscreen method yet */ window.toggleFullscreen = (e, elem)=>{
-    elem = elem || document.documentElement;
-    if (e && e.initialTarget) e.initialTarget.classList.toggle('fullscreen-open');
-    var fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-    const addFullscreenUi = ()=>{
-        elem.classList.add('fullscreen-open');
-    };
-    const removeFullscreenUi = ()=>{
-        fullscreenElement.classList.remove('fullscreen-open');
-        if (elem !== fullscreenElement) {
-            if (elem.requestFullscreen) elem.requestFullscreen().then(addFullscreenUi);
-            else if (elem.msRequestFullscreen) elem.msRequestFullscreen().then(addFullscreenUi);
-            else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen().then(addFullscreenUi);
-            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT).then(addFullscreenUi);
-        }
-    };
-    if (fullscreenElement) {
-        if (document.exitFullscreen) document.exitFullscreen().then(removeFullscreenUi);
-        else if (document.msExitFullscreen) document.msExitFullscreen().then(removeFullscreenUi);
-        else if (document.mozCancelFullScreen) document.mozCancelFullScreen().then(removeFullscreenUi);
-        else if (document.webkitExitFullscreen) document.webkitExitFullscreen().then(removeFullscreenUi);
-    } else {
-        if (elem.requestFullscreen) elem.requestFullscreen().then(addFullscreenUi);
-        else if (elem.msRequestFullscreen) elem.msRequestFullscreen().then(addFullscreenUi);
-        else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen().then(addFullscreenUi);
-        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT).then(addFullscreenUi);
-    }
-};
-function toggleFullscreen(event, elem) {
-    elem = elem || document.documentElement;
-    var fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-    if (!fullscreenElement || elem !== fullscreenElement) {
-        const requestFullscreenFunc = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.mozRequestFullScreen || elem.msRequestFullscreen;
-        console.log(requestFullscreenFunc);
-        requestFullscreenFunc(Element.ALLOW_KEYBOARD_INPUT);
-    } else {
-        const exitFullscreenFunc = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
-        exitFullscreenFunc().then(()=>{
-            fullscreenElement.classList.remove('fullscreen-open');
-        });
-    }
-}
-function download(url, filename) {
-    const a = document.createElement('a') // Create <a> hyperlink element
-    ;
-    a.href = url // Set the hyperlink URL
-    ;
-    a.download = filename || "" // if left blank the browser will guess the filename for the downloaded file
-    ;
-    document.body.appendChild(a) // Append the hyperlink to the document body
-    ;
-    a.click() // Click the hyperlink
-    ;
-    document.body.removeChild(a) // Remove the hyperlink from the document body
-    ;
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"39FuP":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "createDevTools", ()=>_browserJs.createDevTools
-);
-parcelHelpers.export(exports, "createWebSocketReceiver", ()=>_browserJs.createWebSocketReceiver
-);
-parcelHelpers.export(exports, "createWindowReceiver", ()=>_browserJs.createWindowReceiver
-);
-parcelHelpers.export(exports, "inspect", ()=>_browserJs.inspect
-);
-var _browserJs = require("./browser.js");
-
-},{"./browser.js":"1CTUP","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1CTUP":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "createDevTools", ()=>createDevTools
-);
-parcelHelpers.export(exports, "createWebSocketReceiver", ()=>createWebSocketReceiver
-);
-parcelHelpers.export(exports, "createWindowReceiver", ()=>createWindowReceiver
-);
-parcelHelpers.export(exports, "inspect", ()=>inspect
-);
-parcelHelpers.export(exports, "serviceMap", ()=>serviceMap
-);
-var _tslibJs = require("./_virtual/_tslib.js");
-var _xstate = require("xstate");
-var _inspectMachineJs = require("./inspectMachine.js");
-var _serializeJs = require("./serialize.js");
-var _utilsJs = require("./utils.js");
-var serviceMap = new Map();
-function createDevTools() {
-    var services = new Set();
-    var serviceListeners = new Set();
-    return {
-        services: services,
-        register: function(service) {
-            services.add(service);
-            serviceMap.set(service.sessionId, service);
-            serviceListeners.forEach(function(listener) {
-                return listener(service);
-            });
-            service.onStop(function() {
-                services.delete(service);
-                serviceMap.delete(service.sessionId);
-            });
-        },
-        unregister: function(service) {
-            services.delete(service);
-            serviceMap.delete(service.sessionId);
-        },
-        onRegister: function(listener) {
-            serviceListeners.add(listener);
-            services.forEach(function(service) {
-                return listener(service);
-            });
-            return {
-                unsubscribe: function() {
-                    serviceListeners.delete(listener);
-                }
-            };
-        }
-    };
-}
-var defaultInspectorOptions = {
-    url: 'https://statecharts.io/inspect',
-    iframe: function() {
-        return document.querySelector('iframe[data-xstate]');
-    },
-    devTools: function() {
-        var devTools = createDevTools();
-        globalThis.__xstate__ = devTools;
-        return devTools;
-    },
-    serialize: undefined
-};
-var getFinalOptions = function(options) {
-    var withDefaults = _tslibJs.__assign(_tslibJs.__assign({
-    }, defaultInspectorOptions), options);
-    return _tslibJs.__assign(_tslibJs.__assign({
-    }, withDefaults), {
-        url: new URL(withDefaults.url),
-        iframe: _utilsJs.getLazy(withDefaults.iframe),
-        devTools: _utilsJs.getLazy(withDefaults.devTools)
-    });
-};
-function inspect(options) {
-    var _a1 = getFinalOptions(options), iframe = _a1.iframe, url = _a1.url, devTools = _a1.devTools;
-    if (iframe === null) {
-        console.warn('No suitable <iframe> found to embed the inspector. Please pass an <iframe> element to `inspect(iframe)` or create an <iframe data-xstate></iframe> element.');
-        return undefined;
-    }
-    var inspectMachine = _inspectMachineJs.createInspectMachine(devTools, options);
-    var inspectService = _xstate.interpret(inspectMachine).start();
-    var listeners = new Set();
-    var sub = inspectService.subscribe(function(state) {
-        listeners.forEach(function(listener) {
-            return listener.next(state);
-        });
-    });
-    var targetWindow;
-    var client;
-    var messageHandler = function(event) {
-        if (typeof event.data === 'object' && event.data !== null && 'type' in event.data) {
-            if (iframe && !targetWindow) targetWindow = iframe.contentWindow;
-            if (!client) client = {
-                send: function(e) {
-                    targetWindow.postMessage(e, url.origin);
-                }
-            };
-            var inspectEvent = _tslibJs.__assign(_tslibJs.__assign({
-            }, event.data), {
-                client: client
-            });
-            inspectService.send(inspectEvent);
-        }
-    };
-    window.addEventListener('message', messageHandler);
-    window.addEventListener('unload', function() {
-        inspectService.send({
-            type: 'unload'
-        });
-    });
-    var stringifyWithSerializer = function(value) {
-        return _utilsJs.stringify(value, options === null || options === void 0 ? void 0 : options.serialize);
-    };
-    devTools.onRegister(function(service) {
-        var _a;
-        var state1 = service.state || service.initialState;
-        inspectService.send({
-            type: 'service.register',
-            machine: _serializeJs.stringifyMachine(service.machine, options === null || options === void 0 ? void 0 : options.serialize),
-            state: _serializeJs.stringifyState(state1, options === null || options === void 0 ? void 0 : options.serialize),
-            sessionId: service.sessionId,
-            id: service.id,
-            parent: (_a = service.parent) === null || _a === void 0 ? void 0 : _a.sessionId
-        });
-        inspectService.send({
-            type: 'service.event',
-            event: stringifyWithSerializer(state1._event),
-            sessionId: service.sessionId
-        });
-        // monkey-patch service.send so that we know when an event was sent
-        // to a service *before* it is processed, since other events might occur
-        // while the sent one is being processed, which throws the order off
-        var originalSend = service.send.bind(service);
-        service.send = function inspectSend(event, payload) {
-            inspectService.send({
-                type: 'service.event',
-                event: stringifyWithSerializer(_xstate.toSCXMLEvent(_xstate.toEventObject(event, payload))),
-                sessionId: service.sessionId
-            });
-            return originalSend(event, payload);
-        };
-        service.subscribe(function(state) {
-            // filter out synchronous notification from within `.start()` call
-            // when the `service.state` has not yet been assigned
-            if (state === undefined) return;
-            inspectService.send({
-                type: 'service.state',
-                // TODO: investigate usage of structuredClone in browsers if available
-                state: _serializeJs.stringifyState(state, options === null || options === void 0 ? void 0 : options.serialize),
-                sessionId: service.sessionId
-            });
-        });
-        service.onStop(function() {
-            inspectService.send({
-                type: 'service.stop',
-                sessionId: service.sessionId
-            });
-        });
-    });
-    if (iframe) {
-        iframe.addEventListener('load', function() {
-            targetWindow = iframe.contentWindow;
-        });
-        iframe.setAttribute('src', String(url));
-    } else targetWindow = window.open(String(url), 'xstateinspector');
-    return {
-        send: function(event) {
-            inspectService.send(event);
-        },
-        subscribe: function(next, onError, onComplete) {
-            var observer = _xstate.toObserver(next, onError, onComplete);
-            listeners.add(observer);
-            observer.next(inspectService.state);
-            return {
-                unsubscribe: function() {
-                    listeners.delete(observer);
-                }
-            };
-        },
-        disconnect: function() {
-            inspectService.send('disconnect');
-            window.removeEventListener('message', messageHandler);
-            sub.unsubscribe();
-        }
-    };
-}
-function createWindowReceiver(options) {
-    var _a = options || {
-    }, _b = _a.window, ownWindow = _b === void 0 ? window : _b, _c = _a.targetWindow, targetWindow = _c === void 0 ? window.self === window.top ? window.opener : window.parent : _c;
-    var observers = new Set();
-    var latestEvent;
-    var handler = function(event) {
-        var data = event.data;
-        if (_utilsJs.isReceiverEvent(data)) {
-            latestEvent = _utilsJs.parseReceiverEvent(data);
-            observers.forEach(function(listener) {
-                return listener.next(latestEvent);
-            });
-        }
-    };
-    ownWindow.addEventListener('message', handler);
-    var actorRef = _xstate.toActorRef({
-        id: 'xstate.windowReceiver',
-        send: function(event) {
-            if (!targetWindow) return;
-            targetWindow.postMessage(event, '*');
-        },
-        subscribe: function(next, onError, onComplete) {
-            var observer = _xstate.toObserver(next, onError, onComplete);
-            observers.add(observer);
-            return {
-                unsubscribe: function() {
-                    observers.delete(observer);
-                }
-            };
-        },
-        stop: function() {
-            observers.clear();
-            ownWindow.removeEventListener('message', handler);
-        },
-        getSnapshot: function() {
-            return latestEvent;
-        }
-    });
-    actorRef.send({
-        type: 'xstate.inspecting'
-    });
-    return actorRef;
-}
-function createWebSocketReceiver(options) {
-    var _a2 = options.protocol, protocol = _a2 === void 0 ? 'ws' : _a2;
-    var ws = new WebSocket("".concat(protocol, "://").concat(options.server));
-    var observers = new Set();
-    var latestEvent;
-    var actorRef = _xstate.toActorRef({
-        id: 'xstate.webSocketReceiver',
-        send: function(event) {
-            ws.send(_utilsJs.stringify(event, options.serialize));
-        },
-        subscribe: function(next, onError, onComplete) {
-            var observer = _xstate.toObserver(next, onError, onComplete);
-            observers.add(observer);
-            return {
-                unsubscribe: function() {
-                    observers.delete(observer);
-                }
-            };
-        },
-        getSnapshot: function() {
-            return latestEvent;
-        }
-    });
-    ws.onopen = function() {
-        actorRef.send({
-            type: 'xstate.inspecting'
-        });
-    };
-    ws.onmessage = function(event) {
-        if (typeof event.data !== 'string') return;
-        try {
-            var eventObject = JSON.parse(event.data);
-            if (_utilsJs.isReceiverEvent(eventObject)) {
-                latestEvent = _utilsJs.parseReceiverEvent(eventObject);
-                observers.forEach(function(observer) {
-                    observer.next(latestEvent);
-                });
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    };
-    ws.onerror = function(err) {
-        observers.forEach(function(observer) {
-            var _a;
-            (_a = observer.error) === null || _a === void 0 || _a.call(observer, err);
-        });
-    };
-    return actorRef;
-}
-
-},{"./_virtual/_tslib.js":"4WlGW","xstate":"2sk4t","./inspectMachine.js":"b4BjV","./serialize.js":"elII6","./utils.js":"aNc4j","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4WlGW":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "__assign", ()=>__assign
-);
-parcelHelpers.export(exports, "__values", ()=>__values
-);
-/*! *****************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */ var __assign = function() {
-    __assign = Object.assign || function __assign(t) {
-        for(var s, i = 1, n = arguments.length; i < n; i++){
-            s = arguments[i];
-            for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-function __values(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function() {
-            if (o && i >= o.length) o = void 0;
-            return {
-                value: o && o[i++],
-                done: !o
-            };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"b4BjV":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "createInspectMachine", ()=>createInspectMachine
+parcelHelpers.export(exports, "siteInitMachine", ()=>siteInitMachine
 );
 var _xstate = require("xstate");
-var _serializeJs = require("./serialize.js");
-function createInspectMachine(devTools, options) {
-    if (devTools === void 0) devTools = globalThis.__xstate__;
-    var serviceMap = new Map();
-    // Listen for services being registered and index them
-    // by their sessionId for quicker lookup
-    var sub = devTools.onRegister(function(service) {
-        serviceMap.set(service.sessionId, service);
-    });
-    return _xstate.createMachine({
-        initial: 'pendingConnection',
-        context: {
-            client: undefined
+var _util = require("./util");
+var _ui = require("./ui");
+var _consts = require("./consts");
+const siteInitMachine = /** @xstate-layout N4IgpgJg5mDOIC5SwJYBcwEkB26B0AwgBZgDGA1itlAPo4YBO2YaNAgqaXLAMQCqAJQAydAMo0BAeQBqdAAqJQABwD2qNChXZFIAB6IATAFYADHgBsADhMBOACxGAzOYCMJgw-MAaEAE9ELgDslnhGdo5GLkYGLpZGToEGAL5JPupYuGiEJBRUtPRgTCzsnNw8mAByACoAogIVNVXs0myYQmwAQkI1OqrqmtpIeoaWdhbBdpaBto52NoE2Rj7+CEY2eIEuLnYm0Zb2Jnbmiylp6Bn4xGSU1HTYjMysHFywvJW19Y00kgBiP0KVHpDProAY6fQIAC0bkCeH2LnMBlGNkO5kCdjsy0MYTwzhsCKCNkcBhMpOSqRA6Rw+AA6gBDUG3H4qBg0PiwQo0USkOnYGgdACuaDQWhocgYZVEBDYFX5fCqVUksoIAIIAGkagARXpqUFacGIRwmELxayRAyOBEGFGBLEIRyBWGORyWIIOywWzaWU6U87UrLc3m4JksiQyeQ8KSyTByGg-SR8Cra4G6jT6oYQzYuXGuWbBSxoozmbx+Q2TOGLV2k2ymGzeilUzJ4QPYYO0ZmsqMRmNc6UVCqVADiNDqUgEOv66dAEMt5jhLiNro8RkSBnRduic5MrhcdecrsRjhSFOwKggcB0jcuORu+XuhUeJRe8BTk8G08QkJJjjhTncxhMS0rQMO04jwOwoniaZAIxI1zB9K8snpRl21DdlORbfkhRFPlxW4Cc9XfYYoRJMYkU2YxFxdBFHDtOxjFCAxEUCWYbCYlxjAQv0mxbNs41DLsYwItMiIhIwCw2dx0RibZLDkyw6OOPAEUmaJJg8XcbC4jB-TwARIBQCVSFYDoGBUAB3DlWSqFQw2jBRX0Ig0EHMSJcTWTYbCsUxZhLFYDCYvATAXSiPXCRwbCJbSLgDc4JDAOkIBWZRUzBDNEGLMZTECcTAlcgsLSWUsEHmPA2I9FcPGCIkjwbbj0GEtKPxIpE8HIji-0sajzFo4roR-YxHTy45xN3fZyRSIA */ _xstate.createMachine({
+    context: {
+        peerServerConfig: {
         },
-        states: {
-            pendingConnection: {
+        rovIpAddr: null
+    },
+    id: "siteInit",
+    initial: "Checking_Internet_Access",
+    states: {
+        Checking_Internet_Access: {
+            invoke: {
+                src: "checkInternetAvailable",
+                id: "Check_Internet_Available"
             },
-            connected: {
-                on: {
-                    'service.state': {
-                        actions: function(ctx, e) {
-                            return ctx.client.send(e);
-                        }
-                    },
-                    'service.event': {
-                        actions: function(ctx, e) {
-                            return ctx.client.send(e);
-                        }
-                    },
-                    'service.register': {
-                        actions: function(ctx, e) {
-                            return ctx.client.send(e);
-                        }
-                    },
-                    'service.stop': {
-                        actions: function(ctx, e) {
-                            return ctx.client.send(e);
-                        }
-                    },
-                    'xstate.event': {
-                        actions: function(_, e) {
-                            var event = e.event;
-                            var scxmlEventObject = JSON.parse(event);
-                            var service = serviceMap.get(scxmlEventObject.origin);
-                            service === null || service === void 0 || service.send(scxmlEventObject);
-                        }
-                    },
-                    unload: {
-                        actions: function(ctx) {
-                            ctx.client.send({
-                                type: 'xstate.disconnect'
-                            });
-                        }
-                    },
-                    disconnect: 'disconnected'
-                }
-            },
-            disconnected: {
-                entry: function() {
-                    sub.unsubscribe();
+            on: {
+                URL_IS_ROV_IP: {
+                    actions: [
+                        "setLocalPeerServerConfig",
+                        "showHttpGamepadSupportDisabledAlert", 
+                    ],
+                    target: "#siteInit.Site_Ready"
                 },
-                type: 'final'
+                INTERNET_AVAILABLE: {
+                    actions: "setCloudPeerServerConfig",
+                    target: "#siteInit.Site_Ready"
+                },
+                INTERNET_OFFLINE: {
+                    actions: [
+                        "showIpScanButton",
+                        "hideLoadingUi"
+                    ],
+                    target: "#siteInit.Waiting_For_User_Scan_Button_Press"
+                }
             }
         },
-        on: {
-            'xstate.inspecting': {
-                target: '.connected',
-                actions: [
-                    _xstate.assign({
-                        client: function(_, e) {
-                            return e.client;
-                        }
-                    }),
-                    function(ctx) {
-                        devTools.services.forEach(function(service) {
-                            var _a;
-                            (_a = ctx.client) === null || _a === void 0 || _a.send({
-                                type: 'service.register',
-                                machine: _serializeJs.stringifyMachine(service.machine, options === null || options === void 0 ? void 0 : options.serialize),
-                                state: _serializeJs.stringifyState(service.state || service.initialState, options === null || options === void 0 ? void 0 : options.serialize),
-                                sessionId: service.sessionId
-                            });
-                        });
-                    }
-                ]
+        Waiting_For_User_Scan_Button_Press: {
+            description: "We need this because of browser popup blocking w/o user interaction",
+            invoke: {
+                src: "setupWaitForUserScanButtonPress",
+                id: "wait_for_scan_button_press"
+            },
+            on: {
+                SCAN_BUTTON_CLICKED: {
+                    actions: [
+                        "showIpScanningUi",
+                        "hideIpScanButton"
+                    ],
+                    target: "#siteInit.Scanning_For_ROV_IP"
+                }
             }
-        }
-    });
-}
-
-},{"xstate":"2sk4t","./serialize.js":"elII6","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"elII6":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "selectivelyStringify", ()=>selectivelyStringify
-);
-parcelHelpers.export(exports, "stringifyMachine", ()=>stringifyMachine
-);
-parcelHelpers.export(exports, "stringifyState", ()=>stringifyState
-);
-var _tslibJs = require("./_virtual/_tslib.js");
-var _utilsJs = require("./utils.js");
-function selectivelyStringify(value, keys, replacer) {
-    var e_1, _a;
-    var selected = {
-    };
-    try {
-        for(var keys_1 = _tslibJs.__values(keys), keys_1_1 = keys_1.next(); !keys_1_1.done; keys_1_1 = keys_1.next()){
-            var key = keys_1_1.value;
-            selected[key] = value[key];
-        }
-    } catch (e_1_1) {
-        e_1 = {
-            error: e_1_1
-        };
-    } finally{
-        try {
-            if (keys_1_1 && !keys_1_1.done && (_a = keys_1.return)) _a.call(keys_1);
-        } finally{
-            if (e_1) throw e_1.error;
-        }
-    }
-    var serialized = JSON.parse(_utilsJs.stringify(selected, replacer));
-    return _utilsJs.stringify(_tslibJs.__assign(_tslibJs.__assign({
-    }, value), serialized));
-}
-function stringifyState(state, replacer) {
-    return selectivelyStringify(state, [
-        'context',
-        'event',
-        '_event'
-    ], replacer);
-}
-function stringifyMachine(machine, replacer) {
-    return selectivelyStringify(machine, [
-        'context'
-    ], replacer);
-}
-
-},{"./_virtual/_tslib.js":"4WlGW","./utils.js":"aNc4j","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"aNc4j":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "getLazy", ()=>getLazy
-);
-parcelHelpers.export(exports, "isReceiverEvent", ()=>isReceiverEvent
-);
-parcelHelpers.export(exports, "parseReceiverEvent", ()=>parseReceiverEvent
-);
-parcelHelpers.export(exports, "parseState", ()=>parseState
-);
-parcelHelpers.export(exports, "stringify", ()=>stringify
-);
-var _tslibJs = require("./_virtual/_tslib.js");
-var _fastSafeStringify = require("fast-safe-stringify");
-var _fastSafeStringifyDefault = parcelHelpers.interopDefault(_fastSafeStringify);
-var _xstate = require("xstate");
-function getLazy(value) {
-    return typeof value === 'function' ? value() : value;
-}
-function stringify(value, replacer) {
-    try {
-        return JSON.stringify(value, replacer);
-    } catch (e) {
-        return _fastSafeStringifyDefault.default(value, replacer);
-    }
-}
-function isReceiverEvent(event) {
-    if (!event) return false;
-    try {
-        if (typeof event === 'object' && 'type' in event && event.type.startsWith('service.')) return true;
-    } catch (e) {
-        return false;
-    }
-    return false;
-}
-function parseState(stateJSON) {
-    var state = _xstate.State.create(JSON.parse(stateJSON));
-    delete state.history;
-    return state;
-}
-function parseReceiverEvent(event) {
-    switch(event.type){
-        case 'service.event':
-            return _tslibJs.__assign(_tslibJs.__assign({
-            }, event), {
-                event: JSON.parse(event.event)
-            });
-        case 'service.register':
-            return _tslibJs.__assign(_tslibJs.__assign({
-            }, event), {
-                machine: _xstate.createMachine(JSON.parse(event.machine)),
-                state: parseState(event.state)
-            });
-        case 'service.state':
-            return _tslibJs.__assign(_tslibJs.__assign({
-            }, event), {
-                state: parseState(event.state)
-            });
-        default:
-            return event;
-    }
-}
-
-},{"./_virtual/_tslib.js":"4WlGW","fast-safe-stringify":"dY7b6","xstate":"2sk4t","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dY7b6":[function(require,module,exports) {
-module.exports = stringify;
-stringify.default = stringify;
-stringify.stable = deterministicStringify;
-stringify.stableStringify = deterministicStringify;
-var LIMIT_REPLACE_NODE = '[...]';
-var CIRCULAR_REPLACE_NODE = '[Circular]';
-var arr = [];
-var replacerStack = [];
-function defaultOptions() {
-    return {
-        depthLimit: Number.MAX_SAFE_INTEGER,
-        edgesLimit: Number.MAX_SAFE_INTEGER
-    };
-}
-// Regular stringify
-function stringify(obj, replacer, spacer, options) {
-    if (typeof options === 'undefined') options = defaultOptions();
-    decirc(obj, '', 0, [], undefined, 0, options);
-    var res;
-    try {
-        if (replacerStack.length === 0) res = JSON.stringify(obj, replacer, spacer);
-        else res = JSON.stringify(obj, replaceGetterValues(replacer), spacer);
-    } catch (_) {
-        return JSON.stringify('[unable to serialize, circular reference is too complex to analyze]');
-    } finally{
-        while(arr.length !== 0){
-            var part = arr.pop();
-            if (part.length === 4) Object.defineProperty(part[0], part[1], part[3]);
-            else part[0][part[1]] = part[2];
-        }
-    }
-    return res;
-}
-function setReplace(replace, val, k, parent) {
-    var propertyDescriptor = Object.getOwnPropertyDescriptor(parent, k);
-    if (propertyDescriptor.get !== undefined) {
-        if (propertyDescriptor.configurable) {
-            Object.defineProperty(parent, k, {
-                value: replace
-            });
-            arr.push([
-                parent,
-                k,
-                val,
-                propertyDescriptor
-            ]);
-        } else replacerStack.push([
-            val,
-            k,
-            replace
-        ]);
-    } else {
-        parent[k] = replace;
-        arr.push([
-            parent,
-            k,
-            val
-        ]);
-    }
-}
-function decirc(val, k, edgeIndex, stack, parent, depth, options) {
-    depth += 1;
-    var i;
-    if (typeof val === 'object' && val !== null) {
-        for(i = 0; i < stack.length; i++)if (stack[i] === val) {
-            setReplace(CIRCULAR_REPLACE_NODE, val, k, parent);
-            return;
-        }
-        if (typeof options.depthLimit !== 'undefined' && depth > options.depthLimit) {
-            setReplace(LIMIT_REPLACE_NODE, val, k, parent);
-            return;
-        }
-        if (typeof options.edgesLimit !== 'undefined' && edgeIndex + 1 > options.edgesLimit) {
-            setReplace(LIMIT_REPLACE_NODE, val, k, parent);
-            return;
-        }
-        stack.push(val);
-        // Optimize for Arrays. Big arrays could kill the performance otherwise!
-        if (Array.isArray(val)) for(i = 0; i < val.length; i++)decirc(val[i], i, i, stack, val, depth, options);
-        else {
-            var keys = Object.keys(val);
-            for(i = 0; i < keys.length; i++){
-                var key = keys[i];
-                decirc(val[key], key, i, stack, val, depth, options);
+        },
+        Scanning_For_ROV_IP: {
+            invoke: {
+                src: "scanForRovIP",
+                id: "scan_for_rov_ip_addr"
+            },
+            on: {
+                ROV_IP_FOUND: {
+                    actions: "setRovIpAddr",
+                    target: "#siteInit.Redirect_Browser_To_ROV_IP"
+                },
+                IP_SCANNING_ERROR: {
+                    actions: [
+                        "showIpScanButton",
+                        "hideLoadingUi"
+                    ],
+                    target: "#siteInit.Waiting_For_User_Scan_Button_Press"
+                }
             }
-        }
-        stack.pop();
-    }
-}
-// Stable-stringify
-function compareFunction(a, b) {
-    if (a < b) return -1;
-    if (a > b) return 1;
-    return 0;
-}
-function deterministicStringify(obj, replacer, spacer, options) {
-    if (typeof options === 'undefined') options = defaultOptions();
-    var tmp = deterministicDecirc(obj, '', 0, [], undefined, 0, options) || obj;
-    var res;
-    try {
-        if (replacerStack.length === 0) res = JSON.stringify(tmp, replacer, spacer);
-        else res = JSON.stringify(tmp, replaceGetterValues(replacer), spacer);
-    } catch (_) {
-        return JSON.stringify('[unable to serialize, circular reference is too complex to analyze]');
-    } finally{
-        // Ensure that we restore the object as it was.
-        while(arr.length !== 0){
-            var part = arr.pop();
-            if (part.length === 4) Object.defineProperty(part[0], part[1], part[3]);
-            else part[0][part[1]] = part[2];
+        },
+        Redirect_Browser_To_ROV_IP: {
+            entry: "redirectBrowserToRovIp"
+        },
+        Site_Ready: {
+            entry: "siteReady",
+            type: "final"
         }
     }
-    return res;
-}
-function deterministicDecirc(val, k, edgeIndex, stack, parent, depth, options) {
-    depth += 1;
-    var i;
-    if (typeof val === 'object' && val !== null) {
-        for(i = 0; i < stack.length; i++)if (stack[i] === val) {
-            setReplace(CIRCULAR_REPLACE_NODE, val, k, parent);
-            return;
-        }
-        try {
-            if (typeof val.toJSON === 'function') return;
-        } catch (_) {
-            return;
-        }
-        if (typeof options.depthLimit !== 'undefined' && depth > options.depthLimit) {
-            setReplace(LIMIT_REPLACE_NODE, val, k, parent);
-            return;
-        }
-        if (typeof options.edgesLimit !== 'undefined' && edgeIndex + 1 > options.edgesLimit) {
-            setReplace(LIMIT_REPLACE_NODE, val, k, parent);
-            return;
-        }
-        stack.push(val);
-        // Optimize for Arrays. Big arrays could kill the performance otherwise!
-        if (Array.isArray(val)) for(i = 0; i < val.length; i++)deterministicDecirc(val[i], i, i, stack, val, depth, options);
-        else {
-            // Create a temporary object in the required way
-            var tmp = {
+}, {
+    actions: {
+        setCloudPeerServerConfig: _xstate.assign({
+            peerServerConfig: _consts.peerServerCloudOptions
+        }),
+        setLocalPeerServerConfig: _xstate.assign({
+            peerServerConfig: _consts.peerServerLocalOptions
+        }),
+        setRovIpAddr: _xstate.assign({
+            rovIpAddr: (context, event)=>{
+                console.log(event);
+                return event.data;
+            }
+        }),
+        showIpScanButton: ()=>{
+            _ui.showToastMessage("Click scan to find the ROV locally.");
+            _ui.showToastMessage("No internet connection.");
+            _ui.showScanIpBtn();
+        },
+        hideIpScanButton: ()=>{
+            _ui.hideScanIpButton();
+        },
+        hideLoadingUi: ()=>{
+            _ui.hideLoadingUi();
+        },
+        showIpScanningUi: ()=>{
+            _ui.showLoadingUi("Scanning for ROV IP address...");
+        },
+        redirectBrowserToRovIp: (context, event)=>{
+            window.location = "http://" + event.data;
+        },
+        siteReady: _xstate.sendParent((context)=>{
+            return {
+                type: "SITE_READY",
+                data: context
             };
-            var keys = Object.keys(val).sort(compareFunction);
-            for(i = 0; i < keys.length; i++){
-                var key = keys[i];
-                deterministicDecirc(val[key], key, i, stack, val, depth, options);
-                tmp[key] = val[key];
-            }
-            if (typeof parent !== 'undefined') {
-                arr.push([
-                    parent,
-                    k,
-                    val
-                ]);
-                parent[k] = tmp;
-            } else return tmp;
+        })
+    },
+    services: {
+        checkInternetAvailable: ()=>{
+            _ui.showLoadingUi("Checking internet connection...");
+            return (callback)=>{
+                _util.isInternetAvailable("https://" + _consts.peerServerCloudOptions.host).then((internetOnline)=>{
+                    if (internetOnline) callback("INTERNET_AVAILABLE");
+                    else {
+                        // INTERNET OFFLINE
+                        // check if we are viewing this site at an IP ADDRESS or .local domain
+                        // indicating this page was served directly from the rov (presumably)
+                        const urlHostParts = window.location.host.split(".");
+                        if (urlHostParts.length == 4 && !isNaN(urlHostParts[3]) || urlHostParts.length == 2 && urlHostParts[1] == "local") // in which case we are viewing this site at the rov's ip (presumably)
+                        callback("URL_IS_ROV_IP");
+                        else // otherwise the internet is just offline
+                        callback("INTERNET_OFFLINE");
+                    }
+                });
+            // }
+            };
+        },
+        setupWaitForUserScanButtonPress: ()=>{
+            return (callback)=>{
+                _ui.showScanIpBtn();
+                const onBtnClick = ()=>{
+                    callback("SCAN_BUTTON_CLICKED");
+                };
+                const btnElem = document.getElementById("scan_for_ip_btn");
+                btnElem.addEventListener("click", onBtnClick);
+                // cleanup function on state exit:
+                return ()=>{
+                    btnElem.removeEventListener("click", onBtnClick);
+                // hideBtnElem()
+                };
+            };
+        },
+        scanForRovIP: ()=>{
+            return ()=>{
+                _ui.showLoadingUi("Scanning for ROV IP address...");
+            // setTimeout(() => {
+            // hideLoadingUi()
+            //   callback({
+            //     type: "ROV_IP_FOUND",
+            //     data: "UHhh the ip address man!",
+            //   });
+            // }, 3000);
+            };
         }
-        stack.pop();
+    },
+    guards: {
     }
-}
-// wraps replacer function to handle values we couldn't replace
-// and mark them as replaced value
-function replaceGetterValues(replacer) {
-    replacer = typeof replacer !== 'undefined' ? replacer : function(k, v) {
-        return v;
-    };
-    return function(key, val) {
-        if (replacerStack.length > 0) for(var i = 0; i < replacerStack.length; i++){
-            var part = replacerStack[i];
-            if (part[1] === key && part[0] === val) {
-                val = part[2];
-                replacerStack.splice(i, 1);
-                break;
-            }
-        }
-        return replacer.call(this, key, val);
-    };
-}
+}); // const machineFunctionsMock = {
+ //   actions: {
+ //     setCloudPeerServerConfig: assign({
+ //       peerServerConfig: {
+ //         hi: "clound",
+ //       },
+ //     }),
+ //     setLocalPeerServerConfig: assign({
+ //       peerServerConfig: {
+ //         hi: "local",
+ //       },
+ //     }),
+ //     setRovIpAddr: assign({
+ //       rovIpAddr: (context, event) => {
+ //         console.log(event);
+ //         return "192.168.1.1.11.1";
+ //       },
+ //     }),
+ //     setGamepadOnscreenFallback: () => { },
+ //     redirectBrowserToRovIp: (context, event) => {
+ //       // window.location = "http://" + event.data
+ //     },
+ //   },
+ //   services: {
+ //     checkInternetAvailable: (context, event) => {
+ //       return (callback, onReceive) => {
+ //         // // check if we are viewing this site at an IP ADDRESS or .local domain
+ //         // // indicating this page was served directly from the rov (presumably)
+ //         // const urlHostParts = window.location.host.split(".");
+ //         // if (
+ //         //   (urlHostParts.length == 4 && parseInt(urlHostParts[3]) != NaN) ||
+ //         //   (urlHostParts.length == 2 && urlHostParts[1] == "local")
+ //         // ) {
+ //         //   callback("URL_IS_ROV_IP");
+ //         // } else {
+ //         // checkInternetAvailable().then(()=>{
+ //         //   callback("INTERNET_AVAILABLE");
+ //         // }).catch((e)=>{
+ //         //   console.warn("Internet Offline, starting switch to local mode", e)
+ //         //   callback("INTERNET_OFFLINE");
+ //         // })
+ //         // }
+ //         setTimeout(() => {
+ //           callback("URL_IS_ROV_IP");
+ //           // INTERNET_OFFLINE
+ //           // URL_IS_ROV_IP
+ //         }, 3000);
+ //       };
+ //     },
+ //     setupWaitForUserScanButtonPress: (context, event) => {
+ //       return (callback, onReceive) => {
+ //         const onBtnClick = () => {
+ //           callback("SCAN_BUTTON_CLICKED");
+ //         };
+ //         // btnElem = makeButtonElem()
+ //         // btnElem.addEventListener("click",onBtnClick)
+ //         setTimeout(() => {
+ //           onBtnClick();
+ //         }, 3000);
+ //         // cleanup function on state exit:
+ //         return () => {
+ //           // btnElem.removeEventListener("click",onBtnClick)
+ //           // hideBtnElem()
+ //         };
+ //       };
+ //     },
+ //     scanForRovIP: (context, event) => {
+ //       return (callback, onReceive) => {
+ //         setTimeout(() => {
+ //           callback({
+ //             type: "ROV_IP_FOUND",
+ //             data: "hids",
+ //           });
+ //         }, 3000);
+ //       };
+ //     },
+ //     createGamepadHttpsIframe: (context, event) => {
+ //       return (callback, onReceive) => {
+ //         setTimeout(() => {
+ //           // callback("GAMEPAD_IFRAME_LOADED");
+ //           callback("GAMEPAD_IFRAME_LOAD_ERROR");
+ //         }, 3000);
+ //       };
+ //     },
+ //   },
+ //   guards: {},
+ // }
 
-},{}],"j5PiZ":[function(require,module,exports) {
+},{"xstate":"2sk4t","./util":"doATT","./ui":"efi6n","./consts":"2J0f1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hGSry":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "rovConnectionMachine", ()=>rovConnectionMachine
+parcelHelpers.export(exports, "peerConnMachine", ()=>peerConnMachine
 );
 var _xstate = require("xstate");
+var _ui = require("./ui");
+var _util = require("./util");
 var _consts = require("./consts");
 var _actions = require("xstate/lib/actions");
-var _peerjs = require("peerjs");
-var _peerjsDefault = parcelHelpers.interopDefault(_peerjs);
-var _ui = require("./ui");
-// import * from "./peerServerConn"
-const eventHandlerFunctions = {
-};
-function generateStateChangeFunction(sendStateChange, stateTransition, data, additionalCallback) {
-    const func = function(evt) {
-        if (additionalCallback) additionalCallback(evt);
-        sendStateChange({
-            type: stateTransition,
-            data: data || evt
-        });
-    };
-    eventHandlerFunctions[stateTransition] = func;
-    return func;
-}
-const machineFunctions = {
+// FOR CONVERTING TEXT TO/FROM BINARY FOR SENDING OVER THE WEBRTC DATACHANNEL
+const messageEncoder = new TextEncoder(); // always utf-8
+const messageDecoder = new TextDecoder(); // always utf-8
+const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CWeAdAHLbED6O+RxkdAKtnQErYBuAxFwDyANQZCqVAKKY2ASQl0pAZTYBBAEIAZOcoASUgCKIU2WKTJ4TIAB6IAtACYADI4rOAnAEYAHI4AsAMxeAKyOgYEhADQgAJ6I-iH+FB4+AGwegWlJieE+AL75MagYjAQk5LjUtAx45SwQ7Jw8AsJiAApSUlzikjLyit3CXNbIZhaV1nYITj5eFFkh6ZkA7CHOac5egTHxCI5pyc5JzoErK44rQY4hhcVoWHXMlRRlzKwc3HwUhgCGxL9MAALX5MAA2P3+vwYIPBdEMpFghCeJEg-EManUmD0aj6WiUqk0On0RlG40suCmiACaQoVzSgRcgQ2S0cPl2iC8LjcGx8fhWPjCNwFdxAJUeTAqlDeqManxakIBwNBBAhfwBMJVYDB8MRyMlDXRmLU2Nx0nx8gAslIhABVNhk8wUqkIJYeBYeFbHLweG7+BnROIJK4Ufw+Vy+Ln+RxeAVpUXimUU14ohpNL68RWA2GqrOauFCVC4I1YnF4+G6TASaSyR0TKxIWzU-0UJY+VIeEIRNJef0chBctK0kIjrk+fxXFyHBMPJMvJMfZrfdXZrVqqH51V0QtgYvKKRUQx0a3KZRqADiUnYQm4ojrzsb0ycLcSK2ZXlOzI8nf7H-CCwFM4ey9RlHEcGdSlTedU0XDMs2VcE8wQrcd2Lc8hDYY8VDPS86AAMWES1bxEe9JkfBx-zZX00iuZxnH8RJjjSX9XECACfCA2NTjA8CijFWcoOlGC5SXTNLUgUhV0Qmh6FQ-hrUMOQ1AYMtzQJdRtF0AxjEbMYnTI0BplCHx3G-VxOx8FYaJCLxfxCDxnAoQ5vBjLxfECPwIIlepoINWCFXEiBJOQ7UKECyTN21Wo-IgfgRDkQwbToVQuCkNQiNStRDAATVIhtDMQQV3X8ByVl8VJtjfWygwHezHOcrk3Pczy+MTQSqgXES4PCqTVXkowlJUs0pAtORrTtB1dPJAymwQSITJow4XHsyzPTffsJ2SMMtgFVJ2xWT0vLnISYvTFpBFEOhOm6XoawGKglC4YY8spciBzSNwllZDZvWA5iapCKyKC5DxDhKs521cI72pTU75T4fgqz6WQjGvOgAHVhCoc9iJel1OzYn10jCdJHEyPwNu2UNo0BjyirbaGDReNRYAAa1IXAoCu0gwRqYhOHaUhCFZ-D0GwABbbdcDBDmwAzWALo6LoemxIR9yoPG3vs5JGXSf0PAYkIMkDPY3J1-wNgcsmri7RJCj43BsAgOBRgEpnKBk6L6n8vhNYKmZ0goSzAm-Pwu2CGMTcKtj0i5FwGP8LwaMZnyTu9rqFRXEL1w1bPdSRYS-dm0c6XJ7I-Hcq5fx9EJW3owGDrDIIrhT540-eDPlyhbOkJzKLUKLp9uScrIPtjUJGLmauu1bcIDlCA3vxWVupQ64Szq7pU+7BQeKK9UNaa2T9PB-Gr22KoJw6CLII5X5NOo3sSJN60LPYHqb9Py2anF8IPggyMMgQGJvmcCsOyM8k5JDJlyA69F4ytTdqnNecNRJhWfj3HqkUdSdV3ggBi7oBTtkuMEEq5wo61V9E5I2YQLZ+hjIEO+vl06PzQUFF+EIRCkGdpwZQxB0BgF+JLd+phP6vX9m5U4CwaFAK2HMHs-1TY9hMtsVYdMAigwKAgyC7tkHMPhk-Nh2dcHPjcBxJOBsOLAOZGAmqvYyYUHCPRH0XoXBEMYe3WUj9jFky2ofD8EQT7kLfO6MIaxBRhnWKA24WjvJtyqCzdmnNua83oPzbmwtRYSyljLAg8tcF8mHN4GibJ9obB2Gfd0golEhwCFsIc7ixFimml-J8wQTKvnfMfb85CPxB19E4k4oRsjL3tkAA */ _xstate.createMachine({
+    context: {
+        /* NOTE that the context is really set by the parent machine, not here */ rovPeerIdEndNumber: 0,
+        attemptingNewRovPeerId: false,
+        thisPeer: null,
+        rovDataConnection: null
+    },
+    id: "peerConnection",
+    initial: "Not_Connected_To_Rov",
+    exit: "stopPeerConnectionEventHandler",
+    states: {
+        Not_Connected_To_Rov: {
+            entry: [
+                "showConnectingUi",
+                "connectToRovPeerAndStartPeerConnectionEventHandler"
+            ],
+            on: {
+                ROV_CONNECTION_ESTABLISHED: {
+                    target: "Connected_To_Rov"
+                },
+                ROV_PEER_CONNECTION_ERROR: {
+                    target: "Not_Connected_To_Rov",
+                    internal: false
+                }
+            }
+        },
+        Connected_To_Rov: {
+            entry: "showRovConnectedUi",
+            invoke: {
+                src: "awaitSwitchRovBtnPress"
+            },
+            type: "parallel",
+            states: {
+                DataChannel: {
+                    exit: "closeDownDataChannel",
+                    initial: "Data_Channel_Open",
+                    states: {
+                        Data_Channel_Disconnected: {
+                            entry: "showConnectingUi",
+                            invoke: {
+                                src: "watchForRovReconnect",
+                                id: "watchForRovReconnect"
+                            },
+                            on: {
+                                DATACHANNEL_ESTABLISHED: {
+                                    target: "Data_Channel_Open"
+                                },
+                                DATACHANNEL_TIMEOUT: {
+                                    target: "#peerConnection.Not_Connected_To_Rov"
+                                }
+                            }
+                        },
+                        Data_Channel_Open: {
+                            entry: "showRovConnectedUi",
+                            invoke: [
+                                {
+                                    src: "handleDataChannelEvents",
+                                    id: "handleDataChannelEvents"
+                                },
+                                {
+                                    src: "watchForRovDisconnect",
+                                    id: "watchForRovDisconnect"
+                                }, 
+                            ],
+                            on: {
+                                DATACHANNEL_DISCONNECT: {
+                                    target: "Data_Channel_Disconnected"
+                                },
+                                SEND_MESSAGE_TO_ROV: {
+                                    actions: "sendMessageToRov"
+                                },
+                                GOT_MESSAGE_FROM_ROV: {
+                                    actions: "gotMessageFromRov"
+                                }
+                            }
+                        }
+                    }
+                },
+                MediaChannel: {
+                    exit: [
+                        "closeDownMediaChannel",
+                        "hideLivestreamUi"
+                    ],
+                    initial: "Not_Open",
+                    states: {
+                        Not_Open: {
+                            description: 'ROV Will "Video Call" this plot, and that is hooked up to trigger the MEDIA_CHANNEL_ESTABLISHED transition',
+                            invoke: {
+                                src: "awaitMediaCall",
+                                id: "awaitMediaCall"
+                            },
+                            on: {
+                                MEDIA_CHANNEL_ESTABLISHED: {
+                                    actions: [
+                                        "setMediaChannel",
+                                        "showMediaChannelConnectedNotice", 
+                                    ],
+                                    target: "Media_Channel_Connected"
+                                }
+                            }
+                        },
+                        Media_Channel_Connected: {
+                            invoke: {
+                                src: "awaitVideoStream",
+                                id: "awaitVideoStream"
+                            },
+                            on: {
+                                VIDEO_STREAM_READY: {
+                                    actions: [
+                                        "setVideoStream",
+                                        "showGotVideoStreamNotice"
+                                    ],
+                                    target: "Video_Stream_Open"
+                                }
+                            }
+                        },
+                        Video_Stream_Open: {
+                        }
+                    },
+                    on: {
+                        MEDIA_CHANNEL_TIMEOUT: {
+                            target: "#peerConnection.Not_Connected_To_Rov"
+                        }
+                    }
+                }
+            },
+            on: {
+                ROV_PEER_CONNECTION_ERROR: {
+                    target: "Not_Connected_To_Rov"
+                },
+                CONNECT_TO_NEXT_ROBOT: {
+                    // target: "Asking_Pilot_to_Pick_From_Online_Rovs",
+                    actions: "switchToNextRovPeerId",
+                    target: "Not_Connected_To_Rov"
+                }
+            }
+        }
+    }
+}, {
     actions: {
-        showDisconnectedUi: ()=>{
-            _ui.showROVDisconnectedUI();
-        },
-        showConnectingUi: ()=>{
-            _ui.showROVConnectingUI();
-        },
+        showConnectingUi: _ui.showROVConnectingUi,
         showRovConnectedUi: (context, event)=>{
-            _ui.showROVConnectedUI(!!event.data ? event.data.peer : null);
-        },
-        showPeerServerConnectedNotice: ()=>{
-            _ui.showToastMessage("Connected to Peerjs Server!");
-        },
-        showPeerServerDisconnectedNotice: ()=>{
-            _ui.showToastMessage("Peerjs Server Disconnected");
+            _ui.showROVConnectedUi(event.data ? event.data.peer : null);
         },
         showMediaChannelConnectedNotice: ()=>{
             _ui.showToastMessage("ROV Media Channel Connected!");
@@ -8100,19 +11006,11 @@ const machineFunctions = {
         showGotVideoStreamNotice: ()=>{
             _ui.showToastMessage("Got ROV Video Stream!");
             _ui.hideLoadingUi();
+            _ui.showLivestreamUi();
         },
-        setThisPeer: _xstate.assign({
-            thisPeer: (context, event)=>{
-                return event.data;
-            }
-        }),
-        setDataChannel: _xstate.assign({
-            dataChannel: (context, event)=>{
-                const dataChannel = event.data;
-                console.log("setdataChannel", dataChannel);
-                return dataChannel;
-            }
-        }),
+        hideLivestreamUi: ()=>{
+            _ui.hideLivestreamUi();
+        },
         setMediaChannel: _xstate.assign({
             mediaChannel: (context, event)=>{
                 const mediaChannel = event.data;
@@ -8131,20 +11029,21 @@ const machineFunctions = {
                 return rovVideoStream;
             }
         }),
-        setRovPeerIdEndNumber: _xstate.assign({
-            rovPeerIdEndNumber: (context, event)=>{
-                return event.data;
-            }
-        }),
+        // setRovPeerIdEndNumber: assign({
+        //     rovPeerIdEndNumber: (context) => {
+        //         return context.rovPeerIdEndNumber + 1
+        //     },
+        //     attemptingNewRovPeerId: false,
+        // }),
         sendMessageToRov: (context, event)=>{
             const outgoingMessage = event.data;
-            const rovDataConnection = context.dataChannel;
+            const rovDataConnection = context.rovDataConnection;
             if (!rovDataConnection || !rovDataConnection.open || !rovDataConnection.peerConnection.iceConnectionState || rovDataConnection.peerConnection.iceConnectionState != "connected") {
                 console.warn("Tried to send message on closed data channel: ", outgoingMessage);
                 return;
             }
             console.log("Sending Datachannel Message: ", outgoingMessage);
-            const encodedMessage = _consts.messageEncoder.encode(outgoingMessage);
+            const encodedMessage = messageEncoder.encode(outgoingMessage);
             rovDataConnection.send(encodedMessage);
         },
         gotMessageFromRov: _xstate.sendParent((context, event)=>{
@@ -8154,122 +11053,42 @@ const machineFunctions = {
             };
         }),
         closeDownMediaChannel: (context)=>{
-            console.log("closing media chnl");
-            const thisPeer = context.thisPeer;
-            const mediaChannel = context.mediaChannel;
-            if (thisPeer) thisPeer.off("call", eventHandlerFunctions["MEDIA_CHANNEL_ESTABLISHED"]);
-            if (mediaChannel) {
-                mediaChannel.off("stream", eventHandlerFunctions["VIDEO_STREAM_READY"]);
-                mediaChannel.close();
-            }
+            console.info("Closing media channel...");
+            if (context.mediaChannel) context.mediaChannel.close();
         },
         closeDownDataChannel: (context)=>{
-            console.log("closing data chnl");
-            // context.thisPeer.off("open", );
-            if (context.dataChannel) context.dataChannel.close();
+            console.info("Closing data channel...");
+            if (context.rovDataConnection) context.rovDataConnection.close();
         },
-        cleanupPeerServerConnection: _xstate.assign({
-            thisPeer: (context)=>{
-                if (context.thisPeer) {
-                    context.thisPeer.off("open", eventHandlerFunctions["PEERJS_SERVER_CONNECTION_ESTABLISHED"]);
-                    context.thisPeer.off("error", eventHandlerFunctions["PEERJS_ERROR"]);
-                    context.thisPeer.destroy();
-                }
-                return null;
-            }
+        connectToRovPeerAndStartPeerConnectionEventHandler: _xstate.assign((context)=>{
+            const rovPeerId = _consts.ROV_PEERID_BASE + String(context.rovPeerIdEndNumber);
+            console.log("Connecting to ROV:" + rovPeerId);
+            const rovDataConnection = context.thisPeer.connect(rovPeerId, {
+                reliable: true,
+                serialization: 'none'
+            });
+            return {
+                rovDataConnection: rovDataConnection,
+                peerConnectionEventHandler: _xstate.spawn((sendStateChange)=>{
+                    const openHandler = _util.generateStateChangeFunction(sendStateChange, "ROV_CONNECTION_ESTABLISHED", rovDataConnection);
+                    const errorHandler = _util.generateStateChangeFunction(sendStateChange, "ROV_PEER_CONNECTION_ERROR", null, (err)=>console.log("ROV_PEER_CONNECTION_ERROR:", err)
+                    );
+                    rovDataConnection.on("open", openHandler);
+                    rovDataConnection.on("error", errorHandler);
+                    return ()=>{
+                        rovDataConnection.off("open", openHandler);
+                        rovDataConnection.off("error", errorHandler);
+                    };
+                }, "peerConnectionEventHandler")
+            };
         }),
-        reloadWebsite: ()=>{
-            setTimeout(()=>{
-                window.location.reload();
-            }, 2000);
-        }
+        stopPeerConnectionEventHandler: _actions.stop("peerConnectionEventHandler")
     },
     services: {
-        initPeerWithPeerjsServer: (context, event)=>{
-            return (sendStateChange, onReceive)=>{
-                const peerServer = new _peerjsDefault.default(null, context.peerServerConfig);
-                // peerServerOpenEventHandler = (ourRealPeerId) => {
-                //     console.log("PEERJS_SERVER_CONNECTION_ESTABLISHED! our PeerID:", ourRealPeerId, peerServer);
-                //     sendStateChange({
-                //         type: "PEERJS_SERVER_CONNECTION_ESTABLISHED",
-                //         data: peerServer
-                //     });
-                // }
-                // peerServerErrorEventHandler = (err) => {
-                //     console.log("PEERJS_SERVER_ERRORr:", err, event);
-                //     sendStateChange({
-                //         type: "PEERJS_ERROR",
-                //         data: { source: "peer_server_error", error: err }
-                //     });
-                // }
-                const openHandler = generateStateChangeFunction(sendStateChange, "PEERJS_SERVER_CONNECTION_ESTABLISHED", peerServer);
-                const errHandler = generateStateChangeFunction(sendStateChange, "PEERJS_ERROR", null, console.log);
-                peerServer.on("open", openHandler);
-                peerServer.on("error", errHandler);
-                return ()=>{
-                    peerServer.off("open", openHandler);
-                    peerServer.off("error", errHandler);
-                };
-            };
-        },
-        reconnectToPeerServer: (context, event)=>{
-            return (sendStateChange, onReceive)=>{
-                _ui.showLoadingUi("Reconnecting to peer server...");
-                context.thisPeer.reconnect();
-            };
-        },
-        handlePeerJsServerError: (context, event)=>{
-            return (sendStateChange, onReceive)=>{
-                // const errSource = event.data.source;
-                // if (errSource != "peer_server_error") return
-                const err = event.data;
-                if (err.type == 'browser-incompatible') {
-                    alert('Your web browser does not support some WebRTC features, please use a newer / different browser.');
-                    sendStateChange({
-                        type: "WEBRTC_FATAL_ERROR"
-                    });
-                } else if (err.type == "webrtc") {
-                    _ui.showToastMessage("WebRTC protocol error! Reloading website now...");
-                    sendStateChange({
-                        type: "WEBRTC_FATAL_ERROR"
-                    });
-                } else if (err.type == "peer-unavailable") sendStateChange({
-                    type: "PEERJS_TEMPORARY_ERROR",
-                    data: err
-                });
-                else {
-                    sendStateChange({
-                        type: "PEERJS_SERVER_CONNECTION_CLOSED"
-                    });
-                    _ui.showToastMessage("Peerjs Server Error: " + err.type);
-                    console.dir("Peerjs Server Error: ", err);
-                }
-                return ()=>{
-                };
-            };
-        },
-        connectToRovPeer: (context, event)=>{
-            return (sendStateChange, onReceive)=>{
-                var rovPeerId = _consts.rovPeerIdBase + String(context.rovPeerIdEndNumber);
-                console.log(rovPeerId, context.thisPeer);
-                const rovDataConnection = context.thisPeer.connect(rovPeerId, {
-                    reliable: true,
-                    serialization: 'none'
-                });
-                const openHandler = generateStateChangeFunction(sendStateChange, "ROV_CONNECTION_ESTABLISHED", rovDataConnection);
-                const errorHandler = generateStateChangeFunction(sendStateChange, "PEERJS_ERROR", null);
-                rovDataConnection.on("open", openHandler);
-                rovDataConnection.on("error", console.log);
-                return ()=>{
-                    rovDataConnection.off("open", openHandler);
-                    rovDataConnection.off("error", console.log);
-                };
-            };
-        },
-        awaitMediaCall: (context, event)=>{
-            return (sendStateChange, onReceive)=>{
+        awaitMediaCall: (context)=>{
+            return (sendStateChange)=>{
                 _ui.showLoadingUi("Waiting for ROV livestream...");
-                const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection)=>{
+                const callHandler = _util.generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection)=>{
                     _ui.showToastMessage('Got media call from peer: ' + rovMediaConnection.peer);
                     rovMediaConnection.answer(null, {
                     });
@@ -8277,56 +11096,38 @@ const machineFunctions = {
                 context.thisPeer.on('call', callHandler);
                 const timeoutId = setTimeout(()=>{
                     sendStateChange({
-                        type: "ROV_PEER_CONNECTION_ERROR",
-                        data: {
-                            type: "timeout",
-                            error: "Timeout waiting for video stream"
-                        }
+                        type: "MEDIA_CHANNEL_TIMEOUT"
                     });
                 }, 16000);
                 return ()=>{
                     clearTimeout(timeoutId);
+                    context.thisPeer.off('call', callHandler);
                 };
             };
         },
-        awaitVideoStream: (context, event)=>{
-            return (sendStateChange, onReceive)=>{
+        awaitVideoStream: (context)=>{
+            return (sendStateChange)=>{
                 console.log("Awaiting video stream from ROV...");
-                const videoReadyHandler = generateStateChangeFunction(sendStateChange, "VIDEO_STREAM_READY");
+                const videoReadyHandler = _util.generateStateChangeFunction(sendStateChange, "VIDEO_STREAM_READY");
                 context.mediaChannel.on('stream', videoReadyHandler);
                 const timeoutId = setTimeout(()=>{
                     sendStateChange({
-                        type: "ROV_PEER_CONNECTION_ERROR",
-                        data: {
-                            type: "timeout",
-                            error: "Timeout waiting for video stream"
-                        }
+                        type: "MEDIA_CHANNEL_TIMEOUT"
                     });
                 }, 16000);
                 return ()=>{
                     clearTimeout(timeoutId);
+                    context.mediaChannel.off('stream', videoReadyHandler);
                 };
             };
         },
-        handlePeerSeverEvents: (context, event)=>{
-            return (sendStateChange, onReceive)=>{
-                const errorHandler = generateStateChangeFunction(sendStateChange, "PEERJS_ERROR");
-                const disconnectedHandler = generateStateChangeFunction(sendStateChange, "PEERJS_SERVER_DISCONNECTED");
-                context.thisPeer.on("disconnected", disconnectedHandler);
-                context.thisPeer.on("error", errorHandler);
-                return ()=>{
-                    context.thisPeer.off("disconnected", disconnectedHandler);
-                    context.thisPeer.off("error", errorHandler);
-                };
-            };
-        },
-        handleDataChannelEvents: (context, event)=>{
-            return (sendStateChange, onReceive)=>{
-                const rovDataConnection = context.dataChannel;
+        handleDataChannelEvents: (context)=>{
+            return (sendStateChange)=>{
+                const rovDataConnection = context.rovDataConnection;
                 // handle new messages from the datachannel (comming FROM the rov)
                 console.log("handleDataChannelEvents:", rovDataConnection);
                 const dataMsgRecivedHandler = (encodedMessage)=>{
-                    message = _consts.messageDecoder.decode(encodedMessage);
+                    const message = messageDecoder.decode(encodedMessage);
                     sendStateChange({
                         type: "GOT_MESSAGE_FROM_ROV",
                         data: message
@@ -8339,11 +11140,11 @@ const machineFunctions = {
                 };
             };
         },
-        watchForRovDisconnect: (context, event)=>{
-            return (sendStateChange, onReceive)=>{
-                const rovDataConnection = context.dataChannel;
+        watchForRovDisconnect: (context)=>{
+            return (sendStateChange)=>{
+                const rovDataConnection = context.rovDataConnection;
                 // every second (interval 1000) check if the datachannel peer connection has disconnected
-                intervalId = setInterval(()=>{
+                const intervalId = setInterval(()=>{
                     const connectionState = rovDataConnection.peerConnection ? rovDataConnection.peerConnection.iceConnectionState : "disconnected";
                     if (connectionState == "disconnected") sendStateChange("DATACHANNEL_DISCONNECT");
                 }, 1000);
@@ -8353,15 +11154,15 @@ const machineFunctions = {
                 };
             };
         },
-        watchForRovReconnect: (context, event)=>{
-            return (sendStateChange, onReceive)=>{
-                const rovDataConnection = context.dataChannel;
+        watchForRovReconnect: (context)=>{
+            return (sendStateChange)=>{
+                const rovDataConnection = context.rovDataConnection;
                 var datachannelTimeoutCountdown = 10;
                 var lastIceConnectionState = "disconnected";
                 // every second (interval 1000) check if the datachannel peer connection is still disconnected
-                // if it's disconnected: count down a timeout counter, if it's still not connected after the timeout, then fire the ROV_PEER_CONNECTION_ERROR event
+                // if it's disconnected: count down a timeout counter, if it's still not connected after the timeout, then fire the DATACHANNEL_TIMEOUT event
                 // if it connects: reset the countdown.
-                intervalId = setInterval(()=>{
+                const intervalId = setInterval(()=>{
                     const connectionState = rovDataConnection.peerConnection ? rovDataConnection.peerConnection.iceConnectionState : "disconnected";
                     if (connectionState == "disconnected") {
                         datachannelTimeoutCountdown--;
@@ -8374,11 +11175,7 @@ const machineFunctions = {
                     lastIceConnectionState = connectionState;
                     // If we have waited too long without the rov reconnecting
                     if (datachannelTimeoutCountdown <= 0) sendStateChange({
-                        type: "DATACHANNEL_TIMEOUT",
-                        data: {
-                            type: "timeout",
-                            error: "Timeout waiting for data channel to reconnect"
-                        }
+                        type: "DATACHANNEL_TIMEOUT"
                     });
                 }, 1000);
                 return ()=>{
@@ -8387,317 +11184,207 @@ const machineFunctions = {
                 };
             };
         },
-        awaitDisconnectBtnPress: (context, event)=>{
-            return (sendStateChange, onReceive)=>{
-                const cleanupFunc = _ui.setupDisconnectBtnClickHandler(()=>{
-                    sendStateChange("CLEANUP_CONNECTIONS");
-                });
-                return cleanupFunc;
-            };
-        },
-        awaitROVConnectBtnPress: (context, event)=>{
-            return (sendStateChange, onReceive)=>{
-                const err = event.data;
-                console.log(event);
-                var toastMsg = null;
-                if (err && err.type == "peer-unavailable") toastMsg = _ui.showToastDialog("ROV is not yet online!", 12000, false);
-                const cleanupFunc = _ui.setupConnectBtnClickHandler(()=>{
-                    if (toastMsg) toastMsg.hideToast();
-                    sendStateChange("CONNECT_BUTTON_PRESSED");
-                });
-                return cleanupFunc;
-            };
-        },
-        awaitSwitchRovBtnPress: (context, event)=>{
-            return (sendStateChange, onReceive)=>{
-                const cleanupFunc = _ui.setupSwitchRovBtnClickHandler(()=>{
-                    sendStateChange("CONNECTED_TO_WRONG_ROV");
-                });
-                return cleanupFunc;
-            };
-        },
-        chooseROVPopup: (context, event)=>{
+        awaitSwitchRovBtnPress: ()=>{
             return (sendStateChange)=>{
-                _ui.showLoadingUi("Finding Online ROVs...");
-                context.thisPeer.listAllPeers((peerIds)=>{
-                    _ui.hideLoadingUi();
-                    console.log("peerIds:", peerIds);
-                    const toastPopup = showChoiceDialog("Choose ROV", peerIds, (peerId)=>{
-                        console.log("chosen peerId:", peerId);
-                        toastPopup.hideToast();
-                        sendStateChange({
-                            type: "ROV_PEER_CHOSEN",
-                            data: peerId
-                        });
-                    });
+                const cleanupFunc = _ui.setupSwitchRovBtnClickHandler(()=>{
+                    sendStateChange("CONNECT_TO_NEXT_ROBOT");
                 });
+                return cleanupFunc;
             };
         }
-    },
-    guards: {
     }
-};
-const rovConnectionMachine = /** @xstate-layout N4IgpgJg5mDOIC5QCUDyA1AwgewHa7AGMAXASzwDpkBXfU3KCgBTDACcB9AZXYDd2OOfETKUActmKC8BEpA4AVbBxbsAVrG592AYiYBRfcgBSXbkfRHBqMWP2YFASRsd9XBQEEAQgBlHXAAl9ABFEUAAHbFhSUVwwkAAPRABGAAYANgoATgAOdIBWDNSAFnzinKzKgBoQAE9EfPyAZgpGsoB2LOTc5tT2gF9+mrQsGRFyXCpaXHpGVU4eNn5OIVlYigkpVZF5JRVWNg0tJd0DI1NXZDRkeMjo2PikhGTkgta8rPTPrNLk4pr6ghiuliq12n9Kvl2jkmjl2sUmoNhhhtiQJlM6AxmAdjstpMI0ZRUcRdsp5kdFss9IYTGYjNdblEYhNHilXpksiVkgAmJrpJrJdrc5oAxDA-IUIUvaHpYWlbkgpEgEbE9E0TFzHGUgSqoljOQQRRkg4U7RsannMxcCxWYL+TA2OwOEKM+4spCJFKpOEUbqcl7pCpZeHc0UIKHJX0BkHtVJNcpNRFDZUo-XrdUzLHzXE6tNqoh5hgcYjG9SabXms608zISzIay2exOFxuTy+fxBUIeu7MvCs56pfJZSXtJpx17cypZfI5MOByMVaEZYHFcqK5MqvOUDOzbECCv4tb5wiFqDF0uHctmi3V+moG7dpkPD1PZIznIUOFZWFNXL89pCmG5QSoUWTctygpLuCORKpuBLptMu7ZgeuqTAEACGuAQAANrMrhsGw2CVjSFzWrWVgOo2DjOGIgg+Kg1pdhET7uqAr6pBxkpxtyHE8RO1R1IgTQQRQ3I5IUPJCgK3pZLBqbwWqiFYsg2C8PsuYKeIkiHjshp7OSV4nMRlo1nWDZOs2tGtt4fiBC6j5un2L4NMkLT5AU3orrK7T8mGaTdL6nJgakgpdOCskbvJR7bkpjAqWp2aoRQHiwAA1nhTCkNh2kliopCEKlHAAGKEQAthwqC4LhBAcPFsA6CMKg0oIAQMfoYiur2cTOc8PHcu84nlJ00rpGGPyZDKEbevGfzFHJoyaZMO7Kap6krFukybDpBpGrVqkNRg5lNjRrjuDZHb2cxjndWxiBdMOJRSd+Lzxl0fk8W5sKjsUcZNI08LzUly1xatiUbRQxKkntvAUME6HEOhmAABaYQQ2Gw-D6GCCjwjYRwwSkLAJ7wZAOjBB4niYAEHiNj4p1trZnadc+t0IBULT8sULw-JOqSfKGgnPNCkZ-DkMLQty4I8oD4PA1QoM4klkN6co8UYwjyOo2A6Nwwj2Na3jBNE2mpPk5T1O04ojgALL6KgACqCjM6xnq9X9FACl0XyclzIVNH5fqSsKMKuXzjRJsiC3RUtsXywlivg8ru1q7riM42j6tY5ruMVeEYC4GTFMeFTNN2HTdpcJRFnO05rMVBNBScjCxRCvy-uC8kcItHzHHpH03xfBHKZR+MMUanHa3besSd7CnmPZxnqf6znqB5wX1piMEHC21wXAeAA4voiioLVGA1zdrsIu0FDpIPwXfekkl+UO-U8mBCKrk07RlMkMuLRimYQbxw0tHCGJsVbQ0zgvbWmdl5o1zvnHQ+9UAKG3m4Peh9ipoGtqfdA59+y32vtBfIvJgQ5DSNyf4HcZz9RyD9SchQSgtzFn-UBct4qTyVuA5OqkKDW0gKQNOBsNjaVXog22doPAtVLvoOm1l2x2SYiAHsLNXYkOvvOL+4JfxDj5GGCCnRshxh+CQ38cZb6sNHjHceHCwb-xnqrXh-CICCOgejZxgi4HaynqTdAjhgh224AoZA+gPA4JCR4YIABNfBPUeQVAoBkGE-p3IcWKALQEEE8iSm6DxIcgpSiWMJNYwBE87GgIcdDA66AmoUUdMdFsVx7yxNZn3CUiYhrfj4quLIAcEmrjKPQ6cgoxJFIQjYhWICrFgJJhA+KOgq5NhCMfDgAB1NAYh964Jaa7N8qRX6-inHKDIf0A4AVaLyCCvQwosMiiPYpADdy2ITotG8pEbT1kWdRFwmB6KMR2a+fIkYQR-V5J8WE4ERSC2nKkT8QpyHFFyEKToc07lA1ijoVZ+gvDIAUJgYqRc5FNIfFdLq-Y-QfkqP5TuncviAUFtCUEBS8hcyXOQ7kYzFIajeWYBQ+hrZMHvB4ZAUTLgMgcmSuJlQPwtwDH8UcCo3od26G5dyVyOlpG-pysegCFk+FCWIe2TAjrfLEFwAFiA+KwqSaOGEsIQSrneu5D2cJOhdC5mkXI2rJgeAAO7oWZEWRqxIOBeGoMQEsuAVBsDgPVL5qCvCOwUC4JgITd6XWUSxWurtLn9SHGUPu-I0hiyoYCVyuRWicnhVCcSAFBjJlwNgCAcB4hwTYbHZCZop7oi2pUgyOY2AWoHC0VyM4XjkNeCFXkYYxwfjSIGEEyTJwQVRZHdF49O1GW7XqWZu1+0ViHSQ0EiLxK3yBYUOEyQwz-VElCSW45II+W9Y8rMWou1AwLApIsuV91miHW+eMrQXh8z7oqzoGSGhClaO5KEo5CjQnIc+uWm68RJQwlhaqZ59AESIv+oFx7wSDJbmOYSM6gWSkaF0F49DWVIY7W+rdqEh2GNHROidfceTtzLXQ6DBTugwknDyVdw912lOeVMh5vbuH6RNIZZY-70jXxeGUHoiqSF-D8n0WFzRGVpAhaudIdGJnAPWv-FK6UiyZWylIH9+VColWwOVSq1UwDQ3gBK1Rr5gSwsTB0P6j9BT5DGnyT8cYe7ekobyX+aLZax3E6Z0BUnd2z1UkOsCGj0nikFEUWEY1JwUBXLGMOeSv5GbE5MhL0zKlzw1unGBS83H40JsTNYkB-38Yo3zEtfIciDiCx3Jcvokn90bpUMrTyKvbsmNV3hqc3GwMa2Ii+KiXZPFlb6OE4lxIySuX5Uc18Si8jhF8KE+zxsrRM1NmZrW5mzfnnV7CQ6uYczvjxB+T8O6lGHGJI9lCehxnO0AzhidpOOJhh4oRuMRFSCW3h-qVyfInbaMKdo+jXgjtvl0kovEYSA7KS8ipoPIEQ-mxDrxeNlZDrhLCoUlCW4-Z8m+NHYFEkCmEsGExgY8fxauzN8HAjIcZ3QKQZtyguDEBjehJza88M8b6L13IfIuZvf0eBY9g5fMzhIe5bnk2uHJbB3wgXbj-1iVEm+RH05kdQn0cYm+0pCiUd7sJtt0z2F65Bwb6G-6Sjm6hJjto2vUcd185KMcncjnqJd1FN3cWPeLSp7ChHAfrfB8BHQ49VvwIfAgtOQHh6JSsfHQGKdXGhLX1hOHBU9qxZnZi--VZYAABGbBiCEGKpjPG2HCKDo86tlIwYR3fz6I-TkKPRqCxnLC+uwoYN9188+v1AayBBsOiGsNEa8DRtjUO7Pw4ESPRjImMSZfngdeBLkfZb2wKCm9UOgUvo-psZL5xsMABad2M4+TdAyGJPIMF60gA */ _xstate.createMachine({
+});
+
+},{"xstate":"2sk4t","./ui":"efi6n","./util":"doATT","./consts":"2J0f1","xstate/lib/actions":"b9dCp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3YceA":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "peerServerConnMachine", ()=>peerServerConnMachine
+);
+var _xstate = require("xstate");
+var _actions = require("xstate/lib/actions");
+var _peerjs = require("peerjs");
+var _peerjsDefault = parcelHelpers.interopDefault(_peerjs);
+// import * as consts from "./consts";
+var _util = require("./util");
+var _ui = require("./ui");
+// showROVDisconnectedUi, showROVConnectingUi, showROVConnectedUi, setupConnectBtnClickHandler, showToastDialog, hideLoadingUi, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandler
+const FATAL_PEER_ERROR_TYPES = [
+    "network",
+    "unavailable-id",
+    "invalid-id",
+    "invalid-key",
+    "browser-incompatible",
+    "webrtc",
+    "server-error",
+    "ssl-unavailable",
+    "socket-error",
+    "socket-closed"
+];
+const peerServerConnMachine = _xstate.createMachine({
     context: {
         /* NOTE that the context is really set by the parent machine, not here */ peerServerConfig: null,
         peerConnectionTimeout: 0,
-        rovPeerIdEndNumber: 0,
         thisPeer: null,
-        dataChannel: null,
-        mediaChannel: null,
-        videoStream: null
+        peerServerEventsHandler: null
     },
-    id: "ROVConnection",
-    initial: "Running",
+    id: "peerServerConnection",
+    initial: "Not_Connected_To_Peer_Server",
+    exit: [
+        "stopPeerServerEventsHandler",
+        "cleanupPeerServerConnection"
+    ],
     states: {
-        Running: {
-            invoke: {
-                src: "awaitDisconnectBtnPress",
-                id: "awaitDisconnectBtnPress"
-            },
-            type: "parallel",
-            states: {
-                Peer_Server_Connection: {
-                    exit: "cleanupPeerServerConnection",
-                    initial: "Not_Connected_To_Peerjs_Server",
-                    states: {
-                        Not_Connected_To_Peerjs_Server: {
-                            invoke: {
-                                src: "initPeerWithPeerjsServer",
-                                id: "initPeerWithPeerjsServer"
-                            },
-                            on: {
-                                PEERJS_SERVER_CONNECTION_ESTABLISHED: {
-                                    actions: [
-                                        "setThisPeer",
-                                        "showPeerServerConnectedNotice"
-                                    ],
-                                    target: "#ROVConnection.Running.Peer_Server_Connection.Connected_To_Peerjs_Server"
-                                },
-                                PEERJS_ERROR: {
-                                    target: "#ROVConnection.Running.Peer_Server_Connection.Handling_Error"
-                                }
-                            }
-                        },
-                        Connected_To_Peerjs_Server: {
-                            invoke: {
-                                src: "handlePeerSeverEvents",
-                                id: "handlePeerSeverEvents"
-                            },
-                            on: {
-                                PEERJS_ERROR: {
-                                    target: "#ROVConnection.Running.Peer_Server_Connection.Handling_Error"
-                                },
-                                PEERJS_SERVER_DISCONNECTED: {
-                                    actions: "showPeerServerDisconnectedNotice",
-                                    target: "#ROVConnection.Running.Peer_Server_Connection.Reconnecting_to_Peerjs_Server"
-                                }
-                            }
-                        },
-                        Reconnecting_to_Peerjs_Server: {
-                            invoke: {
-                                src: "reconnectToPeerServer"
-                            },
-                            on: {
-                                PEERJS_SERVER_CONNECTION_ESTABLISHED: {
-                                    actions: "showPeerServerConnectedNotice",
-                                    target: "#ROVConnection.Running.Peer_Server_Connection.Connected_To_Peerjs_Server"
-                                },
-                                PEERJS_ERROR: {
-                                    target: "#ROVConnection.Running.Peer_Server_Connection.Handling_Error"
-                                }
-                            }
-                        },
-                        Handling_Error: {
-                            invoke: {
-                                src: "handlePeerJsServerError"
-                            },
-                            on: {
-                                PEERJS_SERVER_CONNECTION_CLOSED: {
-                                    actions: "cleanupPeerServerConnection",
-                                    target: "#ROVConnection.Running.Peer_Server_Connection.Not_Connected_To_Peerjs_Server"
-                                }
-                            }
-                        }
-                    }
-                },
-                Rov_Peer_Connection: {
-                    initial: "Not_Connected_To_Peerjs_Server",
-                    states: {
-                        Not_Connected_To_Peerjs_Server: {
-                            on: {
-                                PEERJS_SERVER_CONNECTION_ESTABLISHED: {
-                                    target: "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Rov"
-                                }
-                            }
-                        },
-                        Asking_Pilot_to_Pick_From_Online_Rovs: {
-                            invoke: {
-                                src: "chooseROVPopup",
-                                id: "chooseROVPopup"
-                            },
-                            on: {
-                                ROV_PEER_CHOSEN: {
-                                    actions: "setRovPeerIdEndNumber",
-                                    target: "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Rov"
-                                }
-                            }
-                        },
-                        Not_Connected_To_Rov: {
-                            entry: "showConnectingUi",
-                            invoke: {
-                                src: "connectToRovPeer"
-                            },
-                            on: {
-                                ROV_CONNECTION_ESTABLISHED: {
-                                    actions: "setDataChannel",
-                                    target: "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov"
-                                }
-                            }
-                        },
-                        Connected_To_Rov: {
-                            entry: "showRovConnectedUi",
-                            type: "parallel",
-                            invoke: {
-                                src: "awaitSwitchRovBtnPress"
-                            },
-                            states: {
-                                DataChannel: {
-                                    exit: "closeDownDataChannel",
-                                    initial: "Data_Channel_Open",
-                                    states: {
-                                        Data_Channel_Disconnected: {
-                                            entry: "showConnectingUi",
-                                            invoke: {
-                                                src: "watchForRovReconnect"
-                                            },
-                                            on: {
-                                                DATACHANNEL_ESTABLISHED: {
-                                                    target: "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Data_Channel_Open"
-                                                },
-                                                DATACHANNEL_TIMEOUT: {
-                                                    target: "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Rov"
-                                                }
-                                            }
-                                        },
-                                        Data_Channel_Open: {
-                                            entry: "showRovConnectedUi",
-                                            invoke: [
-                                                {
-                                                    src: "handleDataChannelEvents",
-                                                    id: "handleDataChannelEvents"
-                                                },
-                                                {
-                                                    src: "watchForRovDisconnect",
-                                                    id: "watchForRovDisconnect"
-                                                }, 
-                                            ],
-                                            on: {
-                                                DATACHANNEL_DISCONNECT: {
-                                                    target: "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.DataChannel.Data_Channel_Disconnected"
-                                                },
-                                                SEND_MESSAGE_TO_ROV: {
-                                                    actions: "sendMessageToRov"
-                                                },
-                                                GOT_MESSAGE_FROM_ROV: {
-                                                    actions: "gotMessageFromRov"
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                MediaChannel: {
-                                    exit: "closeDownMediaChannel",
-                                    initial: "Not_Open",
-                                    states: {
-                                        Not_Open: {
-                                            description: 'ROV Will "Video Call" this plot, and that is hooked up to trigger the MEDIA_CHANNEL_ESTABLISHED transition',
-                                            invoke: {
-                                                src: "awaitMediaCall",
-                                                id: "awaitMediaCall"
-                                            },
-                                            on: {
-                                                MEDIA_CHANNEL_ESTABLISHED: {
-                                                    actions: [
-                                                        "setMediaChannel",
-                                                        "showMediaChannelConnectedNotice", 
-                                                    ],
-                                                    target: "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.MediaChannel.Media_Channel_Connected"
-                                                }
-                                            }
-                                        },
-                                        Media_Channel_Connected: {
-                                            invoke: {
-                                                src: "awaitVideoStream",
-                                                id: "awaitVideoStream"
-                                            },
-                                            on: {
-                                                VIDEO_STREAM_READY: {
-                                                    actions: [
-                                                        "setVideoStream",
-                                                        "showGotVideoStreamNotice", 
-                                                    ],
-                                                    target: "#ROVConnection.Running.Rov_Peer_Connection.Connected_To_Rov.MediaChannel.Video_Stream_Open"
-                                                }
-                                            }
-                                        },
-                                        Video_Stream_Open: {
-                                        }
-                                    }
-                                }
-                            },
-                            on: {
-                                ROV_PEER_CONNECTION_ERROR: {
-                                    target: "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Rov"
-                                },
-                                CONNECTED_TO_WRONG_ROV: {
-                                    target: "#ROVConnection.Running.Rov_Peer_Connection.Asking_Pilot_to_Pick_From_Online_Rovs"
-                                }
-                            }
-                        }
-                    },
-                    on: {
-                        PEERJS_SERVER_CONNECTION_CLOSED: {
-                            target: "#ROVConnection.Running.Rov_Peer_Connection.Not_Connected_To_Peerjs_Server"
-                        }
-                    }
-                }
-            },
+        Not_Connected_To_Peer_Server: {
+            entry: [
+                "setupPeerAndStartPeerServerEventsHandler"
+            ],
             on: {
-                WEBRTC_FATAL_ERROR: {
-                    target: "#ROVConnection.Webrtc_Fatal_Error"
+                PEER_SERVER_CONNECTION_ESTABLISHED: {
+                    target: "#peerServerConnection.Connected_To_Peer_Server"
                 },
-                PEERJS_TEMPORARY_ERROR: {
-                    target: "#ROVConnection.Awaiting_ROV_Connect_Button_Press"
-                },
-                CLEANUP_CONNECTIONS: {
-                    target: "#ROVConnection.Awaiting_ROV_Connect_Button_Press"
+                PEERJS_ERROR: {
+                    target: "#peerServerConnection.Handling_Error"
                 }
             }
         },
-        Webrtc_Fatal_Error: {
+        Connected_To_Peer_Server: {
             entry: [
-                "showDisconnectedUi",
-                "reloadWebsite"
+                "showPeerServerConnectedNotice",
+                "notifyParentOfPeerServerConnection"
             ],
-            type: "final"
-        },
-        Awaiting_ROV_Connect_Button_Press: {
-            entry: "showDisconnectedUi",
-            exit: "showConnectingUi",
             invoke: {
-                src: "awaitROVConnectBtnPress"
+                src: "handlePeerSeverEvents",
+                id: "handlePeerSeverEvents"
             },
             on: {
-                CONNECT_BUTTON_PRESSED: {
-                    target: "#ROVConnection.Running"
+                PEERJS_ERROR: {
+                    target: "#peerServerConnection.Handling_Error"
+                },
+                PEER_SERVER_DISCONNECTED: {
+                    actions: "showPeerServerDisconnectedNotice",
+                    target: "#peerServerConnection.Reconnecting_to_Peer_Server"
+                }
+            }
+        },
+        Reconnecting_to_Peer_Server: {
+            invoke: {
+                src: "reconnectToPeerServer",
+                id: "reconnectToPeerServer"
+            },
+            on: {
+                PEER_SERVER_CONNECTION_ESTABLISHED: {
+                    actions: "showPeerServerConnectedNotice",
+                    target: "#peerServerConnection.Connected_To_Peer_Server"
+                },
+                PEERJS_ERROR: {
+                    target: "#peerServerConnection.Handling_Error"
+                }
+            }
+        },
+        Handling_Error: {
+            entry: "handlePeerServerError",
+            on: {
+                PEER_SERVER_CONNECTION_CLOSED: {
+                    actions: [
+                        "cleanupPeerServerConnection"
+                    ],
+                    target: "#peerServerConnection.Not_Connected_To_Peer_Server"
                 }
             }
         }
     }
-}, machineFunctions);
+}, {
+    actions: {
+        showPeerServerConnectedNotice: ()=>{
+            _ui.showToastMessage("Connected to Peerjs Server!");
+        },
+        showPeerServerDisconnectedNotice: ()=>{
+            _ui.showToastMessage("Peerjs Server Disconnected");
+        },
+        // setupThisPeerWithPeerServer: assign({
+        // }),
+        notifyParentOfPeerServerConnection: _xstate.sendParent((context)=>{
+            return {
+                type: "PEER_SERVER_CONNECTION_ESTABLISHED",
+                data: context.thisPeer
+            };
+        }),
+        handlePeerServerError: _actions.pure((context, event)=>{
+            const err = event.data;
+            if (err.type == 'browser-incompatible') {
+                alert('Your web browser does not support some WebRTC features. Please use a newer or different browser.');
+                return _xstate.sendParent({
+                    type: "WEBRTC_FATAL_ERROR"
+                });
+            } else if (err.type == "webrtc") {
+                _ui.showToastMessage("WebRTC protocol error! Reloading website now...");
+                return _xstate.sendParent({
+                    type: "WEBRTC_FATAL_ERROR"
+                });
+            } else if (err.type == "peer-unavailable") return _xstate.sendParent({
+                type: "PEER_NOT_YET_READY_ERROR",
+                data: err
+            });
+            else if (FATAL_PEER_ERROR_TYPES.includes(err.type)) {
+                _ui.showToastMessage("Peerjs Server Fatal Error: " + err.type + " Restarting...");
+                return _xstate.sendParent({
+                    type: "PEER_SERVER_FATAL_ERROR"
+                });
+            } else {
+                _ui.showToastMessage("Peerjs Server Error: " + err.type + " Restarting...");
+                console.dir("Peerjs Server Error: ", err);
+                return _xstate.send({
+                    type: "PEER_SERVER_CONNECTION_CLOSED"
+                });
+            }
+        }),
+        cleanupPeerServerConnection: _xstate.assign({
+            thisPeer: (context)=>{
+                if (context.thisPeer) context.thisPeer.destroy();
+                return null;
+            }
+        }),
+        setupPeerAndStartPeerServerEventsHandler: _xstate.assign((context)=>{
+            const thisPeer = new _peerjsDefault.default(null, context.peerServerConfig);
+            return {
+                thisPeer: thisPeer,
+                peerServerEventsHandler: _xstate.spawn((sendStateChange)=>{
+                    const openHandler = _util.generateStateChangeFunction(sendStateChange, "PEER_SERVER_CONNECTION_ESTABLISHED", thisPeer);
+                    const errHandler = _util.generateStateChangeFunction(sendStateChange, "PEERJS_ERROR", null, console.log);
+                    thisPeer.on("open", openHandler);
+                    thisPeer.on("error", errHandler);
+                    return ()=>{
+                        thisPeer.off("open", openHandler);
+                        thisPeer.off("error", errHandler);
+                    };
+                }, "peerServerEventsHandler")
+            };
+        }),
+        stopPeerServerEventsHandler: stop("peerServerEventsHandler")
+    },
+    services: {
+        handlePeerSeverEvents: (context)=>{
+            return (sendStateChange)=>{
+                const errorHandler = _util.generateStateChangeFunction(sendStateChange, "PEERJS_ERROR");
+                const disconnectedHandler = _util.generateStateChangeFunction(sendStateChange, "PEER_SERVER_DISCONNECTED");
+                context.thisPeer.on("disconnected", disconnectedHandler);
+                context.thisPeer.on("error", errorHandler);
+                return ()=>{
+                    context.thisPeer.off("disconnected", disconnectedHandler);
+                    context.thisPeer.off("error", errorHandler);
+                };
+            };
+        },
+        reconnectToPeerServer: (context)=>{
+            return ()=>{
+                _ui.showLoadingUi("Reconnecting to peer server...");
+                context.thisPeer.reconnect();
+            };
+        }
+    }
+});
 
-},{"xstate":"2sk4t","xstate/lib/actions":"b9dCp","./ui":"efi6n","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","peerjs":"jvZeO","./consts":"2J0f1"}],"jvZeO":[function(require,module,exports) {
+},{"xstate":"2sk4t","xstate/lib/actions":"b9dCp","peerjs":"jvZeO","./util":"doATT","./ui":"efi6n","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jvZeO":[function(require,module,exports) {
 parcelRequire = (function(e1, r1, t1, n1) {
     var i1, o = "function" == typeof parcelRequire && parcelRequire, u = "function" == typeof require && undefined;
     function f(t, n) {
@@ -13861,9230 +16548,6 @@ parcelRequire = (function(e1, r1, t1, n1) {
 ], null) //# sourceMappingURL=/peerjs.min.js.map
 ;
 
-},{}],"2YxSr":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "initGamepadSupport", ()=>initGamepadSupport
-);
-var _joymap = require("joymap");
-var _joymapDefault = parcelHelpers.interopDefault(_joymap);
-const DEFAULT_GAMEPAD_HELP_MSG = "Press any button on your controller or onscreen.";
-const DEFUALT_BUTTON_ORDER = [
-    "A",
-    "B",
-    "X",
-    "Y",
-    "L1",
-    "R1",
-    "L2",
-    "R2",
-    "select",
-    "start",
-    "stick_button_left",
-    "stick_button_right",
-    "dpadUp",
-    "dpadDown",
-    "dpadLeft",
-    "dpadRight"
-];
-// Gamepad help section
-var gamepadHelpVisible = false;
-const gamepadHelpText = document.getElementById("gamepad-help-text");
-function setupGamepadHelp() {
-    var gamepadContainer = document.getElementById("gamepad-container");
-    var gamepadHelpToggleButton = document.getElementById("gamepad-help-button");
-    gamepadHelpToggleButton.onclick = ()=>{
-        if (gamepadHelpVisible == false) {
-            gamepadContainer.classList.add("help-open");
-            gamepadHelpToggleButton.innerText = "Close Help";
-            gamepadHelpText.innerText = 'Press or click any button to see help';
-        } else {
-            gamepadContainer.classList.remove("help-open");
-            gamepadHelpToggleButton.innerText = "Gamepad Help";
-        }
-        gamepadHelpVisible = !gamepadHelpVisible // toggle it
-        ;
-    };
-}
-function initGamepadSupport(gamepadUi, gamepadEmulator, gamepadUpdatedCallback) {
-    // As of 2012, it seems impossible to detect Gamepad API support
-    // in Firefox, hence we need to hardcode it in gamepadSupportAvailable.
-    navigator.getGamepads = navigator.getGamepads || navigator.webkitGamepads || navigator.webkitGetGamepads;
-    var gamepadSupportAvailable = !!navigator.getGamepads || navigator.userAgent.indexOf('Firefox/') != -1;
-    if (!gamepadSupportAvailable) {
-        // It doesn't seem Gamepad API is available ' show a message telling
-        // the visitor about it.
-        gamepadUi.showNotSupported();
-        return false;
-    }
-    const buttonHighlightElements = gamepadUi.getButtonHighlightElements();
-    gamepadEmulator.monkeyPatchGetGamepads();
-    // gamepadEmulator.addEmulatedGamepad(0, gamepadEmulator.DEFAULT_BUTTON_COUNT, gamepadEmulator.DEFAULT_AXIS_COUNT)
-    gamepadEmulator.registerOnScreenGamepadButtonEvents(0, buttonHighlightElements);
-    gamepadEmulator.registerOnScreenGamepadAxisEvents(0, [
-        {
-            xAxisGpadAxis: 0,
-            yAxisGpadAxis: 1,
-            elem: document.getElementById("gamepad-joystick-touch-area-left")
-        },
-        {
-            xAxisGpadAxis: 2,
-            yAxisGpadAxis: 3,
-            elem: document.getElementById("gamepad-joystick-touch-area-right")
-        }
-    ]);
-    setupGamepadHelp();
-    // otherwise gamepad support is available. so initilize the joymap library
-    var lastGamepadCount = 0;
-    var lastGamepadId = "";
-    var joyMod = _joymapDefault.default.createQueryModule({
-        threshold: 0.2,
-        clampThreshold: true
-    });
-    const gpadMap = _joymapDefault.default.createJoymap({
-        autoConnect: true,
-        // do stuff immediately after each Gamepad Poll (should/will be called about 60 times per second)
-        onPoll: function gamepadUpdate() {
-            // check if a gamepad was just connected or disconnected:
-            const gamepads = gpadMap.getGamepads();
-            const gamepadCount = gamepads.length;
-            if (gamepadCount != lastGamepadCount || gamepads[0] && gamepads[0].id != lastGamepadId) {
-                if (gamepadCount == 0) {
-                    gamepadUi.showNoGamepads();
-                    lastGamepadCount = 0;
-                    lastGamepadId = "";
-                    return;
-                } else if (gamepadCount >= 1) {
-                    if (joyMod) gpadMap.removeModule(joyMod);
-                    console.log(joyMod);
-                    joyMod = _joymapDefault.default.createQueryModule({
-                        threshold: 0.2,
-                        clampThreshold: true
-                    });
-                    gpadMap.addModule(joyMod);
-                    console.log(joyMod);
-                    gamepadUi.showGamepadsConnected(gamepads);
-                    console.log(joyMod.getAllButtons(), joyMod.getAllSticks(), joyMod.getAllMappers());
-                }
-                lastGamepadCount = gamepadCount;
-                lastGamepadId = gamepads[0].id;
-            }
-            // console.log("g:", gpadMap.getGamepads())
-            var buttonStates = joyMod.getAllButtons();
-            if (buttonStates["A"]) {
-                buttonStates = DEFUALT_BUTTON_ORDER.map((key)=>buttonStates[key]
-                );
-                gamepadUi.handleGamepadVisualFeedbackButtonEvents(buttonStates, buttonHighlightElements, "touched", "pressed");
-            }
-            var axisStates = joyMod.getAllSticks();
-            if (axisStates["L"] && axisStates["R"]) {
-                axisStates = [
-                    {
-                        thumbStickElement: document.getElementById("stick_left"),
-                        axisRange: 14,
-                        xValue: axisStates.L.value[0],
-                        yValue: axisStates.L.value[1]
-                    },
-                    {
-                        thumbStickElement: document.getElementById("stick_right"),
-                        axisRange: 14,
-                        xValue: axisStates.R.value[0],
-                        yValue: axisStates.R.value[1]
-                    }
-                ];
-                gamepadUi.handleGamepadVisualFeedbackAxisEvents(axisStates, "axis-hovered", "axis-moved");
-            }
-            gamepadUpdatedCallback(joyMod.getAllButtons(), joyMod.getAllSticks(), joyMod.getAllMappers());
-        }
-    });
-    gpadMap.addModule(joyMod);
-    gpadMap.start();
-}
-
-},{"joymap":"7hgr6","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7hgr6":[function(require,module,exports) {
-"use strict";
-function _typeof(obj1) {
-    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") _typeof = function _typeof(obj) {
-        return typeof obj;
-    };
-    else _typeof = function _typeof(obj) {
-        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-    };
-    return _typeof(obj1);
-}
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-var _exportNames = {
-    createBaseModule: true,
-    BaseModule: true,
-    createQueryModule: true,
-    QueryModule: true,
-    MapperResult: true,
-    Mapper: true,
-    createEventModule: true,
-    EventModule: true,
-    createStreamModule: true,
-    StreamModule: true,
-    StreamParams: true,
-    createJoymap: true,
-    Joymap: true,
-    AnyModule: true
-};
-Object.defineProperty(exports, "createBaseModule", {
-    enumerable: true,
-    get: function get() {
-        return _base.default;
-    }
-});
-Object.defineProperty(exports, "BaseModule", {
-    enumerable: true,
-    get: function get() {
-        return _base.BaseModule;
-    }
-});
-Object.defineProperty(exports, "createQueryModule", {
-    enumerable: true,
-    get: function get() {
-        return _query.default;
-    }
-});
-Object.defineProperty(exports, "QueryModule", {
-    enumerable: true,
-    get: function get() {
-        return _query.QueryModule;
-    }
-});
-Object.defineProperty(exports, "MapperResult", {
-    enumerable: true,
-    get: function get() {
-        return _query.MapperResult;
-    }
-});
-Object.defineProperty(exports, "Mapper", {
-    enumerable: true,
-    get: function get() {
-        return _query.Mapper;
-    }
-});
-Object.defineProperty(exports, "createEventModule", {
-    enumerable: true,
-    get: function get() {
-        return _event.default;
-    }
-});
-Object.defineProperty(exports, "EventModule", {
-    enumerable: true,
-    get: function get() {
-        return _event.EventModule;
-    }
-});
-Object.defineProperty(exports, "createStreamModule", {
-    enumerable: true,
-    get: function get() {
-        return _stream.default;
-    }
-});
-Object.defineProperty(exports, "StreamModule", {
-    enumerable: true,
-    get: function get() {
-        return _stream.StreamModule;
-    }
-});
-Object.defineProperty(exports, "StreamParams", {
-    enumerable: true,
-    get: function get() {
-        return _stream.StreamParams;
-    }
-});
-Object.defineProperty(exports, "createJoymap", {
-    enumerable: true,
-    get: function get() {
-        return _Joymap.default;
-    }
-});
-Object.defineProperty(exports, "Joymap", {
-    enumerable: true,
-    get: function get() {
-        return _Joymap.Joymap;
-    }
-});
-Object.defineProperty(exports, "AnyModule", {
-    enumerable: true,
-    get: function get() {
-        return _Joymap.AnyModule;
-    }
-});
-exports.default = void 0;
-var _base = _interopRequireWildcard(require("./baseModule/base"));
-var _query = _interopRequireWildcard(require("./queryModule/query"));
-var _event = _interopRequireWildcard(require("./eventModule/event"));
-var _stream = _interopRequireWildcard(require("./streamModule/stream"));
-var _Joymap = _interopRequireWildcard(require("./Joymap"));
-var _types = require("./types");
-Object.keys(_types).forEach(function(key) {
-    if (key === "default" || key === "__esModule") return;
-    if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-    Object.defineProperty(exports, key, {
-        enumerable: true,
-        get: function get() {
-            return _types[key];
-        }
-    });
-});
-function _getRequireWildcardCache() {
-    if (typeof WeakMap !== "function") return null;
-    var cache = new WeakMap();
-    _getRequireWildcardCache = function _getRequireWildcardCache() {
-        return cache;
-    };
-    return cache;
-}
-function _interopRequireWildcard(obj) {
-    if (obj && obj.__esModule) return obj;
-    if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") return {
-        default: obj
-    };
-    var cache = _getRequireWildcardCache();
-    if (cache && cache.has(obj)) return cache.get(obj);
-    var newObj = {
-    };
-    var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
-    for(var key in obj)if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
-        if (desc && (desc.get || desc.set)) Object.defineProperty(newObj, key, desc);
-        else newObj[key] = obj[key];
-    }
-    newObj.default = obj;
-    if (cache) cache.set(obj, newObj);
-    return newObj;
-}
-var _default = {
-    createBaseModule: _base.default,
-    createQueryModule: _query.default,
-    createEventModule: _event.default,
-    createStreamModule: _stream.default,
-    createJoymap: _Joymap.default
-};
-exports.default = _default;
-
-},{"./baseModule/base":"1cuY5","./queryModule/query":"4fGuI","./eventModule/event":"fu3PP","./streamModule/stream":"71NjS","./Joymap":"2ywsk","./types":"ljaQb"}],"1cuY5":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.default = createModule;
-var _toString2 = _interopRequireDefault(require("lodash/fp/toString"));
-var _uniqBy2 = _interopRequireDefault(require("lodash/fp/uniqBy"));
-var _uniq2 = _interopRequireDefault(require("lodash/fp/uniq"));
-var _flatten2 = _interopRequireDefault(require("lodash/fp/flatten"));
-var _flow2 = _interopRequireDefault(require("lodash/fp/flow"));
-var _forEach2 = _interopRequireDefault(require("lodash/fp/forEach"));
-var _assignIn2 = _interopRequireDefault(require("lodash/fp/assignIn"));
-var _map2 = _interopRequireDefault(require("lodash/fp/map"));
-var _isEqual2 = _interopRequireDefault(require("lodash/fp/isEqual"));
-var _findKey2 = _interopRequireDefault(require("lodash/fp/findKey"));
-var _utils = require("../common/utils");
-var _baseUtils = require("./baseUtils");
-var _rumble = require("./rumble");
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-        default: obj
-    };
-}
-function createModule() {
-    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-    };
-    var listenOptions = null;
-    var gamepadId = params.padId ? params.padId : null;
-    var connected = !!params.padId;
-    var state = {
-        threshold: params.threshold || 0.2,
-        clampThreshold: params.clampThreshold !== false,
-        pad: _baseUtils.mockGamepad,
-        prevPad: _baseUtils.mockGamepad,
-        prevRumble: {
-            duration: 0,
-            weakMagnitude: 0,
-            strongMagnitude: 0
-        },
-        lastRumbleUpdate: Date.now(),
-        lastUpdate: Date.now(),
-        buttons: (0, _baseUtils.getDefaultButtons)(),
-        sticks: (0, _baseUtils.getDefaultSticks)()
-    };
-    var module = {
-        getPadId: function getPadId() {
-            return gamepadId;
-        },
-        isConnected: function isConnected() {
-            return connected;
-        },
-        disconnect: function disconnect() {
-            connected = false;
-        },
-        connect: function connect(padId) {
-            connected = true;
-            if (padId) gamepadId = padId;
-        },
-        getConfig: function getConfig() {
-            return JSON.stringify({
-                threshold: state.threshold,
-                clampThreshold: state.clampThreshold,
-                buttons: state.buttons,
-                sticks: state.sticks
-            });
-        },
-        setConfig: function setConfig(serializedString) {
-            return (0, _assignIn2.default)(state, JSON.parse(serializedString));
-        },
-        getButtonIndexes: function getButtonIndexes() {
-            for(var _len = arguments.length, inputNames = new Array(_len), _key = 0; _key < _len; _key++)inputNames[_key] = arguments[_key];
-            return (0, _flow2.default)((0, _map2.default)(function(inputName) {
-                return state.buttons[inputName];
-            }), _flatten2.default, _uniq2.default)(inputNames);
-        },
-        getStickIndexes: function getStickIndexes() {
-            for(var _len2 = arguments.length, inputNames = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++)inputNames[_key2] = arguments[_key2];
-            return (0, _flow2.default)((0, _map2.default)(function(inputName) {
-                return state.sticks[inputName].indexes;
-            }), _flatten2.default, (0, _uniqBy2.default)(_toString2.default))(inputNames);
-        },
-        setButton: function setButton(inputName, indexes) {
-            if (!(0, _utils.nameIsValid)(inputName)) throw new Error("On setButton('".concat(inputName, "'): argument contains invalid characters"));
-            state.buttons[inputName] = indexes;
-        },
-        setStick: function setStick(inputName, indexes, inverts) {
-            if (!(0, _utils.nameIsValid)(inputName)) throw new Error("On setStick('".concat(inputName, "'): inputName contains invalid characters"));
-            if (indexes.length === 0) throw new Error("On setStick('".concat(inputName, "', indexes): argument indexes is an empty array"));
-            state.sticks[inputName] = {
-                indexes: indexes,
-                inverts: inverts || (0, _map2.default)(function() {
-                    return false;
-                }, indexes[0])
-            };
-        },
-        invertSticks: function invertSticks(inverts) {
-            for(var _len3 = arguments.length, inputNames = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++)inputNames[_key3 - 1] = arguments[_key3];
-            (0, _forEach2.default)(function(inputName) {
-                var stick = state.sticks[inputName];
-                if (stick.inverts.length === inverts.length) stick.inverts = inverts;
-                else throw new Error("On invertSticks(inverts, [..., ".concat(inputName, ", ...]): given argument inverts' length does not match '").concat(inputName, "' axis' length"));
-            }, inputNames);
-        },
-        swapButtons: function swapButtons(btn1, btn2) {
-            var buttons = state.buttons;
-            var _ref = [
-                buttons[btn2],
-                buttons[btn1]
-            ];
-            buttons[btn1] = _ref[0];
-            buttons[btn2] = _ref[1];
-        },
-        swapSticks: function swapSticks(stick1, stick2) {
-            var includeInverts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-            var sticks = state.sticks;
-            if (includeInverts) {
-                var _ref2 = [
-                    sticks[stick2],
-                    sticks[stick1]
-                ];
-                sticks[stick1] = _ref2[0];
-                sticks[stick2] = _ref2[1];
-            } else {
-                var _ref3 = [
-                    sticks[stick2].indexes,
-                    sticks[stick1].indexes
-                ];
-                sticks[stick1].indexes = _ref3[0];
-                sticks[stick2].indexes = _ref3[1];
-            }
-        },
-        update: function update(gamepad) {
-            state.prevPad = state.pad;
-            state.pad = {
-                axes: gamepad.axes,
-                buttons: (0, _map2.default)(function(a) {
-                    return a.value;
-                }, gamepad.buttons),
-                rawPad: gamepad
-            };
-            if (listenOptions) listenOptions = (0, _baseUtils.updateListenOptions)(listenOptions, state.pad, state.threshold);
-            if (module.isRumbleSupported()) {
-                var now = Date.now();
-                var currentRumble = (0, _rumble.getCurrentEffect)(gamepad.id);
-                (0, _rumble.updateChannels)(gamepad.id, now - state.lastUpdate);
-                if (state.prevRumble.weakMagnitude !== currentRumble.weakMagnitude || state.prevRumble.strongMagnitude !== currentRumble.strongMagnitude || now - state.lastRumbleUpdate >= _rumble.MAX_DURATION / 2) {
-                    (0, _rumble.applyRumble)(gamepad, currentRumble);
-                    state.prevRumble = currentRumble;
-                    state.lastRumbleUpdate = now;
-                }
-                state.lastUpdate = now;
-            }
-        },
-        cancelListen: function cancelListen() {
-            listenOptions = null;
-        },
-        listenButton: function listenButton(callback) {
-            var quantity = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-            var _ref4 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {
-            }, _ref4$waitFor = _ref4.waitFor, waitFor = _ref4$waitFor === void 0 ? [
-                1,
-                'polls'
-            ] : _ref4$waitFor, _ref4$consecutive = _ref4.consecutive, consecutive = _ref4$consecutive === void 0 ? false : _ref4$consecutive, _ref4$allowOffset = _ref4.allowOffset, allowOffset = _ref4$allowOffset === void 0 ? true : _ref4$allowOffset;
-            listenOptions = {
-                callback: callback,
-                quantity: quantity,
-                type: 'buttons',
-                currentValue: 0,
-                useTimeStamp: waitFor[1] === 'ms',
-                targetValue: waitFor[0],
-                consecutive: consecutive,
-                allowOffset: allowOffset
-            };
-        },
-        listenAxis: function listenAxis(callback) {
-            var quantity = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
-            var _ref5 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {
-            }, _ref5$waitFor = _ref5.waitFor, waitFor = _ref5$waitFor === void 0 ? [
-                100,
-                'ms'
-            ] : _ref5$waitFor, _ref5$consecutive = _ref5.consecutive, consecutive = _ref5$consecutive === void 0 ? true : _ref5$consecutive, _ref5$allowOffset = _ref5.allowOffset, allowOffset = _ref5$allowOffset === void 0 ? true : _ref5$allowOffset;
-            listenOptions = {
-                callback: callback,
-                quantity: quantity,
-                type: 'axes',
-                currentValue: 0,
-                useTimeStamp: waitFor[1] === 'ms',
-                targetValue: waitFor[0],
-                consecutive: consecutive,
-                allowOffset: allowOffset
-            };
-        },
-        buttonBindOnPress: function buttonBindOnPress(inputName, callback) {
-            var allowDuplication = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-            if (!(0, _utils.nameIsValid)(inputName)) throw new Error("On buttonBindOnPress('".concat(inputName, "'): inputName contains invalid characters"));
-            module.listenButton(function(indexes) {
-                var resultName = (0, _findKey2.default)(function(value) {
-                    return value[0] === indexes[0];
-                }, state.buttons);
-                if (!allowDuplication && resultName && state.buttons[inputName]) module.swapButtons(inputName, resultName);
-                else module.setButton(inputName, indexes);
-                callback(resultName);
-            });
-        },
-        stickBindOnPress: function stickBindOnPress(inputName, callback) {
-            var allowDuplication = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-            if (!(0, _utils.nameIsValid)(inputName)) throw new Error("On stickBindOnPress('".concat(inputName, "'): inputName contains invalid characters"));
-            module.listenAxis(function(indexesResult) {
-                var resultName = (0, _findKey2.default)(function(_ref6) {
-                    var indexes = _ref6.indexes;
-                    return (0, _isEqual2.default)(indexes, indexesResult);
-                }, state.sticks);
-                if (!allowDuplication && resultName && state.sticks[inputName]) module.swapSticks(inputName, resultName);
-                else module.setStick(inputName, indexesResult);
-                callback(resultName);
-            });
-        },
-        isRumbleSupported: function isRumbleSupported(rawPad) {
-            var padToTest = rawPad || state.pad.rawPad;
-            if (padToTest) return !!padToTest.vibrationActuator && !!padToTest.vibrationActuator.playEffect;
-            else return null;
-        },
-        stopRumble: function stopRumble(channelName) {
-            if (state.pad.rawPad) (0, _rumble.stopRumble)(state.pad.rawPad.id, channelName);
-        },
-        addRumble: function addRumble(effect, channelName) {
-            if (state.pad.rawPad) (0, _rumble.addRumble)(state.pad.rawPad.id, effect, channelName);
-        },
-        destroy: function destroy() {
-            module.disconnect();
-            state.pad = _baseUtils.mockGamepad;
-            state.prevPad = _baseUtils.mockGamepad;
-        }
-    };
-    return {
-        module: module,
-        state: state
-    };
-}
-
-},{"lodash/fp/toString":"1ttR0","lodash/fp/uniqBy":"2eCvM","lodash/fp/uniq":"lk3G6","lodash/fp/flatten":"cftBu","lodash/fp/flow":"1ImnD","lodash/fp/forEach":"ea1n8","lodash/fp/assignIn":"jwrLr","lodash/fp/map":"a1tsr","lodash/fp/isEqual":"5WIia","lodash/fp/findKey":"6f3Dn","../common/utils":"9nLL5","./baseUtils":"ctoxq","./rumble":"dxdTF"}],"1ttR0":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('toString', require('../toString'), require('./_falseOptions'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../toString":"joIdQ","./_falseOptions":"4QNnH","./placeholder":"cfCjP"}],"jYjrT":[function(require,module,exports) {
-var baseConvert = require('./_baseConvert'), util = require('./_util');
-/**
- * Converts `func` of `name` to an immutable auto-curried iteratee-first data-last
- * version with conversion `options` applied. If `name` is an object its methods
- * will be converted.
- *
- * @param {string} name The name of the function to wrap.
- * @param {Function} [func] The function to wrap.
- * @param {Object} [options] The options object. See `baseConvert` for more details.
- * @returns {Function|Object} Returns the converted function or object.
- */ function convert(name, func, options) {
-    return baseConvert(util, name, func, options);
-}
-module.exports = convert;
-
-},{"./_baseConvert":"hkO5P","./_util":"bsP4w"}],"hkO5P":[function(require,module,exports) {
-var mapping = require('./_mapping'), fallbackHolder = require('./placeholder');
-/** Built-in value reference. */ var push = Array.prototype.push;
-/**
- * Creates a function, with an arity of `n`, that invokes `func` with the
- * arguments it receives.
- *
- * @private
- * @param {Function} func The function to wrap.
- * @param {number} n The arity of the new function.
- * @returns {Function} Returns the new function.
- */ function baseArity(func, n) {
-    return n == 2 ? function(a, b) {
-        return func.apply(undefined, arguments);
-    } : function(a) {
-        return func.apply(undefined, arguments);
-    };
-}
-/**
- * Creates a function that invokes `func`, with up to `n` arguments, ignoring
- * any additional arguments.
- *
- * @private
- * @param {Function} func The function to cap arguments for.
- * @param {number} n The arity cap.
- * @returns {Function} Returns the new function.
- */ function baseAry(func, n) {
-    return n == 2 ? function(a, b) {
-        return func(a, b);
-    } : function(a) {
-        return func(a);
-    };
-}
-/**
- * Creates a clone of `array`.
- *
- * @private
- * @param {Array} array The array to clone.
- * @returns {Array} Returns the cloned array.
- */ function cloneArray(array) {
-    var length = array ? array.length : 0, result = Array(length);
-    while(length--)result[length] = array[length];
-    return result;
-}
-/**
- * Creates a function that clones a given object using the assignment `func`.
- *
- * @private
- * @param {Function} func The assignment function.
- * @returns {Function} Returns the new cloner function.
- */ function createCloner(func) {
-    return function(object) {
-        return func({
-        }, object);
-    };
-}
-/**
- * A specialized version of `_.spread` which flattens the spread array into
- * the arguments of the invoked `func`.
- *
- * @private
- * @param {Function} func The function to spread arguments over.
- * @param {number} start The start position of the spread.
- * @returns {Function} Returns the new function.
- */ function flatSpread(func, start) {
-    return function() {
-        var length = arguments.length, lastIndex = length - 1, args = Array(length);
-        while(length--)args[length] = arguments[length];
-        var array = args[start], otherArgs = args.slice(0, start);
-        if (array) push.apply(otherArgs, array);
-        if (start != lastIndex) push.apply(otherArgs, args.slice(start + 1));
-        return func.apply(this, otherArgs);
-    };
-}
-/**
- * Creates a function that wraps `func` and uses `cloner` to clone the first
- * argument it receives.
- *
- * @private
- * @param {Function} func The function to wrap.
- * @param {Function} cloner The function to clone arguments.
- * @returns {Function} Returns the new immutable function.
- */ function wrapImmutable(func, cloner) {
-    return function() {
-        var length = arguments.length;
-        if (!length) return;
-        var args = Array(length);
-        while(length--)args[length] = arguments[length];
-        var result = args[0] = cloner.apply(undefined, args);
-        func.apply(undefined, args);
-        return result;
-    };
-}
-/**
- * The base implementation of `convert` which accepts a `util` object of methods
- * required to perform conversions.
- *
- * @param {Object} util The util object.
- * @param {string} name The name of the function to convert.
- * @param {Function} func The function to convert.
- * @param {Object} [options] The options object.
- * @param {boolean} [options.cap=true] Specify capping iteratee arguments.
- * @param {boolean} [options.curry=true] Specify currying.
- * @param {boolean} [options.fixed=true] Specify fixed arity.
- * @param {boolean} [options.immutable=true] Specify immutable operations.
- * @param {boolean} [options.rearg=true] Specify rearranging arguments.
- * @returns {Function|Object} Returns the converted function or object.
- */ function baseConvert(util, name1, func1, options1) {
-    var isLib = typeof name1 == 'function', isObj = name1 === Object(name1);
-    if (isObj) {
-        options1 = func1;
-        func1 = name1;
-        name1 = undefined;
-    }
-    if (func1 == null) throw new TypeError;
-    options1 || (options1 = {
-    });
-    var config = {
-        'cap': 'cap' in options1 ? options1.cap : true,
-        'curry': 'curry' in options1 ? options1.curry : true,
-        'fixed': 'fixed' in options1 ? options1.fixed : true,
-        'immutable': 'immutable' in options1 ? options1.immutable : true,
-        'rearg': 'rearg' in options1 ? options1.rearg : true
-    };
-    var defaultHolder = isLib ? func1 : fallbackHolder, forceCurry = 'curry' in options1 && options1.curry, forceFixed = 'fixed' in options1 && options1.fixed, forceRearg = 'rearg' in options1 && options1.rearg, pristine = isLib ? func1.runInContext() : undefined;
-    var helpers = isLib ? func1 : {
-        'ary': util.ary,
-        'assign': util.assign,
-        'clone': util.clone,
-        'curry': util.curry,
-        'forEach': util.forEach,
-        'isArray': util.isArray,
-        'isError': util.isError,
-        'isFunction': util.isFunction,
-        'isWeakMap': util.isWeakMap,
-        'iteratee': util.iteratee,
-        'keys': util.keys,
-        'rearg': util.rearg,
-        'toInteger': util.toInteger,
-        'toPath': util.toPath
-    };
-    var ary = helpers.ary, assign = helpers.assign, clone = helpers.clone, curry = helpers.curry, each = helpers.forEach, isArray = helpers.isArray, isError = helpers.isError, isFunction = helpers.isFunction, isWeakMap = helpers.isWeakMap, keys = helpers.keys, rearg1 = helpers.rearg, toInteger = helpers.toInteger, toPath = helpers.toPath;
-    var aryMethodKeys = keys(mapping.aryMethod);
-    var wrappers = {
-        'castArray': function(castArray) {
-            return function() {
-                var value = arguments[0];
-                return isArray(value) ? castArray(cloneArray(value)) : castArray.apply(undefined, arguments);
-            };
-        },
-        'iteratee': function(iteratee) {
-            return function() {
-                var func = arguments[0], arity = arguments[1], result = iteratee(func, arity), length = result.length;
-                if (config.cap && typeof arity == 'number') {
-                    arity = arity > 2 ? arity - 2 : 1;
-                    return length && length <= arity ? result : baseAry(result, arity);
-                }
-                return result;
-            };
-        },
-        'mixin': function(mixin) {
-            return function(source) {
-                var func = this;
-                if (!isFunction(func)) return mixin(func, Object(source));
-                var pairs = [];
-                each(keys(source), function(key) {
-                    if (isFunction(source[key])) pairs.push([
-                        key,
-                        func.prototype[key]
-                    ]);
-                });
-                mixin(func, Object(source));
-                each(pairs, function(pair) {
-                    var value = pair[1];
-                    if (isFunction(value)) func.prototype[pair[0]] = value;
-                    else delete func.prototype[pair[0]];
-                });
-                return func;
-            };
-        },
-        'nthArg': function(nthArg) {
-            return function(n) {
-                var arity = n < 0 ? 1 : toInteger(n) + 1;
-                return curry(nthArg(n), arity);
-            };
-        },
-        'rearg': function(rearg) {
-            return function(func, indexes) {
-                var arity = indexes ? indexes.length : 0;
-                return curry(rearg(func, indexes), arity);
-            };
-        },
-        'runInContext': function(runInContext) {
-            return function(context) {
-                return baseConvert(util, runInContext(context), options1);
-            };
-        }
-    };
-    /*--------------------------------------------------------------------------*/ /**
-   * Casts `func` to a function with an arity capped iteratee if needed.
-   *
-   * @private
-   * @param {string} name The name of the function to inspect.
-   * @param {Function} func The function to inspect.
-   * @returns {Function} Returns the cast function.
-   */ function castCap(name, func) {
-        if (config.cap) {
-            var indexes = mapping.iterateeRearg[name];
-            if (indexes) return iterateeRearg(func, indexes);
-            var n = !isLib && mapping.iterateeAry[name];
-            if (n) return iterateeAry(func, n);
-        }
-        return func;
-    }
-    /**
-   * Casts `func` to a curried function if needed.
-   *
-   * @private
-   * @param {string} name The name of the function to inspect.
-   * @param {Function} func The function to inspect.
-   * @param {number} n The arity of `func`.
-   * @returns {Function} Returns the cast function.
-   */ function castCurry(name, func, n) {
-        return forceCurry || config.curry && n > 1 ? curry(func, n) : func;
-    }
-    /**
-   * Casts `func` to a fixed arity function if needed.
-   *
-   * @private
-   * @param {string} name The name of the function to inspect.
-   * @param {Function} func The function to inspect.
-   * @param {number} n The arity cap.
-   * @returns {Function} Returns the cast function.
-   */ function castFixed(name, func, n) {
-        if (config.fixed && (forceFixed || !mapping.skipFixed[name])) {
-            var data = mapping.methodSpread[name], start = data && data.start;
-            return start === undefined ? ary(func, n) : flatSpread(func, start);
-        }
-        return func;
-    }
-    /**
-   * Casts `func` to an rearged function if needed.
-   *
-   * @private
-   * @param {string} name The name of the function to inspect.
-   * @param {Function} func The function to inspect.
-   * @param {number} n The arity of `func`.
-   * @returns {Function} Returns the cast function.
-   */ function castRearg(name, func, n) {
-        return config.rearg && n > 1 && (forceRearg || !mapping.skipRearg[name]) ? rearg1(func, mapping.methodRearg[name] || mapping.aryRearg[n]) : func;
-    }
-    /**
-   * Creates a clone of `object` by `path`.
-   *
-   * @private
-   * @param {Object} object The object to clone.
-   * @param {Array|string} path The path to clone by.
-   * @returns {Object} Returns the cloned object.
-   */ function cloneByPath(object, path) {
-        path = toPath(path);
-        var index = -1, length = path.length, lastIndex = length - 1, result = clone(Object(object)), nested = result;
-        while(nested != null && ++index < length){
-            var key = path[index], value = nested[key];
-            if (value != null && !(isFunction(value) || isError(value) || isWeakMap(value))) nested[key] = clone(index == lastIndex ? value : Object(value));
-            nested = nested[key];
-        }
-        return result;
-    }
-    /**
-   * Converts `lodash` to an immutable auto-curried iteratee-first data-last
-   * version with conversion `options` applied.
-   *
-   * @param {Object} [options] The options object. See `baseConvert` for more details.
-   * @returns {Function} Returns the converted `lodash`.
-   */ function convertLib(options) {
-        return _.runInContext.convert(options)(undefined);
-    }
-    /**
-   * Create a converter function for `func` of `name`.
-   *
-   * @param {string} name The name of the function to convert.
-   * @param {Function} func The function to convert.
-   * @returns {Function} Returns the new converter function.
-   */ function createConverter(name, func) {
-        var realName = mapping.aliasToReal[name] || name, methodName = mapping.remap[realName] || realName, oldOptions = options1;
-        return function(options) {
-            var newUtil = isLib ? pristine : helpers, newFunc = isLib ? pristine[methodName] : func, newOptions = assign(assign({
-            }, oldOptions), options);
-            return baseConvert(newUtil, realName, newFunc, newOptions);
-        };
-    }
-    /**
-   * Creates a function that wraps `func` to invoke its iteratee, with up to `n`
-   * arguments, ignoring any additional arguments.
-   *
-   * @private
-   * @param {Function} func The function to cap iteratee arguments for.
-   * @param {number} n The arity cap.
-   * @returns {Function} Returns the new function.
-   */ function iterateeAry(func2, n) {
-        return overArg(func2, function(func) {
-            return typeof func == 'function' ? baseAry(func, n) : func;
-        });
-    }
-    /**
-   * Creates a function that wraps `func` to invoke its iteratee with arguments
-   * arranged according to the specified `indexes` where the argument value at
-   * the first index is provided as the first argument, the argument value at
-   * the second index is provided as the second argument, and so on.
-   *
-   * @private
-   * @param {Function} func The function to rearrange iteratee arguments for.
-   * @param {number[]} indexes The arranged argument indexes.
-   * @returns {Function} Returns the new function.
-   */ function iterateeRearg(func3, indexes) {
-        return overArg(func3, function(func) {
-            var n = indexes.length;
-            return baseArity(rearg1(baseAry(func, n), indexes), n);
-        });
-    }
-    /**
-   * Creates a function that invokes `func` with its first argument transformed.
-   *
-   * @private
-   * @param {Function} func The function to wrap.
-   * @param {Function} transform The argument transform.
-   * @returns {Function} Returns the new function.
-   */ function overArg(func, transform) {
-        return function() {
-            var length = arguments.length;
-            if (!length) return func();
-            var args = Array(length);
-            while(length--)args[length] = arguments[length];
-            var index = config.rearg ? 0 : length - 1;
-            args[index] = transform(args[index]);
-            return func.apply(undefined, args);
-        };
-    }
-    /**
-   * Creates a function that wraps `func` and applys the conversions
-   * rules by `name`.
-   *
-   * @private
-   * @param {string} name The name of the function to wrap.
-   * @param {Function} func The function to wrap.
-   * @returns {Function} Returns the converted function.
-   */ function wrap(name, func, placeholder) {
-        var result, realName = mapping.aliasToReal[name] || name, wrapped = func, wrapper = wrappers[realName];
-        if (wrapper) wrapped = wrapper(func);
-        else if (config.immutable) {
-            if (mapping.mutate.array[realName]) wrapped = wrapImmutable(func, cloneArray);
-            else if (mapping.mutate.object[realName]) wrapped = wrapImmutable(func, createCloner(func));
-            else if (mapping.mutate.set[realName]) wrapped = wrapImmutable(func, cloneByPath);
-        }
-        each(aryMethodKeys, function(aryKey) {
-            each(mapping.aryMethod[aryKey], function(otherName) {
-                if (realName == otherName) {
-                    var data = mapping.methodSpread[realName], afterRearg = data && data.afterRearg;
-                    result = afterRearg ? castFixed(realName, castRearg(realName, wrapped, aryKey), aryKey) : castRearg(realName, castFixed(realName, wrapped, aryKey), aryKey);
-                    result = castCap(realName, result);
-                    result = castCurry(realName, result, aryKey);
-                    return false;
-                }
-            });
-            return !result;
-        });
-        result || (result = wrapped);
-        if (result == func) result = forceCurry ? curry(result, 1) : function() {
-            return func.apply(this, arguments);
-        };
-        result.convert = createConverter(realName, func);
-        result.placeholder = func.placeholder = placeholder;
-        return result;
-    }
-    /*--------------------------------------------------------------------------*/ if (!isObj) return wrap(name1, func1, defaultHolder);
-    var _ = func1;
-    // Convert methods by ary cap.
-    var pairs1 = [];
-    each(aryMethodKeys, function(aryKey) {
-        each(mapping.aryMethod[aryKey], function(key) {
-            var func = _[mapping.remap[key] || key];
-            if (func) pairs1.push([
-                key,
-                wrap(key, func, _)
-            ]);
-        });
-    });
-    // Convert remaining methods.
-    each(keys(_), function(key) {
-        var func = _[key];
-        if (typeof func == 'function') {
-            var length = pairs1.length;
-            while(length--){
-                if (pairs1[length][0] == key) return;
-            }
-            func.convert = createConverter(key, func);
-            pairs1.push([
-                key,
-                func
-            ]);
-        }
-    });
-    // Assign to `_` leaving `_.prototype` unchanged to allow chaining.
-    each(pairs1, function(pair) {
-        _[pair[0]] = pair[1];
-    });
-    _.convert = convertLib;
-    _.placeholder = _;
-    // Assign aliases.
-    each(keys(_), function(key) {
-        each(mapping.realToAlias[key] || [], function(alias) {
-            _[alias] = _[key];
-        });
-    });
-    return _;
-}
-module.exports = baseConvert;
-
-},{"./_mapping":"cHfRU","./placeholder":"cfCjP"}],"cHfRU":[function(require,module,exports) {
-/** Used to map aliases to their real names. */ exports.aliasToReal = {
-    // Lodash aliases.
-    'each': 'forEach',
-    'eachRight': 'forEachRight',
-    'entries': 'toPairs',
-    'entriesIn': 'toPairsIn',
-    'extend': 'assignIn',
-    'extendAll': 'assignInAll',
-    'extendAllWith': 'assignInAllWith',
-    'extendWith': 'assignInWith',
-    'first': 'head',
-    // Methods that are curried variants of others.
-    'conforms': 'conformsTo',
-    'matches': 'isMatch',
-    'property': 'get',
-    // Ramda aliases.
-    '__': 'placeholder',
-    'F': 'stubFalse',
-    'T': 'stubTrue',
-    'all': 'every',
-    'allPass': 'overEvery',
-    'always': 'constant',
-    'any': 'some',
-    'anyPass': 'overSome',
-    'apply': 'spread',
-    'assoc': 'set',
-    'assocPath': 'set',
-    'complement': 'negate',
-    'compose': 'flowRight',
-    'contains': 'includes',
-    'dissoc': 'unset',
-    'dissocPath': 'unset',
-    'dropLast': 'dropRight',
-    'dropLastWhile': 'dropRightWhile',
-    'equals': 'isEqual',
-    'identical': 'eq',
-    'indexBy': 'keyBy',
-    'init': 'initial',
-    'invertObj': 'invert',
-    'juxt': 'over',
-    'omitAll': 'omit',
-    'nAry': 'ary',
-    'path': 'get',
-    'pathEq': 'matchesProperty',
-    'pathOr': 'getOr',
-    'paths': 'at',
-    'pickAll': 'pick',
-    'pipe': 'flow',
-    'pluck': 'map',
-    'prop': 'get',
-    'propEq': 'matchesProperty',
-    'propOr': 'getOr',
-    'props': 'at',
-    'symmetricDifference': 'xor',
-    'symmetricDifferenceBy': 'xorBy',
-    'symmetricDifferenceWith': 'xorWith',
-    'takeLast': 'takeRight',
-    'takeLastWhile': 'takeRightWhile',
-    'unapply': 'rest',
-    'unnest': 'flatten',
-    'useWith': 'overArgs',
-    'where': 'conformsTo',
-    'whereEq': 'isMatch',
-    'zipObj': 'zipObject'
-};
-/** Used to map ary to method names. */ exports.aryMethod = {
-    '1': [
-        'assignAll',
-        'assignInAll',
-        'attempt',
-        'castArray',
-        'ceil',
-        'create',
-        'curry',
-        'curryRight',
-        'defaultsAll',
-        'defaultsDeepAll',
-        'floor',
-        'flow',
-        'flowRight',
-        'fromPairs',
-        'invert',
-        'iteratee',
-        'memoize',
-        'method',
-        'mergeAll',
-        'methodOf',
-        'mixin',
-        'nthArg',
-        'over',
-        'overEvery',
-        'overSome',
-        'rest',
-        'reverse',
-        'round',
-        'runInContext',
-        'spread',
-        'template',
-        'trim',
-        'trimEnd',
-        'trimStart',
-        'uniqueId',
-        'words',
-        'zipAll'
-    ],
-    '2': [
-        'add',
-        'after',
-        'ary',
-        'assign',
-        'assignAllWith',
-        'assignIn',
-        'assignInAllWith',
-        'at',
-        'before',
-        'bind',
-        'bindAll',
-        'bindKey',
-        'chunk',
-        'cloneDeepWith',
-        'cloneWith',
-        'concat',
-        'conformsTo',
-        'countBy',
-        'curryN',
-        'curryRightN',
-        'debounce',
-        'defaults',
-        'defaultsDeep',
-        'defaultTo',
-        'delay',
-        'difference',
-        'divide',
-        'drop',
-        'dropRight',
-        'dropRightWhile',
-        'dropWhile',
-        'endsWith',
-        'eq',
-        'every',
-        'filter',
-        'find',
-        'findIndex',
-        'findKey',
-        'findLast',
-        'findLastIndex',
-        'findLastKey',
-        'flatMap',
-        'flatMapDeep',
-        'flattenDepth',
-        'forEach',
-        'forEachRight',
-        'forIn',
-        'forInRight',
-        'forOwn',
-        'forOwnRight',
-        'get',
-        'groupBy',
-        'gt',
-        'gte',
-        'has',
-        'hasIn',
-        'includes',
-        'indexOf',
-        'intersection',
-        'invertBy',
-        'invoke',
-        'invokeMap',
-        'isEqual',
-        'isMatch',
-        'join',
-        'keyBy',
-        'lastIndexOf',
-        'lt',
-        'lte',
-        'map',
-        'mapKeys',
-        'mapValues',
-        'matchesProperty',
-        'maxBy',
-        'meanBy',
-        'merge',
-        'mergeAllWith',
-        'minBy',
-        'multiply',
-        'nth',
-        'omit',
-        'omitBy',
-        'overArgs',
-        'pad',
-        'padEnd',
-        'padStart',
-        'parseInt',
-        'partial',
-        'partialRight',
-        'partition',
-        'pick',
-        'pickBy',
-        'propertyOf',
-        'pull',
-        'pullAll',
-        'pullAt',
-        'random',
-        'range',
-        'rangeRight',
-        'rearg',
-        'reject',
-        'remove',
-        'repeat',
-        'restFrom',
-        'result',
-        'sampleSize',
-        'some',
-        'sortBy',
-        'sortedIndex',
-        'sortedIndexOf',
-        'sortedLastIndex',
-        'sortedLastIndexOf',
-        'sortedUniqBy',
-        'split',
-        'spreadFrom',
-        'startsWith',
-        'subtract',
-        'sumBy',
-        'take',
-        'takeRight',
-        'takeRightWhile',
-        'takeWhile',
-        'tap',
-        'throttle',
-        'thru',
-        'times',
-        'trimChars',
-        'trimCharsEnd',
-        'trimCharsStart',
-        'truncate',
-        'union',
-        'uniqBy',
-        'uniqWith',
-        'unset',
-        'unzipWith',
-        'without',
-        'wrap',
-        'xor',
-        'zip',
-        'zipObject',
-        'zipObjectDeep'
-    ],
-    '3': [
-        'assignInWith',
-        'assignWith',
-        'clamp',
-        'differenceBy',
-        'differenceWith',
-        'findFrom',
-        'findIndexFrom',
-        'findLastFrom',
-        'findLastIndexFrom',
-        'getOr',
-        'includesFrom',
-        'indexOfFrom',
-        'inRange',
-        'intersectionBy',
-        'intersectionWith',
-        'invokeArgs',
-        'invokeArgsMap',
-        'isEqualWith',
-        'isMatchWith',
-        'flatMapDepth',
-        'lastIndexOfFrom',
-        'mergeWith',
-        'orderBy',
-        'padChars',
-        'padCharsEnd',
-        'padCharsStart',
-        'pullAllBy',
-        'pullAllWith',
-        'rangeStep',
-        'rangeStepRight',
-        'reduce',
-        'reduceRight',
-        'replace',
-        'set',
-        'slice',
-        'sortedIndexBy',
-        'sortedLastIndexBy',
-        'transform',
-        'unionBy',
-        'unionWith',
-        'update',
-        'xorBy',
-        'xorWith',
-        'zipWith'
-    ],
-    '4': [
-        'fill',
-        'setWith',
-        'updateWith'
-    ]
-};
-/** Used to map ary to rearg configs. */ exports.aryRearg = {
-    '2': [
-        1,
-        0
-    ],
-    '3': [
-        2,
-        0,
-        1
-    ],
-    '4': [
-        3,
-        2,
-        0,
-        1
-    ]
-};
-/** Used to map method names to their iteratee ary. */ exports.iterateeAry = {
-    'dropRightWhile': 1,
-    'dropWhile': 1,
-    'every': 1,
-    'filter': 1,
-    'find': 1,
-    'findFrom': 1,
-    'findIndex': 1,
-    'findIndexFrom': 1,
-    'findKey': 1,
-    'findLast': 1,
-    'findLastFrom': 1,
-    'findLastIndex': 1,
-    'findLastIndexFrom': 1,
-    'findLastKey': 1,
-    'flatMap': 1,
-    'flatMapDeep': 1,
-    'flatMapDepth': 1,
-    'forEach': 1,
-    'forEachRight': 1,
-    'forIn': 1,
-    'forInRight': 1,
-    'forOwn': 1,
-    'forOwnRight': 1,
-    'map': 1,
-    'mapKeys': 1,
-    'mapValues': 1,
-    'partition': 1,
-    'reduce': 2,
-    'reduceRight': 2,
-    'reject': 1,
-    'remove': 1,
-    'some': 1,
-    'takeRightWhile': 1,
-    'takeWhile': 1,
-    'times': 1,
-    'transform': 2
-};
-/** Used to map method names to iteratee rearg configs. */ exports.iterateeRearg = {
-    'mapKeys': [
-        1
-    ],
-    'reduceRight': [
-        1,
-        0
-    ]
-};
-/** Used to map method names to rearg configs. */ exports.methodRearg = {
-    'assignInAllWith': [
-        1,
-        0
-    ],
-    'assignInWith': [
-        1,
-        2,
-        0
-    ],
-    'assignAllWith': [
-        1,
-        0
-    ],
-    'assignWith': [
-        1,
-        2,
-        0
-    ],
-    'differenceBy': [
-        1,
-        2,
-        0
-    ],
-    'differenceWith': [
-        1,
-        2,
-        0
-    ],
-    'getOr': [
-        2,
-        1,
-        0
-    ],
-    'intersectionBy': [
-        1,
-        2,
-        0
-    ],
-    'intersectionWith': [
-        1,
-        2,
-        0
-    ],
-    'isEqualWith': [
-        1,
-        2,
-        0
-    ],
-    'isMatchWith': [
-        2,
-        1,
-        0
-    ],
-    'mergeAllWith': [
-        1,
-        0
-    ],
-    'mergeWith': [
-        1,
-        2,
-        0
-    ],
-    'padChars': [
-        2,
-        1,
-        0
-    ],
-    'padCharsEnd': [
-        2,
-        1,
-        0
-    ],
-    'padCharsStart': [
-        2,
-        1,
-        0
-    ],
-    'pullAllBy': [
-        2,
-        1,
-        0
-    ],
-    'pullAllWith': [
-        2,
-        1,
-        0
-    ],
-    'rangeStep': [
-        1,
-        2,
-        0
-    ],
-    'rangeStepRight': [
-        1,
-        2,
-        0
-    ],
-    'setWith': [
-        3,
-        1,
-        2,
-        0
-    ],
-    'sortedIndexBy': [
-        2,
-        1,
-        0
-    ],
-    'sortedLastIndexBy': [
-        2,
-        1,
-        0
-    ],
-    'unionBy': [
-        1,
-        2,
-        0
-    ],
-    'unionWith': [
-        1,
-        2,
-        0
-    ],
-    'updateWith': [
-        3,
-        1,
-        2,
-        0
-    ],
-    'xorBy': [
-        1,
-        2,
-        0
-    ],
-    'xorWith': [
-        1,
-        2,
-        0
-    ],
-    'zipWith': [
-        1,
-        2,
-        0
-    ]
-};
-/** Used to map method names to spread configs. */ exports.methodSpread = {
-    'assignAll': {
-        'start': 0
-    },
-    'assignAllWith': {
-        'start': 0
-    },
-    'assignInAll': {
-        'start': 0
-    },
-    'assignInAllWith': {
-        'start': 0
-    },
-    'defaultsAll': {
-        'start': 0
-    },
-    'defaultsDeepAll': {
-        'start': 0
-    },
-    'invokeArgs': {
-        'start': 2
-    },
-    'invokeArgsMap': {
-        'start': 2
-    },
-    'mergeAll': {
-        'start': 0
-    },
-    'mergeAllWith': {
-        'start': 0
-    },
-    'partial': {
-        'start': 1
-    },
-    'partialRight': {
-        'start': 1
-    },
-    'without': {
-        'start': 1
-    },
-    'zipAll': {
-        'start': 0
-    }
-};
-/** Used to identify methods which mutate arrays or objects. */ exports.mutate = {
-    'array': {
-        'fill': true,
-        'pull': true,
-        'pullAll': true,
-        'pullAllBy': true,
-        'pullAllWith': true,
-        'pullAt': true,
-        'remove': true,
-        'reverse': true
-    },
-    'object': {
-        'assign': true,
-        'assignAll': true,
-        'assignAllWith': true,
-        'assignIn': true,
-        'assignInAll': true,
-        'assignInAllWith': true,
-        'assignInWith': true,
-        'assignWith': true,
-        'defaults': true,
-        'defaultsAll': true,
-        'defaultsDeep': true,
-        'defaultsDeepAll': true,
-        'merge': true,
-        'mergeAll': true,
-        'mergeAllWith': true,
-        'mergeWith': true
-    },
-    'set': {
-        'set': true,
-        'setWith': true,
-        'unset': true,
-        'update': true,
-        'updateWith': true
-    }
-};
-/** Used to map real names to their aliases. */ exports.realToAlias = (function() {
-    var hasOwnProperty = Object.prototype.hasOwnProperty, object = exports.aliasToReal, result = {
-    };
-    for(var key in object){
-        var value = object[key];
-        if (hasOwnProperty.call(result, value)) result[value].push(key);
-        else result[value] = [
-            key
-        ];
-    }
-    return result;
-})();
-/** Used to map method names to other names. */ exports.remap = {
-    'assignAll': 'assign',
-    'assignAllWith': 'assignWith',
-    'assignInAll': 'assignIn',
-    'assignInAllWith': 'assignInWith',
-    'curryN': 'curry',
-    'curryRightN': 'curryRight',
-    'defaultsAll': 'defaults',
-    'defaultsDeepAll': 'defaultsDeep',
-    'findFrom': 'find',
-    'findIndexFrom': 'findIndex',
-    'findLastFrom': 'findLast',
-    'findLastIndexFrom': 'findLastIndex',
-    'getOr': 'get',
-    'includesFrom': 'includes',
-    'indexOfFrom': 'indexOf',
-    'invokeArgs': 'invoke',
-    'invokeArgsMap': 'invokeMap',
-    'lastIndexOfFrom': 'lastIndexOf',
-    'mergeAll': 'merge',
-    'mergeAllWith': 'mergeWith',
-    'padChars': 'pad',
-    'padCharsEnd': 'padEnd',
-    'padCharsStart': 'padStart',
-    'propertyOf': 'get',
-    'rangeStep': 'range',
-    'rangeStepRight': 'rangeRight',
-    'restFrom': 'rest',
-    'spreadFrom': 'spread',
-    'trimChars': 'trim',
-    'trimCharsEnd': 'trimEnd',
-    'trimCharsStart': 'trimStart',
-    'zipAll': 'zip'
-};
-/** Used to track methods that skip fixing their arity. */ exports.skipFixed = {
-    'castArray': true,
-    'flow': true,
-    'flowRight': true,
-    'iteratee': true,
-    'mixin': true,
-    'rearg': true,
-    'runInContext': true
-};
-/** Used to track methods that skip rearranging arguments. */ exports.skipRearg = {
-    'add': true,
-    'assign': true,
-    'assignIn': true,
-    'bind': true,
-    'bindKey': true,
-    'concat': true,
-    'difference': true,
-    'divide': true,
-    'eq': true,
-    'gt': true,
-    'gte': true,
-    'isEqual': true,
-    'lt': true,
-    'lte': true,
-    'matchesProperty': true,
-    'merge': true,
-    'multiply': true,
-    'overArgs': true,
-    'partial': true,
-    'partialRight': true,
-    'propertyOf': true,
-    'random': true,
-    'range': true,
-    'rangeRight': true,
-    'subtract': true,
-    'zip': true,
-    'zipObject': true,
-    'zipObjectDeep': true
-};
-
-},{}],"cfCjP":[function(require,module,exports) {
-/**
- * The default argument placeholder value for methods.
- *
- * @type {Object}
- */ module.exports = {
-};
-
-},{}],"bsP4w":[function(require,module,exports) {
-module.exports = {
-    'ary': require('../ary'),
-    'assign': require('../_baseAssign'),
-    'clone': require('../clone'),
-    'curry': require('../curry'),
-    'forEach': require('../_arrayEach'),
-    'isArray': require('../isArray'),
-    'isError': require('../isError'),
-    'isFunction': require('../isFunction'),
-    'isWeakMap': require('../isWeakMap'),
-    'iteratee': require('../iteratee'),
-    'keys': require('../_baseKeys'),
-    'rearg': require('../rearg'),
-    'toInteger': require('../toInteger'),
-    'toPath': require('../toPath')
-};
-
-},{"../ary":"eX0eC","../_baseAssign":"fNRtQ","../clone":"edHVe","../curry":"2x299","../_arrayEach":"kMhnH","../isArray":"dZaTH","../isError":"8frBY","../isFunction":"cfti6","../isWeakMap":"io47w","../iteratee":"5r5GI","../_baseKeys":"c0eiI","../rearg":"bePiz","../toInteger":"ds6ZT","../toPath":"hH9yA"}],"eX0eC":[function(require,module,exports) {
-var createWrap = require('./_createWrap');
-/** Used to compose bitmasks for function metadata. */ var WRAP_ARY_FLAG = 128;
-/**
- * Creates a function that invokes `func`, with up to `n` arguments,
- * ignoring any additional arguments.
- *
- * @static
- * @memberOf _
- * @since 3.0.0
- * @category Function
- * @param {Function} func The function to cap arguments for.
- * @param {number} [n=func.length] The arity cap.
- * @param- {Object} [guard] Enables use as an iteratee for methods like `_.map`.
- * @returns {Function} Returns the new capped function.
- * @example
- *
- * _.map(['6', '8', '10'], _.ary(parseInt, 1));
- * // => [6, 8, 10]
- */ function ary(func, n, guard) {
-    n = guard ? undefined : n;
-    n = func && n == null ? func.length : n;
-    return createWrap(func, WRAP_ARY_FLAG, undefined, undefined, undefined, undefined, n);
-}
-module.exports = ary;
-
-},{"./_createWrap":"1nVn1"}],"1nVn1":[function(require,module,exports) {
-var baseSetData = require('./_baseSetData'), createBind = require('./_createBind'), createCurry = require('./_createCurry'), createHybrid = require('./_createHybrid'), createPartial = require('./_createPartial'), getData = require('./_getData'), mergeData = require('./_mergeData'), setData = require('./_setData'), setWrapToString = require('./_setWrapToString'), toInteger = require('./toInteger');
-/** Error message constants. */ var FUNC_ERROR_TEXT = 'Expected a function';
-/** Used to compose bitmasks for function metadata. */ var WRAP_BIND_FLAG = 1, WRAP_BIND_KEY_FLAG = 2, WRAP_CURRY_FLAG = 8, WRAP_CURRY_RIGHT_FLAG = 16, WRAP_PARTIAL_FLAG = 32, WRAP_PARTIAL_RIGHT_FLAG = 64;
-/* Built-in method references for those with the same name as other `lodash` methods. */ var nativeMax = Math.max;
-/**
- * Creates a function that either curries or invokes `func` with optional
- * `this` binding and partially applied arguments.
- *
- * @private
- * @param {Function|string} func The function or method name to wrap.
- * @param {number} bitmask The bitmask flags.
- *    1 - `_.bind`
- *    2 - `_.bindKey`
- *    4 - `_.curry` or `_.curryRight` of a bound function
- *    8 - `_.curry`
- *   16 - `_.curryRight`
- *   32 - `_.partial`
- *   64 - `_.partialRight`
- *  128 - `_.rearg`
- *  256 - `_.ary`
- *  512 - `_.flip`
- * @param {*} [thisArg] The `this` binding of `func`.
- * @param {Array} [partials] The arguments to be partially applied.
- * @param {Array} [holders] The `partials` placeholder indexes.
- * @param {Array} [argPos] The argument positions of the new function.
- * @param {number} [ary] The arity cap of `func`.
- * @param {number} [arity] The arity of `func`.
- * @returns {Function} Returns the new wrapped function.
- */ function createWrap(func, bitmask, thisArg, partials, holders, argPos, ary, arity) {
-    var isBindKey = bitmask & WRAP_BIND_KEY_FLAG;
-    if (!isBindKey && typeof func != 'function') throw new TypeError(FUNC_ERROR_TEXT);
-    var length = partials ? partials.length : 0;
-    if (!length) {
-        bitmask &= ~(WRAP_PARTIAL_FLAG | WRAP_PARTIAL_RIGHT_FLAG);
-        partials = holders = undefined;
-    }
-    ary = ary === undefined ? ary : nativeMax(toInteger(ary), 0);
-    arity = arity === undefined ? arity : toInteger(arity);
-    length -= holders ? holders.length : 0;
-    if (bitmask & WRAP_PARTIAL_RIGHT_FLAG) {
-        var partialsRight = partials, holdersRight = holders;
-        partials = holders = undefined;
-    }
-    var data = isBindKey ? undefined : getData(func);
-    var newData = [
-        func,
-        bitmask,
-        thisArg,
-        partials,
-        holders,
-        partialsRight,
-        holdersRight,
-        argPos,
-        ary,
-        arity
-    ];
-    if (data) mergeData(newData, data);
-    func = newData[0];
-    bitmask = newData[1];
-    thisArg = newData[2];
-    partials = newData[3];
-    holders = newData[4];
-    arity = newData[9] = newData[9] === undefined ? isBindKey ? 0 : func.length : nativeMax(newData[9] - length, 0);
-    if (!arity && bitmask & (WRAP_CURRY_FLAG | WRAP_CURRY_RIGHT_FLAG)) bitmask &= ~(WRAP_CURRY_FLAG | WRAP_CURRY_RIGHT_FLAG);
-    if (!bitmask || bitmask == WRAP_BIND_FLAG) var result = createBind(func, bitmask, thisArg);
-    else if (bitmask == WRAP_CURRY_FLAG || bitmask == WRAP_CURRY_RIGHT_FLAG) result = createCurry(func, bitmask, arity);
-    else if ((bitmask == WRAP_PARTIAL_FLAG || bitmask == (WRAP_BIND_FLAG | WRAP_PARTIAL_FLAG)) && !holders.length) result = createPartial(func, bitmask, thisArg, partials);
-    else result = createHybrid.apply(undefined, newData);
-    var setter = data ? baseSetData : setData;
-    return setWrapToString(setter(result, newData), func, bitmask);
-}
-module.exports = createWrap;
-
-},{"./_baseSetData":"fVuYJ","./_createBind":"79dWo","./_createCurry":"cOgCX","./_createHybrid":"hSF9w","./_createPartial":"1i1ov","./_getData":"2DAAe","./_mergeData":"g1yu3","./_setData":"fSNJE","./_setWrapToString":"d5KSW","./toInteger":"ds6ZT"}],"fVuYJ":[function(require,module,exports) {
-var identity = require('./identity'), metaMap = require('./_metaMap');
-/**
- * The base implementation of `setData` without support for hot loop shorting.
- *
- * @private
- * @param {Function} func The function to associate metadata with.
- * @param {*} data The metadata.
- * @returns {Function} Returns `func`.
- */ var baseSetData = !metaMap ? identity : function(func, data) {
-    metaMap.set(func, data);
-    return func;
-};
-module.exports = baseSetData;
-
-},{"./identity":"dgTUN","./_metaMap":"aUcED"}],"dgTUN":[function(require,module,exports) {
-/**
- * This method returns the first argument it receives.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Util
- * @param {*} value Any value.
- * @returns {*} Returns `value`.
- * @example
- *
- * var object = { 'a': 1 };
- *
- * console.log(_.identity(object) === object);
- * // => true
- */ function identity(value) {
-    return value;
-}
-module.exports = identity;
-
-},{}],"aUcED":[function(require,module,exports) {
-var WeakMap = require('./_WeakMap');
-/** Used to store function metadata. */ var metaMap = WeakMap && new WeakMap;
-module.exports = metaMap;
-
-},{"./_WeakMap":"av50V"}],"av50V":[function(require,module,exports) {
-var getNative = require('./_getNative'), root = require('./_root');
-/* Built-in method references that are verified to be native. */ var WeakMap = getNative(root, 'WeakMap');
-module.exports = WeakMap;
-
-},{"./_getNative":"9PCIl","./_root":"dSYUs"}],"9PCIl":[function(require,module,exports) {
-var baseIsNative = require('./_baseIsNative'), getValue = require('./_getValue');
-/**
- * Gets the native function at `key` of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {string} key The key of the method to get.
- * @returns {*} Returns the function if it's native, else `undefined`.
- */ function getNative(object, key) {
-    var value = getValue(object, key);
-    return baseIsNative(value) ? value : undefined;
-}
-module.exports = getNative;
-
-},{"./_baseIsNative":"2U9Pn","./_getValue":"kKx5I"}],"2U9Pn":[function(require,module,exports) {
-var isFunction = require('./isFunction'), isMasked = require('./_isMasked'), isObject = require('./isObject'), toSource = require('./_toSource');
-/**
- * Used to match `RegExp`
- * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
- */ var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
-/** Used to detect host constructors (Safari). */ var reIsHostCtor = /^\[object .+?Constructor\]$/;
-/** Used for built-in method references. */ var funcProto = Function.prototype, objectProto = Object.prototype;
-/** Used to resolve the decompiled source of functions. */ var funcToString = funcProto.toString;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/** Used to detect if a method is native. */ var reIsNative = RegExp('^' + funcToString.call(hasOwnProperty).replace(reRegExpChar, '\\$&').replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$');
-/**
- * The base implementation of `_.isNative` without bad shim checks.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a native function,
- *  else `false`.
- */ function baseIsNative(value) {
-    if (!isObject(value) || isMasked(value)) return false;
-    var pattern = isFunction(value) ? reIsNative : reIsHostCtor;
-    return pattern.test(toSource(value));
-}
-module.exports = baseIsNative;
-
-},{"./isFunction":"cfti6","./_isMasked":"cMDzi","./isObject":"cGhqJ","./_toSource":"bYHc7"}],"cfti6":[function(require,module,exports) {
-var baseGetTag = require('./_baseGetTag'), isObject = require('./isObject');
-/** `Object#toString` result references. */ var asyncTag = '[object AsyncFunction]', funcTag = '[object Function]', genTag = '[object GeneratorFunction]', proxyTag = '[object Proxy]';
-/**
- * Checks if `value` is classified as a `Function` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a function, else `false`.
- * @example
- *
- * _.isFunction(_);
- * // => true
- *
- * _.isFunction(/abc/);
- * // => false
- */ function isFunction(value) {
-    if (!isObject(value)) return false;
-    // The use of `Object#toString` avoids issues with the `typeof` operator
-    // in Safari 9 which returns 'object' for typed arrays and other constructors.
-    var tag = baseGetTag(value);
-    return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
-}
-module.exports = isFunction;
-
-},{"./_baseGetTag":"lOnbo","./isObject":"cGhqJ"}],"lOnbo":[function(require,module,exports) {
-var Symbol = require('./_Symbol'), getRawTag = require('./_getRawTag'), objectToString = require('./_objectToString');
-/** `Object#toString` result references. */ var nullTag = '[object Null]', undefinedTag = '[object Undefined]';
-/** Built-in value references. */ var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
-/**
- * The base implementation of `getTag` without fallbacks for buggy environments.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the `toStringTag`.
- */ function baseGetTag(value) {
-    if (value == null) return value === undefined ? undefinedTag : nullTag;
-    return symToStringTag && symToStringTag in Object(value) ? getRawTag(value) : objectToString(value);
-}
-module.exports = baseGetTag;
-
-},{"./_Symbol":"7lsL9","./_getRawTag":"995sO","./_objectToString":"bmE3g"}],"7lsL9":[function(require,module,exports) {
-var root = require('./_root');
-/** Built-in value references. */ var Symbol = root.Symbol;
-module.exports = Symbol;
-
-},{"./_root":"dSYUs"}],"dSYUs":[function(require,module,exports) {
-var freeGlobal = require('./_freeGlobal');
-/** Detect free variable `self`. */ var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
-/** Used as a reference to the global object. */ var root = freeGlobal || freeSelf || Function('return this')();
-module.exports = root;
-
-},{"./_freeGlobal":"kAk32"}],"kAk32":[function(require,module,exports) {
-var global = arguments[3];
-/** Detect free variable `global` from Node.js. */ var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
-module.exports = freeGlobal;
-
-},{}],"995sO":[function(require,module,exports) {
-var Symbol = require('./_Symbol');
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */ var nativeObjectToString = objectProto.toString;
-/** Built-in value references. */ var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
-/**
- * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the raw `toStringTag`.
- */ function getRawTag(value) {
-    var isOwn = hasOwnProperty.call(value, symToStringTag), tag = value[symToStringTag];
-    try {
-        value[symToStringTag] = undefined;
-        var unmasked = true;
-    } catch (e) {
-    }
-    var result = nativeObjectToString.call(value);
-    if (unmasked) {
-        if (isOwn) value[symToStringTag] = tag;
-        else delete value[symToStringTag];
-    }
-    return result;
-}
-module.exports = getRawTag;
-
-},{"./_Symbol":"7lsL9"}],"bmE3g":[function(require,module,exports) {
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */ var nativeObjectToString = objectProto.toString;
-/**
- * Converts `value` to a string using `Object.prototype.toString`.
- *
- * @private
- * @param {*} value The value to convert.
- * @returns {string} Returns the converted string.
- */ function objectToString(value) {
-    return nativeObjectToString.call(value);
-}
-module.exports = objectToString;
-
-},{}],"cGhqJ":[function(require,module,exports) {
-/**
- * Checks if `value` is the
- * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
- * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an object, else `false`.
- * @example
- *
- * _.isObject({});
- * // => true
- *
- * _.isObject([1, 2, 3]);
- * // => true
- *
- * _.isObject(_.noop);
- * // => true
- *
- * _.isObject(null);
- * // => false
- */ function isObject(value) {
-    var type = typeof value;
-    return value != null && (type == 'object' || type == 'function');
-}
-module.exports = isObject;
-
-},{}],"cMDzi":[function(require,module,exports) {
-var coreJsData = require('./_coreJsData');
-/** Used to detect methods masquerading as native. */ var maskSrcKey = function() {
-    var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || '');
-    return uid ? 'Symbol(src)_1.' + uid : '';
-}();
-/**
- * Checks if `func` has its source masked.
- *
- * @private
- * @param {Function} func The function to check.
- * @returns {boolean} Returns `true` if `func` is masked, else `false`.
- */ function isMasked(func) {
-    return !!maskSrcKey && maskSrcKey in func;
-}
-module.exports = isMasked;
-
-},{"./_coreJsData":"6gJwQ"}],"6gJwQ":[function(require,module,exports) {
-var root = require('./_root');
-/** Used to detect overreaching core-js shims. */ var coreJsData = root['__core-js_shared__'];
-module.exports = coreJsData;
-
-},{"./_root":"dSYUs"}],"bYHc7":[function(require,module,exports) {
-/** Used for built-in method references. */ var funcProto = Function.prototype;
-/** Used to resolve the decompiled source of functions. */ var funcToString = funcProto.toString;
-/**
- * Converts `func` to its source code.
- *
- * @private
- * @param {Function} func The function to convert.
- * @returns {string} Returns the source code.
- */ function toSource(func) {
-    if (func != null) {
-        try {
-            return funcToString.call(func);
-        } catch (e) {
-        }
-        try {
-            return func + '';
-        } catch (e1) {
-        }
-    }
-    return '';
-}
-module.exports = toSource;
-
-},{}],"kKx5I":[function(require,module,exports) {
-/**
- * Gets the value at `key` of `object`.
- *
- * @private
- * @param {Object} [object] The object to query.
- * @param {string} key The key of the property to get.
- * @returns {*} Returns the property value.
- */ function getValue(object, key) {
-    return object == null ? undefined : object[key];
-}
-module.exports = getValue;
-
-},{}],"79dWo":[function(require,module,exports) {
-var createCtor = require('./_createCtor'), root = require('./_root');
-/** Used to compose bitmasks for function metadata. */ var WRAP_BIND_FLAG = 1;
-/**
- * Creates a function that wraps `func` to invoke it with the optional `this`
- * binding of `thisArg`.
- *
- * @private
- * @param {Function} func The function to wrap.
- * @param {number} bitmask The bitmask flags. See `createWrap` for more details.
- * @param {*} [thisArg] The `this` binding of `func`.
- * @returns {Function} Returns the new wrapped function.
- */ function createBind(func, bitmask, thisArg) {
-    var isBind = bitmask & WRAP_BIND_FLAG, Ctor = createCtor(func);
-    function wrapper() {
-        var fn = this && this !== root && this instanceof wrapper ? Ctor : func;
-        return fn.apply(isBind ? thisArg : this, arguments);
-    }
-    return wrapper;
-}
-module.exports = createBind;
-
-},{"./_createCtor":"5ihhn","./_root":"dSYUs"}],"5ihhn":[function(require,module,exports) {
-var baseCreate = require('./_baseCreate'), isObject = require('./isObject');
-/**
- * Creates a function that produces an instance of `Ctor` regardless of
- * whether it was invoked as part of a `new` expression or by `call` or `apply`.
- *
- * @private
- * @param {Function} Ctor The constructor to wrap.
- * @returns {Function} Returns the new wrapped function.
- */ function createCtor(Ctor) {
-    return function() {
-        // Use a `switch` statement to work with class constructors. See
-        // http://ecma-international.org/ecma-262/7.0/#sec-ecmascript-function-objects-call-thisargument-argumentslist
-        // for more details.
-        var args = arguments;
-        switch(args.length){
-            case 0:
-                return new Ctor;
-            case 1:
-                return new Ctor(args[0]);
-            case 2:
-                return new Ctor(args[0], args[1]);
-            case 3:
-                return new Ctor(args[0], args[1], args[2]);
-            case 4:
-                return new Ctor(args[0], args[1], args[2], args[3]);
-            case 5:
-                return new Ctor(args[0], args[1], args[2], args[3], args[4]);
-            case 6:
-                return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5]);
-            case 7:
-                return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
-        }
-        var thisBinding = baseCreate(Ctor.prototype), result = Ctor.apply(thisBinding, args);
-        // Mimic the constructor's `return` behavior.
-        // See https://es5.github.io/#x13.2.2 for more details.
-        return isObject(result) ? result : thisBinding;
-    };
-}
-module.exports = createCtor;
-
-},{"./_baseCreate":"ef1VZ","./isObject":"cGhqJ"}],"ef1VZ":[function(require,module,exports) {
-var isObject = require('./isObject');
-/** Built-in value references. */ var objectCreate = Object.create;
-/**
- * The base implementation of `_.create` without support for assigning
- * properties to the created object.
- *
- * @private
- * @param {Object} proto The object to inherit from.
- * @returns {Object} Returns the new object.
- */ var baseCreate = function() {
-    function object() {
-    }
-    return function(proto) {
-        if (!isObject(proto)) return {
-        };
-        if (objectCreate) return objectCreate(proto);
-        object.prototype = proto;
-        var result = new object;
-        object.prototype = undefined;
-        return result;
-    };
-}();
-module.exports = baseCreate;
-
-},{"./isObject":"cGhqJ"}],"cOgCX":[function(require,module,exports) {
-var apply = require('./_apply'), createCtor = require('./_createCtor'), createHybrid = require('./_createHybrid'), createRecurry = require('./_createRecurry'), getHolder = require('./_getHolder'), replaceHolders = require('./_replaceHolders'), root = require('./_root');
-/**
- * Creates a function that wraps `func` to enable currying.
- *
- * @private
- * @param {Function} func The function to wrap.
- * @param {number} bitmask The bitmask flags. See `createWrap` for more details.
- * @param {number} arity The arity of `func`.
- * @returns {Function} Returns the new wrapped function.
- */ function createCurry(func, bitmask, arity) {
-    var Ctor = createCtor(func);
-    function wrapper() {
-        var length = arguments.length, args = Array(length), index = length, placeholder = getHolder(wrapper);
-        while(index--)args[index] = arguments[index];
-        var holders = length < 3 && args[0] !== placeholder && args[length - 1] !== placeholder ? [] : replaceHolders(args, placeholder);
-        length -= holders.length;
-        if (length < arity) return createRecurry(func, bitmask, createHybrid, wrapper.placeholder, undefined, args, holders, undefined, undefined, arity - length);
-        var fn = this && this !== root && this instanceof wrapper ? Ctor : func;
-        return apply(fn, this, args);
-    }
-    return wrapper;
-}
-module.exports = createCurry;
-
-},{"./_apply":"gUweg","./_createCtor":"5ihhn","./_createHybrid":"hSF9w","./_createRecurry":"9789e","./_getHolder":"2v0Bi","./_replaceHolders":"brLIY","./_root":"dSYUs"}],"gUweg":[function(require,module,exports) {
-/**
- * A faster alternative to `Function#apply`, this function invokes `func`
- * with the `this` binding of `thisArg` and the arguments of `args`.
- *
- * @private
- * @param {Function} func The function to invoke.
- * @param {*} thisArg The `this` binding of `func`.
- * @param {Array} args The arguments to invoke `func` with.
- * @returns {*} Returns the result of `func`.
- */ function apply(func, thisArg, args) {
-    switch(args.length){
-        case 0:
-            return func.call(thisArg);
-        case 1:
-            return func.call(thisArg, args[0]);
-        case 2:
-            return func.call(thisArg, args[0], args[1]);
-        case 3:
-            return func.call(thisArg, args[0], args[1], args[2]);
-    }
-    return func.apply(thisArg, args);
-}
-module.exports = apply;
-
-},{}],"hSF9w":[function(require,module,exports) {
-var composeArgs = require('./_composeArgs'), composeArgsRight = require('./_composeArgsRight'), countHolders = require('./_countHolders'), createCtor = require('./_createCtor'), createRecurry = require('./_createRecurry'), getHolder = require('./_getHolder'), reorder = require('./_reorder'), replaceHolders = require('./_replaceHolders'), root = require('./_root');
-/** Used to compose bitmasks for function metadata. */ var WRAP_BIND_FLAG = 1, WRAP_BIND_KEY_FLAG = 2, WRAP_CURRY_FLAG = 8, WRAP_CURRY_RIGHT_FLAG = 16, WRAP_ARY_FLAG = 128, WRAP_FLIP_FLAG = 512;
-/**
- * Creates a function that wraps `func` to invoke it with optional `this`
- * binding of `thisArg`, partial application, and currying.
- *
- * @private
- * @param {Function|string} func The function or method name to wrap.
- * @param {number} bitmask The bitmask flags. See `createWrap` for more details.
- * @param {*} [thisArg] The `this` binding of `func`.
- * @param {Array} [partials] The arguments to prepend to those provided to
- *  the new function.
- * @param {Array} [holders] The `partials` placeholder indexes.
- * @param {Array} [partialsRight] The arguments to append to those provided
- *  to the new function.
- * @param {Array} [holdersRight] The `partialsRight` placeholder indexes.
- * @param {Array} [argPos] The argument positions of the new function.
- * @param {number} [ary] The arity cap of `func`.
- * @param {number} [arity] The arity of `func`.
- * @returns {Function} Returns the new wrapped function.
- */ function createHybrid(func, bitmask, thisArg, partials, holders, partialsRight, holdersRight, argPos, ary, arity) {
-    var isAry = bitmask & WRAP_ARY_FLAG, isBind = bitmask & WRAP_BIND_FLAG, isBindKey = bitmask & WRAP_BIND_KEY_FLAG, isCurried = bitmask & (WRAP_CURRY_FLAG | WRAP_CURRY_RIGHT_FLAG), isFlip = bitmask & WRAP_FLIP_FLAG, Ctor = isBindKey ? undefined : createCtor(func);
-    function wrapper() {
-        var length = arguments.length, args = Array(length), index = length;
-        while(index--)args[index] = arguments[index];
-        if (isCurried) var placeholder = getHolder(wrapper), holdersCount = countHolders(args, placeholder);
-        if (partials) args = composeArgs(args, partials, holders, isCurried);
-        if (partialsRight) args = composeArgsRight(args, partialsRight, holdersRight, isCurried);
-        length -= holdersCount;
-        if (isCurried && length < arity) {
-            var newHolders = replaceHolders(args, placeholder);
-            return createRecurry(func, bitmask, createHybrid, wrapper.placeholder, thisArg, args, newHolders, argPos, ary, arity - length);
-        }
-        var thisBinding = isBind ? thisArg : this, fn = isBindKey ? thisBinding[func] : func;
-        length = args.length;
-        if (argPos) args = reorder(args, argPos);
-        else if (isFlip && length > 1) args.reverse();
-        if (isAry && ary < length) args.length = ary;
-        if (this && this !== root && this instanceof wrapper) fn = Ctor || createCtor(fn);
-        return fn.apply(thisBinding, args);
-    }
-    return wrapper;
-}
-module.exports = createHybrid;
-
-},{"./_composeArgs":"9Sdbk","./_composeArgsRight":"diHiW","./_countHolders":"cQl2T","./_createCtor":"5ihhn","./_createRecurry":"9789e","./_getHolder":"2v0Bi","./_reorder":"4CCWQ","./_replaceHolders":"brLIY","./_root":"dSYUs"}],"9Sdbk":[function(require,module,exports) {
-/* Built-in method references for those with the same name as other `lodash` methods. */ var nativeMax = Math.max;
-/**
- * Creates an array that is the composition of partially applied arguments,
- * placeholders, and provided arguments into a single array of arguments.
- *
- * @private
- * @param {Array} args The provided arguments.
- * @param {Array} partials The arguments to prepend to those provided.
- * @param {Array} holders The `partials` placeholder indexes.
- * @params {boolean} [isCurried] Specify composing for a curried function.
- * @returns {Array} Returns the new array of composed arguments.
- */ function composeArgs(args, partials, holders, isCurried) {
-    var argsIndex = -1, argsLength = args.length, holdersLength = holders.length, leftIndex = -1, leftLength = partials.length, rangeLength = nativeMax(argsLength - holdersLength, 0), result = Array(leftLength + rangeLength), isUncurried = !isCurried;
-    while(++leftIndex < leftLength)result[leftIndex] = partials[leftIndex];
-    while(++argsIndex < holdersLength)if (isUncurried || argsIndex < argsLength) result[holders[argsIndex]] = args[argsIndex];
-    while(rangeLength--)result[leftIndex++] = args[argsIndex++];
-    return result;
-}
-module.exports = composeArgs;
-
-},{}],"diHiW":[function(require,module,exports) {
-/* Built-in method references for those with the same name as other `lodash` methods. */ var nativeMax = Math.max;
-/**
- * This function is like `composeArgs` except that the arguments composition
- * is tailored for `_.partialRight`.
- *
- * @private
- * @param {Array} args The provided arguments.
- * @param {Array} partials The arguments to append to those provided.
- * @param {Array} holders The `partials` placeholder indexes.
- * @params {boolean} [isCurried] Specify composing for a curried function.
- * @returns {Array} Returns the new array of composed arguments.
- */ function composeArgsRight(args, partials, holders, isCurried) {
-    var argsIndex = -1, argsLength = args.length, holdersIndex = -1, holdersLength = holders.length, rightIndex = -1, rightLength = partials.length, rangeLength = nativeMax(argsLength - holdersLength, 0), result = Array(rangeLength + rightLength), isUncurried = !isCurried;
-    while(++argsIndex < rangeLength)result[argsIndex] = args[argsIndex];
-    var offset = argsIndex;
-    while(++rightIndex < rightLength)result[offset + rightIndex] = partials[rightIndex];
-    while(++holdersIndex < holdersLength)if (isUncurried || argsIndex < argsLength) result[offset + holders[holdersIndex]] = args[argsIndex++];
-    return result;
-}
-module.exports = composeArgsRight;
-
-},{}],"cQl2T":[function(require,module,exports) {
-/**
- * Gets the number of `placeholder` occurrences in `array`.
- *
- * @private
- * @param {Array} array The array to inspect.
- * @param {*} placeholder The placeholder to search for.
- * @returns {number} Returns the placeholder count.
- */ function countHolders(array, placeholder) {
-    var length = array.length, result = 0;
-    while(length--)if (array[length] === placeholder) ++result;
-    return result;
-}
-module.exports = countHolders;
-
-},{}],"9789e":[function(require,module,exports) {
-var isLaziable = require('./_isLaziable'), setData = require('./_setData'), setWrapToString = require('./_setWrapToString');
-/** Used to compose bitmasks for function metadata. */ var WRAP_BIND_FLAG = 1, WRAP_BIND_KEY_FLAG = 2, WRAP_CURRY_BOUND_FLAG = 4, WRAP_CURRY_FLAG = 8, WRAP_PARTIAL_FLAG = 32, WRAP_PARTIAL_RIGHT_FLAG = 64;
-/**
- * Creates a function that wraps `func` to continue currying.
- *
- * @private
- * @param {Function} func The function to wrap.
- * @param {number} bitmask The bitmask flags. See `createWrap` for more details.
- * @param {Function} wrapFunc The function to create the `func` wrapper.
- * @param {*} placeholder The placeholder value.
- * @param {*} [thisArg] The `this` binding of `func`.
- * @param {Array} [partials] The arguments to prepend to those provided to
- *  the new function.
- * @param {Array} [holders] The `partials` placeholder indexes.
- * @param {Array} [argPos] The argument positions of the new function.
- * @param {number} [ary] The arity cap of `func`.
- * @param {number} [arity] The arity of `func`.
- * @returns {Function} Returns the new wrapped function.
- */ function createRecurry(func, bitmask, wrapFunc, placeholder, thisArg, partials, holders, argPos, ary, arity) {
-    var isCurry = bitmask & WRAP_CURRY_FLAG, newHolders = isCurry ? holders : undefined, newHoldersRight = isCurry ? undefined : holders, newPartials = isCurry ? partials : undefined, newPartialsRight = isCurry ? undefined : partials;
-    bitmask |= isCurry ? WRAP_PARTIAL_FLAG : WRAP_PARTIAL_RIGHT_FLAG;
-    bitmask &= ~(isCurry ? WRAP_PARTIAL_RIGHT_FLAG : WRAP_PARTIAL_FLAG);
-    if (!(bitmask & WRAP_CURRY_BOUND_FLAG)) bitmask &= ~(WRAP_BIND_FLAG | WRAP_BIND_KEY_FLAG);
-    var newData = [
-        func,
-        bitmask,
-        thisArg,
-        newPartials,
-        newHolders,
-        newPartialsRight,
-        newHoldersRight,
-        argPos,
-        ary,
-        arity
-    ];
-    var result = wrapFunc.apply(undefined, newData);
-    if (isLaziable(func)) setData(result, newData);
-    result.placeholder = placeholder;
-    return setWrapToString(result, func, bitmask);
-}
-module.exports = createRecurry;
-
-},{"./_isLaziable":"g1x7m","./_setData":"fSNJE","./_setWrapToString":"d5KSW"}],"g1x7m":[function(require,module,exports) {
-var LazyWrapper = require('./_LazyWrapper'), getData = require('./_getData'), getFuncName = require('./_getFuncName'), lodash = require('./wrapperLodash');
-/**
- * Checks if `func` has a lazy counterpart.
- *
- * @private
- * @param {Function} func The function to check.
- * @returns {boolean} Returns `true` if `func` has a lazy counterpart,
- *  else `false`.
- */ function isLaziable(func) {
-    var funcName = getFuncName(func), other = lodash[funcName];
-    if (typeof other != 'function' || !(funcName in LazyWrapper.prototype)) return false;
-    if (func === other) return true;
-    var data = getData(other);
-    return !!data && func === data[0];
-}
-module.exports = isLaziable;
-
-},{"./_LazyWrapper":"jPVpf","./_getData":"2DAAe","./_getFuncName":"8QrGg","./wrapperLodash":"9NCzx"}],"jPVpf":[function(require,module,exports) {
-var baseCreate = require('./_baseCreate'), baseLodash = require('./_baseLodash');
-/** Used as references for the maximum length and index of an array. */ var MAX_ARRAY_LENGTH = 4294967295;
-/**
- * Creates a lazy wrapper object which wraps `value` to enable lazy evaluation.
- *
- * @private
- * @constructor
- * @param {*} value The value to wrap.
- */ function LazyWrapper(value) {
-    this.__wrapped__ = value;
-    this.__actions__ = [];
-    this.__dir__ = 1;
-    this.__filtered__ = false;
-    this.__iteratees__ = [];
-    this.__takeCount__ = MAX_ARRAY_LENGTH;
-    this.__views__ = [];
-}
-// Ensure `LazyWrapper` is an instance of `baseLodash`.
-LazyWrapper.prototype = baseCreate(baseLodash.prototype);
-LazyWrapper.prototype.constructor = LazyWrapper;
-module.exports = LazyWrapper;
-
-},{"./_baseCreate":"ef1VZ","./_baseLodash":"dVpqq"}],"dVpqq":[function(require,module,exports) {
-/**
- * The function whose prototype chain sequence wrappers inherit from.
- *
- * @private
- */ function baseLodash() {
-// No operation performed.
-}
-module.exports = baseLodash;
-
-},{}],"2DAAe":[function(require,module,exports) {
-var metaMap = require('./_metaMap'), noop = require('./noop');
-/**
- * Gets metadata for `func`.
- *
- * @private
- * @param {Function} func The function to query.
- * @returns {*} Returns the metadata for `func`.
- */ var getData = !metaMap ? noop : function(func) {
-    return metaMap.get(func);
-};
-module.exports = getData;
-
-},{"./_metaMap":"aUcED","./noop":"dSFAq"}],"dSFAq":[function(require,module,exports) {
-/**
- * This method returns `undefined`.
- *
- * @static
- * @memberOf _
- * @since 2.3.0
- * @category Util
- * @example
- *
- * _.times(2, _.noop);
- * // => [undefined, undefined]
- */ function noop() {
-// No operation performed.
-}
-module.exports = noop;
-
-},{}],"8QrGg":[function(require,module,exports) {
-var realNames = require('./_realNames');
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/**
- * Gets the name of `func`.
- *
- * @private
- * @param {Function} func The function to query.
- * @returns {string} Returns the function name.
- */ function getFuncName(func) {
-    var result = func.name + '', array = realNames[result], length = hasOwnProperty.call(realNames, result) ? array.length : 0;
-    while(length--){
-        var data = array[length], otherFunc = data.func;
-        if (otherFunc == null || otherFunc == func) return data.name;
-    }
-    return result;
-}
-module.exports = getFuncName;
-
-},{"./_realNames":"3Mfyk"}],"3Mfyk":[function(require,module,exports) {
-/** Used to lookup unminified function names. */ var realNames = {
-};
-module.exports = realNames;
-
-},{}],"9NCzx":[function(require,module,exports) {
-var LazyWrapper = require('./_LazyWrapper'), LodashWrapper = require('./_LodashWrapper'), baseLodash = require('./_baseLodash'), isArray = require('./isArray'), isObjectLike = require('./isObjectLike'), wrapperClone = require('./_wrapperClone');
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/**
- * Creates a `lodash` object which wraps `value` to enable implicit method
- * chain sequences. Methods that operate on and return arrays, collections,
- * and functions can be chained together. Methods that retrieve a single value
- * or may return a primitive value will automatically end the chain sequence
- * and return the unwrapped value. Otherwise, the value must be unwrapped
- * with `_#value`.
- *
- * Explicit chain sequences, which must be unwrapped with `_#value`, may be
- * enabled using `_.chain`.
- *
- * The execution of chained methods is lazy, that is, it's deferred until
- * `_#value` is implicitly or explicitly called.
- *
- * Lazy evaluation allows several methods to support shortcut fusion.
- * Shortcut fusion is an optimization to merge iteratee calls; this avoids
- * the creation of intermediate arrays and can greatly reduce the number of
- * iteratee executions. Sections of a chain sequence qualify for shortcut
- * fusion if the section is applied to an array and iteratees accept only
- * one argument. The heuristic for whether a section qualifies for shortcut
- * fusion is subject to change.
- *
- * Chaining is supported in custom builds as long as the `_#value` method is
- * directly or indirectly included in the build.
- *
- * In addition to lodash methods, wrappers have `Array` and `String` methods.
- *
- * The wrapper `Array` methods are:
- * `concat`, `join`, `pop`, `push`, `shift`, `sort`, `splice`, and `unshift`
- *
- * The wrapper `String` methods are:
- * `replace` and `split`
- *
- * The wrapper methods that support shortcut fusion are:
- * `at`, `compact`, `drop`, `dropRight`, `dropWhile`, `filter`, `find`,
- * `findLast`, `head`, `initial`, `last`, `map`, `reject`, `reverse`, `slice`,
- * `tail`, `take`, `takeRight`, `takeRightWhile`, `takeWhile`, and `toArray`
- *
- * The chainable wrapper methods are:
- * `after`, `ary`, `assign`, `assignIn`, `assignInWith`, `assignWith`, `at`,
- * `before`, `bind`, `bindAll`, `bindKey`, `castArray`, `chain`, `chunk`,
- * `commit`, `compact`, `concat`, `conforms`, `constant`, `countBy`, `create`,
- * `curry`, `debounce`, `defaults`, `defaultsDeep`, `defer`, `delay`,
- * `difference`, `differenceBy`, `differenceWith`, `drop`, `dropRight`,
- * `dropRightWhile`, `dropWhile`, `extend`, `extendWith`, `fill`, `filter`,
- * `flatMap`, `flatMapDeep`, `flatMapDepth`, `flatten`, `flattenDeep`,
- * `flattenDepth`, `flip`, `flow`, `flowRight`, `fromPairs`, `functions`,
- * `functionsIn`, `groupBy`, `initial`, `intersection`, `intersectionBy`,
- * `intersectionWith`, `invert`, `invertBy`, `invokeMap`, `iteratee`, `keyBy`,
- * `keys`, `keysIn`, `map`, `mapKeys`, `mapValues`, `matches`, `matchesProperty`,
- * `memoize`, `merge`, `mergeWith`, `method`, `methodOf`, `mixin`, `negate`,
- * `nthArg`, `omit`, `omitBy`, `once`, `orderBy`, `over`, `overArgs`,
- * `overEvery`, `overSome`, `partial`, `partialRight`, `partition`, `pick`,
- * `pickBy`, `plant`, `property`, `propertyOf`, `pull`, `pullAll`, `pullAllBy`,
- * `pullAllWith`, `pullAt`, `push`, `range`, `rangeRight`, `rearg`, `reject`,
- * `remove`, `rest`, `reverse`, `sampleSize`, `set`, `setWith`, `shuffle`,
- * `slice`, `sort`, `sortBy`, `splice`, `spread`, `tail`, `take`, `takeRight`,
- * `takeRightWhile`, `takeWhile`, `tap`, `throttle`, `thru`, `toArray`,
- * `toPairs`, `toPairsIn`, `toPath`, `toPlainObject`, `transform`, `unary`,
- * `union`, `unionBy`, `unionWith`, `uniq`, `uniqBy`, `uniqWith`, `unset`,
- * `unshift`, `unzip`, `unzipWith`, `update`, `updateWith`, `values`,
- * `valuesIn`, `without`, `wrap`, `xor`, `xorBy`, `xorWith`, `zip`,
- * `zipObject`, `zipObjectDeep`, and `zipWith`
- *
- * The wrapper methods that are **not** chainable by default are:
- * `add`, `attempt`, `camelCase`, `capitalize`, `ceil`, `clamp`, `clone`,
- * `cloneDeep`, `cloneDeepWith`, `cloneWith`, `conformsTo`, `deburr`,
- * `defaultTo`, `divide`, `each`, `eachRight`, `endsWith`, `eq`, `escape`,
- * `escapeRegExp`, `every`, `find`, `findIndex`, `findKey`, `findLast`,
- * `findLastIndex`, `findLastKey`, `first`, `floor`, `forEach`, `forEachRight`,
- * `forIn`, `forInRight`, `forOwn`, `forOwnRight`, `get`, `gt`, `gte`, `has`,
- * `hasIn`, `head`, `identity`, `includes`, `indexOf`, `inRange`, `invoke`,
- * `isArguments`, `isArray`, `isArrayBuffer`, `isArrayLike`, `isArrayLikeObject`,
- * `isBoolean`, `isBuffer`, `isDate`, `isElement`, `isEmpty`, `isEqual`,
- * `isEqualWith`, `isError`, `isFinite`, `isFunction`, `isInteger`, `isLength`,
- * `isMap`, `isMatch`, `isMatchWith`, `isNaN`, `isNative`, `isNil`, `isNull`,
- * `isNumber`, `isObject`, `isObjectLike`, `isPlainObject`, `isRegExp`,
- * `isSafeInteger`, `isSet`, `isString`, `isUndefined`, `isTypedArray`,
- * `isWeakMap`, `isWeakSet`, `join`, `kebabCase`, `last`, `lastIndexOf`,
- * `lowerCase`, `lowerFirst`, `lt`, `lte`, `max`, `maxBy`, `mean`, `meanBy`,
- * `min`, `minBy`, `multiply`, `noConflict`, `noop`, `now`, `nth`, `pad`,
- * `padEnd`, `padStart`, `parseInt`, `pop`, `random`, `reduce`, `reduceRight`,
- * `repeat`, `result`, `round`, `runInContext`, `sample`, `shift`, `size`,
- * `snakeCase`, `some`, `sortedIndex`, `sortedIndexBy`, `sortedLastIndex`,
- * `sortedLastIndexBy`, `startCase`, `startsWith`, `stubArray`, `stubFalse`,
- * `stubObject`, `stubString`, `stubTrue`, `subtract`, `sum`, `sumBy`,
- * `template`, `times`, `toFinite`, `toInteger`, `toJSON`, `toLength`,
- * `toLower`, `toNumber`, `toSafeInteger`, `toString`, `toUpper`, `trim`,
- * `trimEnd`, `trimStart`, `truncate`, `unescape`, `uniqueId`, `upperCase`,
- * `upperFirst`, `value`, and `words`
- *
- * @name _
- * @constructor
- * @category Seq
- * @param {*} value The value to wrap in a `lodash` instance.
- * @returns {Object} Returns the new `lodash` wrapper instance.
- * @example
- *
- * function square(n) {
- *   return n * n;
- * }
- *
- * var wrapped = _([1, 2, 3]);
- *
- * // Returns an unwrapped value.
- * wrapped.reduce(_.add);
- * // => 6
- *
- * // Returns a wrapped value.
- * var squares = wrapped.map(square);
- *
- * _.isArray(squares);
- * // => false
- *
- * _.isArray(squares.value());
- * // => true
- */ function lodash(value) {
-    if (isObjectLike(value) && !isArray(value) && !(value instanceof LazyWrapper)) {
-        if (value instanceof LodashWrapper) return value;
-        if (hasOwnProperty.call(value, '__wrapped__')) return wrapperClone(value);
-    }
-    return new LodashWrapper(value);
-}
-// Ensure wrappers are instances of `baseLodash`.
-lodash.prototype = baseLodash.prototype;
-lodash.prototype.constructor = lodash;
-module.exports = lodash;
-
-},{"./_LazyWrapper":"jPVpf","./_LodashWrapper":"32oxQ","./_baseLodash":"dVpqq","./isArray":"dZaTH","./isObjectLike":"3BLi4","./_wrapperClone":"357TO"}],"32oxQ":[function(require,module,exports) {
-var baseCreate = require('./_baseCreate'), baseLodash = require('./_baseLodash');
-/**
- * The base constructor for creating `lodash` wrapper objects.
- *
- * @private
- * @param {*} value The value to wrap.
- * @param {boolean} [chainAll] Enable explicit method chain sequences.
- */ function LodashWrapper(value, chainAll) {
-    this.__wrapped__ = value;
-    this.__actions__ = [];
-    this.__chain__ = !!chainAll;
-    this.__index__ = 0;
-    this.__values__ = undefined;
-}
-LodashWrapper.prototype = baseCreate(baseLodash.prototype);
-LodashWrapper.prototype.constructor = LodashWrapper;
-module.exports = LodashWrapper;
-
-},{"./_baseCreate":"ef1VZ","./_baseLodash":"dVpqq"}],"dZaTH":[function(require,module,exports) {
-/**
- * Checks if `value` is classified as an `Array` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an array, else `false`.
- * @example
- *
- * _.isArray([1, 2, 3]);
- * // => true
- *
- * _.isArray(document.body.children);
- * // => false
- *
- * _.isArray('abc');
- * // => false
- *
- * _.isArray(_.noop);
- * // => false
- */ var isArray = Array.isArray;
-module.exports = isArray;
-
-},{}],"3BLi4":[function(require,module,exports) {
-/**
- * Checks if `value` is object-like. A value is object-like if it's not `null`
- * and has a `typeof` result of "object".
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
- * @example
- *
- * _.isObjectLike({});
- * // => true
- *
- * _.isObjectLike([1, 2, 3]);
- * // => true
- *
- * _.isObjectLike(_.noop);
- * // => false
- *
- * _.isObjectLike(null);
- * // => false
- */ function isObjectLike(value) {
-    return value != null && typeof value == 'object';
-}
-module.exports = isObjectLike;
-
-},{}],"357TO":[function(require,module,exports) {
-var LazyWrapper = require('./_LazyWrapper'), LodashWrapper = require('./_LodashWrapper'), copyArray = require('./_copyArray');
-/**
- * Creates a clone of `wrapper`.
- *
- * @private
- * @param {Object} wrapper The wrapper to clone.
- * @returns {Object} Returns the cloned wrapper.
- */ function wrapperClone(wrapper) {
-    if (wrapper instanceof LazyWrapper) return wrapper.clone();
-    var result = new LodashWrapper(wrapper.__wrapped__, wrapper.__chain__);
-    result.__actions__ = copyArray(wrapper.__actions__);
-    result.__index__ = wrapper.__index__;
-    result.__values__ = wrapper.__values__;
-    return result;
-}
-module.exports = wrapperClone;
-
-},{"./_LazyWrapper":"jPVpf","./_LodashWrapper":"32oxQ","./_copyArray":"jJ8fu"}],"jJ8fu":[function(require,module,exports) {
-/**
- * Copies the values of `source` to `array`.
- *
- * @private
- * @param {Array} source The array to copy values from.
- * @param {Array} [array=[]] The array to copy values to.
- * @returns {Array} Returns `array`.
- */ function copyArray(source, array) {
-    var index = -1, length = source.length;
-    array || (array = Array(length));
-    while(++index < length)array[index] = source[index];
-    return array;
-}
-module.exports = copyArray;
-
-},{}],"fSNJE":[function(require,module,exports) {
-var baseSetData = require('./_baseSetData'), shortOut = require('./_shortOut');
-/**
- * Sets metadata for `func`.
- *
- * **Note:** If this function becomes hot, i.e. is invoked a lot in a short
- * period of time, it will trip its breaker and transition to an identity
- * function to avoid garbage collection pauses in V8. See
- * [V8 issue 2070](https://bugs.chromium.org/p/v8/issues/detail?id=2070)
- * for more details.
- *
- * @private
- * @param {Function} func The function to associate metadata with.
- * @param {*} data The metadata.
- * @returns {Function} Returns `func`.
- */ var setData = shortOut(baseSetData);
-module.exports = setData;
-
-},{"./_baseSetData":"fVuYJ","./_shortOut":"7ulLs"}],"7ulLs":[function(require,module,exports) {
-/** Used to detect hot functions by number of calls within a span of milliseconds. */ var HOT_COUNT = 800, HOT_SPAN = 16;
-/* Built-in method references for those with the same name as other `lodash` methods. */ var nativeNow = Date.now;
-/**
- * Creates a function that'll short out and invoke `identity` instead
- * of `func` when it's called `HOT_COUNT` or more times in `HOT_SPAN`
- * milliseconds.
- *
- * @private
- * @param {Function} func The function to restrict.
- * @returns {Function} Returns the new shortable function.
- */ function shortOut(func) {
-    var count = 0, lastCalled = 0;
-    return function() {
-        var stamp = nativeNow(), remaining = HOT_SPAN - (stamp - lastCalled);
-        lastCalled = stamp;
-        if (remaining > 0) {
-            if (++count >= HOT_COUNT) return arguments[0];
-        } else count = 0;
-        return func.apply(undefined, arguments);
-    };
-}
-module.exports = shortOut;
-
-},{}],"d5KSW":[function(require,module,exports) {
-var getWrapDetails = require('./_getWrapDetails'), insertWrapDetails = require('./_insertWrapDetails'), setToString = require('./_setToString'), updateWrapDetails = require('./_updateWrapDetails');
-/**
- * Sets the `toString` method of `wrapper` to mimic the source of `reference`
- * with wrapper details in a comment at the top of the source body.
- *
- * @private
- * @param {Function} wrapper The function to modify.
- * @param {Function} reference The reference function.
- * @param {number} bitmask The bitmask flags. See `createWrap` for more details.
- * @returns {Function} Returns `wrapper`.
- */ function setWrapToString(wrapper, reference, bitmask) {
-    var source = reference + '';
-    return setToString(wrapper, insertWrapDetails(source, updateWrapDetails(getWrapDetails(source), bitmask)));
-}
-module.exports = setWrapToString;
-
-},{"./_getWrapDetails":"7sncX","./_insertWrapDetails":"56G4F","./_setToString":"b5kjI","./_updateWrapDetails":"jyT8K"}],"7sncX":[function(require,module,exports) {
-/** Used to match wrap detail comments. */ var reWrapDetails = /\{\n\/\* \[wrapped with (.+)\] \*/, reSplitDetails = /,? & /;
-/**
- * Extracts wrapper details from the `source` body comment.
- *
- * @private
- * @param {string} source The source to inspect.
- * @returns {Array} Returns the wrapper details.
- */ function getWrapDetails(source) {
-    var match = source.match(reWrapDetails);
-    return match ? match[1].split(reSplitDetails) : [];
-}
-module.exports = getWrapDetails;
-
-},{}],"56G4F":[function(require,module,exports) {
-/** Used to match wrap detail comments. */ var reWrapComment = /\{(?:\n\/\* \[wrapped with .+\] \*\/)?\n?/;
-/**
- * Inserts wrapper `details` in a comment at the top of the `source` body.
- *
- * @private
- * @param {string} source The source to modify.
- * @returns {Array} details The details to insert.
- * @returns {string} Returns the modified source.
- */ function insertWrapDetails(source, details) {
-    var length = details.length;
-    if (!length) return source;
-    var lastIndex = length - 1;
-    details[lastIndex] = (length > 1 ? '& ' : '') + details[lastIndex];
-    details = details.join(length > 2 ? ', ' : ' ');
-    return source.replace(reWrapComment, '{\n/* [wrapped with ' + details + '] */\n');
-}
-module.exports = insertWrapDetails;
-
-},{}],"b5kjI":[function(require,module,exports) {
-var baseSetToString = require('./_baseSetToString'), shortOut = require('./_shortOut');
-/**
- * Sets the `toString` method of `func` to return `string`.
- *
- * @private
- * @param {Function} func The function to modify.
- * @param {Function} string The `toString` result.
- * @returns {Function} Returns `func`.
- */ var setToString = shortOut(baseSetToString);
-module.exports = setToString;
-
-},{"./_baseSetToString":"lgihM","./_shortOut":"7ulLs"}],"lgihM":[function(require,module,exports) {
-var constant = require('./constant'), defineProperty = require('./_defineProperty'), identity = require('./identity');
-/**
- * The base implementation of `setToString` without support for hot loop shorting.
- *
- * @private
- * @param {Function} func The function to modify.
- * @param {Function} string The `toString` result.
- * @returns {Function} Returns `func`.
- */ var baseSetToString = !defineProperty ? identity : function(func, string) {
-    return defineProperty(func, 'toString', {
-        'configurable': true,
-        'enumerable': false,
-        'value': constant(string),
-        'writable': true
-    });
-};
-module.exports = baseSetToString;
-
-},{"./constant":"1HI6K","./_defineProperty":"cZOnw","./identity":"dgTUN"}],"1HI6K":[function(require,module,exports) {
-/**
- * Creates a function that returns `value`.
- *
- * @static
- * @memberOf _
- * @since 2.4.0
- * @category Util
- * @param {*} value The value to return from the new function.
- * @returns {Function} Returns the new constant function.
- * @example
- *
- * var objects = _.times(2, _.constant({ 'a': 1 }));
- *
- * console.log(objects);
- * // => [{ 'a': 1 }, { 'a': 1 }]
- *
- * console.log(objects[0] === objects[1]);
- * // => true
- */ function constant(value) {
-    return function() {
-        return value;
-    };
-}
-module.exports = constant;
-
-},{}],"cZOnw":[function(require,module,exports) {
-var getNative = require('./_getNative');
-var defineProperty = function() {
-    try {
-        var func = getNative(Object, 'defineProperty');
-        func({
-        }, '', {
-        });
-        return func;
-    } catch (e) {
-    }
-}();
-module.exports = defineProperty;
-
-},{"./_getNative":"9PCIl"}],"jyT8K":[function(require,module,exports) {
-var arrayEach = require('./_arrayEach'), arrayIncludes = require('./_arrayIncludes');
-/** Used to compose bitmasks for function metadata. */ var WRAP_BIND_FLAG = 1, WRAP_BIND_KEY_FLAG = 2, WRAP_CURRY_FLAG = 8, WRAP_CURRY_RIGHT_FLAG = 16, WRAP_PARTIAL_FLAG = 32, WRAP_PARTIAL_RIGHT_FLAG = 64, WRAP_ARY_FLAG = 128, WRAP_REARG_FLAG = 256, WRAP_FLIP_FLAG = 512;
-/** Used to associate wrap methods with their bit flags. */ var wrapFlags = [
-    [
-        'ary',
-        WRAP_ARY_FLAG
-    ],
-    [
-        'bind',
-        WRAP_BIND_FLAG
-    ],
-    [
-        'bindKey',
-        WRAP_BIND_KEY_FLAG
-    ],
-    [
-        'curry',
-        WRAP_CURRY_FLAG
-    ],
-    [
-        'curryRight',
-        WRAP_CURRY_RIGHT_FLAG
-    ],
-    [
-        'flip',
-        WRAP_FLIP_FLAG
-    ],
-    [
-        'partial',
-        WRAP_PARTIAL_FLAG
-    ],
-    [
-        'partialRight',
-        WRAP_PARTIAL_RIGHT_FLAG
-    ],
-    [
-        'rearg',
-        WRAP_REARG_FLAG
-    ]
-];
-/**
- * Updates wrapper `details` based on `bitmask` flags.
- *
- * @private
- * @returns {Array} details The details to modify.
- * @param {number} bitmask The bitmask flags. See `createWrap` for more details.
- * @returns {Array} Returns `details`.
- */ function updateWrapDetails(details, bitmask) {
-    arrayEach(wrapFlags, function(pair) {
-        var value = '_.' + pair[0];
-        if (bitmask & pair[1] && !arrayIncludes(details, value)) details.push(value);
-    });
-    return details.sort();
-}
-module.exports = updateWrapDetails;
-
-},{"./_arrayEach":"kMhnH","./_arrayIncludes":"kfd3F"}],"kMhnH":[function(require,module,exports) {
-/**
- * A specialized version of `_.forEach` for arrays without support for
- * iteratee shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array} Returns `array`.
- */ function arrayEach(array, iteratee) {
-    var index = -1, length = array == null ? 0 : array.length;
-    while(++index < length){
-        if (iteratee(array[index], index, array) === false) break;
-    }
-    return array;
-}
-module.exports = arrayEach;
-
-},{}],"kfd3F":[function(require,module,exports) {
-var baseIndexOf = require('./_baseIndexOf');
-/**
- * A specialized version of `_.includes` for arrays without support for
- * specifying an index to search from.
- *
- * @private
- * @param {Array} [array] The array to inspect.
- * @param {*} target The value to search for.
- * @returns {boolean} Returns `true` if `target` is found, else `false`.
- */ function arrayIncludes(array, value) {
-    var length = array == null ? 0 : array.length;
-    return !!length && baseIndexOf(array, value, 0) > -1;
-}
-module.exports = arrayIncludes;
-
-},{"./_baseIndexOf":"8NgWU"}],"8NgWU":[function(require,module,exports) {
-var baseFindIndex = require('./_baseFindIndex'), baseIsNaN = require('./_baseIsNaN'), strictIndexOf = require('./_strictIndexOf');
-/**
- * The base implementation of `_.indexOf` without `fromIndex` bounds checks.
- *
- * @private
- * @param {Array} array The array to inspect.
- * @param {*} value The value to search for.
- * @param {number} fromIndex The index to search from.
- * @returns {number} Returns the index of the matched value, else `-1`.
- */ function baseIndexOf(array, value, fromIndex) {
-    return value === value ? strictIndexOf(array, value, fromIndex) : baseFindIndex(array, baseIsNaN, fromIndex);
-}
-module.exports = baseIndexOf;
-
-},{"./_baseFindIndex":"630D7","./_baseIsNaN":"47cqG","./_strictIndexOf":"8MeE0"}],"630D7":[function(require,module,exports) {
-/**
- * The base implementation of `_.findIndex` and `_.findLastIndex` without
- * support for iteratee shorthands.
- *
- * @private
- * @param {Array} array The array to inspect.
- * @param {Function} predicate The function invoked per iteration.
- * @param {number} fromIndex The index to search from.
- * @param {boolean} [fromRight] Specify iterating from right to left.
- * @returns {number} Returns the index of the matched value, else `-1`.
- */ function baseFindIndex(array, predicate, fromIndex, fromRight) {
-    var length = array.length, index = fromIndex + (fromRight ? 1 : -1);
-    while(fromRight ? index-- : ++index < length){
-        if (predicate(array[index], index, array)) return index;
-    }
-    return -1;
-}
-module.exports = baseFindIndex;
-
-},{}],"47cqG":[function(require,module,exports) {
-/**
- * The base implementation of `_.isNaN` without support for number objects.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is `NaN`, else `false`.
- */ function baseIsNaN(value) {
-    return value !== value;
-}
-module.exports = baseIsNaN;
-
-},{}],"8MeE0":[function(require,module,exports) {
-/**
- * A specialized version of `_.indexOf` which performs strict equality
- * comparisons of values, i.e. `===`.
- *
- * @private
- * @param {Array} array The array to inspect.
- * @param {*} value The value to search for.
- * @param {number} fromIndex The index to search from.
- * @returns {number} Returns the index of the matched value, else `-1`.
- */ function strictIndexOf(array, value, fromIndex) {
-    var index = fromIndex - 1, length = array.length;
-    while(++index < length){
-        if (array[index] === value) return index;
-    }
-    return -1;
-}
-module.exports = strictIndexOf;
-
-},{}],"2v0Bi":[function(require,module,exports) {
-/**
- * Gets the argument placeholder value for `func`.
- *
- * @private
- * @param {Function} func The function to inspect.
- * @returns {*} Returns the placeholder value.
- */ function getHolder(func) {
-    var object = func;
-    return object.placeholder;
-}
-module.exports = getHolder;
-
-},{}],"4CCWQ":[function(require,module,exports) {
-var copyArray = require('./_copyArray'), isIndex = require('./_isIndex');
-/* Built-in method references for those with the same name as other `lodash` methods. */ var nativeMin = Math.min;
-/**
- * Reorder `array` according to the specified indexes where the element at
- * the first index is assigned as the first element, the element at
- * the second index is assigned as the second element, and so on.
- *
- * @private
- * @param {Array} array The array to reorder.
- * @param {Array} indexes The arranged array indexes.
- * @returns {Array} Returns `array`.
- */ function reorder(array, indexes) {
-    var arrLength = array.length, length = nativeMin(indexes.length, arrLength), oldArray = copyArray(array);
-    while(length--){
-        var index = indexes[length];
-        array[length] = isIndex(index, arrLength) ? oldArray[index] : undefined;
-    }
-    return array;
-}
-module.exports = reorder;
-
-},{"./_copyArray":"jJ8fu","./_isIndex":"aJpx0"}],"aJpx0":[function(require,module,exports) {
-/** Used as references for various `Number` constants. */ var MAX_SAFE_INTEGER = 9007199254740991;
-/** Used to detect unsigned integer values. */ var reIsUint = /^(?:0|[1-9]\d*)$/;
-/**
- * Checks if `value` is a valid array-like index.
- *
- * @private
- * @param {*} value The value to check.
- * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
- * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
- */ function isIndex(value, length) {
-    var type = typeof value;
-    length = length == null ? MAX_SAFE_INTEGER : length;
-    return !!length && (type == 'number' || type != 'symbol' && reIsUint.test(value)) && value > -1 && value % 1 == 0 && value < length;
-}
-module.exports = isIndex;
-
-},{}],"brLIY":[function(require,module,exports) {
-/** Used as the internal argument placeholder. */ var PLACEHOLDER = '__lodash_placeholder__';
-/**
- * Replaces all `placeholder` elements in `array` with an internal placeholder
- * and returns an array of their indexes.
- *
- * @private
- * @param {Array} array The array to modify.
- * @param {*} placeholder The placeholder to replace.
- * @returns {Array} Returns the new array of placeholder indexes.
- */ function replaceHolders(array, placeholder) {
-    var index = -1, length = array.length, resIndex = 0, result = [];
-    while(++index < length){
-        var value = array[index];
-        if (value === placeholder || value === PLACEHOLDER) {
-            array[index] = PLACEHOLDER;
-            result[resIndex++] = index;
-        }
-    }
-    return result;
-}
-module.exports = replaceHolders;
-
-},{}],"1i1ov":[function(require,module,exports) {
-var apply = require('./_apply'), createCtor = require('./_createCtor'), root = require('./_root');
-/** Used to compose bitmasks for function metadata. */ var WRAP_BIND_FLAG = 1;
-/**
- * Creates a function that wraps `func` to invoke it with the `this` binding
- * of `thisArg` and `partials` prepended to the arguments it receives.
- *
- * @private
- * @param {Function} func The function to wrap.
- * @param {number} bitmask The bitmask flags. See `createWrap` for more details.
- * @param {*} thisArg The `this` binding of `func`.
- * @param {Array} partials The arguments to prepend to those provided to
- *  the new function.
- * @returns {Function} Returns the new wrapped function.
- */ function createPartial(func, bitmask, thisArg, partials) {
-    var isBind = bitmask & WRAP_BIND_FLAG, Ctor = createCtor(func);
-    function wrapper() {
-        var argsIndex = -1, argsLength = arguments.length, leftIndex = -1, leftLength = partials.length, args = Array(leftLength + argsLength), fn = this && this !== root && this instanceof wrapper ? Ctor : func;
-        while(++leftIndex < leftLength)args[leftIndex] = partials[leftIndex];
-        while(argsLength--)args[leftIndex++] = arguments[++argsIndex];
-        return apply(fn, isBind ? thisArg : this, args);
-    }
-    return wrapper;
-}
-module.exports = createPartial;
-
-},{"./_apply":"gUweg","./_createCtor":"5ihhn","./_root":"dSYUs"}],"g1yu3":[function(require,module,exports) {
-var composeArgs = require('./_composeArgs'), composeArgsRight = require('./_composeArgsRight'), replaceHolders = require('./_replaceHolders');
-/** Used as the internal argument placeholder. */ var PLACEHOLDER = '__lodash_placeholder__';
-/** Used to compose bitmasks for function metadata. */ var WRAP_BIND_FLAG = 1, WRAP_BIND_KEY_FLAG = 2, WRAP_CURRY_BOUND_FLAG = 4, WRAP_CURRY_FLAG = 8, WRAP_ARY_FLAG = 128, WRAP_REARG_FLAG = 256;
-/* Built-in method references for those with the same name as other `lodash` methods. */ var nativeMin = Math.min;
-/**
- * Merges the function metadata of `source` into `data`.
- *
- * Merging metadata reduces the number of wrappers used to invoke a function.
- * This is possible because methods like `_.bind`, `_.curry`, and `_.partial`
- * may be applied regardless of execution order. Methods like `_.ary` and
- * `_.rearg` modify function arguments, making the order in which they are
- * executed important, preventing the merging of metadata. However, we make
- * an exception for a safe combined case where curried functions have `_.ary`
- * and or `_.rearg` applied.
- *
- * @private
- * @param {Array} data The destination metadata.
- * @param {Array} source The source metadata.
- * @returns {Array} Returns `data`.
- */ function mergeData(data, source) {
-    var bitmask = data[1], srcBitmask = source[1], newBitmask = bitmask | srcBitmask, isCommon = newBitmask < (WRAP_BIND_FLAG | WRAP_BIND_KEY_FLAG | WRAP_ARY_FLAG);
-    var isCombo = srcBitmask == WRAP_ARY_FLAG && bitmask == WRAP_CURRY_FLAG || srcBitmask == WRAP_ARY_FLAG && bitmask == WRAP_REARG_FLAG && data[7].length <= source[8] || srcBitmask == (WRAP_ARY_FLAG | WRAP_REARG_FLAG) && source[7].length <= source[8] && bitmask == WRAP_CURRY_FLAG;
-    // Exit early if metadata can't be merged.
-    if (!(isCommon || isCombo)) return data;
-    // Use source `thisArg` if available.
-    if (srcBitmask & WRAP_BIND_FLAG) {
-        data[2] = source[2];
-        // Set when currying a bound function.
-        newBitmask |= bitmask & WRAP_BIND_FLAG ? 0 : WRAP_CURRY_BOUND_FLAG;
-    }
-    // Compose partial arguments.
-    var value = source[3];
-    if (value) {
-        var partials = data[3];
-        data[3] = partials ? composeArgs(partials, value, source[4]) : value;
-        data[4] = partials ? replaceHolders(data[3], PLACEHOLDER) : source[4];
-    }
-    // Compose partial right arguments.
-    value = source[5];
-    if (value) {
-        partials = data[5];
-        data[5] = partials ? composeArgsRight(partials, value, source[6]) : value;
-        data[6] = partials ? replaceHolders(data[5], PLACEHOLDER) : source[6];
-    }
-    // Use source `argPos` if available.
-    value = source[7];
-    if (value) data[7] = value;
-    // Use source `ary` if it's smaller.
-    if (srcBitmask & WRAP_ARY_FLAG) data[8] = data[8] == null ? source[8] : nativeMin(data[8], source[8]);
-    // Use source `arity` if one is not provided.
-    if (data[9] == null) data[9] = source[9];
-    // Use source `func` and merge bitmasks.
-    data[0] = source[0];
-    data[1] = newBitmask;
-    return data;
-}
-module.exports = mergeData;
-
-},{"./_composeArgs":"9Sdbk","./_composeArgsRight":"diHiW","./_replaceHolders":"brLIY"}],"ds6ZT":[function(require,module,exports) {
-var toFinite = require('./toFinite');
-/**
- * Converts `value` to an integer.
- *
- * **Note:** This method is loosely based on
- * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to convert.
- * @returns {number} Returns the converted integer.
- * @example
- *
- * _.toInteger(3.2);
- * // => 3
- *
- * _.toInteger(Number.MIN_VALUE);
- * // => 0
- *
- * _.toInteger(Infinity);
- * // => 1.7976931348623157e+308
- *
- * _.toInteger('3.2');
- * // => 3
- */ function toInteger(value) {
-    var result = toFinite(value), remainder = result % 1;
-    return result === result ? remainder ? result - remainder : result : 0;
-}
-module.exports = toInteger;
-
-},{"./toFinite":"dkCNj"}],"dkCNj":[function(require,module,exports) {
-var toNumber = require('./toNumber');
-/** Used as references for various `Number` constants. */ var INFINITY = 1 / 0, MAX_INTEGER = 179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000;
-/**
- * Converts `value` to a finite number.
- *
- * @static
- * @memberOf _
- * @since 4.12.0
- * @category Lang
- * @param {*} value The value to convert.
- * @returns {number} Returns the converted number.
- * @example
- *
- * _.toFinite(3.2);
- * // => 3.2
- *
- * _.toFinite(Number.MIN_VALUE);
- * // => 5e-324
- *
- * _.toFinite(Infinity);
- * // => 1.7976931348623157e+308
- *
- * _.toFinite('3.2');
- * // => 3.2
- */ function toFinite(value) {
-    if (!value) return value === 0 ? value : 0;
-    value = toNumber(value);
-    if (value === INFINITY || value === -INFINITY) {
-        var sign = value < 0 ? -1 : 1;
-        return sign * MAX_INTEGER;
-    }
-    return value === value ? value : 0;
-}
-module.exports = toFinite;
-
-},{"./toNumber":"12NaH"}],"12NaH":[function(require,module,exports) {
-var baseTrim = require('./_baseTrim'), isObject = require('./isObject'), isSymbol = require('./isSymbol');
-/** Used as references for various `Number` constants. */ var NAN = 0 / 0;
-/** Used to detect bad signed hexadecimal string values. */ var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
-/** Used to detect binary string values. */ var reIsBinary = /^0b[01]+$/i;
-/** Used to detect octal string values. */ var reIsOctal = /^0o[0-7]+$/i;
-/** Built-in method references without a dependency on `root`. */ var freeParseInt = parseInt;
-/**
- * Converts `value` to a number.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to process.
- * @returns {number} Returns the number.
- * @example
- *
- * _.toNumber(3.2);
- * // => 3.2
- *
- * _.toNumber(Number.MIN_VALUE);
- * // => 5e-324
- *
- * _.toNumber(Infinity);
- * // => Infinity
- *
- * _.toNumber('3.2');
- * // => 3.2
- */ function toNumber(value) {
-    if (typeof value == 'number') return value;
-    if (isSymbol(value)) return NAN;
-    if (isObject(value)) {
-        var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
-        value = isObject(other) ? other + '' : other;
-    }
-    if (typeof value != 'string') return value === 0 ? value : +value;
-    value = baseTrim(value);
-    var isBinary = reIsBinary.test(value);
-    return isBinary || reIsOctal.test(value) ? freeParseInt(value.slice(2), isBinary ? 2 : 8) : reIsBadHex.test(value) ? NAN : +value;
-}
-module.exports = toNumber;
-
-},{"./_baseTrim":"eUJZ3","./isObject":"cGhqJ","./isSymbol":"i3BHC"}],"eUJZ3":[function(require,module,exports) {
-var trimmedEndIndex = require('./_trimmedEndIndex');
-/** Used to match leading whitespace. */ var reTrimStart = /^\s+/;
-/**
- * The base implementation of `_.trim`.
- *
- * @private
- * @param {string} string The string to trim.
- * @returns {string} Returns the trimmed string.
- */ function baseTrim(string) {
-    return string ? string.slice(0, trimmedEndIndex(string) + 1).replace(reTrimStart, '') : string;
-}
-module.exports = baseTrim;
-
-},{"./_trimmedEndIndex":"hHJmS"}],"hHJmS":[function(require,module,exports) {
-/** Used to match a single whitespace character. */ var reWhitespace = /\s/;
-/**
- * Used by `_.trim` and `_.trimEnd` to get the index of the last non-whitespace
- * character of `string`.
- *
- * @private
- * @param {string} string The string to inspect.
- * @returns {number} Returns the index of the last non-whitespace character.
- */ function trimmedEndIndex(string) {
-    var index = string.length;
-    while(index-- && reWhitespace.test(string.charAt(index)));
-    return index;
-}
-module.exports = trimmedEndIndex;
-
-},{}],"i3BHC":[function(require,module,exports) {
-var baseGetTag = require('./_baseGetTag'), isObjectLike = require('./isObjectLike');
-/** `Object#toString` result references. */ var symbolTag = '[object Symbol]';
-/**
- * Checks if `value` is classified as a `Symbol` primitive or object.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
- * @example
- *
- * _.isSymbol(Symbol.iterator);
- * // => true
- *
- * _.isSymbol('abc');
- * // => false
- */ function isSymbol(value) {
-    return typeof value == 'symbol' || isObjectLike(value) && baseGetTag(value) == symbolTag;
-}
-module.exports = isSymbol;
-
-},{"./_baseGetTag":"lOnbo","./isObjectLike":"3BLi4"}],"fNRtQ":[function(require,module,exports) {
-var copyObject = require('./_copyObject'), keys = require('./keys');
-/**
- * The base implementation of `_.assign` without support for multiple sources
- * or `customizer` functions.
- *
- * @private
- * @param {Object} object The destination object.
- * @param {Object} source The source object.
- * @returns {Object} Returns `object`.
- */ function baseAssign(object, source) {
-    return object && copyObject(source, keys(source), object);
-}
-module.exports = baseAssign;
-
-},{"./_copyObject":"gfA7W","./keys":"6fHVw"}],"gfA7W":[function(require,module,exports) {
-var assignValue = require('./_assignValue'), baseAssignValue = require('./_baseAssignValue');
-/**
- * Copies properties of `source` to `object`.
- *
- * @private
- * @param {Object} source The object to copy properties from.
- * @param {Array} props The property identifiers to copy.
- * @param {Object} [object={}] The object to copy properties to.
- * @param {Function} [customizer] The function to customize copied values.
- * @returns {Object} Returns `object`.
- */ function copyObject(source, props, object, customizer) {
-    var isNew = !object;
-    object || (object = {
-    });
-    var index = -1, length = props.length;
-    while(++index < length){
-        var key = props[index];
-        var newValue = customizer ? customizer(object[key], source[key], key, object, source) : undefined;
-        if (newValue === undefined) newValue = source[key];
-        if (isNew) baseAssignValue(object, key, newValue);
-        else assignValue(object, key, newValue);
-    }
-    return object;
-}
-module.exports = copyObject;
-
-},{"./_assignValue":"5M3eX","./_baseAssignValue":"fprBU"}],"5M3eX":[function(require,module,exports) {
-var baseAssignValue = require('./_baseAssignValue'), eq = require('./eq');
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/**
- * Assigns `value` to `key` of `object` if the existing value is not equivalent
- * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
- * for equality comparisons.
- *
- * @private
- * @param {Object} object The object to modify.
- * @param {string} key The key of the property to assign.
- * @param {*} value The value to assign.
- */ function assignValue(object, key, value) {
-    var objValue = object[key];
-    if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) || value === undefined && !(key in object)) baseAssignValue(object, key, value);
-}
-module.exports = assignValue;
-
-},{"./_baseAssignValue":"fprBU","./eq":"aVz5f"}],"fprBU":[function(require,module,exports) {
-var defineProperty = require('./_defineProperty');
-/**
- * The base implementation of `assignValue` and `assignMergeValue` without
- * value checks.
- *
- * @private
- * @param {Object} object The object to modify.
- * @param {string} key The key of the property to assign.
- * @param {*} value The value to assign.
- */ function baseAssignValue(object, key, value) {
-    if (key == '__proto__' && defineProperty) defineProperty(object, key, {
-        'configurable': true,
-        'enumerable': true,
-        'value': value,
-        'writable': true
-    });
-    else object[key] = value;
-}
-module.exports = baseAssignValue;
-
-},{"./_defineProperty":"cZOnw"}],"aVz5f":[function(require,module,exports) {
-/**
- * Performs a
- * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
- * comparison between two values to determine if they are equivalent.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to compare.
- * @param {*} other The other value to compare.
- * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
- * @example
- *
- * var object = { 'a': 1 };
- * var other = { 'a': 1 };
- *
- * _.eq(object, object);
- * // => true
- *
- * _.eq(object, other);
- * // => false
- *
- * _.eq('a', 'a');
- * // => true
- *
- * _.eq('a', Object('a'));
- * // => false
- *
- * _.eq(NaN, NaN);
- * // => true
- */ function eq(value, other) {
-    return value === other || value !== value && other !== other;
-}
-module.exports = eq;
-
-},{}],"6fHVw":[function(require,module,exports) {
-var arrayLikeKeys = require('./_arrayLikeKeys'), baseKeys = require('./_baseKeys'), isArrayLike = require('./isArrayLike');
-/**
- * Creates an array of the own enumerable property names of `object`.
- *
- * **Note:** Non-object values are coerced to objects. See the
- * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
- * for more details.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Object
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- *   this.b = 2;
- * }
- *
- * Foo.prototype.c = 3;
- *
- * _.keys(new Foo);
- * // => ['a', 'b'] (iteration order is not guaranteed)
- *
- * _.keys('hi');
- * // => ['0', '1']
- */ function keys(object) {
-    return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
-}
-module.exports = keys;
-
-},{"./_arrayLikeKeys":"dquIQ","./_baseKeys":"c0eiI","./isArrayLike":"gMCbp"}],"dquIQ":[function(require,module,exports) {
-var baseTimes = require('./_baseTimes'), isArguments = require('./isArguments'), isArray = require('./isArray'), isBuffer = require('./isBuffer'), isIndex = require('./_isIndex'), isTypedArray = require('./isTypedArray');
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/**
- * Creates an array of the enumerable property names of the array-like `value`.
- *
- * @private
- * @param {*} value The value to query.
- * @param {boolean} inherited Specify returning inherited property names.
- * @returns {Array} Returns the array of property names.
- */ function arrayLikeKeys(value, inherited) {
-    var isArr = isArray(value), isArg = !isArr && isArguments(value), isBuff = !isArr && !isArg && isBuffer(value), isType = !isArr && !isArg && !isBuff && isTypedArray(value), skipIndexes = isArr || isArg || isBuff || isType, result = skipIndexes ? baseTimes(value.length, String) : [], length = result.length;
-    for(var key in value)if ((inherited || hasOwnProperty.call(value, key)) && !(skipIndexes && // Safari 9 has enumerable `arguments.length` in strict mode.
-    (key == 'length' || isBuff && (key == 'offset' || key == 'parent') || isType && (key == 'buffer' || key == 'byteLength' || key == 'byteOffset') || // Skip index properties.
-    isIndex(key, length)))) result.push(key);
-    return result;
-}
-module.exports = arrayLikeKeys;
-
-},{"./_baseTimes":"odqYd","./isArguments":"8ReNj","./isArray":"dZaTH","./isBuffer":"cn85h","./_isIndex":"aJpx0","./isTypedArray":"6SVKk"}],"odqYd":[function(require,module,exports) {
-/**
- * The base implementation of `_.times` without support for iteratee shorthands
- * or max array length checks.
- *
- * @private
- * @param {number} n The number of times to invoke `iteratee`.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array} Returns the array of results.
- */ function baseTimes(n, iteratee) {
-    var index = -1, result = Array(n);
-    while(++index < n)result[index] = iteratee(index);
-    return result;
-}
-module.exports = baseTimes;
-
-},{}],"8ReNj":[function(require,module,exports) {
-var baseIsArguments = require('./_baseIsArguments'), isObjectLike = require('./isObjectLike');
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/** Built-in value references. */ var propertyIsEnumerable = objectProto.propertyIsEnumerable;
-/**
- * Checks if `value` is likely an `arguments` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an `arguments` object,
- *  else `false`.
- * @example
- *
- * _.isArguments(function() { return arguments; }());
- * // => true
- *
- * _.isArguments([1, 2, 3]);
- * // => false
- */ var isArguments = baseIsArguments(function() {
-    return arguments;
-}()) ? baseIsArguments : function(value) {
-    return isObjectLike(value) && hasOwnProperty.call(value, 'callee') && !propertyIsEnumerable.call(value, 'callee');
-};
-module.exports = isArguments;
-
-},{"./_baseIsArguments":"gx70P","./isObjectLike":"3BLi4"}],"gx70P":[function(require,module,exports) {
-var baseGetTag = require('./_baseGetTag'), isObjectLike = require('./isObjectLike');
-/** `Object#toString` result references. */ var argsTag = '[object Arguments]';
-/**
- * The base implementation of `_.isArguments`.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an `arguments` object,
- */ function baseIsArguments(value) {
-    return isObjectLike(value) && baseGetTag(value) == argsTag;
-}
-module.exports = baseIsArguments;
-
-},{"./_baseGetTag":"lOnbo","./isObjectLike":"3BLi4"}],"cn85h":[function(require,module,exports) {
-var root = require('./_root'), stubFalse = require('./stubFalse');
-/** Detect free variable `exports`. */ var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
-/** Detect free variable `module`. */ var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
-/** Detect the popular CommonJS extension `module.exports`. */ var moduleExports = freeModule && freeModule.exports === freeExports;
-/** Built-in value references. */ var Buffer = moduleExports ? root.Buffer : undefined;
-/* Built-in method references for those with the same name as other `lodash` methods. */ var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
-/**
- * Checks if `value` is a buffer.
- *
- * @static
- * @memberOf _
- * @since 4.3.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a buffer, else `false`.
- * @example
- *
- * _.isBuffer(new Buffer(2));
- * // => true
- *
- * _.isBuffer(new Uint8Array(2));
- * // => false
- */ var isBuffer = nativeIsBuffer || stubFalse;
-module.exports = isBuffer;
-
-},{"./_root":"dSYUs","./stubFalse":"dx4uy"}],"dx4uy":[function(require,module,exports) {
-/**
- * This method returns `false`.
- *
- * @static
- * @memberOf _
- * @since 4.13.0
- * @category Util
- * @returns {boolean} Returns `false`.
- * @example
- *
- * _.times(2, _.stubFalse);
- * // => [false, false]
- */ function stubFalse() {
-    return false;
-}
-module.exports = stubFalse;
-
-},{}],"6SVKk":[function(require,module,exports) {
-var baseIsTypedArray = require('./_baseIsTypedArray'), baseUnary = require('./_baseUnary'), nodeUtil = require('./_nodeUtil');
-/* Node.js helper references. */ var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
-/**
- * Checks if `value` is classified as a typed array.
- *
- * @static
- * @memberOf _
- * @since 3.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
- * @example
- *
- * _.isTypedArray(new Uint8Array);
- * // => true
- *
- * _.isTypedArray([]);
- * // => false
- */ var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
-module.exports = isTypedArray;
-
-},{"./_baseIsTypedArray":"lGSsl","./_baseUnary":"eJXq4","./_nodeUtil":"5edNe"}],"lGSsl":[function(require,module,exports) {
-var baseGetTag = require('./_baseGetTag'), isLength = require('./isLength'), isObjectLike = require('./isObjectLike');
-/** `Object#toString` result references. */ var argsTag = '[object Arguments]', arrayTag = '[object Array]', boolTag = '[object Boolean]', dateTag = '[object Date]', errorTag = '[object Error]', funcTag = '[object Function]', mapTag = '[object Map]', numberTag = '[object Number]', objectTag = '[object Object]', regexpTag = '[object RegExp]', setTag = '[object Set]', stringTag = '[object String]', weakMapTag = '[object WeakMap]';
-var arrayBufferTag = '[object ArrayBuffer]', dataViewTag = '[object DataView]', float32Tag = '[object Float32Array]', float64Tag = '[object Float64Array]', int8Tag = '[object Int8Array]', int16Tag = '[object Int16Array]', int32Tag = '[object Int32Array]', uint8Tag = '[object Uint8Array]', uint8ClampedTag = '[object Uint8ClampedArray]', uint16Tag = '[object Uint16Array]', uint32Tag = '[object Uint32Array]';
-/** Used to identify `toStringTag` values of typed arrays. */ var typedArrayTags = {
-};
-typedArrayTags[float32Tag] = typedArrayTags[float64Tag] = typedArrayTags[int8Tag] = typedArrayTags[int16Tag] = typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] = typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] = typedArrayTags[uint32Tag] = true;
-typedArrayTags[argsTag] = typedArrayTags[arrayTag] = typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] = typedArrayTags[dataViewTag] = typedArrayTags[dateTag] = typedArrayTags[errorTag] = typedArrayTags[funcTag] = typedArrayTags[mapTag] = typedArrayTags[numberTag] = typedArrayTags[objectTag] = typedArrayTags[regexpTag] = typedArrayTags[setTag] = typedArrayTags[stringTag] = typedArrayTags[weakMapTag] = false;
-/**
- * The base implementation of `_.isTypedArray` without Node.js optimizations.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
- */ function baseIsTypedArray(value) {
-    return isObjectLike(value) && isLength(value.length) && !!typedArrayTags[baseGetTag(value)];
-}
-module.exports = baseIsTypedArray;
-
-},{"./_baseGetTag":"lOnbo","./isLength":"hrTBx","./isObjectLike":"3BLi4"}],"hrTBx":[function(require,module,exports) {
-/** Used as references for various `Number` constants. */ var MAX_SAFE_INTEGER = 9007199254740991;
-/**
- * Checks if `value` is a valid array-like length.
- *
- * **Note:** This method is loosely based on
- * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
- * @example
- *
- * _.isLength(3);
- * // => true
- *
- * _.isLength(Number.MIN_VALUE);
- * // => false
- *
- * _.isLength(Infinity);
- * // => false
- *
- * _.isLength('3');
- * // => false
- */ function isLength(value) {
-    return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
-}
-module.exports = isLength;
-
-},{}],"eJXq4":[function(require,module,exports) {
-/**
- * The base implementation of `_.unary` without support for storing metadata.
- *
- * @private
- * @param {Function} func The function to cap arguments for.
- * @returns {Function} Returns the new capped function.
- */ function baseUnary(func) {
-    return function(value) {
-        return func(value);
-    };
-}
-module.exports = baseUnary;
-
-},{}],"5edNe":[function(require,module,exports) {
-var freeGlobal = require('./_freeGlobal');
-/** Detect free variable `exports`. */ var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
-/** Detect free variable `module`. */ var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
-/** Detect the popular CommonJS extension `module.exports`. */ var moduleExports = freeModule && freeModule.exports === freeExports;
-/** Detect free variable `process` from Node.js. */ var freeProcess = moduleExports && freeGlobal.process;
-/** Used to access faster Node.js helpers. */ var nodeUtil = function() {
-    try {
-        // Use `util.types` for Node.js 10+.
-        var types = freeModule && freeModule.require && freeModule.require('util').types;
-        if (types) return types;
-        // Legacy `process.binding('util')` for Node.js < 10.
-        return freeProcess && freeProcess.binding && freeProcess.binding('util');
-    } catch (e) {
-    }
-}();
-module.exports = nodeUtil;
-
-},{"./_freeGlobal":"kAk32"}],"c0eiI":[function(require,module,exports) {
-var isPrototype = require('./_isPrototype'), nativeKeys = require('./_nativeKeys');
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/**
- * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- */ function baseKeys(object) {
-    if (!isPrototype(object)) return nativeKeys(object);
-    var result = [];
-    for(var key in Object(object))if (hasOwnProperty.call(object, key) && key != 'constructor') result.push(key);
-    return result;
-}
-module.exports = baseKeys;
-
-},{"./_isPrototype":"iG4eR","./_nativeKeys":"k97u2"}],"iG4eR":[function(require,module,exports) {
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/**
- * Checks if `value` is likely a prototype object.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
- */ function isPrototype(value) {
-    var Ctor = value && value.constructor, proto = typeof Ctor == 'function' && Ctor.prototype || objectProto;
-    return value === proto;
-}
-module.exports = isPrototype;
-
-},{}],"k97u2":[function(require,module,exports) {
-var overArg = require('./_overArg');
-/* Built-in method references for those with the same name as other `lodash` methods. */ var nativeKeys = overArg(Object.keys, Object);
-module.exports = nativeKeys;
-
-},{"./_overArg":"dpUvl"}],"dpUvl":[function(require,module,exports) {
-/**
- * Creates a unary function that invokes `func` with its argument transformed.
- *
- * @private
- * @param {Function} func The function to wrap.
- * @param {Function} transform The argument transform.
- * @returns {Function} Returns the new function.
- */ function overArg(func, transform) {
-    return function(arg) {
-        return func(transform(arg));
-    };
-}
-module.exports = overArg;
-
-},{}],"gMCbp":[function(require,module,exports) {
-var isFunction = require('./isFunction'), isLength = require('./isLength');
-/**
- * Checks if `value` is array-like. A value is considered array-like if it's
- * not a function and has a `value.length` that's an integer greater than or
- * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
- * @example
- *
- * _.isArrayLike([1, 2, 3]);
- * // => true
- *
- * _.isArrayLike(document.body.children);
- * // => true
- *
- * _.isArrayLike('abc');
- * // => true
- *
- * _.isArrayLike(_.noop);
- * // => false
- */ function isArrayLike(value) {
-    return value != null && isLength(value.length) && !isFunction(value);
-}
-module.exports = isArrayLike;
-
-},{"./isFunction":"cfti6","./isLength":"hrTBx"}],"edHVe":[function(require,module,exports) {
-var baseClone = require('./_baseClone');
-/** Used to compose bitmasks for cloning. */ var CLONE_SYMBOLS_FLAG = 4;
-/**
- * Creates a shallow clone of `value`.
- *
- * **Note:** This method is loosely based on the
- * [structured clone algorithm](https://mdn.io/Structured_clone_algorithm)
- * and supports cloning arrays, array buffers, booleans, date objects, maps,
- * numbers, `Object` objects, regexes, sets, strings, symbols, and typed
- * arrays. The own enumerable properties of `arguments` objects are cloned
- * as plain objects. An empty object is returned for uncloneable values such
- * as error objects, functions, DOM nodes, and WeakMaps.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to clone.
- * @returns {*} Returns the cloned value.
- * @see _.cloneDeep
- * @example
- *
- * var objects = [{ 'a': 1 }, { 'b': 2 }];
- *
- * var shallow = _.clone(objects);
- * console.log(shallow[0] === objects[0]);
- * // => true
- */ function clone(value) {
-    return baseClone(value, CLONE_SYMBOLS_FLAG);
-}
-module.exports = clone;
-
-},{"./_baseClone":"2GC2p"}],"2GC2p":[function(require,module,exports) {
-var Stack = require('./_Stack'), arrayEach = require('./_arrayEach'), assignValue = require('./_assignValue'), baseAssign = require('./_baseAssign'), baseAssignIn = require('./_baseAssignIn'), cloneBuffer = require('./_cloneBuffer'), copyArray = require('./_copyArray'), copySymbols = require('./_copySymbols'), copySymbolsIn = require('./_copySymbolsIn'), getAllKeys = require('./_getAllKeys'), getAllKeysIn = require('./_getAllKeysIn'), getTag = require('./_getTag'), initCloneArray = require('./_initCloneArray'), initCloneByTag = require('./_initCloneByTag'), initCloneObject = require('./_initCloneObject'), isArray = require('./isArray'), isBuffer = require('./isBuffer'), isMap = require('./isMap'), isObject = require('./isObject'), isSet = require('./isSet'), keys = require('./keys'), keysIn = require('./keysIn');
-/** Used to compose bitmasks for cloning. */ var CLONE_DEEP_FLAG = 1, CLONE_FLAT_FLAG = 2, CLONE_SYMBOLS_FLAG = 4;
-/** `Object#toString` result references. */ var argsTag = '[object Arguments]', arrayTag = '[object Array]', boolTag = '[object Boolean]', dateTag = '[object Date]', errorTag = '[object Error]', funcTag = '[object Function]', genTag = '[object GeneratorFunction]', mapTag = '[object Map]', numberTag = '[object Number]', objectTag = '[object Object]', regexpTag = '[object RegExp]', setTag = '[object Set]', stringTag = '[object String]', symbolTag = '[object Symbol]', weakMapTag = '[object WeakMap]';
-var arrayBufferTag = '[object ArrayBuffer]', dataViewTag = '[object DataView]', float32Tag = '[object Float32Array]', float64Tag = '[object Float64Array]', int8Tag = '[object Int8Array]', int16Tag = '[object Int16Array]', int32Tag = '[object Int32Array]', uint8Tag = '[object Uint8Array]', uint8ClampedTag = '[object Uint8ClampedArray]', uint16Tag = '[object Uint16Array]', uint32Tag = '[object Uint32Array]';
-/** Used to identify `toStringTag` values supported by `_.clone`. */ var cloneableTags = {
-};
-cloneableTags[argsTag] = cloneableTags[arrayTag] = cloneableTags[arrayBufferTag] = cloneableTags[dataViewTag] = cloneableTags[boolTag] = cloneableTags[dateTag] = cloneableTags[float32Tag] = cloneableTags[float64Tag] = cloneableTags[int8Tag] = cloneableTags[int16Tag] = cloneableTags[int32Tag] = cloneableTags[mapTag] = cloneableTags[numberTag] = cloneableTags[objectTag] = cloneableTags[regexpTag] = cloneableTags[setTag] = cloneableTags[stringTag] = cloneableTags[symbolTag] = cloneableTags[uint8Tag] = cloneableTags[uint8ClampedTag] = cloneableTags[uint16Tag] = cloneableTags[uint32Tag] = true;
-cloneableTags[errorTag] = cloneableTags[funcTag] = cloneableTags[weakMapTag] = false;
-/**
- * The base implementation of `_.clone` and `_.cloneDeep` which tracks
- * traversed objects.
- *
- * @private
- * @param {*} value The value to clone.
- * @param {boolean} bitmask The bitmask flags.
- *  1 - Deep clone
- *  2 - Flatten inherited properties
- *  4 - Clone symbols
- * @param {Function} [customizer] The function to customize cloning.
- * @param {string} [key] The key of `value`.
- * @param {Object} [object] The parent object of `value`.
- * @param {Object} [stack] Tracks traversed objects and their clone counterparts.
- * @returns {*} Returns the cloned value.
- */ function baseClone(value, bitmask, customizer, key1, object, stack) {
-    var result, isDeep = bitmask & CLONE_DEEP_FLAG, isFlat = bitmask & CLONE_FLAT_FLAG, isFull = bitmask & CLONE_SYMBOLS_FLAG;
-    if (customizer) result = object ? customizer(value, key1, object, stack) : customizer(value);
-    if (result !== undefined) return result;
-    if (!isObject(value)) return value;
-    var isArr = isArray(value);
-    if (isArr) {
-        result = initCloneArray(value);
-        if (!isDeep) return copyArray(value, result);
-    } else {
-        var tag = getTag(value), isFunc = tag == funcTag || tag == genTag;
-        if (isBuffer(value)) return cloneBuffer(value, isDeep);
-        if (tag == objectTag || tag == argsTag || isFunc && !object) {
-            result = isFlat || isFunc ? {
-            } : initCloneObject(value);
-            if (!isDeep) return isFlat ? copySymbolsIn(value, baseAssignIn(result, value)) : copySymbols(value, baseAssign(result, value));
-        } else {
-            if (!cloneableTags[tag]) return object ? value : {
-            };
-            result = initCloneByTag(value, tag, isDeep);
-        }
-    }
-    // Check for circular references and return its corresponding clone.
-    stack || (stack = new Stack);
-    var stacked = stack.get(value);
-    if (stacked) return stacked;
-    stack.set(value, result);
-    if (isSet(value)) value.forEach(function(subValue) {
-        result.add(baseClone(subValue, bitmask, customizer, subValue, value, stack));
-    });
-    else if (isMap(value)) value.forEach(function(subValue, key) {
-        result.set(key, baseClone(subValue, bitmask, customizer, key, value, stack));
-    });
-    var keysFunc = isFull ? isFlat ? getAllKeysIn : getAllKeys : isFlat ? keysIn : keys;
-    var props = isArr ? undefined : keysFunc(value);
-    arrayEach(props || value, function(subValue, key) {
-        if (props) {
-            key = subValue;
-            subValue = value[key];
-        }
-        // Recursively populate clone (susceptible to call stack limits).
-        assignValue(result, key, baseClone(subValue, bitmask, customizer, key, value, stack));
-    });
-    return result;
-}
-module.exports = baseClone;
-
-},{"./_Stack":"atP87","./_arrayEach":"kMhnH","./_assignValue":"5M3eX","./_baseAssign":"fNRtQ","./_baseAssignIn":"6Gpuu","./_cloneBuffer":"6zXd4","./_copyArray":"jJ8fu","./_copySymbols":"78Za0","./_copySymbolsIn":"lhZg2","./_getAllKeys":"d2kML","./_getAllKeysIn":"6BBOq","./_getTag":"cRPhM","./_initCloneArray":"1RKeS","./_initCloneByTag":"26ysD","./_initCloneObject":"dG1H0","./isArray":"dZaTH","./isBuffer":"cn85h","./isMap":"3qbv8","./isObject":"cGhqJ","./isSet":"bZrVh","./keys":"6fHVw","./keysIn":"c9sMs"}],"atP87":[function(require,module,exports) {
-var ListCache = require('./_ListCache'), stackClear = require('./_stackClear'), stackDelete = require('./_stackDelete'), stackGet = require('./_stackGet'), stackHas = require('./_stackHas'), stackSet = require('./_stackSet');
-/**
- * Creates a stack cache object to store key-value pairs.
- *
- * @private
- * @constructor
- * @param {Array} [entries] The key-value pairs to cache.
- */ function Stack(entries) {
-    var data = this.__data__ = new ListCache(entries);
-    this.size = data.size;
-}
-// Add methods to `Stack`.
-Stack.prototype.clear = stackClear;
-Stack.prototype['delete'] = stackDelete;
-Stack.prototype.get = stackGet;
-Stack.prototype.has = stackHas;
-Stack.prototype.set = stackSet;
-module.exports = Stack;
-
-},{"./_ListCache":"3UZeo","./_stackClear":"6CpyN","./_stackDelete":"dGFb0","./_stackGet":"6zFUp","./_stackHas":"3VJUX","./_stackSet":"ZfrYM"}],"3UZeo":[function(require,module,exports) {
-var listCacheClear = require('./_listCacheClear'), listCacheDelete = require('./_listCacheDelete'), listCacheGet = require('./_listCacheGet'), listCacheHas = require('./_listCacheHas'), listCacheSet = require('./_listCacheSet');
-/**
- * Creates an list cache object.
- *
- * @private
- * @constructor
- * @param {Array} [entries] The key-value pairs to cache.
- */ function ListCache(entries) {
-    var index = -1, length = entries == null ? 0 : entries.length;
-    this.clear();
-    while(++index < length){
-        var entry = entries[index];
-        this.set(entry[0], entry[1]);
-    }
-}
-// Add methods to `ListCache`.
-ListCache.prototype.clear = listCacheClear;
-ListCache.prototype['delete'] = listCacheDelete;
-ListCache.prototype.get = listCacheGet;
-ListCache.prototype.has = listCacheHas;
-ListCache.prototype.set = listCacheSet;
-module.exports = ListCache;
-
-},{"./_listCacheClear":"7AKQv","./_listCacheDelete":"j2Z5O","./_listCacheGet":"6Zrrs","./_listCacheHas":"i1CBK","./_listCacheSet":"2Rcur"}],"7AKQv":[function(require,module,exports) {
-/**
- * Removes all key-value entries from the list cache.
- *
- * @private
- * @name clear
- * @memberOf ListCache
- */ function listCacheClear() {
-    this.__data__ = [];
-    this.size = 0;
-}
-module.exports = listCacheClear;
-
-},{}],"j2Z5O":[function(require,module,exports) {
-var assocIndexOf = require('./_assocIndexOf');
-/** Used for built-in method references. */ var arrayProto = Array.prototype;
-/** Built-in value references. */ var splice = arrayProto.splice;
-/**
- * Removes `key` and its value from the list cache.
- *
- * @private
- * @name delete
- * @memberOf ListCache
- * @param {string} key The key of the value to remove.
- * @returns {boolean} Returns `true` if the entry was removed, else `false`.
- */ function listCacheDelete(key) {
-    var data = this.__data__, index = assocIndexOf(data, key);
-    if (index < 0) return false;
-    var lastIndex = data.length - 1;
-    if (index == lastIndex) data.pop();
-    else splice.call(data, index, 1);
-    --this.size;
-    return true;
-}
-module.exports = listCacheDelete;
-
-},{"./_assocIndexOf":"cRVsl"}],"cRVsl":[function(require,module,exports) {
-var eq = require('./eq');
-/**
- * Gets the index at which the `key` is found in `array` of key-value pairs.
- *
- * @private
- * @param {Array} array The array to inspect.
- * @param {*} key The key to search for.
- * @returns {number} Returns the index of the matched value, else `-1`.
- */ function assocIndexOf(array, key) {
-    var length = array.length;
-    while(length--){
-        if (eq(array[length][0], key)) return length;
-    }
-    return -1;
-}
-module.exports = assocIndexOf;
-
-},{"./eq":"aVz5f"}],"6Zrrs":[function(require,module,exports) {
-var assocIndexOf = require('./_assocIndexOf');
-/**
- * Gets the list cache value for `key`.
- *
- * @private
- * @name get
- * @memberOf ListCache
- * @param {string} key The key of the value to get.
- * @returns {*} Returns the entry value.
- */ function listCacheGet(key) {
-    var data = this.__data__, index = assocIndexOf(data, key);
-    return index < 0 ? undefined : data[index][1];
-}
-module.exports = listCacheGet;
-
-},{"./_assocIndexOf":"cRVsl"}],"i1CBK":[function(require,module,exports) {
-var assocIndexOf = require('./_assocIndexOf');
-/**
- * Checks if a list cache value for `key` exists.
- *
- * @private
- * @name has
- * @memberOf ListCache
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */ function listCacheHas(key) {
-    return assocIndexOf(this.__data__, key) > -1;
-}
-module.exports = listCacheHas;
-
-},{"./_assocIndexOf":"cRVsl"}],"2Rcur":[function(require,module,exports) {
-var assocIndexOf = require('./_assocIndexOf');
-/**
- * Sets the list cache `key` to `value`.
- *
- * @private
- * @name set
- * @memberOf ListCache
- * @param {string} key The key of the value to set.
- * @param {*} value The value to set.
- * @returns {Object} Returns the list cache instance.
- */ function listCacheSet(key, value) {
-    var data = this.__data__, index = assocIndexOf(data, key);
-    if (index < 0) {
-        ++this.size;
-        data.push([
-            key,
-            value
-        ]);
-    } else data[index][1] = value;
-    return this;
-}
-module.exports = listCacheSet;
-
-},{"./_assocIndexOf":"cRVsl"}],"6CpyN":[function(require,module,exports) {
-var ListCache = require('./_ListCache');
-/**
- * Removes all key-value entries from the stack.
- *
- * @private
- * @name clear
- * @memberOf Stack
- */ function stackClear() {
-    this.__data__ = new ListCache;
-    this.size = 0;
-}
-module.exports = stackClear;
-
-},{"./_ListCache":"3UZeo"}],"dGFb0":[function(require,module,exports) {
-/**
- * Removes `key` and its value from the stack.
- *
- * @private
- * @name delete
- * @memberOf Stack
- * @param {string} key The key of the value to remove.
- * @returns {boolean} Returns `true` if the entry was removed, else `false`.
- */ function stackDelete(key) {
-    var data = this.__data__, result = data['delete'](key);
-    this.size = data.size;
-    return result;
-}
-module.exports = stackDelete;
-
-},{}],"6zFUp":[function(require,module,exports) {
-/**
- * Gets the stack value for `key`.
- *
- * @private
- * @name get
- * @memberOf Stack
- * @param {string} key The key of the value to get.
- * @returns {*} Returns the entry value.
- */ function stackGet(key) {
-    return this.__data__.get(key);
-}
-module.exports = stackGet;
-
-},{}],"3VJUX":[function(require,module,exports) {
-/**
- * Checks if a stack value for `key` exists.
- *
- * @private
- * @name has
- * @memberOf Stack
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */ function stackHas(key) {
-    return this.__data__.has(key);
-}
-module.exports = stackHas;
-
-},{}],"ZfrYM":[function(require,module,exports) {
-var ListCache = require('./_ListCache'), Map = require('./_Map'), MapCache = require('./_MapCache');
-/** Used as the size to enable large array optimizations. */ var LARGE_ARRAY_SIZE = 200;
-/**
- * Sets the stack `key` to `value`.
- *
- * @private
- * @name set
- * @memberOf Stack
- * @param {string} key The key of the value to set.
- * @param {*} value The value to set.
- * @returns {Object} Returns the stack cache instance.
- */ function stackSet(key, value) {
-    var data = this.__data__;
-    if (data instanceof ListCache) {
-        var pairs = data.__data__;
-        if (!Map || pairs.length < LARGE_ARRAY_SIZE - 1) {
-            pairs.push([
-                key,
-                value
-            ]);
-            this.size = ++data.size;
-            return this;
-        }
-        data = this.__data__ = new MapCache(pairs);
-    }
-    data.set(key, value);
-    this.size = data.size;
-    return this;
-}
-module.exports = stackSet;
-
-},{"./_ListCache":"3UZeo","./_Map":"8YjF4","./_MapCache":"664I1"}],"8YjF4":[function(require,module,exports) {
-var getNative = require('./_getNative'), root = require('./_root');
-/* Built-in method references that are verified to be native. */ var Map = getNative(root, 'Map');
-module.exports = Map;
-
-},{"./_getNative":"9PCIl","./_root":"dSYUs"}],"664I1":[function(require,module,exports) {
-var mapCacheClear = require('./_mapCacheClear'), mapCacheDelete = require('./_mapCacheDelete'), mapCacheGet = require('./_mapCacheGet'), mapCacheHas = require('./_mapCacheHas'), mapCacheSet = require('./_mapCacheSet');
-/**
- * Creates a map cache object to store key-value pairs.
- *
- * @private
- * @constructor
- * @param {Array} [entries] The key-value pairs to cache.
- */ function MapCache(entries) {
-    var index = -1, length = entries == null ? 0 : entries.length;
-    this.clear();
-    while(++index < length){
-        var entry = entries[index];
-        this.set(entry[0], entry[1]);
-    }
-}
-// Add methods to `MapCache`.
-MapCache.prototype.clear = mapCacheClear;
-MapCache.prototype['delete'] = mapCacheDelete;
-MapCache.prototype.get = mapCacheGet;
-MapCache.prototype.has = mapCacheHas;
-MapCache.prototype.set = mapCacheSet;
-module.exports = MapCache;
-
-},{"./_mapCacheClear":"7kHs4","./_mapCacheDelete":"4ny9y","./_mapCacheGet":"gVeFY","./_mapCacheHas":"idSOY","./_mapCacheSet":"lXUJT"}],"7kHs4":[function(require,module,exports) {
-var Hash = require('./_Hash'), ListCache = require('./_ListCache'), Map = require('./_Map');
-/**
- * Removes all key-value entries from the map.
- *
- * @private
- * @name clear
- * @memberOf MapCache
- */ function mapCacheClear() {
-    this.size = 0;
-    this.__data__ = {
-        'hash': new Hash,
-        'map': new (Map || ListCache),
-        'string': new Hash
-    };
-}
-module.exports = mapCacheClear;
-
-},{"./_Hash":"jFMT5","./_ListCache":"3UZeo","./_Map":"8YjF4"}],"jFMT5":[function(require,module,exports) {
-var hashClear = require('./_hashClear'), hashDelete = require('./_hashDelete'), hashGet = require('./_hashGet'), hashHas = require('./_hashHas'), hashSet = require('./_hashSet');
-/**
- * Creates a hash object.
- *
- * @private
- * @constructor
- * @param {Array} [entries] The key-value pairs to cache.
- */ function Hash(entries) {
-    var index = -1, length = entries == null ? 0 : entries.length;
-    this.clear();
-    while(++index < length){
-        var entry = entries[index];
-        this.set(entry[0], entry[1]);
-    }
-}
-// Add methods to `Hash`.
-Hash.prototype.clear = hashClear;
-Hash.prototype['delete'] = hashDelete;
-Hash.prototype.get = hashGet;
-Hash.prototype.has = hashHas;
-Hash.prototype.set = hashSet;
-module.exports = Hash;
-
-},{"./_hashClear":"f2NRo","./_hashDelete":"cCdgz","./_hashGet":"eKqTO","./_hashHas":"ghnqP","./_hashSet":"6i99R"}],"f2NRo":[function(require,module,exports) {
-var nativeCreate = require('./_nativeCreate');
-/**
- * Removes all key-value entries from the hash.
- *
- * @private
- * @name clear
- * @memberOf Hash
- */ function hashClear() {
-    this.__data__ = nativeCreate ? nativeCreate(null) : {
-    };
-    this.size = 0;
-}
-module.exports = hashClear;
-
-},{"./_nativeCreate":"6i8Uf"}],"6i8Uf":[function(require,module,exports) {
-var getNative = require('./_getNative');
-/* Built-in method references that are verified to be native. */ var nativeCreate = getNative(Object, 'create');
-module.exports = nativeCreate;
-
-},{"./_getNative":"9PCIl"}],"cCdgz":[function(require,module,exports) {
-/**
- * Removes `key` and its value from the hash.
- *
- * @private
- * @name delete
- * @memberOf Hash
- * @param {Object} hash The hash to modify.
- * @param {string} key The key of the value to remove.
- * @returns {boolean} Returns `true` if the entry was removed, else `false`.
- */ function hashDelete(key) {
-    var result = this.has(key) && delete this.__data__[key];
-    this.size -= result ? 1 : 0;
-    return result;
-}
-module.exports = hashDelete;
-
-},{}],"eKqTO":[function(require,module,exports) {
-var nativeCreate = require('./_nativeCreate');
-/** Used to stand-in for `undefined` hash values. */ var HASH_UNDEFINED = '__lodash_hash_undefined__';
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/**
- * Gets the hash value for `key`.
- *
- * @private
- * @name get
- * @memberOf Hash
- * @param {string} key The key of the value to get.
- * @returns {*} Returns the entry value.
- */ function hashGet(key) {
-    var data = this.__data__;
-    if (nativeCreate) {
-        var result = data[key];
-        return result === HASH_UNDEFINED ? undefined : result;
-    }
-    return hasOwnProperty.call(data, key) ? data[key] : undefined;
-}
-module.exports = hashGet;
-
-},{"./_nativeCreate":"6i8Uf"}],"ghnqP":[function(require,module,exports) {
-var nativeCreate = require('./_nativeCreate');
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/**
- * Checks if a hash value for `key` exists.
- *
- * @private
- * @name has
- * @memberOf Hash
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */ function hashHas(key) {
-    var data = this.__data__;
-    return nativeCreate ? data[key] !== undefined : hasOwnProperty.call(data, key);
-}
-module.exports = hashHas;
-
-},{"./_nativeCreate":"6i8Uf"}],"6i99R":[function(require,module,exports) {
-var nativeCreate = require('./_nativeCreate');
-/** Used to stand-in for `undefined` hash values. */ var HASH_UNDEFINED = '__lodash_hash_undefined__';
-/**
- * Sets the hash `key` to `value`.
- *
- * @private
- * @name set
- * @memberOf Hash
- * @param {string} key The key of the value to set.
- * @param {*} value The value to set.
- * @returns {Object} Returns the hash instance.
- */ function hashSet(key, value) {
-    var data = this.__data__;
-    this.size += this.has(key) ? 0 : 1;
-    data[key] = nativeCreate && value === undefined ? HASH_UNDEFINED : value;
-    return this;
-}
-module.exports = hashSet;
-
-},{"./_nativeCreate":"6i8Uf"}],"4ny9y":[function(require,module,exports) {
-var getMapData = require('./_getMapData');
-/**
- * Removes `key` and its value from the map.
- *
- * @private
- * @name delete
- * @memberOf MapCache
- * @param {string} key The key of the value to remove.
- * @returns {boolean} Returns `true` if the entry was removed, else `false`.
- */ function mapCacheDelete(key) {
-    var result = getMapData(this, key)['delete'](key);
-    this.size -= result ? 1 : 0;
-    return result;
-}
-module.exports = mapCacheDelete;
-
-},{"./_getMapData":"aptgk"}],"aptgk":[function(require,module,exports) {
-var isKeyable = require('./_isKeyable');
-/**
- * Gets the data for `map`.
- *
- * @private
- * @param {Object} map The map to query.
- * @param {string} key The reference key.
- * @returns {*} Returns the map data.
- */ function getMapData(map, key) {
-    var data = map.__data__;
-    return isKeyable(key) ? data[typeof key == 'string' ? 'string' : 'hash'] : data.map;
-}
-module.exports = getMapData;
-
-},{"./_isKeyable":"icylN"}],"icylN":[function(require,module,exports) {
-/**
- * Checks if `value` is suitable for use as unique object key.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is suitable, else `false`.
- */ function isKeyable(value) {
-    var type = typeof value;
-    return type == 'string' || type == 'number' || type == 'symbol' || type == 'boolean' ? value !== '__proto__' : value === null;
-}
-module.exports = isKeyable;
-
-},{}],"gVeFY":[function(require,module,exports) {
-var getMapData = require('./_getMapData');
-/**
- * Gets the map value for `key`.
- *
- * @private
- * @name get
- * @memberOf MapCache
- * @param {string} key The key of the value to get.
- * @returns {*} Returns the entry value.
- */ function mapCacheGet(key) {
-    return getMapData(this, key).get(key);
-}
-module.exports = mapCacheGet;
-
-},{"./_getMapData":"aptgk"}],"idSOY":[function(require,module,exports) {
-var getMapData = require('./_getMapData');
-/**
- * Checks if a map value for `key` exists.
- *
- * @private
- * @name has
- * @memberOf MapCache
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */ function mapCacheHas(key) {
-    return getMapData(this, key).has(key);
-}
-module.exports = mapCacheHas;
-
-},{"./_getMapData":"aptgk"}],"lXUJT":[function(require,module,exports) {
-var getMapData = require('./_getMapData');
-/**
- * Sets the map `key` to `value`.
- *
- * @private
- * @name set
- * @memberOf MapCache
- * @param {string} key The key of the value to set.
- * @param {*} value The value to set.
- * @returns {Object} Returns the map cache instance.
- */ function mapCacheSet(key, value) {
-    var data = getMapData(this, key), size = data.size;
-    data.set(key, value);
-    this.size += data.size == size ? 0 : 1;
-    return this;
-}
-module.exports = mapCacheSet;
-
-},{"./_getMapData":"aptgk"}],"6Gpuu":[function(require,module,exports) {
-var copyObject = require('./_copyObject'), keysIn = require('./keysIn');
-/**
- * The base implementation of `_.assignIn` without support for multiple sources
- * or `customizer` functions.
- *
- * @private
- * @param {Object} object The destination object.
- * @param {Object} source The source object.
- * @returns {Object} Returns `object`.
- */ function baseAssignIn(object, source) {
-    return object && copyObject(source, keysIn(source), object);
-}
-module.exports = baseAssignIn;
-
-},{"./_copyObject":"gfA7W","./keysIn":"c9sMs"}],"c9sMs":[function(require,module,exports) {
-var arrayLikeKeys = require('./_arrayLikeKeys'), baseKeysIn = require('./_baseKeysIn'), isArrayLike = require('./isArrayLike');
-/**
- * Creates an array of the own and inherited enumerable property names of `object`.
- *
- * **Note:** Non-object values are coerced to objects.
- *
- * @static
- * @memberOf _
- * @since 3.0.0
- * @category Object
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- *   this.b = 2;
- * }
- *
- * Foo.prototype.c = 3;
- *
- * _.keysIn(new Foo);
- * // => ['a', 'b', 'c'] (iteration order is not guaranteed)
- */ function keysIn(object) {
-    return isArrayLike(object) ? arrayLikeKeys(object, true) : baseKeysIn(object);
-}
-module.exports = keysIn;
-
-},{"./_arrayLikeKeys":"dquIQ","./_baseKeysIn":"23s7e","./isArrayLike":"gMCbp"}],"23s7e":[function(require,module,exports) {
-var isObject = require('./isObject'), isPrototype = require('./_isPrototype'), nativeKeysIn = require('./_nativeKeysIn');
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/**
- * The base implementation of `_.keysIn` which doesn't treat sparse arrays as dense.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- */ function baseKeysIn(object) {
-    if (!isObject(object)) return nativeKeysIn(object);
-    var isProto = isPrototype(object), result = [];
-    for(var key in object)if (!(key == 'constructor' && (isProto || !hasOwnProperty.call(object, key)))) result.push(key);
-    return result;
-}
-module.exports = baseKeysIn;
-
-},{"./isObject":"cGhqJ","./_isPrototype":"iG4eR","./_nativeKeysIn":"5CFL0"}],"5CFL0":[function(require,module,exports) {
-/**
- * This function is like
- * [`Object.keys`](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
- * except that it includes inherited enumerable properties.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- */ function nativeKeysIn(object) {
-    var result = [];
-    if (object != null) for(var key in Object(object))result.push(key);
-    return result;
-}
-module.exports = nativeKeysIn;
-
-},{}],"6zXd4":[function(require,module,exports) {
-var root = require('./_root');
-/** Detect free variable `exports`. */ var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
-/** Detect free variable `module`. */ var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
-/** Detect the popular CommonJS extension `module.exports`. */ var moduleExports = freeModule && freeModule.exports === freeExports;
-/** Built-in value references. */ var Buffer = moduleExports ? root.Buffer : undefined, allocUnsafe = Buffer ? Buffer.allocUnsafe : undefined;
-/**
- * Creates a clone of  `buffer`.
- *
- * @private
- * @param {Buffer} buffer The buffer to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Buffer} Returns the cloned buffer.
- */ function cloneBuffer(buffer, isDeep) {
-    if (isDeep) return buffer.slice();
-    var length = buffer.length, result = allocUnsafe ? allocUnsafe(length) : new buffer.constructor(length);
-    buffer.copy(result);
-    return result;
-}
-module.exports = cloneBuffer;
-
-},{"./_root":"dSYUs"}],"78Za0":[function(require,module,exports) {
-var copyObject = require('./_copyObject'), getSymbols = require('./_getSymbols');
-/**
- * Copies own symbols of `source` to `object`.
- *
- * @private
- * @param {Object} source The object to copy symbols from.
- * @param {Object} [object={}] The object to copy symbols to.
- * @returns {Object} Returns `object`.
- */ function copySymbols(source, object) {
-    return copyObject(source, getSymbols(source), object);
-}
-module.exports = copySymbols;
-
-},{"./_copyObject":"gfA7W","./_getSymbols":"5p5Yd"}],"5p5Yd":[function(require,module,exports) {
-var arrayFilter = require('./_arrayFilter'), stubArray = require('./stubArray');
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/** Built-in value references. */ var propertyIsEnumerable = objectProto.propertyIsEnumerable;
-/* Built-in method references for those with the same name as other `lodash` methods. */ var nativeGetSymbols = Object.getOwnPropertySymbols;
-/**
- * Creates an array of the own enumerable symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of symbols.
- */ var getSymbols = !nativeGetSymbols ? stubArray : function(object) {
-    if (object == null) return [];
-    object = Object(object);
-    return arrayFilter(nativeGetSymbols(object), function(symbol) {
-        return propertyIsEnumerable.call(object, symbol);
-    });
-};
-module.exports = getSymbols;
-
-},{"./_arrayFilter":"hmIQ7","./stubArray":"6TgRy"}],"hmIQ7":[function(require,module,exports) {
-/**
- * A specialized version of `_.filter` for arrays without support for
- * iteratee shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} predicate The function invoked per iteration.
- * @returns {Array} Returns the new filtered array.
- */ function arrayFilter(array, predicate) {
-    var index = -1, length = array == null ? 0 : array.length, resIndex = 0, result = [];
-    while(++index < length){
-        var value = array[index];
-        if (predicate(value, index, array)) result[resIndex++] = value;
-    }
-    return result;
-}
-module.exports = arrayFilter;
-
-},{}],"6TgRy":[function(require,module,exports) {
-/**
- * This method returns a new empty array.
- *
- * @static
- * @memberOf _
- * @since 4.13.0
- * @category Util
- * @returns {Array} Returns the new empty array.
- * @example
- *
- * var arrays = _.times(2, _.stubArray);
- *
- * console.log(arrays);
- * // => [[], []]
- *
- * console.log(arrays[0] === arrays[1]);
- * // => false
- */ function stubArray() {
-    return [];
-}
-module.exports = stubArray;
-
-},{}],"lhZg2":[function(require,module,exports) {
-var copyObject = require('./_copyObject'), getSymbolsIn = require('./_getSymbolsIn');
-/**
- * Copies own and inherited symbols of `source` to `object`.
- *
- * @private
- * @param {Object} source The object to copy symbols from.
- * @param {Object} [object={}] The object to copy symbols to.
- * @returns {Object} Returns `object`.
- */ function copySymbolsIn(source, object) {
-    return copyObject(source, getSymbolsIn(source), object);
-}
-module.exports = copySymbolsIn;
-
-},{"./_copyObject":"gfA7W","./_getSymbolsIn":"dVaAc"}],"dVaAc":[function(require,module,exports) {
-var arrayPush = require('./_arrayPush'), getPrototype = require('./_getPrototype'), getSymbols = require('./_getSymbols'), stubArray = require('./stubArray');
-/* Built-in method references for those with the same name as other `lodash` methods. */ var nativeGetSymbols = Object.getOwnPropertySymbols;
-/**
- * Creates an array of the own and inherited enumerable symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of symbols.
- */ var getSymbolsIn = !nativeGetSymbols ? stubArray : function(object) {
-    var result = [];
-    while(object){
-        arrayPush(result, getSymbols(object));
-        object = getPrototype(object);
-    }
-    return result;
-};
-module.exports = getSymbolsIn;
-
-},{"./_arrayPush":"ivo5r","./_getPrototype":"8ASKT","./_getSymbols":"5p5Yd","./stubArray":"6TgRy"}],"ivo5r":[function(require,module,exports) {
-/**
- * Appends the elements of `values` to `array`.
- *
- * @private
- * @param {Array} array The array to modify.
- * @param {Array} values The values to append.
- * @returns {Array} Returns `array`.
- */ function arrayPush(array, values) {
-    var index = -1, length = values.length, offset = array.length;
-    while(++index < length)array[offset + index] = values[index];
-    return array;
-}
-module.exports = arrayPush;
-
-},{}],"8ASKT":[function(require,module,exports) {
-var overArg = require('./_overArg');
-/** Built-in value references. */ var getPrototype = overArg(Object.getPrototypeOf, Object);
-module.exports = getPrototype;
-
-},{"./_overArg":"dpUvl"}],"d2kML":[function(require,module,exports) {
-var baseGetAllKeys = require('./_baseGetAllKeys'), getSymbols = require('./_getSymbols'), keys = require('./keys');
-/**
- * Creates an array of own enumerable property names and symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names and symbols.
- */ function getAllKeys(object) {
-    return baseGetAllKeys(object, keys, getSymbols);
-}
-module.exports = getAllKeys;
-
-},{"./_baseGetAllKeys":"aeckf","./_getSymbols":"5p5Yd","./keys":"6fHVw"}],"aeckf":[function(require,module,exports) {
-var arrayPush = require('./_arrayPush'), isArray = require('./isArray');
-/**
- * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
- * `keysFunc` and `symbolsFunc` to get the enumerable property names and
- * symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Function} keysFunc The function to get the keys of `object`.
- * @param {Function} symbolsFunc The function to get the symbols of `object`.
- * @returns {Array} Returns the array of property names and symbols.
- */ function baseGetAllKeys(object, keysFunc, symbolsFunc) {
-    var result = keysFunc(object);
-    return isArray(object) ? result : arrayPush(result, symbolsFunc(object));
-}
-module.exports = baseGetAllKeys;
-
-},{"./_arrayPush":"ivo5r","./isArray":"dZaTH"}],"6BBOq":[function(require,module,exports) {
-var baseGetAllKeys = require('./_baseGetAllKeys'), getSymbolsIn = require('./_getSymbolsIn'), keysIn = require('./keysIn');
-/**
- * Creates an array of own and inherited enumerable property names and
- * symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names and symbols.
- */ function getAllKeysIn(object) {
-    return baseGetAllKeys(object, keysIn, getSymbolsIn);
-}
-module.exports = getAllKeysIn;
-
-},{"./_baseGetAllKeys":"aeckf","./_getSymbolsIn":"dVaAc","./keysIn":"c9sMs"}],"cRPhM":[function(require,module,exports) {
-var DataView = require('./_DataView'), Map = require('./_Map'), Promise = require('./_Promise'), Set = require('./_Set'), WeakMap = require('./_WeakMap'), baseGetTag = require('./_baseGetTag'), toSource = require('./_toSource');
-/** `Object#toString` result references. */ var mapTag = '[object Map]', objectTag = '[object Object]', promiseTag = '[object Promise]', setTag = '[object Set]', weakMapTag = '[object WeakMap]';
-var dataViewTag = '[object DataView]';
-/** Used to detect maps, sets, and weakmaps. */ var dataViewCtorString = toSource(DataView), mapCtorString = toSource(Map), promiseCtorString = toSource(Promise), setCtorString = toSource(Set), weakMapCtorString = toSource(WeakMap);
-/**
- * Gets the `toStringTag` of `value`.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the `toStringTag`.
- */ var getTag = baseGetTag;
-// Fallback for data views, maps, sets, and weak maps in IE 11 and promises in Node.js < 6.
-if (DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag || Map && getTag(new Map) != mapTag || Promise && getTag(Promise.resolve()) != promiseTag || Set && getTag(new Set) != setTag || WeakMap && getTag(new WeakMap) != weakMapTag) getTag = function(value) {
-    var result = baseGetTag(value), Ctor = result == objectTag ? value.constructor : undefined, ctorString = Ctor ? toSource(Ctor) : '';
-    if (ctorString) switch(ctorString){
-        case dataViewCtorString:
-            return dataViewTag;
-        case mapCtorString:
-            return mapTag;
-        case promiseCtorString:
-            return promiseTag;
-        case setCtorString:
-            return setTag;
-        case weakMapCtorString:
-            return weakMapTag;
-    }
-    return result;
-};
-module.exports = getTag;
-
-},{"./_DataView":"ejRu5","./_Map":"8YjF4","./_Promise":"jbvCt","./_Set":"4xGLf","./_WeakMap":"av50V","./_baseGetTag":"lOnbo","./_toSource":"bYHc7"}],"ejRu5":[function(require,module,exports) {
-var getNative = require('./_getNative'), root = require('./_root');
-/* Built-in method references that are verified to be native. */ var DataView = getNative(root, 'DataView');
-module.exports = DataView;
-
-},{"./_getNative":"9PCIl","./_root":"dSYUs"}],"jbvCt":[function(require,module,exports) {
-var getNative = require('./_getNative'), root = require('./_root');
-/* Built-in method references that are verified to be native. */ var Promise = getNative(root, 'Promise');
-module.exports = Promise;
-
-},{"./_getNative":"9PCIl","./_root":"dSYUs"}],"4xGLf":[function(require,module,exports) {
-var getNative = require('./_getNative'), root = require('./_root');
-/* Built-in method references that are verified to be native. */ var Set = getNative(root, 'Set');
-module.exports = Set;
-
-},{"./_getNative":"9PCIl","./_root":"dSYUs"}],"1RKeS":[function(require,module,exports) {
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/**
- * Initializes an array clone.
- *
- * @private
- * @param {Array} array The array to clone.
- * @returns {Array} Returns the initialized clone.
- */ function initCloneArray(array) {
-    var length = array.length, result = new array.constructor(length);
-    // Add properties assigned by `RegExp#exec`.
-    if (length && typeof array[0] == 'string' && hasOwnProperty.call(array, 'index')) {
-        result.index = array.index;
-        result.input = array.input;
-    }
-    return result;
-}
-module.exports = initCloneArray;
-
-},{}],"26ysD":[function(require,module,exports) {
-var cloneArrayBuffer = require('./_cloneArrayBuffer'), cloneDataView = require('./_cloneDataView'), cloneRegExp = require('./_cloneRegExp'), cloneSymbol = require('./_cloneSymbol'), cloneTypedArray = require('./_cloneTypedArray');
-/** `Object#toString` result references. */ var boolTag = '[object Boolean]', dateTag = '[object Date]', mapTag = '[object Map]', numberTag = '[object Number]', regexpTag = '[object RegExp]', setTag = '[object Set]', stringTag = '[object String]', symbolTag = '[object Symbol]';
-var arrayBufferTag = '[object ArrayBuffer]', dataViewTag = '[object DataView]', float32Tag = '[object Float32Array]', float64Tag = '[object Float64Array]', int8Tag = '[object Int8Array]', int16Tag = '[object Int16Array]', int32Tag = '[object Int32Array]', uint8Tag = '[object Uint8Array]', uint8ClampedTag = '[object Uint8ClampedArray]', uint16Tag = '[object Uint16Array]', uint32Tag = '[object Uint32Array]';
-/**
- * Initializes an object clone based on its `toStringTag`.
- *
- * **Note:** This function only supports cloning values with tags of
- * `Boolean`, `Date`, `Error`, `Map`, `Number`, `RegExp`, `Set`, or `String`.
- *
- * @private
- * @param {Object} object The object to clone.
- * @param {string} tag The `toStringTag` of the object to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Object} Returns the initialized clone.
- */ function initCloneByTag(object, tag, isDeep) {
-    var Ctor = object.constructor;
-    switch(tag){
-        case arrayBufferTag:
-            return cloneArrayBuffer(object);
-        case boolTag:
-        case dateTag:
-            return new Ctor(+object);
-        case dataViewTag:
-            return cloneDataView(object, isDeep);
-        case float32Tag:
-        case float64Tag:
-        case int8Tag:
-        case int16Tag:
-        case int32Tag:
-        case uint8Tag:
-        case uint8ClampedTag:
-        case uint16Tag:
-        case uint32Tag:
-            return cloneTypedArray(object, isDeep);
-        case mapTag:
-            return new Ctor;
-        case numberTag:
-        case stringTag:
-            return new Ctor(object);
-        case regexpTag:
-            return cloneRegExp(object);
-        case setTag:
-            return new Ctor;
-        case symbolTag:
-            return cloneSymbol(object);
-    }
-}
-module.exports = initCloneByTag;
-
-},{"./_cloneArrayBuffer":"7fi2W","./_cloneDataView":"hEqzP","./_cloneRegExp":"aeJOQ","./_cloneSymbol":"5ScBc","./_cloneTypedArray":"7eG7Y"}],"7fi2W":[function(require,module,exports) {
-var Uint8Array = require('./_Uint8Array');
-/**
- * Creates a clone of `arrayBuffer`.
- *
- * @private
- * @param {ArrayBuffer} arrayBuffer The array buffer to clone.
- * @returns {ArrayBuffer} Returns the cloned array buffer.
- */ function cloneArrayBuffer(arrayBuffer) {
-    var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
-    new Uint8Array(result).set(new Uint8Array(arrayBuffer));
-    return result;
-}
-module.exports = cloneArrayBuffer;
-
-},{"./_Uint8Array":"6xFrA"}],"6xFrA":[function(require,module,exports) {
-var root = require('./_root');
-/** Built-in value references. */ var Uint8Array = root.Uint8Array;
-module.exports = Uint8Array;
-
-},{"./_root":"dSYUs"}],"hEqzP":[function(require,module,exports) {
-var cloneArrayBuffer = require('./_cloneArrayBuffer');
-/**
- * Creates a clone of `dataView`.
- *
- * @private
- * @param {Object} dataView The data view to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Object} Returns the cloned data view.
- */ function cloneDataView(dataView, isDeep) {
-    var buffer = isDeep ? cloneArrayBuffer(dataView.buffer) : dataView.buffer;
-    return new dataView.constructor(buffer, dataView.byteOffset, dataView.byteLength);
-}
-module.exports = cloneDataView;
-
-},{"./_cloneArrayBuffer":"7fi2W"}],"aeJOQ":[function(require,module,exports) {
-/** Used to match `RegExp` flags from their coerced string values. */ var reFlags = /\w*$/;
-/**
- * Creates a clone of `regexp`.
- *
- * @private
- * @param {Object} regexp The regexp to clone.
- * @returns {Object} Returns the cloned regexp.
- */ function cloneRegExp(regexp) {
-    var result = new regexp.constructor(regexp.source, reFlags.exec(regexp));
-    result.lastIndex = regexp.lastIndex;
-    return result;
-}
-module.exports = cloneRegExp;
-
-},{}],"5ScBc":[function(require,module,exports) {
-var Symbol = require('./_Symbol');
-/** Used to convert symbols to primitives and strings. */ var symbolProto = Symbol ? Symbol.prototype : undefined, symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
-/**
- * Creates a clone of the `symbol` object.
- *
- * @private
- * @param {Object} symbol The symbol object to clone.
- * @returns {Object} Returns the cloned symbol object.
- */ function cloneSymbol(symbol) {
-    return symbolValueOf ? Object(symbolValueOf.call(symbol)) : {
-    };
-}
-module.exports = cloneSymbol;
-
-},{"./_Symbol":"7lsL9"}],"7eG7Y":[function(require,module,exports) {
-var cloneArrayBuffer = require('./_cloneArrayBuffer');
-/**
- * Creates a clone of `typedArray`.
- *
- * @private
- * @param {Object} typedArray The typed array to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Object} Returns the cloned typed array.
- */ function cloneTypedArray(typedArray, isDeep) {
-    var buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
-    return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
-}
-module.exports = cloneTypedArray;
-
-},{"./_cloneArrayBuffer":"7fi2W"}],"dG1H0":[function(require,module,exports) {
-var baseCreate = require('./_baseCreate'), getPrototype = require('./_getPrototype'), isPrototype = require('./_isPrototype');
-/**
- * Initializes an object clone.
- *
- * @private
- * @param {Object} object The object to clone.
- * @returns {Object} Returns the initialized clone.
- */ function initCloneObject(object) {
-    return typeof object.constructor == 'function' && !isPrototype(object) ? baseCreate(getPrototype(object)) : {
-    };
-}
-module.exports = initCloneObject;
-
-},{"./_baseCreate":"ef1VZ","./_getPrototype":"8ASKT","./_isPrototype":"iG4eR"}],"3qbv8":[function(require,module,exports) {
-var baseIsMap = require('./_baseIsMap'), baseUnary = require('./_baseUnary'), nodeUtil = require('./_nodeUtil');
-/* Node.js helper references. */ var nodeIsMap = nodeUtil && nodeUtil.isMap;
-/**
- * Checks if `value` is classified as a `Map` object.
- *
- * @static
- * @memberOf _
- * @since 4.3.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a map, else `false`.
- * @example
- *
- * _.isMap(new Map);
- * // => true
- *
- * _.isMap(new WeakMap);
- * // => false
- */ var isMap = nodeIsMap ? baseUnary(nodeIsMap) : baseIsMap;
-module.exports = isMap;
-
-},{"./_baseIsMap":"9v3CD","./_baseUnary":"eJXq4","./_nodeUtil":"5edNe"}],"9v3CD":[function(require,module,exports) {
-var getTag = require('./_getTag'), isObjectLike = require('./isObjectLike');
-/** `Object#toString` result references. */ var mapTag = '[object Map]';
-/**
- * The base implementation of `_.isMap` without Node.js optimizations.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a map, else `false`.
- */ function baseIsMap(value) {
-    return isObjectLike(value) && getTag(value) == mapTag;
-}
-module.exports = baseIsMap;
-
-},{"./_getTag":"cRPhM","./isObjectLike":"3BLi4"}],"bZrVh":[function(require,module,exports) {
-var baseIsSet = require('./_baseIsSet'), baseUnary = require('./_baseUnary'), nodeUtil = require('./_nodeUtil');
-/* Node.js helper references. */ var nodeIsSet = nodeUtil && nodeUtil.isSet;
-/**
- * Checks if `value` is classified as a `Set` object.
- *
- * @static
- * @memberOf _
- * @since 4.3.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a set, else `false`.
- * @example
- *
- * _.isSet(new Set);
- * // => true
- *
- * _.isSet(new WeakSet);
- * // => false
- */ var isSet = nodeIsSet ? baseUnary(nodeIsSet) : baseIsSet;
-module.exports = isSet;
-
-},{"./_baseIsSet":"7lzzg","./_baseUnary":"eJXq4","./_nodeUtil":"5edNe"}],"7lzzg":[function(require,module,exports) {
-var getTag = require('./_getTag'), isObjectLike = require('./isObjectLike');
-/** `Object#toString` result references. */ var setTag = '[object Set]';
-/**
- * The base implementation of `_.isSet` without Node.js optimizations.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a set, else `false`.
- */ function baseIsSet(value) {
-    return isObjectLike(value) && getTag(value) == setTag;
-}
-module.exports = baseIsSet;
-
-},{"./_getTag":"cRPhM","./isObjectLike":"3BLi4"}],"2x299":[function(require,module,exports) {
-var createWrap = require('./_createWrap');
-/** Used to compose bitmasks for function metadata. */ var WRAP_CURRY_FLAG = 8;
-/**
- * Creates a function that accepts arguments of `func` and either invokes
- * `func` returning its result, if at least `arity` number of arguments have
- * been provided, or returns a function that accepts the remaining `func`
- * arguments, and so on. The arity of `func` may be specified if `func.length`
- * is not sufficient.
- *
- * The `_.curry.placeholder` value, which defaults to `_` in monolithic builds,
- * may be used as a placeholder for provided arguments.
- *
- * **Note:** This method doesn't set the "length" property of curried functions.
- *
- * @static
- * @memberOf _
- * @since 2.0.0
- * @category Function
- * @param {Function} func The function to curry.
- * @param {number} [arity=func.length] The arity of `func`.
- * @param- {Object} [guard] Enables use as an iteratee for methods like `_.map`.
- * @returns {Function} Returns the new curried function.
- * @example
- *
- * var abc = function(a, b, c) {
- *   return [a, b, c];
- * };
- *
- * var curried = _.curry(abc);
- *
- * curried(1)(2)(3);
- * // => [1, 2, 3]
- *
- * curried(1, 2)(3);
- * // => [1, 2, 3]
- *
- * curried(1, 2, 3);
- * // => [1, 2, 3]
- *
- * // Curried with placeholders.
- * curried(1)(_, 3)(2);
- * // => [1, 2, 3]
- */ function curry(func, arity, guard) {
-    arity = guard ? undefined : arity;
-    var result = createWrap(func, WRAP_CURRY_FLAG, undefined, undefined, undefined, undefined, undefined, arity);
-    result.placeholder = curry.placeholder;
-    return result;
-}
-// Assign default placeholders.
-curry.placeholder = {
-};
-module.exports = curry;
-
-},{"./_createWrap":"1nVn1"}],"8frBY":[function(require,module,exports) {
-var baseGetTag = require('./_baseGetTag'), isObjectLike = require('./isObjectLike'), isPlainObject = require('./isPlainObject');
-/** `Object#toString` result references. */ var domExcTag = '[object DOMException]', errorTag = '[object Error]';
-/**
- * Checks if `value` is an `Error`, `EvalError`, `RangeError`, `ReferenceError`,
- * `SyntaxError`, `TypeError`, or `URIError` object.
- *
- * @static
- * @memberOf _
- * @since 3.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an error object, else `false`.
- * @example
- *
- * _.isError(new Error);
- * // => true
- *
- * _.isError(Error);
- * // => false
- */ function isError(value) {
-    if (!isObjectLike(value)) return false;
-    var tag = baseGetTag(value);
-    return tag == errorTag || tag == domExcTag || typeof value.message == 'string' && typeof value.name == 'string' && !isPlainObject(value);
-}
-module.exports = isError;
-
-},{"./_baseGetTag":"lOnbo","./isObjectLike":"3BLi4","./isPlainObject":"cvSNF"}],"cvSNF":[function(require,module,exports) {
-var baseGetTag = require('./_baseGetTag'), getPrototype = require('./_getPrototype'), isObjectLike = require('./isObjectLike');
-/** `Object#toString` result references. */ var objectTag = '[object Object]';
-/** Used for built-in method references. */ var funcProto = Function.prototype, objectProto = Object.prototype;
-/** Used to resolve the decompiled source of functions. */ var funcToString = funcProto.toString;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/** Used to infer the `Object` constructor. */ var objectCtorString = funcToString.call(Object);
-/**
- * Checks if `value` is a plain object, that is, an object created by the
- * `Object` constructor or one with a `[[Prototype]]` of `null`.
- *
- * @static
- * @memberOf _
- * @since 0.8.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- * }
- *
- * _.isPlainObject(new Foo);
- * // => false
- *
- * _.isPlainObject([1, 2, 3]);
- * // => false
- *
- * _.isPlainObject({ 'x': 0, 'y': 0 });
- * // => true
- *
- * _.isPlainObject(Object.create(null));
- * // => true
- */ function isPlainObject(value) {
-    if (!isObjectLike(value) || baseGetTag(value) != objectTag) return false;
-    var proto = getPrototype(value);
-    if (proto === null) return true;
-    var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
-    return typeof Ctor == 'function' && Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString;
-}
-module.exports = isPlainObject;
-
-},{"./_baseGetTag":"lOnbo","./_getPrototype":"8ASKT","./isObjectLike":"3BLi4"}],"io47w":[function(require,module,exports) {
-var getTag = require('./_getTag'), isObjectLike = require('./isObjectLike');
-/** `Object#toString` result references. */ var weakMapTag = '[object WeakMap]';
-/**
- * Checks if `value` is classified as a `WeakMap` object.
- *
- * @static
- * @memberOf _
- * @since 4.3.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a weak map, else `false`.
- * @example
- *
- * _.isWeakMap(new WeakMap);
- * // => true
- *
- * _.isWeakMap(new Map);
- * // => false
- */ function isWeakMap(value) {
-    return isObjectLike(value) && getTag(value) == weakMapTag;
-}
-module.exports = isWeakMap;
-
-},{"./_getTag":"cRPhM","./isObjectLike":"3BLi4"}],"5r5GI":[function(require,module,exports) {
-var baseClone = require('./_baseClone'), baseIteratee = require('./_baseIteratee');
-/** Used to compose bitmasks for cloning. */ var CLONE_DEEP_FLAG = 1;
-/**
- * Creates a function that invokes `func` with the arguments of the created
- * function. If `func` is a property name, the created function returns the
- * property value for a given element. If `func` is an array or object, the
- * created function returns `true` for elements that contain the equivalent
- * source properties, otherwise it returns `false`.
- *
- * @static
- * @since 4.0.0
- * @memberOf _
- * @category Util
- * @param {*} [func=_.identity] The value to convert to a callback.
- * @returns {Function} Returns the callback.
- * @example
- *
- * var users = [
- *   { 'user': 'barney', 'age': 36, 'active': true },
- *   { 'user': 'fred',   'age': 40, 'active': false }
- * ];
- *
- * // The `_.matches` iteratee shorthand.
- * _.filter(users, _.iteratee({ 'user': 'barney', 'active': true }));
- * // => [{ 'user': 'barney', 'age': 36, 'active': true }]
- *
- * // The `_.matchesProperty` iteratee shorthand.
- * _.filter(users, _.iteratee(['user', 'fred']));
- * // => [{ 'user': 'fred', 'age': 40 }]
- *
- * // The `_.property` iteratee shorthand.
- * _.map(users, _.iteratee('user'));
- * // => ['barney', 'fred']
- *
- * // Create custom iteratee shorthands.
- * _.iteratee = _.wrap(_.iteratee, function(iteratee, func) {
- *   return !_.isRegExp(func) ? iteratee(func) : function(string) {
- *     return func.test(string);
- *   };
- * });
- *
- * _.filter(['abc', 'def'], /ef/);
- * // => ['def']
- */ function iteratee(func) {
-    return baseIteratee(typeof func == 'function' ? func : baseClone(func, CLONE_DEEP_FLAG));
-}
-module.exports = iteratee;
-
-},{"./_baseClone":"2GC2p","./_baseIteratee":"2fsgg"}],"2fsgg":[function(require,module,exports) {
-var baseMatches = require('./_baseMatches'), baseMatchesProperty = require('./_baseMatchesProperty'), identity = require('./identity'), isArray = require('./isArray'), property = require('./property');
-/**
- * The base implementation of `_.iteratee`.
- *
- * @private
- * @param {*} [value=_.identity] The value to convert to an iteratee.
- * @returns {Function} Returns the iteratee.
- */ function baseIteratee(value) {
-    // Don't store the `typeof` result in a variable to avoid a JIT bug in Safari 9.
-    // See https://bugs.webkit.org/show_bug.cgi?id=156034 for more details.
-    if (typeof value == 'function') return value;
-    if (value == null) return identity;
-    if (typeof value == 'object') return isArray(value) ? baseMatchesProperty(value[0], value[1]) : baseMatches(value);
-    return property(value);
-}
-module.exports = baseIteratee;
-
-},{"./_baseMatches":"2mdwX","./_baseMatchesProperty":"48kxC","./identity":"dgTUN","./isArray":"dZaTH","./property":"8aSQI"}],"2mdwX":[function(require,module,exports) {
-var baseIsMatch = require('./_baseIsMatch'), getMatchData = require('./_getMatchData'), matchesStrictComparable = require('./_matchesStrictComparable');
-/**
- * The base implementation of `_.matches` which doesn't clone `source`.
- *
- * @private
- * @param {Object} source The object of property values to match.
- * @returns {Function} Returns the new spec function.
- */ function baseMatches(source) {
-    var matchData = getMatchData(source);
-    if (matchData.length == 1 && matchData[0][2]) return matchesStrictComparable(matchData[0][0], matchData[0][1]);
-    return function(object) {
-        return object === source || baseIsMatch(object, source, matchData);
-    };
-}
-module.exports = baseMatches;
-
-},{"./_baseIsMatch":"joJZV","./_getMatchData":"48Qyi","./_matchesStrictComparable":"a9Bav"}],"joJZV":[function(require,module,exports) {
-var Stack = require('./_Stack'), baseIsEqual = require('./_baseIsEqual');
-/** Used to compose bitmasks for value comparisons. */ var COMPARE_PARTIAL_FLAG = 1, COMPARE_UNORDERED_FLAG = 2;
-/**
- * The base implementation of `_.isMatch` without support for iteratee shorthands.
- *
- * @private
- * @param {Object} object The object to inspect.
- * @param {Object} source The object of property values to match.
- * @param {Array} matchData The property names, values, and compare flags to match.
- * @param {Function} [customizer] The function to customize comparisons.
- * @returns {boolean} Returns `true` if `object` is a match, else `false`.
- */ function baseIsMatch(object, source, matchData, customizer) {
-    var index = matchData.length, length = index, noCustomizer = !customizer;
-    if (object == null) return !length;
-    object = Object(object);
-    while(index--){
-        var data = matchData[index];
-        if (noCustomizer && data[2] ? data[1] !== object[data[0]] : !(data[0] in object)) return false;
-    }
-    while(++index < length){
-        data = matchData[index];
-        var key = data[0], objValue = object[key], srcValue = data[1];
-        if (noCustomizer && data[2]) {
-            if (objValue === undefined && !(key in object)) return false;
-        } else {
-            var stack = new Stack;
-            if (customizer) var result = customizer(objValue, srcValue, key, object, source, stack);
-            if (!(result === undefined ? baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG, customizer, stack) : result)) return false;
-        }
-    }
-    return true;
-}
-module.exports = baseIsMatch;
-
-},{"./_Stack":"atP87","./_baseIsEqual":"7i3qr"}],"7i3qr":[function(require,module,exports) {
-var baseIsEqualDeep = require('./_baseIsEqualDeep'), isObjectLike = require('./isObjectLike');
-/**
- * The base implementation of `_.isEqual` which supports partial comparisons
- * and tracks traversed objects.
- *
- * @private
- * @param {*} value The value to compare.
- * @param {*} other The other value to compare.
- * @param {boolean} bitmask The bitmask flags.
- *  1 - Unordered comparison
- *  2 - Partial comparison
- * @param {Function} [customizer] The function to customize comparisons.
- * @param {Object} [stack] Tracks traversed `value` and `other` objects.
- * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
- */ function baseIsEqual(value, other, bitmask, customizer, stack) {
-    if (value === other) return true;
-    if (value == null || other == null || !isObjectLike(value) && !isObjectLike(other)) return value !== value && other !== other;
-    return baseIsEqualDeep(value, other, bitmask, customizer, baseIsEqual, stack);
-}
-module.exports = baseIsEqual;
-
-},{"./_baseIsEqualDeep":"6GoQ9","./isObjectLike":"3BLi4"}],"6GoQ9":[function(require,module,exports) {
-var Stack = require('./_Stack'), equalArrays = require('./_equalArrays'), equalByTag = require('./_equalByTag'), equalObjects = require('./_equalObjects'), getTag = require('./_getTag'), isArray = require('./isArray'), isBuffer = require('./isBuffer'), isTypedArray = require('./isTypedArray');
-/** Used to compose bitmasks for value comparisons. */ var COMPARE_PARTIAL_FLAG = 1;
-/** `Object#toString` result references. */ var argsTag = '[object Arguments]', arrayTag = '[object Array]', objectTag = '[object Object]';
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/**
- * A specialized version of `baseIsEqual` for arrays and objects which performs
- * deep comparisons and tracks traversed objects enabling objects with circular
- * references to be compared.
- *
- * @private
- * @param {Object} object The object to compare.
- * @param {Object} other The other object to compare.
- * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
- * @param {Function} customizer The function to customize comparisons.
- * @param {Function} equalFunc The function to determine equivalents of values.
- * @param {Object} [stack] Tracks traversed `object` and `other` objects.
- * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
- */ function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
-    var objIsArr = isArray(object), othIsArr = isArray(other), objTag = objIsArr ? arrayTag : getTag(object), othTag = othIsArr ? arrayTag : getTag(other);
-    objTag = objTag == argsTag ? objectTag : objTag;
-    othTag = othTag == argsTag ? objectTag : othTag;
-    var objIsObj = objTag == objectTag, othIsObj = othTag == objectTag, isSameTag = objTag == othTag;
-    if (isSameTag && isBuffer(object)) {
-        if (!isBuffer(other)) return false;
-        objIsArr = true;
-        objIsObj = false;
-    }
-    if (isSameTag && !objIsObj) {
-        stack || (stack = new Stack);
-        return objIsArr || isTypedArray(object) ? equalArrays(object, other, bitmask, customizer, equalFunc, stack) : equalByTag(object, other, objTag, bitmask, customizer, equalFunc, stack);
-    }
-    if (!(bitmask & COMPARE_PARTIAL_FLAG)) {
-        var objIsWrapped = objIsObj && hasOwnProperty.call(object, '__wrapped__'), othIsWrapped = othIsObj && hasOwnProperty.call(other, '__wrapped__');
-        if (objIsWrapped || othIsWrapped) {
-            var objUnwrapped = objIsWrapped ? object.value() : object, othUnwrapped = othIsWrapped ? other.value() : other;
-            stack || (stack = new Stack);
-            return equalFunc(objUnwrapped, othUnwrapped, bitmask, customizer, stack);
-        }
-    }
-    if (!isSameTag) return false;
-    stack || (stack = new Stack);
-    return equalObjects(object, other, bitmask, customizer, equalFunc, stack);
-}
-module.exports = baseIsEqualDeep;
-
-},{"./_Stack":"atP87","./_equalArrays":"dQBwf","./_equalByTag":"iqa6H","./_equalObjects":"klCEf","./_getTag":"cRPhM","./isArray":"dZaTH","./isBuffer":"cn85h","./isTypedArray":"6SVKk"}],"dQBwf":[function(require,module,exports) {
-var SetCache = require('./_SetCache'), arraySome = require('./_arraySome'), cacheHas = require('./_cacheHas');
-/** Used to compose bitmasks for value comparisons. */ var COMPARE_PARTIAL_FLAG = 1, COMPARE_UNORDERED_FLAG = 2;
-/**
- * A specialized version of `baseIsEqualDeep` for arrays with support for
- * partial deep comparisons.
- *
- * @private
- * @param {Array} array The array to compare.
- * @param {Array} other The other array to compare.
- * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
- * @param {Function} customizer The function to customize comparisons.
- * @param {Function} equalFunc The function to determine equivalents of values.
- * @param {Object} stack Tracks traversed `array` and `other` objects.
- * @returns {boolean} Returns `true` if the arrays are equivalent, else `false`.
- */ function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
-    var isPartial = bitmask & COMPARE_PARTIAL_FLAG, arrLength = array.length, othLength = other.length;
-    if (arrLength != othLength && !(isPartial && othLength > arrLength)) return false;
-    // Check that cyclic values are equal.
-    var arrStacked = stack.get(array);
-    var othStacked = stack.get(other);
-    if (arrStacked && othStacked) return arrStacked == other && othStacked == array;
-    var index = -1, result = true, seen = bitmask & COMPARE_UNORDERED_FLAG ? new SetCache : undefined;
-    stack.set(array, other);
-    stack.set(other, array);
-    // Ignore non-index properties.
-    while(++index < arrLength){
-        var arrValue = array[index], othValue1 = other[index];
-        if (customizer) var compared = isPartial ? customizer(othValue1, arrValue, index, other, array, stack) : customizer(arrValue, othValue1, index, array, other, stack);
-        if (compared !== undefined) {
-            if (compared) continue;
-            result = false;
-            break;
-        }
-        // Recursively compare arrays (susceptible to call stack limits).
-        if (seen) {
-            if (!arraySome(other, function(othValue, othIndex) {
-                if (!cacheHas(seen, othIndex) && (arrValue === othValue || equalFunc(arrValue, othValue, bitmask, customizer, stack))) return seen.push(othIndex);
-            })) {
-                result = false;
-                break;
-            }
-        } else if (!(arrValue === othValue1 || equalFunc(arrValue, othValue1, bitmask, customizer, stack))) {
-            result = false;
-            break;
-        }
-    }
-    stack['delete'](array);
-    stack['delete'](other);
-    return result;
-}
-module.exports = equalArrays;
-
-},{"./_SetCache":"1SXrY","./_arraySome":"aLDHW","./_cacheHas":"70cVb"}],"1SXrY":[function(require,module,exports) {
-var MapCache = require('./_MapCache'), setCacheAdd = require('./_setCacheAdd'), setCacheHas = require('./_setCacheHas');
-/**
- *
- * Creates an array cache object to store unique values.
- *
- * @private
- * @constructor
- * @param {Array} [values] The values to cache.
- */ function SetCache(values) {
-    var index = -1, length = values == null ? 0 : values.length;
-    this.__data__ = new MapCache;
-    while(++index < length)this.add(values[index]);
-}
-// Add methods to `SetCache`.
-SetCache.prototype.add = SetCache.prototype.push = setCacheAdd;
-SetCache.prototype.has = setCacheHas;
-module.exports = SetCache;
-
-},{"./_MapCache":"664I1","./_setCacheAdd":"cZViu","./_setCacheHas":"4zNID"}],"cZViu":[function(require,module,exports) {
-/** Used to stand-in for `undefined` hash values. */ var HASH_UNDEFINED = '__lodash_hash_undefined__';
-/**
- * Adds `value` to the array cache.
- *
- * @private
- * @name add
- * @memberOf SetCache
- * @alias push
- * @param {*} value The value to cache.
- * @returns {Object} Returns the cache instance.
- */ function setCacheAdd(value) {
-    this.__data__.set(value, HASH_UNDEFINED);
-    return this;
-}
-module.exports = setCacheAdd;
-
-},{}],"4zNID":[function(require,module,exports) {
-/**
- * Checks if `value` is in the array cache.
- *
- * @private
- * @name has
- * @memberOf SetCache
- * @param {*} value The value to search for.
- * @returns {number} Returns `true` if `value` is found, else `false`.
- */ function setCacheHas(value) {
-    return this.__data__.has(value);
-}
-module.exports = setCacheHas;
-
-},{}],"aLDHW":[function(require,module,exports) {
-/**
- * A specialized version of `_.some` for arrays without support for iteratee
- * shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} predicate The function invoked per iteration.
- * @returns {boolean} Returns `true` if any element passes the predicate check,
- *  else `false`.
- */ function arraySome(array, predicate) {
-    var index = -1, length = array == null ? 0 : array.length;
-    while(++index < length){
-        if (predicate(array[index], index, array)) return true;
-    }
-    return false;
-}
-module.exports = arraySome;
-
-},{}],"70cVb":[function(require,module,exports) {
-/**
- * Checks if a `cache` value for `key` exists.
- *
- * @private
- * @param {Object} cache The cache to query.
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */ function cacheHas(cache, key) {
-    return cache.has(key);
-}
-module.exports = cacheHas;
-
-},{}],"iqa6H":[function(require,module,exports) {
-var Symbol = require('./_Symbol'), Uint8Array = require('./_Uint8Array'), eq = require('./eq'), equalArrays = require('./_equalArrays'), mapToArray = require('./_mapToArray'), setToArray = require('./_setToArray');
-/** Used to compose bitmasks for value comparisons. */ var COMPARE_PARTIAL_FLAG = 1, COMPARE_UNORDERED_FLAG = 2;
-/** `Object#toString` result references. */ var boolTag = '[object Boolean]', dateTag = '[object Date]', errorTag = '[object Error]', mapTag = '[object Map]', numberTag = '[object Number]', regexpTag = '[object RegExp]', setTag = '[object Set]', stringTag = '[object String]', symbolTag = '[object Symbol]';
-var arrayBufferTag = '[object ArrayBuffer]', dataViewTag = '[object DataView]';
-/** Used to convert symbols to primitives and strings. */ var symbolProto = Symbol ? Symbol.prototype : undefined, symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
-/**
- * A specialized version of `baseIsEqualDeep` for comparing objects of
- * the same `toStringTag`.
- *
- * **Note:** This function only supports comparing values with tags of
- * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
- *
- * @private
- * @param {Object} object The object to compare.
- * @param {Object} other The other object to compare.
- * @param {string} tag The `toStringTag` of the objects to compare.
- * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
- * @param {Function} customizer The function to customize comparisons.
- * @param {Function} equalFunc The function to determine equivalents of values.
- * @param {Object} stack Tracks traversed `object` and `other` objects.
- * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
- */ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
-    switch(tag){
-        case dataViewTag:
-            if (object.byteLength != other.byteLength || object.byteOffset != other.byteOffset) return false;
-            object = object.buffer;
-            other = other.buffer;
-        case arrayBufferTag:
-            if (object.byteLength != other.byteLength || !equalFunc(new Uint8Array(object), new Uint8Array(other))) return false;
-            return true;
-        case boolTag:
-        case dateTag:
-        case numberTag:
-            // Coerce booleans to `1` or `0` and dates to milliseconds.
-            // Invalid dates are coerced to `NaN`.
-            return eq(+object, +other);
-        case errorTag:
-            return object.name == other.name && object.message == other.message;
-        case regexpTag:
-        case stringTag:
-            // Coerce regexes to strings and treat strings, primitives and objects,
-            // as equal. See http://www.ecma-international.org/ecma-262/7.0/#sec-regexp.prototype.tostring
-            // for more details.
-            return object == other + '';
-        case mapTag:
-            var convert = mapToArray;
-        case setTag:
-            var isPartial = bitmask & COMPARE_PARTIAL_FLAG;
-            convert || (convert = setToArray);
-            if (object.size != other.size && !isPartial) return false;
-            // Assume cyclic values are equal.
-            var stacked = stack.get(object);
-            if (stacked) return stacked == other;
-            bitmask |= COMPARE_UNORDERED_FLAG;
-            // Recursively compare objects (susceptible to call stack limits).
-            stack.set(object, other);
-            var result = equalArrays(convert(object), convert(other), bitmask, customizer, equalFunc, stack);
-            stack['delete'](object);
-            return result;
-        case symbolTag:
-            if (symbolValueOf) return symbolValueOf.call(object) == symbolValueOf.call(other);
-    }
-    return false;
-}
-module.exports = equalByTag;
-
-},{"./_Symbol":"7lsL9","./_Uint8Array":"6xFrA","./eq":"aVz5f","./_equalArrays":"dQBwf","./_mapToArray":"kAwkU","./_setToArray":"2qJif"}],"kAwkU":[function(require,module,exports) {
-/**
- * Converts `map` to its key-value pairs.
- *
- * @private
- * @param {Object} map The map to convert.
- * @returns {Array} Returns the key-value pairs.
- */ function mapToArray(map) {
-    var index = -1, result = Array(map.size);
-    map.forEach(function(value, key) {
-        result[++index] = [
-            key,
-            value
-        ];
-    });
-    return result;
-}
-module.exports = mapToArray;
-
-},{}],"2qJif":[function(require,module,exports) {
-/**
- * Converts `set` to an array of its values.
- *
- * @private
- * @param {Object} set The set to convert.
- * @returns {Array} Returns the values.
- */ function setToArray(set) {
-    var index = -1, result = Array(set.size);
-    set.forEach(function(value) {
-        result[++index] = value;
-    });
-    return result;
-}
-module.exports = setToArray;
-
-},{}],"klCEf":[function(require,module,exports) {
-var getAllKeys = require('./_getAllKeys');
-/** Used to compose bitmasks for value comparisons. */ var COMPARE_PARTIAL_FLAG = 1;
-/** Used for built-in method references. */ var objectProto = Object.prototype;
-/** Used to check objects for own properties. */ var hasOwnProperty = objectProto.hasOwnProperty;
-/**
- * A specialized version of `baseIsEqualDeep` for objects with support for
- * partial deep comparisons.
- *
- * @private
- * @param {Object} object The object to compare.
- * @param {Object} other The other object to compare.
- * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
- * @param {Function} customizer The function to customize comparisons.
- * @param {Function} equalFunc The function to determine equivalents of values.
- * @param {Object} stack Tracks traversed `object` and `other` objects.
- * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
- */ function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
-    var isPartial = bitmask & COMPARE_PARTIAL_FLAG, objProps = getAllKeys(object), objLength = objProps.length, othProps = getAllKeys(other), othLength = othProps.length;
-    if (objLength != othLength && !isPartial) return false;
-    var index = objLength;
-    while(index--){
-        var key = objProps[index];
-        if (!(isPartial ? key in other : hasOwnProperty.call(other, key))) return false;
-    }
-    // Check that cyclic values are equal.
-    var objStacked = stack.get(object);
-    var othStacked = stack.get(other);
-    if (objStacked && othStacked) return objStacked == other && othStacked == object;
-    var result = true;
-    stack.set(object, other);
-    stack.set(other, object);
-    var skipCtor = isPartial;
-    while(++index < objLength){
-        key = objProps[index];
-        var objValue = object[key], othValue = other[key];
-        if (customizer) var compared = isPartial ? customizer(othValue, objValue, key, other, object, stack) : customizer(objValue, othValue, key, object, other, stack);
-        // Recursively compare objects (susceptible to call stack limits).
-        if (!(compared === undefined ? objValue === othValue || equalFunc(objValue, othValue, bitmask, customizer, stack) : compared)) {
-            result = false;
-            break;
-        }
-        skipCtor || (skipCtor = key == 'constructor');
-    }
-    if (result && !skipCtor) {
-        var objCtor = object.constructor, othCtor = other.constructor;
-        // Non `Object` object instances with different constructors are not equal.
-        if (objCtor != othCtor && 'constructor' in object && 'constructor' in other && !(typeof objCtor == 'function' && objCtor instanceof objCtor && typeof othCtor == 'function' && othCtor instanceof othCtor)) result = false;
-    }
-    stack['delete'](object);
-    stack['delete'](other);
-    return result;
-}
-module.exports = equalObjects;
-
-},{"./_getAllKeys":"d2kML"}],"48Qyi":[function(require,module,exports) {
-var isStrictComparable = require('./_isStrictComparable'), keys = require('./keys');
-/**
- * Gets the property names, values, and compare flags of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the match data of `object`.
- */ function getMatchData(object) {
-    var result = keys(object), length = result.length;
-    while(length--){
-        var key = result[length], value = object[key];
-        result[length] = [
-            key,
-            value,
-            isStrictComparable(value)
-        ];
-    }
-    return result;
-}
-module.exports = getMatchData;
-
-},{"./_isStrictComparable":"lpdGS","./keys":"6fHVw"}],"lpdGS":[function(require,module,exports) {
-var isObject = require('./isObject');
-/**
- * Checks if `value` is suitable for strict equality comparisons, i.e. `===`.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` if suitable for strict
- *  equality comparisons, else `false`.
- */ function isStrictComparable(value) {
-    return value === value && !isObject(value);
-}
-module.exports = isStrictComparable;
-
-},{"./isObject":"cGhqJ"}],"a9Bav":[function(require,module,exports) {
-/**
- * A specialized version of `matchesProperty` for source values suitable
- * for strict equality comparisons, i.e. `===`.
- *
- * @private
- * @param {string} key The key of the property to get.
- * @param {*} srcValue The value to match.
- * @returns {Function} Returns the new spec function.
- */ function matchesStrictComparable(key, srcValue) {
-    return function(object) {
-        if (object == null) return false;
-        return object[key] === srcValue && (srcValue !== undefined || key in Object(object));
-    };
-}
-module.exports = matchesStrictComparable;
-
-},{}],"48kxC":[function(require,module,exports) {
-var baseIsEqual = require('./_baseIsEqual'), get = require('./get'), hasIn = require('./hasIn'), isKey = require('./_isKey'), isStrictComparable = require('./_isStrictComparable'), matchesStrictComparable = require('./_matchesStrictComparable'), toKey = require('./_toKey');
-/** Used to compose bitmasks for value comparisons. */ var COMPARE_PARTIAL_FLAG = 1, COMPARE_UNORDERED_FLAG = 2;
-/**
- * The base implementation of `_.matchesProperty` which doesn't clone `srcValue`.
- *
- * @private
- * @param {string} path The path of the property to get.
- * @param {*} srcValue The value to match.
- * @returns {Function} Returns the new spec function.
- */ function baseMatchesProperty(path, srcValue) {
-    if (isKey(path) && isStrictComparable(srcValue)) return matchesStrictComparable(toKey(path), srcValue);
-    return function(object) {
-        var objValue = get(object, path);
-        return objValue === undefined && objValue === srcValue ? hasIn(object, path) : baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG);
-    };
-}
-module.exports = baseMatchesProperty;
-
-},{"./_baseIsEqual":"7i3qr","./get":"8UELX","./hasIn":"57qii","./_isKey":"4wPWG","./_isStrictComparable":"lpdGS","./_matchesStrictComparable":"a9Bav","./_toKey":"bEgue"}],"8UELX":[function(require,module,exports) {
-var baseGet = require('./_baseGet');
-/**
- * Gets the value at `path` of `object`. If the resolved value is
- * `undefined`, the `defaultValue` is returned in its place.
- *
- * @static
- * @memberOf _
- * @since 3.7.0
- * @category Object
- * @param {Object} object The object to query.
- * @param {Array|string} path The path of the property to get.
- * @param {*} [defaultValue] The value returned for `undefined` resolved values.
- * @returns {*} Returns the resolved value.
- * @example
- *
- * var object = { 'a': [{ 'b': { 'c': 3 } }] };
- *
- * _.get(object, 'a[0].b.c');
- * // => 3
- *
- * _.get(object, ['a', '0', 'b', 'c']);
- * // => 3
- *
- * _.get(object, 'a.b.c', 'default');
- * // => 'default'
- */ function get(object, path, defaultValue) {
-    var result = object == null ? undefined : baseGet(object, path);
-    return result === undefined ? defaultValue : result;
-}
-module.exports = get;
-
-},{"./_baseGet":"kMRe3"}],"kMRe3":[function(require,module,exports) {
-var castPath = require('./_castPath'), toKey = require('./_toKey');
-/**
- * The base implementation of `_.get` without support for default values.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Array|string} path The path of the property to get.
- * @returns {*} Returns the resolved value.
- */ function baseGet(object, path) {
-    path = castPath(path, object);
-    var index = 0, length = path.length;
-    while(object != null && index < length)object = object[toKey(path[index++])];
-    return index && index == length ? object : undefined;
-}
-module.exports = baseGet;
-
-},{"./_castPath":"apxk5","./_toKey":"bEgue"}],"apxk5":[function(require,module,exports) {
-var isArray = require('./isArray'), isKey = require('./_isKey'), stringToPath = require('./_stringToPath'), toString = require('./toString');
-/**
- * Casts `value` to a path array if it's not one.
- *
- * @private
- * @param {*} value The value to inspect.
- * @param {Object} [object] The object to query keys on.
- * @returns {Array} Returns the cast property path array.
- */ function castPath(value, object) {
-    if (isArray(value)) return value;
-    return isKey(value, object) ? [
-        value
-    ] : stringToPath(toString(value));
-}
-module.exports = castPath;
-
-},{"./isArray":"dZaTH","./_isKey":"4wPWG","./_stringToPath":"1m1j5","./toString":"joIdQ"}],"4wPWG":[function(require,module,exports) {
-var isArray = require('./isArray'), isSymbol = require('./isSymbol');
-/** Used to match property names within property paths. */ var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/, reIsPlainProp = /^\w*$/;
-/**
- * Checks if `value` is a property name and not a property path.
- *
- * @private
- * @param {*} value The value to check.
- * @param {Object} [object] The object to query keys on.
- * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
- */ function isKey(value, object) {
-    if (isArray(value)) return false;
-    var type = typeof value;
-    if (type == 'number' || type == 'symbol' || type == 'boolean' || value == null || isSymbol(value)) return true;
-    return reIsPlainProp.test(value) || !reIsDeepProp.test(value) || object != null && value in Object(object);
-}
-module.exports = isKey;
-
-},{"./isArray":"dZaTH","./isSymbol":"i3BHC"}],"1m1j5":[function(require,module,exports) {
-var memoizeCapped = require('./_memoizeCapped');
-/** Used to match property names within property paths. */ var rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
-/** Used to match backslashes in property paths. */ var reEscapeChar = /\\(\\)?/g;
-/**
- * Converts `string` to a property path array.
- *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the property path array.
- */ var stringToPath = memoizeCapped(function(string) {
-    var result = [];
-    if (string.charCodeAt(0) === 46 /* . */ ) result.push('');
-    string.replace(rePropName, function(match, number, quote, subString) {
-        result.push(quote ? subString.replace(reEscapeChar, '$1') : number || match);
-    });
-    return result;
-});
-module.exports = stringToPath;
-
-},{"./_memoizeCapped":"j3xlQ"}],"j3xlQ":[function(require,module,exports) {
-var memoize = require('./memoize');
-/** Used as the maximum memoize cache size. */ var MAX_MEMOIZE_SIZE = 500;
-/**
- * A specialized version of `_.memoize` which clears the memoized function's
- * cache when it exceeds `MAX_MEMOIZE_SIZE`.
- *
- * @private
- * @param {Function} func The function to have its output memoized.
- * @returns {Function} Returns the new memoized function.
- */ function memoizeCapped(func) {
-    var result = memoize(func, function(key) {
-        if (cache.size === MAX_MEMOIZE_SIZE) cache.clear();
-        return key;
-    });
-    var cache = result.cache;
-    return result;
-}
-module.exports = memoizeCapped;
-
-},{"./memoize":"azHKC"}],"azHKC":[function(require,module,exports) {
-var MapCache = require('./_MapCache');
-/** Error message constants. */ var FUNC_ERROR_TEXT = 'Expected a function';
-/**
- * Creates a function that memoizes the result of `func`. If `resolver` is
- * provided, it determines the cache key for storing the result based on the
- * arguments provided to the memoized function. By default, the first argument
- * provided to the memoized function is used as the map cache key. The `func`
- * is invoked with the `this` binding of the memoized function.
- *
- * **Note:** The cache is exposed as the `cache` property on the memoized
- * function. Its creation may be customized by replacing the `_.memoize.Cache`
- * constructor with one whose instances implement the
- * [`Map`](http://ecma-international.org/ecma-262/7.0/#sec-properties-of-the-map-prototype-object)
- * method interface of `clear`, `delete`, `get`, `has`, and `set`.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Function
- * @param {Function} func The function to have its output memoized.
- * @param {Function} [resolver] The function to resolve the cache key.
- * @returns {Function} Returns the new memoized function.
- * @example
- *
- * var object = { 'a': 1, 'b': 2 };
- * var other = { 'c': 3, 'd': 4 };
- *
- * var values = _.memoize(_.values);
- * values(object);
- * // => [1, 2]
- *
- * values(other);
- * // => [3, 4]
- *
- * object.a = 2;
- * values(object);
- * // => [1, 2]
- *
- * // Modify the result cache.
- * values.cache.set(object, ['a', 'b']);
- * values(object);
- * // => ['a', 'b']
- *
- * // Replace `_.memoize.Cache`.
- * _.memoize.Cache = WeakMap;
- */ function memoize(func, resolver) {
-    if (typeof func != 'function' || resolver != null && typeof resolver != 'function') throw new TypeError(FUNC_ERROR_TEXT);
-    var memoized = function() {
-        var args = arguments, key = resolver ? resolver.apply(this, args) : args[0], cache = memoized.cache;
-        if (cache.has(key)) return cache.get(key);
-        var result = func.apply(this, args);
-        memoized.cache = cache.set(key, result) || cache;
-        return result;
-    };
-    memoized.cache = new (memoize.Cache || MapCache);
-    return memoized;
-}
-// Expose `MapCache`.
-memoize.Cache = MapCache;
-module.exports = memoize;
-
-},{"./_MapCache":"664I1"}],"joIdQ":[function(require,module,exports) {
-var baseToString = require('./_baseToString');
-/**
- * Converts `value` to a string. An empty string is returned for `null`
- * and `undefined` values. The sign of `-0` is preserved.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to convert.
- * @returns {string} Returns the converted string.
- * @example
- *
- * _.toString(null);
- * // => ''
- *
- * _.toString(-0);
- * // => '-0'
- *
- * _.toString([1, 2, 3]);
- * // => '1,2,3'
- */ function toString(value) {
-    return value == null ? '' : baseToString(value);
-}
-module.exports = toString;
-
-},{"./_baseToString":"goDP8"}],"goDP8":[function(require,module,exports) {
-var Symbol = require('./_Symbol'), arrayMap = require('./_arrayMap'), isArray = require('./isArray'), isSymbol = require('./isSymbol');
-/** Used as references for various `Number` constants. */ var INFINITY = 1 / 0;
-/** Used to convert symbols to primitives and strings. */ var symbolProto = Symbol ? Symbol.prototype : undefined, symbolToString = symbolProto ? symbolProto.toString : undefined;
-/**
- * The base implementation of `_.toString` which doesn't convert nullish
- * values to empty strings.
- *
- * @private
- * @param {*} value The value to process.
- * @returns {string} Returns the string.
- */ function baseToString(value) {
-    // Exit early for strings to avoid a performance hit in some environments.
-    if (typeof value == 'string') return value;
-    if (isArray(value)) // Recursively convert values (susceptible to call stack limits).
-    return arrayMap(value, baseToString) + '';
-    if (isSymbol(value)) return symbolToString ? symbolToString.call(value) : '';
-    var result = value + '';
-    return result == '0' && 1 / value == -INFINITY ? '-0' : result;
-}
-module.exports = baseToString;
-
-},{"./_Symbol":"7lsL9","./_arrayMap":"imI5Z","./isArray":"dZaTH","./isSymbol":"i3BHC"}],"imI5Z":[function(require,module,exports) {
-/**
- * A specialized version of `_.map` for arrays without support for iteratee
- * shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array} Returns the new mapped array.
- */ function arrayMap(array, iteratee) {
-    var index = -1, length = array == null ? 0 : array.length, result = Array(length);
-    while(++index < length)result[index] = iteratee(array[index], index, array);
-    return result;
-}
-module.exports = arrayMap;
-
-},{}],"bEgue":[function(require,module,exports) {
-var isSymbol = require('./isSymbol');
-/** Used as references for various `Number` constants. */ var INFINITY = 1 / 0;
-/**
- * Converts `value` to a string key if it's not a string or symbol.
- *
- * @private
- * @param {*} value The value to inspect.
- * @returns {string|symbol} Returns the key.
- */ function toKey(value) {
-    if (typeof value == 'string' || isSymbol(value)) return value;
-    var result = value + '';
-    return result == '0' && 1 / value == -INFINITY ? '-0' : result;
-}
-module.exports = toKey;
-
-},{"./isSymbol":"i3BHC"}],"57qii":[function(require,module,exports) {
-var baseHasIn = require('./_baseHasIn'), hasPath = require('./_hasPath');
-/**
- * Checks if `path` is a direct or inherited property of `object`.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Object
- * @param {Object} object The object to query.
- * @param {Array|string} path The path to check.
- * @returns {boolean} Returns `true` if `path` exists, else `false`.
- * @example
- *
- * var object = _.create({ 'a': _.create({ 'b': 2 }) });
- *
- * _.hasIn(object, 'a');
- * // => true
- *
- * _.hasIn(object, 'a.b');
- * // => true
- *
- * _.hasIn(object, ['a', 'b']);
- * // => true
- *
- * _.hasIn(object, 'b');
- * // => false
- */ function hasIn(object, path) {
-    return object != null && hasPath(object, path, baseHasIn);
-}
-module.exports = hasIn;
-
-},{"./_baseHasIn":"in8KZ","./_hasPath":"4QNMG"}],"in8KZ":[function(require,module,exports) {
-/**
- * The base implementation of `_.hasIn` without support for deep paths.
- *
- * @private
- * @param {Object} [object] The object to query.
- * @param {Array|string} key The key to check.
- * @returns {boolean} Returns `true` if `key` exists, else `false`.
- */ function baseHasIn(object, key) {
-    return object != null && key in Object(object);
-}
-module.exports = baseHasIn;
-
-},{}],"4QNMG":[function(require,module,exports) {
-var castPath = require('./_castPath'), isArguments = require('./isArguments'), isArray = require('./isArray'), isIndex = require('./_isIndex'), isLength = require('./isLength'), toKey = require('./_toKey');
-/**
- * Checks if `path` exists on `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Array|string} path The path to check.
- * @param {Function} hasFunc The function to check properties.
- * @returns {boolean} Returns `true` if `path` exists, else `false`.
- */ function hasPath(object, path, hasFunc) {
-    path = castPath(path, object);
-    var index = -1, length = path.length, result = false;
-    while(++index < length){
-        var key = toKey(path[index]);
-        if (!(result = object != null && hasFunc(object, key))) break;
-        object = object[key];
-    }
-    if (result || ++index != length) return result;
-    length = object == null ? 0 : object.length;
-    return !!length && isLength(length) && isIndex(key, length) && (isArray(object) || isArguments(object));
-}
-module.exports = hasPath;
-
-},{"./_castPath":"apxk5","./isArguments":"8ReNj","./isArray":"dZaTH","./_isIndex":"aJpx0","./isLength":"hrTBx","./_toKey":"bEgue"}],"8aSQI":[function(require,module,exports) {
-var baseProperty = require('./_baseProperty'), basePropertyDeep = require('./_basePropertyDeep'), isKey = require('./_isKey'), toKey = require('./_toKey');
-/**
- * Creates a function that returns the value at `path` of a given object.
- *
- * @static
- * @memberOf _
- * @since 2.4.0
- * @category Util
- * @param {Array|string} path The path of the property to get.
- * @returns {Function} Returns the new accessor function.
- * @example
- *
- * var objects = [
- *   { 'a': { 'b': 2 } },
- *   { 'a': { 'b': 1 } }
- * ];
- *
- * _.map(objects, _.property('a.b'));
- * // => [2, 1]
- *
- * _.map(_.sortBy(objects, _.property(['a', 'b'])), 'a.b');
- * // => [1, 2]
- */ function property(path) {
-    return isKey(path) ? baseProperty(toKey(path)) : basePropertyDeep(path);
-}
-module.exports = property;
-
-},{"./_baseProperty":"4HOmE","./_basePropertyDeep":"c9dhz","./_isKey":"4wPWG","./_toKey":"bEgue"}],"4HOmE":[function(require,module,exports) {
-/**
- * The base implementation of `_.property` without support for deep paths.
- *
- * @private
- * @param {string} key The key of the property to get.
- * @returns {Function} Returns the new accessor function.
- */ function baseProperty(key) {
-    return function(object) {
-        return object == null ? undefined : object[key];
-    };
-}
-module.exports = baseProperty;
-
-},{}],"c9dhz":[function(require,module,exports) {
-var baseGet = require('./_baseGet');
-/**
- * A specialized version of `baseProperty` which supports deep paths.
- *
- * @private
- * @param {Array|string} path The path of the property to get.
- * @returns {Function} Returns the new accessor function.
- */ function basePropertyDeep(path) {
-    return function(object) {
-        return baseGet(object, path);
-    };
-}
-module.exports = basePropertyDeep;
-
-},{"./_baseGet":"kMRe3"}],"bePiz":[function(require,module,exports) {
-var createWrap = require('./_createWrap'), flatRest = require('./_flatRest');
-/** Used to compose bitmasks for function metadata. */ var WRAP_REARG_FLAG = 256;
-/**
- * Creates a function that invokes `func` with arguments arranged according
- * to the specified `indexes` where the argument value at the first index is
- * provided as the first argument, the argument value at the second index is
- * provided as the second argument, and so on.
- *
- * @static
- * @memberOf _
- * @since 3.0.0
- * @category Function
- * @param {Function} func The function to rearrange arguments for.
- * @param {...(number|number[])} indexes The arranged argument indexes.
- * @returns {Function} Returns the new function.
- * @example
- *
- * var rearged = _.rearg(function(a, b, c) {
- *   return [a, b, c];
- * }, [2, 0, 1]);
- *
- * rearged('b', 'c', 'a')
- * // => ['a', 'b', 'c']
- */ var rearg = flatRest(function(func, indexes) {
-    return createWrap(func, WRAP_REARG_FLAG, undefined, undefined, undefined, indexes);
-});
-module.exports = rearg;
-
-},{"./_createWrap":"1nVn1","./_flatRest":"bmlRd"}],"bmlRd":[function(require,module,exports) {
-var flatten = require('./flatten'), overRest = require('./_overRest'), setToString = require('./_setToString');
-/**
- * A specialized version of `baseRest` which flattens the rest array.
- *
- * @private
- * @param {Function} func The function to apply a rest parameter to.
- * @returns {Function} Returns the new function.
- */ function flatRest(func) {
-    return setToString(overRest(func, undefined, flatten), func + '');
-}
-module.exports = flatRest;
-
-},{"./flatten":"71l7m","./_overRest":"16F1z","./_setToString":"b5kjI"}],"71l7m":[function(require,module,exports) {
-var baseFlatten = require('./_baseFlatten');
-/**
- * Flattens `array` a single level deep.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Array
- * @param {Array} array The array to flatten.
- * @returns {Array} Returns the new flattened array.
- * @example
- *
- * _.flatten([1, [2, [3, [4]], 5]]);
- * // => [1, 2, [3, [4]], 5]
- */ function flatten(array) {
-    var length = array == null ? 0 : array.length;
-    return length ? baseFlatten(array, 1) : [];
-}
-module.exports = flatten;
-
-},{"./_baseFlatten":"60rt9"}],"60rt9":[function(require,module,exports) {
-var arrayPush = require('./_arrayPush'), isFlattenable = require('./_isFlattenable');
-/**
- * The base implementation of `_.flatten` with support for restricting flattening.
- *
- * @private
- * @param {Array} array The array to flatten.
- * @param {number} depth The maximum recursion depth.
- * @param {boolean} [predicate=isFlattenable] The function invoked per iteration.
- * @param {boolean} [isStrict] Restrict to values that pass `predicate` checks.
- * @param {Array} [result=[]] The initial result value.
- * @returns {Array} Returns the new flattened array.
- */ function baseFlatten(array, depth, predicate, isStrict, result) {
-    var index = -1, length = array.length;
-    predicate || (predicate = isFlattenable);
-    result || (result = []);
-    while(++index < length){
-        var value = array[index];
-        if (depth > 0 && predicate(value)) {
-            if (depth > 1) // Recursively flatten arrays (susceptible to call stack limits).
-            baseFlatten(value, depth - 1, predicate, isStrict, result);
-            else arrayPush(result, value);
-        } else if (!isStrict) result[result.length] = value;
-    }
-    return result;
-}
-module.exports = baseFlatten;
-
-},{"./_arrayPush":"ivo5r","./_isFlattenable":"O762m"}],"O762m":[function(require,module,exports) {
-var Symbol = require('./_Symbol'), isArguments = require('./isArguments'), isArray = require('./isArray');
-/** Built-in value references. */ var spreadableSymbol = Symbol ? Symbol.isConcatSpreadable : undefined;
-/**
- * Checks if `value` is a flattenable `arguments` object or array.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is flattenable, else `false`.
- */ function isFlattenable(value) {
-    return isArray(value) || isArguments(value) || !!(spreadableSymbol && value && value[spreadableSymbol]);
-}
-module.exports = isFlattenable;
-
-},{"./_Symbol":"7lsL9","./isArguments":"8ReNj","./isArray":"dZaTH"}],"16F1z":[function(require,module,exports) {
-var apply = require('./_apply');
-/* Built-in method references for those with the same name as other `lodash` methods. */ var nativeMax = Math.max;
-/**
- * A specialized version of `baseRest` which transforms the rest array.
- *
- * @private
- * @param {Function} func The function to apply a rest parameter to.
- * @param {number} [start=func.length-1] The start position of the rest parameter.
- * @param {Function} transform The rest array transform.
- * @returns {Function} Returns the new function.
- */ function overRest(func, start, transform) {
-    start = nativeMax(start === undefined ? func.length - 1 : start, 0);
-    return function() {
-        var args = arguments, index = -1, length = nativeMax(args.length - start, 0), array = Array(length);
-        while(++index < length)array[index] = args[start + index];
-        index = -1;
-        var otherArgs = Array(start + 1);
-        while(++index < start)otherArgs[index] = args[index];
-        otherArgs[start] = transform(array);
-        return apply(func, this, otherArgs);
-    };
-}
-module.exports = overRest;
-
-},{"./_apply":"gUweg"}],"hH9yA":[function(require,module,exports) {
-var arrayMap = require('./_arrayMap'), copyArray = require('./_copyArray'), isArray = require('./isArray'), isSymbol = require('./isSymbol'), stringToPath = require('./_stringToPath'), toKey = require('./_toKey'), toString = require('./toString');
-/**
- * Converts `value` to a property path array.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Util
- * @param {*} value The value to convert.
- * @returns {Array} Returns the new property path array.
- * @example
- *
- * _.toPath('a.b.c');
- * // => ['a', 'b', 'c']
- *
- * _.toPath('a[0].b.c');
- * // => ['a', '0', 'b', 'c']
- */ function toPath(value) {
-    if (isArray(value)) return arrayMap(value, toKey);
-    return isSymbol(value) ? [
-        value
-    ] : copyArray(stringToPath(toString(value)));
-}
-module.exports = toPath;
-
-},{"./_arrayMap":"imI5Z","./_copyArray":"jJ8fu","./isArray":"dZaTH","./isSymbol":"i3BHC","./_stringToPath":"1m1j5","./_toKey":"bEgue","./toString":"joIdQ"}],"4QNnH":[function(require,module,exports) {
-module.exports = {
-    'cap': false,
-    'curry': false,
-    'fixed': false,
-    'immutable': false,
-    'rearg': false
-};
-
-},{}],"2eCvM":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('uniqBy', require('../uniqBy'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../uniqBy":"027Yj","./placeholder":"cfCjP"}],"027Yj":[function(require,module,exports) {
-var baseIteratee = require('./_baseIteratee'), baseUniq = require('./_baseUniq');
-/**
- * This method is like `_.uniq` except that it accepts `iteratee` which is
- * invoked for each element in `array` to generate the criterion by which
- * uniqueness is computed. The order of result values is determined by the
- * order they occur in the array. The iteratee is invoked with one argument:
- * (value).
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Array
- * @param {Array} array The array to inspect.
- * @param {Function} [iteratee=_.identity] The iteratee invoked per element.
- * @returns {Array} Returns the new duplicate free array.
- * @example
- *
- * _.uniqBy([2.1, 1.2, 2.3], Math.floor);
- * // => [2.1, 1.2]
- *
- * // The `_.property` iteratee shorthand.
- * _.uniqBy([{ 'x': 1 }, { 'x': 2 }, { 'x': 1 }], 'x');
- * // => [{ 'x': 1 }, { 'x': 2 }]
- */ function uniqBy(array, iteratee) {
-    return array && array.length ? baseUniq(array, baseIteratee(iteratee, 2)) : [];
-}
-module.exports = uniqBy;
-
-},{"./_baseIteratee":"2fsgg","./_baseUniq":"llHH0"}],"llHH0":[function(require,module,exports) {
-var SetCache = require('./_SetCache'), arrayIncludes = require('./_arrayIncludes'), arrayIncludesWith = require('./_arrayIncludesWith'), cacheHas = require('./_cacheHas'), createSet = require('./_createSet'), setToArray = require('./_setToArray');
-/** Used as the size to enable large array optimizations. */ var LARGE_ARRAY_SIZE = 200;
-/**
- * The base implementation of `_.uniqBy` without support for iteratee shorthands.
- *
- * @private
- * @param {Array} array The array to inspect.
- * @param {Function} [iteratee] The iteratee invoked per element.
- * @param {Function} [comparator] The comparator invoked per element.
- * @returns {Array} Returns the new duplicate free array.
- */ function baseUniq(array, iteratee, comparator) {
-    var index = -1, includes = arrayIncludes, length = array.length, isCommon = true, result = [], seen = result;
-    if (comparator) {
-        isCommon = false;
-        includes = arrayIncludesWith;
-    } else if (length >= LARGE_ARRAY_SIZE) {
-        var set = iteratee ? null : createSet(array);
-        if (set) return setToArray(set);
-        isCommon = false;
-        includes = cacheHas;
-        seen = new SetCache;
-    } else seen = iteratee ? [] : result;
-    outer: while(++index < length){
-        var value = array[index], computed = iteratee ? iteratee(value) : value;
-        value = comparator || value !== 0 ? value : 0;
-        if (isCommon && computed === computed) {
-            var seenIndex = seen.length;
-            while(seenIndex--){
-                if (seen[seenIndex] === computed) continue outer;
-            }
-            if (iteratee) seen.push(computed);
-            result.push(value);
-        } else if (!includes(seen, computed, comparator)) {
-            if (seen !== result) seen.push(computed);
-            result.push(value);
-        }
-    }
-    return result;
-}
-module.exports = baseUniq;
-
-},{"./_SetCache":"1SXrY","./_arrayIncludes":"kfd3F","./_arrayIncludesWith":"ghsru","./_cacheHas":"70cVb","./_createSet":"6hipu","./_setToArray":"2qJif"}],"ghsru":[function(require,module,exports) {
-/**
- * This function is like `arrayIncludes` except that it accepts a comparator.
- *
- * @private
- * @param {Array} [array] The array to inspect.
- * @param {*} target The value to search for.
- * @param {Function} comparator The comparator invoked per element.
- * @returns {boolean} Returns `true` if `target` is found, else `false`.
- */ function arrayIncludesWith(array, value, comparator) {
-    var index = -1, length = array == null ? 0 : array.length;
-    while(++index < length){
-        if (comparator(value, array[index])) return true;
-    }
-    return false;
-}
-module.exports = arrayIncludesWith;
-
-},{}],"6hipu":[function(require,module,exports) {
-var Set = require('./_Set'), noop = require('./noop'), setToArray = require('./_setToArray');
-/** Used as references for various `Number` constants. */ var INFINITY = 1 / 0;
-/**
- * Creates a set object of `values`.
- *
- * @private
- * @param {Array} values The values to add to the set.
- * @returns {Object} Returns the new set.
- */ var createSet = !(Set && 1 / setToArray(new Set([
-    ,
-    -0
-]))[1] == INFINITY) ? noop : function(values) {
-    return new Set(values);
-};
-module.exports = createSet;
-
-},{"./_Set":"4xGLf","./noop":"dSFAq","./_setToArray":"2qJif"}],"lk3G6":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('uniq', require('../uniq'), require('./_falseOptions'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../uniq":"8cGRk","./_falseOptions":"4QNnH","./placeholder":"cfCjP"}],"8cGRk":[function(require,module,exports) {
-var baseUniq = require('./_baseUniq');
-/**
- * Creates a duplicate-free version of an array, using
- * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
- * for equality comparisons, in which only the first occurrence of each element
- * is kept. The order of result values is determined by the order they occur
- * in the array.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Array
- * @param {Array} array The array to inspect.
- * @returns {Array} Returns the new duplicate free array.
- * @example
- *
- * _.uniq([2, 1, 2]);
- * // => [2, 1]
- */ function uniq(array) {
-    return array && array.length ? baseUniq(array) : [];
-}
-module.exports = uniq;
-
-},{"./_baseUniq":"llHH0"}],"cftBu":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('flatten', require('../flatten'), require('./_falseOptions'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../flatten":"71l7m","./_falseOptions":"4QNnH","./placeholder":"cfCjP"}],"1ImnD":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('flow', require('../flow'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../flow":"ivbSK","./placeholder":"cfCjP"}],"ivbSK":[function(require,module,exports) {
-var createFlow = require('./_createFlow');
-/**
- * Creates a function that returns the result of invoking the given functions
- * with the `this` binding of the created function, where each successive
- * invocation is supplied the return value of the previous.
- *
- * @static
- * @memberOf _
- * @since 3.0.0
- * @category Util
- * @param {...(Function|Function[])} [funcs] The functions to invoke.
- * @returns {Function} Returns the new composite function.
- * @see _.flowRight
- * @example
- *
- * function square(n) {
- *   return n * n;
- * }
- *
- * var addSquare = _.flow([_.add, square]);
- * addSquare(1, 2);
- * // => 9
- */ var flow = createFlow();
-module.exports = flow;
-
-},{"./_createFlow":"9MMzP"}],"9MMzP":[function(require,module,exports) {
-var LodashWrapper = require('./_LodashWrapper'), flatRest = require('./_flatRest'), getData = require('./_getData'), getFuncName = require('./_getFuncName'), isArray = require('./isArray'), isLaziable = require('./_isLaziable');
-/** Error message constants. */ var FUNC_ERROR_TEXT = 'Expected a function';
-/** Used to compose bitmasks for function metadata. */ var WRAP_CURRY_FLAG = 8, WRAP_PARTIAL_FLAG = 32, WRAP_ARY_FLAG = 128, WRAP_REARG_FLAG = 256;
-/**
- * Creates a `_.flow` or `_.flowRight` function.
- *
- * @private
- * @param {boolean} [fromRight] Specify iterating from right to left.
- * @returns {Function} Returns the new flow function.
- */ function createFlow(fromRight) {
-    return flatRest(function(funcs) {
-        var length = funcs.length, index1 = length, prereq = LodashWrapper.prototype.thru;
-        if (fromRight) funcs.reverse();
-        while(index1--){
-            var func = funcs[index1];
-            if (typeof func != 'function') throw new TypeError(FUNC_ERROR_TEXT);
-            if (prereq && !wrapper && getFuncName(func) == 'wrapper') var wrapper = new LodashWrapper([], true);
-        }
-        index1 = wrapper ? index1 : length;
-        while(++index1 < length){
-            func = funcs[index1];
-            var funcName = getFuncName(func), data = funcName == 'wrapper' ? getData(func) : undefined;
-            if (data && isLaziable(data[0]) && data[1] == (WRAP_ARY_FLAG | WRAP_CURRY_FLAG | WRAP_PARTIAL_FLAG | WRAP_REARG_FLAG) && !data[4].length && data[9] == 1) wrapper = wrapper[getFuncName(data[0])].apply(wrapper, data[3]);
-            else wrapper = func.length == 1 && isLaziable(func) ? wrapper[funcName]() : wrapper.thru(func);
-        }
-        return function() {
-            var args = arguments, value = args[0];
-            if (wrapper && args.length == 1 && isArray(value)) return wrapper.plant(value).value();
-            var index = 0, result = length ? funcs[index].apply(this, args) : value;
-            while(++index < length)result = funcs[index].call(this, result);
-            return result;
-        };
-    });
-}
-module.exports = createFlow;
-
-},{"./_LodashWrapper":"32oxQ","./_flatRest":"bmlRd","./_getData":"2DAAe","./_getFuncName":"8QrGg","./isArray":"dZaTH","./_isLaziable":"g1x7m"}],"ea1n8":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('forEach', require('../forEach'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../forEach":"WMtKm","./placeholder":"cfCjP"}],"WMtKm":[function(require,module,exports) {
-var arrayEach = require('./_arrayEach'), baseEach = require('./_baseEach'), castFunction = require('./_castFunction'), isArray = require('./isArray');
-/**
- * Iterates over elements of `collection` and invokes `iteratee` for each element.
- * The iteratee is invoked with three arguments: (value, index|key, collection).
- * Iteratee functions may exit iteration early by explicitly returning `false`.
- *
- * **Note:** As with other "Collections" methods, objects with a "length"
- * property are iterated like arrays. To avoid this behavior use `_.forIn`
- * or `_.forOwn` for object iteration.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @alias each
- * @category Collection
- * @param {Array|Object} collection The collection to iterate over.
- * @param {Function} [iteratee=_.identity] The function invoked per iteration.
- * @returns {Array|Object} Returns `collection`.
- * @see _.forEachRight
- * @example
- *
- * _.forEach([1, 2], function(value) {
- *   console.log(value);
- * });
- * // => Logs `1` then `2`.
- *
- * _.forEach({ 'a': 1, 'b': 2 }, function(value, key) {
- *   console.log(key);
- * });
- * // => Logs 'a' then 'b' (iteration order is not guaranteed).
- */ function forEach(collection, iteratee) {
-    var func = isArray(collection) ? arrayEach : baseEach;
-    return func(collection, castFunction(iteratee));
-}
-module.exports = forEach;
-
-},{"./_arrayEach":"kMhnH","./_baseEach":"1glfs","./_castFunction":"9qOGA","./isArray":"dZaTH"}],"1glfs":[function(require,module,exports) {
-var baseForOwn = require('./_baseForOwn'), createBaseEach = require('./_createBaseEach');
-/**
- * The base implementation of `_.forEach` without support for iteratee shorthands.
- *
- * @private
- * @param {Array|Object} collection The collection to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array|Object} Returns `collection`.
- */ var baseEach = createBaseEach(baseForOwn);
-module.exports = baseEach;
-
-},{"./_baseForOwn":"6MqUM","./_createBaseEach":"dfv3e"}],"6MqUM":[function(require,module,exports) {
-var baseFor = require('./_baseFor'), keys = require('./keys');
-/**
- * The base implementation of `_.forOwn` without support for iteratee shorthands.
- *
- * @private
- * @param {Object} object The object to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Object} Returns `object`.
- */ function baseForOwn(object, iteratee) {
-    return object && baseFor(object, iteratee, keys);
-}
-module.exports = baseForOwn;
-
-},{"./_baseFor":"k0bbR","./keys":"6fHVw"}],"k0bbR":[function(require,module,exports) {
-var createBaseFor = require('./_createBaseFor');
-/**
- * The base implementation of `baseForOwn` which iterates over `object`
- * properties returned by `keysFunc` and invokes `iteratee` for each property.
- * Iteratee functions may exit iteration early by explicitly returning `false`.
- *
- * @private
- * @param {Object} object The object to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @param {Function} keysFunc The function to get the keys of `object`.
- * @returns {Object} Returns `object`.
- */ var baseFor = createBaseFor();
-module.exports = baseFor;
-
-},{"./_createBaseFor":"hCIGA"}],"hCIGA":[function(require,module,exports) {
-/**
- * Creates a base function for methods like `_.forIn` and `_.forOwn`.
- *
- * @private
- * @param {boolean} [fromRight] Specify iterating from right to left.
- * @returns {Function} Returns the new base function.
- */ function createBaseFor(fromRight) {
-    return function(object, iteratee, keysFunc) {
-        var index = -1, iterable = Object(object), props = keysFunc(object), length = props.length;
-        while(length--){
-            var key = props[fromRight ? length : ++index];
-            if (iteratee(iterable[key], key, iterable) === false) break;
-        }
-        return object;
-    };
-}
-module.exports = createBaseFor;
-
-},{}],"dfv3e":[function(require,module,exports) {
-var isArrayLike = require('./isArrayLike');
-/**
- * Creates a `baseEach` or `baseEachRight` function.
- *
- * @private
- * @param {Function} eachFunc The function to iterate over a collection.
- * @param {boolean} [fromRight] Specify iterating from right to left.
- * @returns {Function} Returns the new base function.
- */ function createBaseEach(eachFunc, fromRight) {
-    return function(collection, iteratee) {
-        if (collection == null) return collection;
-        if (!isArrayLike(collection)) return eachFunc(collection, iteratee);
-        var length = collection.length, index = fromRight ? length : -1, iterable = Object(collection);
-        while(fromRight ? index-- : ++index < length){
-            if (iteratee(iterable[index], index, iterable) === false) break;
-        }
-        return collection;
-    };
-}
-module.exports = createBaseEach;
-
-},{"./isArrayLike":"gMCbp"}],"9qOGA":[function(require,module,exports) {
-var identity = require('./identity');
-/**
- * Casts `value` to `identity` if it's not a function.
- *
- * @private
- * @param {*} value The value to inspect.
- * @returns {Function} Returns cast function.
- */ function castFunction(value) {
-    return typeof value == 'function' ? value : identity;
-}
-module.exports = castFunction;
-
-},{"./identity":"dgTUN"}],"jwrLr":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('assignIn', require('../assignIn'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../assignIn":"f6ius","./placeholder":"cfCjP"}],"f6ius":[function(require,module,exports) {
-var copyObject = require('./_copyObject'), createAssigner = require('./_createAssigner'), keysIn = require('./keysIn');
-/**
- * This method is like `_.assign` except that it iterates over own and
- * inherited source properties.
- *
- * **Note:** This method mutates `object`.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @alias extend
- * @category Object
- * @param {Object} object The destination object.
- * @param {...Object} [sources] The source objects.
- * @returns {Object} Returns `object`.
- * @see _.assign
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- * }
- *
- * function Bar() {
- *   this.c = 3;
- * }
- *
- * Foo.prototype.b = 2;
- * Bar.prototype.d = 4;
- *
- * _.assignIn({ 'a': 0 }, new Foo, new Bar);
- * // => { 'a': 1, 'b': 2, 'c': 3, 'd': 4 }
- */ var assignIn = createAssigner(function(object, source) {
-    copyObject(source, keysIn(source), object);
-});
-module.exports = assignIn;
-
-},{"./_copyObject":"gfA7W","./_createAssigner":"7RrvA","./keysIn":"c9sMs"}],"7RrvA":[function(require,module,exports) {
-var baseRest = require('./_baseRest'), isIterateeCall = require('./_isIterateeCall');
-/**
- * Creates a function like `_.assign`.
- *
- * @private
- * @param {Function} assigner The function to assign values.
- * @returns {Function} Returns the new assigner function.
- */ function createAssigner(assigner) {
-    return baseRest(function(object, sources) {
-        var index = -1, length = sources.length, customizer = length > 1 ? sources[length - 1] : undefined, guard = length > 2 ? sources[2] : undefined;
-        customizer = assigner.length > 3 && typeof customizer == 'function' ? (length--, customizer) : undefined;
-        if (guard && isIterateeCall(sources[0], sources[1], guard)) {
-            customizer = length < 3 ? undefined : customizer;
-            length = 1;
-        }
-        object = Object(object);
-        while(++index < length){
-            var source = sources[index];
-            if (source) assigner(object, source, index, customizer);
-        }
-        return object;
-    });
-}
-module.exports = createAssigner;
-
-},{"./_baseRest":"kd260","./_isIterateeCall":"7JSn7"}],"kd260":[function(require,module,exports) {
-var identity = require('./identity'), overRest = require('./_overRest'), setToString = require('./_setToString');
-/**
- * The base implementation of `_.rest` which doesn't validate or coerce arguments.
- *
- * @private
- * @param {Function} func The function to apply a rest parameter to.
- * @param {number} [start=func.length-1] The start position of the rest parameter.
- * @returns {Function} Returns the new function.
- */ function baseRest(func, start) {
-    return setToString(overRest(func, start, identity), func + '');
-}
-module.exports = baseRest;
-
-},{"./identity":"dgTUN","./_overRest":"16F1z","./_setToString":"b5kjI"}],"7JSn7":[function(require,module,exports) {
-var eq = require('./eq'), isArrayLike = require('./isArrayLike'), isIndex = require('./_isIndex'), isObject = require('./isObject');
-/**
- * Checks if the given arguments are from an iteratee call.
- *
- * @private
- * @param {*} value The potential iteratee value argument.
- * @param {*} index The potential iteratee index or key argument.
- * @param {*} object The potential iteratee object argument.
- * @returns {boolean} Returns `true` if the arguments are from an iteratee call,
- *  else `false`.
- */ function isIterateeCall(value, index, object) {
-    if (!isObject(object)) return false;
-    var type = typeof index;
-    if (type == 'number' ? isArrayLike(object) && isIndex(index, object.length) : type == 'string' && index in object) return eq(object[index], value);
-    return false;
-}
-module.exports = isIterateeCall;
-
-},{"./eq":"aVz5f","./isArrayLike":"gMCbp","./_isIndex":"aJpx0","./isObject":"cGhqJ"}],"a1tsr":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('map', require('../map'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../map":"94CDd","./placeholder":"cfCjP"}],"94CDd":[function(require,module,exports) {
-var arrayMap = require('./_arrayMap'), baseIteratee = require('./_baseIteratee'), baseMap = require('./_baseMap'), isArray = require('./isArray');
-/**
- * Creates an array of values by running each element in `collection` thru
- * `iteratee`. The iteratee is invoked with three arguments:
- * (value, index|key, collection).
- *
- * Many lodash methods are guarded to work as iteratees for methods like
- * `_.every`, `_.filter`, `_.map`, `_.mapValues`, `_.reject`, and `_.some`.
- *
- * The guarded methods are:
- * `ary`, `chunk`, `curry`, `curryRight`, `drop`, `dropRight`, `every`,
- * `fill`, `invert`, `parseInt`, `random`, `range`, `rangeRight`, `repeat`,
- * `sampleSize`, `slice`, `some`, `sortBy`, `split`, `take`, `takeRight`,
- * `template`, `trim`, `trimEnd`, `trimStart`, and `words`
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Collection
- * @param {Array|Object} collection The collection to iterate over.
- * @param {Function} [iteratee=_.identity] The function invoked per iteration.
- * @returns {Array} Returns the new mapped array.
- * @example
- *
- * function square(n) {
- *   return n * n;
- * }
- *
- * _.map([4, 8], square);
- * // => [16, 64]
- *
- * _.map({ 'a': 4, 'b': 8 }, square);
- * // => [16, 64] (iteration order is not guaranteed)
- *
- * var users = [
- *   { 'user': 'barney' },
- *   { 'user': 'fred' }
- * ];
- *
- * // The `_.property` iteratee shorthand.
- * _.map(users, 'user');
- * // => ['barney', 'fred']
- */ function map(collection, iteratee) {
-    var func = isArray(collection) ? arrayMap : baseMap;
-    return func(collection, baseIteratee(iteratee, 3));
-}
-module.exports = map;
-
-},{"./_arrayMap":"imI5Z","./_baseIteratee":"2fsgg","./_baseMap":"cLeHB","./isArray":"dZaTH"}],"cLeHB":[function(require,module,exports) {
-var baseEach = require('./_baseEach'), isArrayLike = require('./isArrayLike');
-/**
- * The base implementation of `_.map` without support for iteratee shorthands.
- *
- * @private
- * @param {Array|Object} collection The collection to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array} Returns the new mapped array.
- */ function baseMap(collection1, iteratee) {
-    var index = -1, result = isArrayLike(collection1) ? Array(collection1.length) : [];
-    baseEach(collection1, function(value, key, collection) {
-        result[++index] = iteratee(value, key, collection);
-    });
-    return result;
-}
-module.exports = baseMap;
-
-},{"./_baseEach":"1glfs","./isArrayLike":"gMCbp"}],"5WIia":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('isEqual', require('../isEqual'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../isEqual":"9XEia","./placeholder":"cfCjP"}],"9XEia":[function(require,module,exports) {
-var baseIsEqual = require('./_baseIsEqual');
-/**
- * Performs a deep comparison between two values to determine if they are
- * equivalent.
- *
- * **Note:** This method supports comparing arrays, array buffers, booleans,
- * date objects, error objects, maps, numbers, `Object` objects, regexes,
- * sets, strings, symbols, and typed arrays. `Object` objects are compared
- * by their own, not inherited, enumerable properties. Functions and DOM
- * nodes are compared by strict equality, i.e. `===`.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to compare.
- * @param {*} other The other value to compare.
- * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
- * @example
- *
- * var object = { 'a': 1 };
- * var other = { 'a': 1 };
- *
- * _.isEqual(object, other);
- * // => true
- *
- * object === other;
- * // => false
- */ function isEqual(value, other) {
-    return baseIsEqual(value, other);
-}
-module.exports = isEqual;
-
-},{"./_baseIsEqual":"7i3qr"}],"6f3Dn":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('findKey', require('../findKey'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../findKey":"fjLDS","./placeholder":"cfCjP"}],"fjLDS":[function(require,module,exports) {
-var baseFindKey = require('./_baseFindKey'), baseForOwn = require('./_baseForOwn'), baseIteratee = require('./_baseIteratee');
-/**
- * This method is like `_.find` except that it returns the key of the first
- * element `predicate` returns truthy for instead of the element itself.
- *
- * @static
- * @memberOf _
- * @since 1.1.0
- * @category Object
- * @param {Object} object The object to inspect.
- * @param {Function} [predicate=_.identity] The function invoked per iteration.
- * @returns {string|undefined} Returns the key of the matched element,
- *  else `undefined`.
- * @example
- *
- * var users = {
- *   'barney':  { 'age': 36, 'active': true },
- *   'fred':    { 'age': 40, 'active': false },
- *   'pebbles': { 'age': 1,  'active': true }
- * };
- *
- * _.findKey(users, function(o) { return o.age < 40; });
- * // => 'barney' (iteration order is not guaranteed)
- *
- * // The `_.matches` iteratee shorthand.
- * _.findKey(users, { 'age': 1, 'active': true });
- * // => 'pebbles'
- *
- * // The `_.matchesProperty` iteratee shorthand.
- * _.findKey(users, ['active', false]);
- * // => 'fred'
- *
- * // The `_.property` iteratee shorthand.
- * _.findKey(users, 'active');
- * // => 'barney'
- */ function findKey(object, predicate) {
-    return baseFindKey(object, baseIteratee(predicate, 3), baseForOwn);
-}
-module.exports = findKey;
-
-},{"./_baseFindKey":"b6om3","./_baseForOwn":"6MqUM","./_baseIteratee":"2fsgg"}],"b6om3":[function(require,module,exports) {
-/**
- * The base implementation of methods like `_.findKey` and `_.findLastKey`,
- * without support for iteratee shorthands, which iterates over `collection`
- * using `eachFunc`.
- *
- * @private
- * @param {Array|Object} collection The collection to inspect.
- * @param {Function} predicate The function invoked per iteration.
- * @param {Function} eachFunc The function to iterate over `collection`.
- * @returns {*} Returns the found element or its key, else `undefined`.
- */ function baseFindKey(collection1, predicate, eachFunc) {
-    var result;
-    eachFunc(collection1, function(value, key, collection) {
-        if (predicate(value, key, collection)) {
-            result = key;
-            return false;
-        }
-    });
-    return result;
-}
-module.exports = baseFindKey;
-
-},{}],"9nLL5":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.isConsecutive = isConsecutive;
-exports.findIndexes = findIndexes;
-exports.getRawGamepads = getRawGamepads;
-exports.gamepadIsValid = gamepadIsValid;
-exports.nameIsValid = nameIsValid;
-exports.isButtonSignificant = isButtonSignificant;
-exports.isStickSignificant = isStickSignificant;
-exports.buttonMap = buttonMap;
-exports.roundSticks = roundSticks;
-exports.stickMap = stickMap;
-var _map2 = _interopRequireDefault(require("lodash/fp/map"));
-var _reduce2 = _interopRequireDefault(require("lodash/fp/reduce"));
-var _forEach2 = _interopRequireDefault(require("lodash/fp/forEach"));
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-        default: obj
-    };
-}
-function isConsecutive(target) {
-    var length = target.length;
-    if (length <= 1) return true;
-    var i = 0;
-    while(i < length - 1){
-        if (target[i] + 1 !== target[i + 1]) return false;
-        i += 1;
-    }
-    return true;
-}
-function findIndexes(iterator, target) {
-    var length = target.length;
-    var result = [];
-    var i = 0;
-    while(i < length){
-        if (iterator(target[i])) result.push(i);
-        i += 1;
-    }
-    return result;
-}
-function getRawGamepads() {
-    if (navigator && navigator.getGamepads) return Array.from(navigator.getGamepads());
-    return [];
-}
-function gamepadIsValid(rawGamepad) {
-    return !!rawGamepad && !!rawGamepad.connected && !!rawGamepad.buttons.length && !!rawGamepad.axes.length && rawGamepad.timestamp !== 0 && !!rawGamepad.id;
-}
-function nameIsValid(name) {
-    return /^[a-z0-9]+$/i.test(name);
-}
-function isButtonSignificant() {
-    var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-    var threshold = arguments.length > 1 ? arguments[1] : undefined;
-    return Math.abs(value) > threshold;
-}
-function isStickSignificant(stickValue, threshold) {
-    var squaredMagnitude = (0, _reduce2.default)(function(result, value) {
-        return result + Math.pow(value, 2);
-    }, 0, stickValue);
-    return threshold * threshold < squaredMagnitude;
-}
-function buttonMap(pad, prevPad, indexes, threshold, clampThreshold) {
-    var length = indexes.length;
-    var prevPressed = false;
-    var value = 0;
-    var pressed = false;
-    var i = 0;
-    while(i < length){
-        if (!prevPressed) {
-            var prevValue = prevPad.buttons[indexes[i]] || 0;
-            prevPressed = isButtonSignificant(prevValue, threshold);
-        }
-        var currValue = pad.buttons[indexes[i]] || 0;
-        value = Math.max(value, currValue);
-        if (!pressed) pressed = isButtonSignificant(currValue, threshold);
-        i += 1;
-    }
-    return {
-        type: 'button',
-        value: !clampThreshold || pressed ? value : 0,
-        pressed: pressed,
-        justChanged: pressed !== prevPressed
-    };
-}
-function roundSticks(indexMaps, axes, threshold) {
-    var stickNumber = 0;
-    var axesSums = [];
-    (0, _forEach2.default)(function(indexes) {
-        var values = (0, _map2.default)(function(i) {
-            return axes[i];
-        }, indexes);
-        if (isStickSignificant(values, threshold)) {
-            axesSums = values.map(function(v, i) {
-                return v + (axesSums[i] || 0);
-            });
-            stickNumber += 1;
-        }
-    }, indexMaps);
-    return stickNumber === 0 ? (0, _map2.default)(function() {
-        return 0;
-    }, indexMaps[0]) : (0, _map2.default)(function(v) {
-        return v / stickNumber;
-    }, axesSums);
-}
-function stickMap(pad, prevPad, indexMaps, inverts, threshold, clampThreshold) {
-    var prevPressed = isStickSignificant(roundSticks(indexMaps, prevPad.axes, threshold), threshold);
-    var value = roundSticks(indexMaps, pad.axes, threshold);
-    var pressed = isStickSignificant(value, threshold);
-    return {
-        type: 'stick',
-        value: !clampThreshold || pressed ? value.map(function(v, i) {
-            return !inverts[i] ? v : v * -1;
-        }) : (0, _map2.default)(function() {
-            return 0;
-        }, value),
-        pressed: pressed,
-        justChanged: pressed !== prevPressed,
-        inverts: inverts
-    };
-}
-
-},{"lodash/fp/map":"a1tsr","lodash/fp/reduce":"cwyhH","lodash/fp/forEach":"ea1n8"}],"cwyhH":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('reduce', require('../reduce'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../reduce":"2G8V4","./placeholder":"cfCjP"}],"2G8V4":[function(require,module,exports) {
-var arrayReduce = require('./_arrayReduce'), baseEach = require('./_baseEach'), baseIteratee = require('./_baseIteratee'), baseReduce = require('./_baseReduce'), isArray = require('./isArray');
-/**
- * Reduces `collection` to a value which is the accumulated result of running
- * each element in `collection` thru `iteratee`, where each successive
- * invocation is supplied the return value of the previous. If `accumulator`
- * is not given, the first element of `collection` is used as the initial
- * value. The iteratee is invoked with four arguments:
- * (accumulator, value, index|key, collection).
- *
- * Many lodash methods are guarded to work as iteratees for methods like
- * `_.reduce`, `_.reduceRight`, and `_.transform`.
- *
- * The guarded methods are:
- * `assign`, `defaults`, `defaultsDeep`, `includes`, `merge`, `orderBy`,
- * and `sortBy`
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Collection
- * @param {Array|Object} collection The collection to iterate over.
- * @param {Function} [iteratee=_.identity] The function invoked per iteration.
- * @param {*} [accumulator] The initial value.
- * @returns {*} Returns the accumulated value.
- * @see _.reduceRight
- * @example
- *
- * _.reduce([1, 2], function(sum, n) {
- *   return sum + n;
- * }, 0);
- * // => 3
- *
- * _.reduce({ 'a': 1, 'b': 2, 'c': 1 }, function(result, value, key) {
- *   (result[value] || (result[value] = [])).push(key);
- *   return result;
- * }, {});
- * // => { '1': ['a', 'c'], '2': ['b'] } (iteration order is not guaranteed)
- */ function reduce(collection, iteratee, accumulator) {
-    var func = isArray(collection) ? arrayReduce : baseReduce, initAccum = arguments.length < 3;
-    return func(collection, baseIteratee(iteratee, 4), accumulator, initAccum, baseEach);
-}
-module.exports = reduce;
-
-},{"./_arrayReduce":"5eOVY","./_baseEach":"1glfs","./_baseIteratee":"2fsgg","./_baseReduce":"6Ybjp","./isArray":"dZaTH"}],"5eOVY":[function(require,module,exports) {
-/**
- * A specialized version of `_.reduce` for arrays without support for
- * iteratee shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @param {*} [accumulator] The initial value.
- * @param {boolean} [initAccum] Specify using the first element of `array` as
- *  the initial value.
- * @returns {*} Returns the accumulated value.
- */ function arrayReduce(array, iteratee, accumulator, initAccum) {
-    var index = -1, length = array == null ? 0 : array.length;
-    if (initAccum && length) accumulator = array[++index];
-    while(++index < length)accumulator = iteratee(accumulator, array[index], index, array);
-    return accumulator;
-}
-module.exports = arrayReduce;
-
-},{}],"6Ybjp":[function(require,module,exports) {
-/**
- * The base implementation of `_.reduce` and `_.reduceRight`, without support
- * for iteratee shorthands, which iterates over `collection` using `eachFunc`.
- *
- * @private
- * @param {Array|Object} collection The collection to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @param {*} accumulator The initial value.
- * @param {boolean} initAccum Specify using the first or last element of
- *  `collection` as the initial value.
- * @param {Function} eachFunc The function to iterate over `collection`.
- * @returns {*} Returns the accumulated value.
- */ function baseReduce(collection1, iteratee, accumulator, initAccum, eachFunc) {
-    eachFunc(collection1, function(value, index, collection) {
-        accumulator = initAccum ? (initAccum = false, value) : iteratee(accumulator, value, index, collection);
-    });
-    return accumulator;
-}
-module.exports = baseReduce;
-
-},{}],"ctoxq":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.updateListenOptions = updateListenOptions;
-exports.getDefaultButtons = getDefaultButtons;
-exports.getDefaultSticks = getDefaultSticks;
-exports.mockGamepad = void 0;
-var _assignIn2 = _interopRequireDefault(require("lodash/fp/assignIn"));
-var _utils = require("../common/utils");
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-        default: obj
-    };
-}
-var mockGamepad = {
-    axes: [],
-    buttons: [],
-    rawPad: undefined
-};
-exports.mockGamepad = mockGamepad;
-function updateListenOptions(listenOptions, pad, threshold) {
-    var callback = listenOptions.callback, quantity = listenOptions.quantity, type = listenOptions.type, currentValue = listenOptions.currentValue, targetValue = listenOptions.targetValue, useTimeStamp = listenOptions.useTimeStamp, consecutive = listenOptions.consecutive, allowOffset = listenOptions.allowOffset;
-    var indexes = type === 'axes' ? (0, _utils.findIndexes)(function(value) {
-        return Math.abs(value) > threshold;
-    }, pad.axes) : (0, _utils.findIndexes)(function(value) {
-        return (0, _utils.isButtonSignificant)(value, threshold);
-    }, pad.buttons);
-    if (indexes.length === quantity && (!consecutive || (0, _utils.isConsecutive)(indexes)) && (allowOffset || indexes[0] % quantity === 0)) {
-        if (useTimeStamp && currentValue === 0) return (0, _assignIn2.default)(listenOptions, {
-            currentValue: Date.now()
-        });
-        var comparison = useTimeStamp ? Date.now() - currentValue : currentValue + 1;
-        if (targetValue <= comparison) {
-            if (type === 'axes') callback([
-                indexes
-            ]);
-            else callback(indexes);
-            return null;
-        }
-        if (!useTimeStamp) return (0, _assignIn2.default)(listenOptions, {
-            currentValue: comparison
-        });
-        return listenOptions;
-    }
-    return (0, _assignIn2.default)(listenOptions, {
-        currentValue: 0
-    });
-}
-function getDefaultButtons() {
-    return {
-        dpadUp: [
-            12
-        ],
-        dpadDown: [
-            13
-        ],
-        dpadLeft: [
-            14
-        ],
-        dpadRight: [
-            15
-        ],
-        L1: [
-            4
-        ],
-        L2: [
-            6
-        ],
-        L3: [
-            10
-        ],
-        R1: [
-            5
-        ],
-        R2: [
-            7
-        ],
-        R3: [
-            11
-        ],
-        A: [
-            0
-        ],
-        B: [
-            1
-        ],
-        X: [
-            2
-        ],
-        Y: [
-            3
-        ],
-        start: [
-            9
-        ],
-        select: [
-            8
-        ],
-        home: [
-            16
-        ]
-    };
-}
-function getDefaultSticks() {
-    return {
-        L: {
-            indexes: [
-                [
-                    0,
-                    1
-                ]
-            ],
-            inverts: [
-                false,
-                false
-            ]
-        },
-        R: {
-            indexes: [
-                [
-                    2,
-                    3
-                ]
-            ],
-            inverts: [
-                false,
-                false
-            ]
-        }
-    };
-}
-
-},{"lodash/fp/assignIn":"jwrLr","../common/utils":"9nLL5"}],"dxdTF":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.makeEffectStrict = makeEffectStrict;
-exports.applyRumble = applyRumble;
-exports.stopRumble = stopRumble;
-exports.addRumble = addRumble;
-exports.getCurrentEffect = getCurrentEffect;
-exports.updateChannels = updateChannels;
-exports.MAX_DURATION = void 0;
-var _mapValues2 = _interopRequireDefault(require("lodash/fp/mapValues"));
-var _isArray2 = _interopRequireDefault(require("lodash/fp/isArray"));
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-        default: obj
-    };
-}
-var MAX_DURATION = 5000;
-exports.MAX_DURATION = MAX_DURATION;
-var defaultChannel = 'default';
-var allChannels = {
-};
-function makeEffectStrict(effect) {
-    if (typeof effect === 'number') return {
-        duration: effect,
-        weakMagnitude: 0,
-        strongMagnitude: 0
-    };
-    return {
-        duration: Math.max(0, effect.duration),
-        weakMagnitude: Math.min(1, Math.max(0, effect.weakMagnitude || 0)),
-        strongMagnitude: Math.min(1, Math.max(0, effect.strongMagnitude || 0))
-    };
-}
-function applyRumble(pad, effect) {
-    if (!pad.vibrationActuator) return Promise.reject("Joymap rumble applyRumble: Gamepad ".concat(pad.id, " does not support haptic feedback"));
-    return pad.vibrationActuator.playEffect('dual-rumble', effect);
-}
-function stopRumble(padId) {
-    var channelName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultChannel;
-    if (!allChannels[padId]) allChannels[padId] = {
-    };
-    allChannels[padId][channelName] = [];
-}
-function addRumble(padId, effect) {
-    var channelName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : defaultChannel;
-    if (!allChannels[padId]) allChannels[padId] = {
-    };
-    allChannels[padId][channelName] = (0, _isArray2.default)(effect) ? effect.map(makeEffectStrict) : [
-        makeEffectStrict(effect)
-    ];
-}
-function getCurrentEffect(padId) {
-    if (!allChannels[padId]) allChannels[padId] = {
-    };
-    var strongMagnitude = Object.values(allChannels[padId]).reduce(function(sum, channel) {
-        var curr = channel[0];
-        if (!!curr && typeof curr !== 'number') return sum + (curr.strongMagnitude || 0);
-        return sum;
-    }, 0);
-    var weakMagnitude = Object.values(allChannels[padId]).reduce(function(sum, channel) {
-        var curr = channel[0];
-        if (!!curr && typeof curr !== 'number') return sum + (curr.weakMagnitude || 0);
-        return sum;
-    }, 0);
-    return {
-        strongMagnitude: Math.min(1, Math.max(0, strongMagnitude)),
-        weakMagnitude: Math.min(1, Math.max(0, weakMagnitude)),
-        duration: MAX_DURATION
-    };
-}
-function updateChannels(padId, timeElapsed) {
-    if (!allChannels[padId]) allChannels[padId] = {
-    };
-    allChannels[padId] = (0, _mapValues2.default)(function(channels) {
-        var curr = timeElapsed;
-        return channels.map(function(channelValue) {
-            if (curr > 0) {
-                var result = Math.max(0, channelValue.duration - curr);
-                curr -= channelValue.duration;
-                channelValue.duration = result;
-            }
-            return channelValue;
-        }).filter(function(channelValue) {
-            return channelValue.duration > 0;
-        });
-    }, allChannels[padId]);
-}
-
-},{"lodash/fp/mapValues":"9kdIo","lodash/fp/isArray":"6IKrA"}],"9kdIo":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('mapValues', require('../mapValues'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../mapValues":"aMVMF","./placeholder":"cfCjP"}],"aMVMF":[function(require,module,exports) {
-var baseAssignValue = require('./_baseAssignValue'), baseForOwn = require('./_baseForOwn'), baseIteratee = require('./_baseIteratee');
-/**
- * Creates an object with the same keys as `object` and values generated
- * by running each own enumerable string keyed property of `object` thru
- * `iteratee`. The iteratee is invoked with three arguments:
- * (value, key, object).
- *
- * @static
- * @memberOf _
- * @since 2.4.0
- * @category Object
- * @param {Object} object The object to iterate over.
- * @param {Function} [iteratee=_.identity] The function invoked per iteration.
- * @returns {Object} Returns the new mapped object.
- * @see _.mapKeys
- * @example
- *
- * var users = {
- *   'fred':    { 'user': 'fred',    'age': 40 },
- *   'pebbles': { 'user': 'pebbles', 'age': 1 }
- * };
- *
- * _.mapValues(users, function(o) { return o.age; });
- * // => { 'fred': 40, 'pebbles': 1 } (iteration order is not guaranteed)
- *
- * // The `_.property` iteratee shorthand.
- * _.mapValues(users, 'age');
- * // => { 'fred': 40, 'pebbles': 1 } (iteration order is not guaranteed)
- */ function mapValues(object1, iteratee) {
-    var result = {
-    };
-    iteratee = baseIteratee(iteratee, 3);
-    baseForOwn(object1, function(value, key, object) {
-        baseAssignValue(result, key, iteratee(value, key, object));
-    });
-    return result;
-}
-module.exports = mapValues;
-
-},{"./_baseAssignValue":"fprBU","./_baseForOwn":"6MqUM","./_baseIteratee":"2fsgg"}],"6IKrA":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('isArray', require('../isArray'), require('./_falseOptions'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../isArray":"dZaTH","./_falseOptions":"4QNnH","./placeholder":"cfCjP"}],"4fGuI":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.default = createQueryModule;
-exports.emptyButton = exports.emptyStick = exports.emptyMapper = void 0;
-var _forEach2 = _interopRequireDefault(require("lodash/fp/forEach"));
-var _omit2 = _interopRequireDefault(require("lodash/fp/omit"));
-var _mapValues2 = _interopRequireDefault(require("lodash/fp/mapValues"));
-var _assignIn2 = _interopRequireDefault(require("lodash/fp/assignIn"));
-var _fastMemoize = _interopRequireDefault(require("fast-memoize"));
-var _utils = require("../common/utils");
-var _base = _interopRequireDefault(require("../baseModule/base"));
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-        default: obj
-    };
-}
-var emptyMapper = null;
-exports.emptyMapper = emptyMapper;
-var emptyStick = {
-    type: 'stick',
-    value: [
-        0,
-        0
-    ],
-    pressed: false,
-    justChanged: false,
-    inverts: [
-        false,
-        false
-    ]
-};
-exports.emptyStick = emptyStick;
-var emptyButton = {
-    type: 'button',
-    value: 0,
-    pressed: false,
-    justChanged: false
-};
-exports.emptyButton = emptyButton;
-function createQueryModule() {
-    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-    };
-    var _createBaseModule = (0, _base.default)(params), state = _createBaseModule.state, baseModule = _createBaseModule.module;
-    var mappers = {
-    };
-    var buttonMapMemoized = (0, _fastMemoize.default)(_utils.buttonMap);
-    var stickMapMemoized = (0, _fastMemoize.default)(_utils.stickMap);
-    var module = (0, _assignIn2.default)(baseModule, {
-        getButton: function getButton(inputName) {
-            if (!module.isConnected()) return emptyButton;
-            return buttonMapMemoized(state.pad, state.prevPad, state.buttons[inputName], state.threshold, state.clampThreshold);
-        },
-        getButtons: function getButtons() {
-            for(var _len = arguments.length, inputNames = new Array(_len), _key = 0; _key < _len; _key++)inputNames[_key] = arguments[_key];
-            if (!module.isConnected()) {
-                var _result = {
-                };
-                (0, _forEach2.default)(function(mapperName) {
-                    _result[mapperName] = emptyButton;
-                }, inputNames);
-                return _result;
-            }
-            var result = {
-            };
-            (0, _forEach2.default)(function(inputName) {
-                result[inputName] = buttonMapMemoized(state.pad, state.prevPad, state.buttons[inputName], state.threshold, state.clampThreshold);
-            }, inputNames);
-            return result;
-        },
-        getAllButtons: function getAllButtons() {
-            if (!module.isConnected()) return (0, _mapValues2.default)(state.buttons, function() {
-                return emptyButton;
-            });
-            return (0, _mapValues2.default)(function(button) {
-                return buttonMapMemoized(state.pad, state.prevPad, button, state.threshold, state.clampThreshold);
-            }, state.buttons);
-        },
-        getStick: function getStick(inputName) {
-            if (!module.isConnected()) return emptyStick;
-            var _state$sticks$inputNa = state.sticks[inputName], indexes = _state$sticks$inputNa.indexes, inverts = _state$sticks$inputNa.inverts;
-            return stickMapMemoized(state.pad, state.prevPad, indexes, inverts, state.threshold, state.clampThreshold);
-        },
-        getSticks: function getSticks() {
-            for(var _len2 = arguments.length, inputNames = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++)inputNames[_key2] = arguments[_key2];
-            if (!module.isConnected()) {
-                var _result2 = {
-                };
-                (0, _forEach2.default)(function(mapperName) {
-                    _result2[mapperName] = emptyStick;
-                }, inputNames);
-                return _result2;
-            }
-            var result = {
-            };
-            (0, _forEach2.default)(function(inputName) {
-                var _state$sticks$inputNa2 = state.sticks[inputName], indexes = _state$sticks$inputNa2.indexes, inverts = _state$sticks$inputNa2.inverts;
-                result[inputName] = stickMapMemoized(state.pad, state.prevPad, indexes, inverts, state.threshold, state.clampThreshold);
-            }, inputNames);
-            return result;
-        },
-        getAllSticks: function getAllSticks() {
-            if (!module.isConnected()) return (0, _mapValues2.default)(state.sticks, function() {
-                return emptyStick;
-            });
-            return (0, _mapValues2.default)(function(stick) {
-                var indexes = stick.indexes, inverts = stick.inverts;
-                return stickMapMemoized(state.pad, state.prevPad, indexes, inverts, state.threshold, state.clampThreshold);
-            }, state.sticks);
-        },
-        getMapper: function getMapper(mapperName) {
-            if (!module.isConnected()) {
-                var _emptyMapper = null;
-                return _emptyMapper;
-            }
-            return mappers[mapperName](module);
-        },
-        getMappers: function getMappers() {
-            for(var _len3 = arguments.length, mapperNames = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++)mapperNames[_key3] = arguments[_key3];
-            if (!module.isConnected()) {
-                var _result3 = {
-                };
-                (0, _forEach2.default)(function(mapperName) {
-                    _result3[mapperName] = emptyMapper;
-                }, mapperNames);
-                return _result3;
-            }
-            var result = {
-            };
-            (0, _forEach2.default)(function(mapperName) {
-                result[mapperName] = mappers[mapperName](module);
-            }, mapperNames);
-            return result;
-        },
-        getAllMappers: function getAllMappers() {
-            if (!module.isConnected()) return (0, _mapValues2.default)(function() {
-                return emptyMapper;
-            }, mappers);
-            return (0, _mapValues2.default)(function(mapper) {
-                return mapper(module);
-            }, mappers);
-        },
-        setMapper: function setMapper(mapperName, mapper) {
-            mappers[mapperName] = mapper;
-        },
-        removeMapper: function removeMapper(mapperName) {
-            mappers = (0, _omit2.default)([
-                mapperName
-            ], mappers);
-        },
-        clearMappers: function clearMappers() {
-            mappers = {
-            };
-        },
-        destroy: function destroy() {
-            baseModule.destroy();
-            module.clearMappers();
-        }
-    });
-    return module;
-}
-
-},{"lodash/fp/forEach":"ea1n8","lodash/fp/omit":"l8J8b","lodash/fp/mapValues":"9kdIo","lodash/fp/assignIn":"jwrLr","fast-memoize":"47Kew","../common/utils":"9nLL5","../baseModule/base":"1cuY5"}],"l8J8b":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('omit', require('../omit'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../omit":"8Uh9e","./placeholder":"cfCjP"}],"8Uh9e":[function(require,module,exports) {
-var arrayMap = require('./_arrayMap'), baseClone = require('./_baseClone'), baseUnset = require('./_baseUnset'), castPath = require('./_castPath'), copyObject = require('./_copyObject'), customOmitClone = require('./_customOmitClone'), flatRest = require('./_flatRest'), getAllKeysIn = require('./_getAllKeysIn');
-/** Used to compose bitmasks for cloning. */ var CLONE_DEEP_FLAG = 1, CLONE_FLAT_FLAG = 2, CLONE_SYMBOLS_FLAG = 4;
-/**
- * The opposite of `_.pick`; this method creates an object composed of the
- * own and inherited enumerable property paths of `object` that are not omitted.
- *
- * **Note:** This method is considerably slower than `_.pick`.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Object
- * @param {Object} object The source object.
- * @param {...(string|string[])} [paths] The property paths to omit.
- * @returns {Object} Returns the new object.
- * @example
- *
- * var object = { 'a': 1, 'b': '2', 'c': 3 };
- *
- * _.omit(object, ['a', 'c']);
- * // => { 'b': '2' }
- */ var omit = flatRest(function(object, paths) {
-    var result = {
-    };
-    if (object == null) return result;
-    var isDeep = false;
-    paths = arrayMap(paths, function(path) {
-        path = castPath(path, object);
-        isDeep || (isDeep = path.length > 1);
-        return path;
-    });
-    copyObject(object, getAllKeysIn(object), result);
-    if (isDeep) result = baseClone(result, CLONE_DEEP_FLAG | CLONE_FLAT_FLAG | CLONE_SYMBOLS_FLAG, customOmitClone);
-    var length = paths.length;
-    while(length--)baseUnset(result, paths[length]);
-    return result;
-});
-module.exports = omit;
-
-},{"./_arrayMap":"imI5Z","./_baseClone":"2GC2p","./_baseUnset":"lhSCB","./_castPath":"apxk5","./_copyObject":"gfA7W","./_customOmitClone":"dfRaj","./_flatRest":"bmlRd","./_getAllKeysIn":"6BBOq"}],"lhSCB":[function(require,module,exports) {
-var castPath = require('./_castPath'), last = require('./last'), parent = require('./_parent'), toKey = require('./_toKey');
-/**
- * The base implementation of `_.unset`.
- *
- * @private
- * @param {Object} object The object to modify.
- * @param {Array|string} path The property path to unset.
- * @returns {boolean} Returns `true` if the property is deleted, else `false`.
- */ function baseUnset(object, path) {
-    path = castPath(path, object);
-    object = parent(object, path);
-    return object == null || delete object[toKey(last(path))];
-}
-module.exports = baseUnset;
-
-},{"./_castPath":"apxk5","./last":"fv3GK","./_parent":"1hPE8","./_toKey":"bEgue"}],"fv3GK":[function(require,module,exports) {
-/**
- * Gets the last element of `array`.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Array
- * @param {Array} array The array to query.
- * @returns {*} Returns the last element of `array`.
- * @example
- *
- * _.last([1, 2, 3]);
- * // => 3
- */ function last(array) {
-    var length = array == null ? 0 : array.length;
-    return length ? array[length - 1] : undefined;
-}
-module.exports = last;
-
-},{}],"1hPE8":[function(require,module,exports) {
-var baseGet = require('./_baseGet'), baseSlice = require('./_baseSlice');
-/**
- * Gets the parent value at `path` of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Array} path The path to get the parent value of.
- * @returns {*} Returns the parent value.
- */ function parent(object, path) {
-    return path.length < 2 ? object : baseGet(object, baseSlice(path, 0, -1));
-}
-module.exports = parent;
-
-},{"./_baseGet":"kMRe3","./_baseSlice":"cqqI2"}],"cqqI2":[function(require,module,exports) {
-/**
- * The base implementation of `_.slice` without an iteratee call guard.
- *
- * @private
- * @param {Array} array The array to slice.
- * @param {number} [start=0] The start position.
- * @param {number} [end=array.length] The end position.
- * @returns {Array} Returns the slice of `array`.
- */ function baseSlice(array, start, end) {
-    var index = -1, length = array.length;
-    if (start < 0) start = -start > length ? 0 : length + start;
-    end = end > length ? length : end;
-    if (end < 0) end += length;
-    length = start > end ? 0 : end - start >>> 0;
-    start >>>= 0;
-    var result = Array(length);
-    while(++index < length)result[index] = array[index + start];
-    return result;
-}
-module.exports = baseSlice;
-
-},{}],"dfRaj":[function(require,module,exports) {
-var isPlainObject = require('./isPlainObject');
-/**
- * Used by `_.omit` to customize its `_.cloneDeep` use to only clone plain
- * objects.
- *
- * @private
- * @param {*} value The value to inspect.
- * @param {string} key The key of the property to inspect.
- * @returns {*} Returns the uncloned value or `undefined` to defer cloning to `_.cloneDeep`.
- */ function customOmitClone(value) {
-    return isPlainObject(value) ? undefined : value;
-}
-module.exports = customOmitClone;
-
-},{"./isPlainObject":"cvSNF"}],"47Kew":[function(require,module,exports) {
-//
-// Main
-//
-function memoize(fn, options) {
-    var cache = options && options.cache ? options.cache : cacheDefault;
-    var serializer = options && options.serializer ? options.serializer : serializerDefault;
-    var strategy = options && options.strategy ? options.strategy : strategyDefault;
-    return strategy(fn, {
-        cache: cache,
-        serializer: serializer
-    });
-}
-//
-// Strategy
-//
-function isPrimitive(value) {
-    return value == null || typeof value === 'number' || typeof value === 'boolean' // || typeof value === "string" 'unsafe' primitive for our needs
-    ;
-}
-function monadic(fn, cache, serializer, arg) {
-    var cacheKey = isPrimitive(arg) ? arg : serializer(arg);
-    var computedValue = cache.get(cacheKey);
-    if (typeof computedValue === 'undefined') {
-        computedValue = fn.call(this, arg);
-        cache.set(cacheKey, computedValue);
-    }
-    return computedValue;
-}
-function variadic(fn, cache, serializer) {
-    var args = Array.prototype.slice.call(arguments, 3);
-    var cacheKey = serializer(args);
-    var computedValue = cache.get(cacheKey);
-    if (typeof computedValue === 'undefined') {
-        computedValue = fn.apply(this, args);
-        cache.set(cacheKey, computedValue);
-    }
-    return computedValue;
-}
-function assemble(fn, context, strategy, cache, serialize) {
-    return strategy.bind(context, fn, cache, serialize);
-}
-function strategyDefault(fn, options) {
-    var strategy = fn.length === 1 ? monadic : variadic;
-    return assemble(fn, this, strategy, options.cache.create(), options.serializer);
-}
-function strategyVariadic(fn, options) {
-    var strategy = variadic;
-    return assemble(fn, this, strategy, options.cache.create(), options.serializer);
-}
-function strategyMonadic(fn, options) {
-    var strategy = monadic;
-    return assemble(fn, this, strategy, options.cache.create(), options.serializer);
-}
-//
-// Serializer
-//
-function serializerDefault() {
-    return JSON.stringify(arguments);
-}
-//
-// Cache
-//
-function ObjectWithoutPrototypeCache() {
-    this.cache = Object.create(null);
-}
-ObjectWithoutPrototypeCache.prototype.has = function(key) {
-    return key in this.cache;
-};
-ObjectWithoutPrototypeCache.prototype.get = function(key) {
-    return this.cache[key];
-};
-ObjectWithoutPrototypeCache.prototype.set = function(key, value) {
-    this.cache[key] = value;
-};
-var cacheDefault = {
-    create: function create() {
-        return new ObjectWithoutPrototypeCache();
-    }
-};
-//
-// API
-//
-module.exports = memoize;
-module.exports.strategies = {
-    variadic: strategyVariadic,
-    monadic: strategyMonadic
-};
-
-},{}],"fu3PP":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.default = createEventModule;
-var _isString2 = _interopRequireDefault(require("lodash/fp/isString"));
-var _map2 = _interopRequireDefault(require("lodash/fp/map"));
-var _assignIn2 = _interopRequireDefault(require("lodash/fp/assignIn"));
-var _forEach2 = _interopRequireDefault(require("lodash/fp/forEach"));
-var _filter2 = _interopRequireDefault(require("lodash/fp/filter"));
-var _fastMemoize = _interopRequireDefault(require("fast-memoize"));
-var _base = _interopRequireDefault(require("../baseModule/base"));
-var _utils = require("../common/utils");
-var _eventUtils = require("./eventUtils");
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-        default: obj
-    };
-}
-function ownKeys(object, enumerableOnly) {
-    var keys = Object.keys(object);
-    if (Object.getOwnPropertySymbols) {
-        var symbols = Object.getOwnPropertySymbols(object);
-        if (enumerableOnly) symbols = symbols.filter(function(sym) {
-            return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-        });
-        keys.push.apply(keys, symbols);
-    }
-    return keys;
-}
-function _objectSpread(target) {
-    for(var i = 1; i < arguments.length; i++){
-        var source = arguments[i] != null ? arguments[i] : {
-        };
-        if (i % 2) ownKeys(Object(source), true).forEach(function(key) {
-            _defineProperty(target, key, source[key]);
-        });
-        else if (Object.getOwnPropertyDescriptors) Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-        else ownKeys(Object(source)).forEach(function(key) {
-            Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-        });
-    }
-    return target;
-}
-function _defineProperty(obj, key, value) {
-    if (key in obj) Object.defineProperty(obj, key, {
-        value: value,
-        enumerable: true,
-        configurable: true,
-        writable: true
-    });
-    else obj[key] = value;
-    return obj;
-}
-function createEventModule() {
-    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-    };
-    var _createBaseModule = (0, _base.default)(params), state = _createBaseModule.state, baseModule = _createBaseModule.module;
-    var buttonMapMemoized = (0, _fastMemoize.default)(_utils.buttonMap);
-    var stickMapMemoized = (0, _fastMemoize.default)(_utils.stickMap);
-    var inputEvents = [];
-    var module = (0, _assignIn2.default)(baseModule, _objectSpread(_objectSpread({
-    }, baseModule), {
-    }, {
-        addEvent: function addEvent(eventName, callback) {
-            var tokens = (0, _eventUtils.getEventTokens)(eventName);
-            if ((0, _eventUtils.eventIsValid)(tokens)) inputEvents.push({
-                name: eventName,
-                callback: callback,
-                tokens: tokens
-            });
-        },
-        removeEvent: function removeEvent(eventName, callback) {
-            inputEvents = (0, _filter2.default)(function(event) {
-                return event.name !== eventName || event.callback !== callback;
-            }, inputEvents);
-        },
-        update: function update(gamepad) {
-            baseModule.update(gamepad);
-            (0, _forEach2.default)(function(event) {
-                if (state.buttons[event.name]) {
-                    var result = buttonMapMemoized(state.pad, state.prevPad, state.buttons[event.name], state.threshold, state.clampThreshold);
-                    if (result.pressed) event.callback([
-                        result
-                    ]);
-                } else if (state.sticks[event.name]) {
-                    var _state$sticks$event$n = state.sticks[event.name], indexes = _state$sticks$event$n.indexes, inverts = _state$sticks$event$n.inverts;
-                    var _result = stickMapMemoized(state.pad, state.prevPad, indexes, inverts, state.threshold, state.clampThreshold);
-                    if (_result.pressed) event.callback([
-                        _result
-                    ]);
-                } else {
-                    var resultCopy = [];
-                    var results = (0, _map2.default)(function(token) {
-                        if ((0, _isString2.default)(token)) return token;
-                        var result;
-                        if (state.buttons[token.inputName]) result = buttonMapMemoized(state.pad, state.prevPad, state.buttons[token.inputName], state.threshold, state.clampThreshold);
-                        else if (state.sticks[token.inputName]) {
-                            var _state$sticks$token$i = state.sticks[token.inputName], _indexes = _state$sticks$token$i.indexes, _inverts = _state$sticks$token$i.inverts;
-                            result = stickMapMemoized(state.pad, state.prevPad, _indexes, _inverts, state.threshold, state.clampThreshold);
-                        }
-                        if (result) {
-                            if (!resultCopy.includes(result)) resultCopy.push(result);
-                            if (token.inputState === 'pressed') return result.pressed;
-                            if (token.inputState === 'justPressed') return result.pressed && result.justChanged;
-                            if (token.inputState === 'justReleased') return !result.pressed && result.justChanged;
-                            return !result.pressed;
-                        }
-                        return false;
-                    }, event.tokens);
-                    if ((0, _eventUtils.verifyTokens)(results)) event.callback(resultCopy);
-                }
-            }, inputEvents);
-        },
-        destroy: function destroy() {
-            baseModule.destroy();
-            inputEvents = [];
-        }
-    }));
-    return module;
-}
-
-},{"lodash/fp/isString":"2WDqI","lodash/fp/map":"a1tsr","lodash/fp/assignIn":"jwrLr","lodash/fp/forEach":"ea1n8","lodash/fp/filter":"fcURk","fast-memoize":"47Kew","../baseModule/base":"1cuY5","../common/utils":"9nLL5","./eventUtils":"1QNNY"}],"2WDqI":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('isString', require('../isString'), require('./_falseOptions'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../isString":"iAF7t","./_falseOptions":"4QNnH","./placeholder":"cfCjP"}],"iAF7t":[function(require,module,exports) {
-var baseGetTag = require('./_baseGetTag'), isArray = require('./isArray'), isObjectLike = require('./isObjectLike');
-/** `Object#toString` result references. */ var stringTag = '[object String]';
-/**
- * Checks if `value` is classified as a `String` primitive or object.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a string, else `false`.
- * @example
- *
- * _.isString('abc');
- * // => true
- *
- * _.isString(1);
- * // => false
- */ function isString(value) {
-    return typeof value == 'string' || !isArray(value) && isObjectLike(value) && baseGetTag(value) == stringTag;
-}
-module.exports = isString;
-
-},{"./_baseGetTag":"lOnbo","./isArray":"dZaTH","./isObjectLike":"3BLi4"}],"fcURk":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('filter', require('../filter'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../filter":"jBfHQ","./placeholder":"cfCjP"}],"jBfHQ":[function(require,module,exports) {
-var arrayFilter = require('./_arrayFilter'), baseFilter = require('./_baseFilter'), baseIteratee = require('./_baseIteratee'), isArray = require('./isArray');
-/**
- * Iterates over elements of `collection`, returning an array of all elements
- * `predicate` returns truthy for. The predicate is invoked with three
- * arguments: (value, index|key, collection).
- *
- * **Note:** Unlike `_.remove`, this method returns a new array.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Collection
- * @param {Array|Object} collection The collection to iterate over.
- * @param {Function} [predicate=_.identity] The function invoked per iteration.
- * @returns {Array} Returns the new filtered array.
- * @see _.reject
- * @example
- *
- * var users = [
- *   { 'user': 'barney', 'age': 36, 'active': true },
- *   { 'user': 'fred',   'age': 40, 'active': false }
- * ];
- *
- * _.filter(users, function(o) { return !o.active; });
- * // => objects for ['fred']
- *
- * // The `_.matches` iteratee shorthand.
- * _.filter(users, { 'age': 36, 'active': true });
- * // => objects for ['barney']
- *
- * // The `_.matchesProperty` iteratee shorthand.
- * _.filter(users, ['active', false]);
- * // => objects for ['fred']
- *
- * // The `_.property` iteratee shorthand.
- * _.filter(users, 'active');
- * // => objects for ['barney']
- *
- * // Combining several predicates using `_.overEvery` or `_.overSome`.
- * _.filter(users, _.overSome([{ 'age': 36 }, ['age', 40]]));
- * // => objects for ['fred', 'barney']
- */ function filter(collection, predicate) {
-    var func = isArray(collection) ? arrayFilter : baseFilter;
-    return func(collection, baseIteratee(predicate, 3));
-}
-module.exports = filter;
-
-},{"./_arrayFilter":"hmIQ7","./_baseFilter":"hi7J5","./_baseIteratee":"2fsgg","./isArray":"dZaTH"}],"hi7J5":[function(require,module,exports) {
-var baseEach = require('./_baseEach');
-/**
- * The base implementation of `_.filter` without support for iteratee shorthands.
- *
- * @private
- * @param {Array|Object} collection The collection to iterate over.
- * @param {Function} predicate The function invoked per iteration.
- * @returns {Array} Returns the new filtered array.
- */ function baseFilter(collection1, predicate) {
-    var result = [];
-    baseEach(collection1, function(value, index, collection) {
-        if (predicate(value, index, collection)) result.push(value);
-    });
-    return result;
-}
-module.exports = baseFilter;
-
-},{"./_baseEach":"1glfs"}],"1QNNY":[function(require,module,exports) {
-"use strict";
-function _typeof(obj1) {
-    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") _typeof = function _typeof(obj) {
-        return typeof obj;
-    };
-    else _typeof = function _typeof(obj) {
-        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-    };
-    return _typeof(obj1);
-}
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.getEventTokens = getEventTokens;
-exports.eventIsValid = eventIsValid;
-exports.verifyTokens = verifyTokens;
-var _isString2 = _interopRequireDefault(require("lodash/fp/isString"));
-var _map2 = _interopRequireDefault(require("lodash/fp/map"));
-var _flow2 = _interopRequireDefault(require("lodash/fp/flow"));
-var _filter2 = _interopRequireDefault(require("lodash/fp/filter"));
-var _reduce2 = _interopRequireDefault(require("lodash/fp/reduce"));
-var _split2 = _interopRequireDefault(require("lodash/fp/split"));
-var _utils = require("../common/utils");
-var _shuntingYard = _interopRequireWildcard(require("./shuntingYard"));
-function _getRequireWildcardCache() {
-    if (typeof WeakMap !== "function") return null;
-    var cache = new WeakMap();
-    _getRequireWildcardCache = function _getRequireWildcardCache() {
-        return cache;
-    };
-    return cache;
-}
-function _interopRequireWildcard(obj) {
-    if (obj && obj.__esModule) return obj;
-    if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") return {
-        default: obj
-    };
-    var cache = _getRequireWildcardCache();
-    if (cache && cache.has(obj)) return cache.get(obj);
-    var newObj = {
-    };
-    var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
-    for(var key in obj)if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
-        if (desc && (desc.get || desc.set)) Object.defineProperty(newObj, key, desc);
-        else newObj[key] = obj[key];
-    }
-    newObj.default = obj;
-    if (cache) cache.set(obj, newObj);
-    return newObj;
-}
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-        default: obj
-    };
-}
-function getEventTokens(name) {
-    return (0, _flow2.default)((0, _split2.default)(/([^a-zA-Z0-9.&&||])/g), (0, _filter2.default)(function(value) {
-        return !!value && value !== ' ';
-    }), _shuntingYard.default, (0, _map2.default)(function(value) {
-        if (_shuntingYard.operators.includes(value)) return value;
-        return {
-            inputName: (0, _split2.default)('.', value)[0],
-            inputState: (0, _split2.default)('.', value)[1] || 'pressed'
-        };
-    }))(name);
-}
-function eventIsValid(inputs) {
-    var eventTokens = Array.isArray(inputs) ? inputs : getEventTokens(inputs);
-    return (0, _reduce2.default)(function(result, token) {
-        if (!result) return result;
-        if ((0, _isString2.default)(token)) return _shuntingYard.operators.includes(token);
-        return (0, _utils.nameIsValid)(token.inputName);
-    }, true, eventTokens);
-}
-function verifyTokens(arr) {
-    var stack = [];
-    arr.forEach(function(token) {
-        if (typeof token === 'boolean') stack.push(token);
-        else {
-            var elem1 = stack.pop();
-            var elem2 = stack.pop();
-            if (token === '&&') stack.push(!!(elem1 && elem2));
-            else if (token === '||') stack.push(!!(elem1 || elem2));
-            else throw new Error("verifyTokens: invalid operator ".concat(token, " was used"));
-        }
-    });
-    return stack[0];
-}
-
-},{"lodash/fp/isString":"2WDqI","lodash/fp/map":"a1tsr","lodash/fp/flow":"1ImnD","lodash/fp/filter":"fcURk","lodash/fp/reduce":"cwyhH","lodash/fp/split":"RVlFw","../common/utils":"9nLL5","./shuntingYard":"58EoJ"}],"RVlFw":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('split', require('../split'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../split":"93hig","./placeholder":"cfCjP"}],"93hig":[function(require,module,exports) {
-var baseToString = require('./_baseToString'), castSlice = require('./_castSlice'), hasUnicode = require('./_hasUnicode'), isIterateeCall = require('./_isIterateeCall'), isRegExp = require('./isRegExp'), stringToArray = require('./_stringToArray'), toString = require('./toString');
-/** Used as references for the maximum length and index of an array. */ var MAX_ARRAY_LENGTH = 4294967295;
-/**
- * Splits `string` by `separator`.
- *
- * **Note:** This method is based on
- * [`String#split`](https://mdn.io/String/split).
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category String
- * @param {string} [string=''] The string to split.
- * @param {RegExp|string} separator The separator pattern to split by.
- * @param {number} [limit] The length to truncate results to.
- * @returns {Array} Returns the string segments.
- * @example
- *
- * _.split('a-b-c', '-', 2);
- * // => ['a', 'b']
- */ function split(string, separator, limit) {
-    if (limit && typeof limit != 'number' && isIterateeCall(string, separator, limit)) separator = limit = undefined;
-    limit = limit === undefined ? MAX_ARRAY_LENGTH : limit >>> 0;
-    if (!limit) return [];
-    string = toString(string);
-    if (string && (typeof separator == 'string' || separator != null && !isRegExp(separator))) {
-        separator = baseToString(separator);
-        if (!separator && hasUnicode(string)) return castSlice(stringToArray(string), 0, limit);
-    }
-    return string.split(separator, limit);
-}
-module.exports = split;
-
-},{"./_baseToString":"goDP8","./_castSlice":"eHx77","./_hasUnicode":"b3sZ0","./_isIterateeCall":"7JSn7","./isRegExp":"3dolU","./_stringToArray":"dl1Gh","./toString":"joIdQ"}],"eHx77":[function(require,module,exports) {
-var baseSlice = require('./_baseSlice');
-/**
- * Casts `array` to a slice if it's needed.
- *
- * @private
- * @param {Array} array The array to inspect.
- * @param {number} start The start position.
- * @param {number} [end=array.length] The end position.
- * @returns {Array} Returns the cast slice.
- */ function castSlice(array, start, end) {
-    var length = array.length;
-    end = end === undefined ? length : end;
-    return !start && end >= length ? array : baseSlice(array, start, end);
-}
-module.exports = castSlice;
-
-},{"./_baseSlice":"cqqI2"}],"b3sZ0":[function(require,module,exports) {
-/** Used to compose unicode character classes. */ var rsAstralRange = '\\ud800-\\udfff', rsComboMarksRange = '\\u0300-\\u036f', reComboHalfMarksRange = '\\ufe20-\\ufe2f', rsComboSymbolsRange = '\\u20d0-\\u20ff', rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange, rsVarRange = '\\ufe0e\\ufe0f';
-/** Used to compose unicode capture groups. */ var rsZWJ = '\\u200d';
-/** Used to detect strings with [zero-width joiners or code points from the astral planes](http://eev.ee/blog/2015/09/12/dark-corners-of-unicode/). */ var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange + rsComboRange + rsVarRange + ']');
-/**
- * Checks if `string` contains Unicode symbols.
- *
- * @private
- * @param {string} string The string to inspect.
- * @returns {boolean} Returns `true` if a symbol is found, else `false`.
- */ function hasUnicode(string) {
-    return reHasUnicode.test(string);
-}
-module.exports = hasUnicode;
-
-},{}],"3dolU":[function(require,module,exports) {
-var baseIsRegExp = require('./_baseIsRegExp'), baseUnary = require('./_baseUnary'), nodeUtil = require('./_nodeUtil');
-/* Node.js helper references. */ var nodeIsRegExp = nodeUtil && nodeUtil.isRegExp;
-/**
- * Checks if `value` is classified as a `RegExp` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a regexp, else `false`.
- * @example
- *
- * _.isRegExp(/abc/);
- * // => true
- *
- * _.isRegExp('/abc/');
- * // => false
- */ var isRegExp = nodeIsRegExp ? baseUnary(nodeIsRegExp) : baseIsRegExp;
-module.exports = isRegExp;
-
-},{"./_baseIsRegExp":"cuhGt","./_baseUnary":"eJXq4","./_nodeUtil":"5edNe"}],"cuhGt":[function(require,module,exports) {
-var baseGetTag = require('./_baseGetTag'), isObjectLike = require('./isObjectLike');
-/** `Object#toString` result references. */ var regexpTag = '[object RegExp]';
-/**
- * The base implementation of `_.isRegExp` without Node.js optimizations.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a regexp, else `false`.
- */ function baseIsRegExp(value) {
-    return isObjectLike(value) && baseGetTag(value) == regexpTag;
-}
-module.exports = baseIsRegExp;
-
-},{"./_baseGetTag":"lOnbo","./isObjectLike":"3BLi4"}],"dl1Gh":[function(require,module,exports) {
-var asciiToArray = require('./_asciiToArray'), hasUnicode = require('./_hasUnicode'), unicodeToArray = require('./_unicodeToArray');
-/**
- * Converts `string` to an array.
- *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the converted array.
- */ function stringToArray(string) {
-    return hasUnicode(string) ? unicodeToArray(string) : asciiToArray(string);
-}
-module.exports = stringToArray;
-
-},{"./_asciiToArray":"1GB6M","./_hasUnicode":"b3sZ0","./_unicodeToArray":"5Z8Ku"}],"1GB6M":[function(require,module,exports) {
-/**
- * Converts an ASCII `string` to an array.
- *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the converted array.
- */ function asciiToArray(string) {
-    return string.split('');
-}
-module.exports = asciiToArray;
-
-},{}],"5Z8Ku":[function(require,module,exports) {
-/** Used to compose unicode character classes. */ var rsAstralRange = '\\ud800-\\udfff', rsComboMarksRange = '\\u0300-\\u036f', reComboHalfMarksRange = '\\ufe20-\\ufe2f', rsComboSymbolsRange = '\\u20d0-\\u20ff', rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange, rsVarRange = '\\ufe0e\\ufe0f';
-/** Used to compose unicode capture groups. */ var rsAstral = '[' + rsAstralRange + ']', rsCombo = '[' + rsComboRange + ']', rsFitz = '\\ud83c[\\udffb-\\udfff]', rsModifier = '(?:' + rsCombo + '|' + rsFitz + ')', rsNonAstral = '[^' + rsAstralRange + ']', rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}', rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]', rsZWJ = '\\u200d';
-/** Used to compose unicode regexes. */ var reOptMod = rsModifier + '?', rsOptVar = '[' + rsVarRange + ']?', rsOptJoin = '(?:' + rsZWJ + '(?:' + [
-    rsNonAstral,
-    rsRegional,
-    rsSurrPair
-].join('|') + ')' + rsOptVar + reOptMod + ')*', rsSeq = rsOptVar + reOptMod + rsOptJoin, rsSymbol = '(?:' + [
-    rsNonAstral + rsCombo + '?',
-    rsCombo,
-    rsRegional,
-    rsSurrPair,
-    rsAstral
-].join('|') + ')';
-/** Used to match [string symbols](https://mathiasbynens.be/notes/javascript-unicode). */ var reUnicode = RegExp(rsFitz + '(?=' + rsFitz + ')|' + rsSymbol + rsSeq, 'g');
-/**
- * Converts a Unicode `string` to an array.
- *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the converted array.
- */ function unicodeToArray(string) {
-    return string.match(reUnicode) || [];
-}
-module.exports = unicodeToArray;
-
-},{}],"58EoJ":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.default = shuntingYard;
-exports.nonInputs = exports.operators = exports.operatorPrecedence = void 0;
-var _last2 = _interopRequireDefault(require("lodash/fp/last"));
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-        default: obj
-    };
-}
-function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
-}
-function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}
-function _unsupportedIterableToArray(o, minLen) {
-    if (!o) return;
-    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-    var n = Object.prototype.toString.call(o).slice(8, -1);
-    if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(o);
-    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-}
-function _iterableToArray(iter) {
-    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
-}
-function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
-}
-function _arrayLikeToArray(arr, len) {
-    if (len == null || len > arr.length) len = arr.length;
-    for(var i = 0, arr2 = new Array(len); i < len; i++)arr2[i] = arr[i];
-    return arr2;
-}
-var operatorPrecedence = {
-    '||': 1,
-    '&&': 2
-};
-exports.operatorPrecedence = operatorPrecedence;
-var operators = Object.keys(operatorPrecedence);
-exports.operators = operators;
-var nonInputs = [].concat(_toConsumableArray(operators), [
-    '(',
-    ')'
-]);
-exports.nonInputs = nonInputs;
-function shuntingYard(tokens) {
-    var stack = [];
-    return tokens.reduce(function(output, token) {
-        if (!nonInputs.includes(token)) output.push(token);
-        if (token in operatorPrecedence) {
-            while((0, _last2.default)(stack) in operatorPrecedence && operatorPrecedence[token] <= operatorPrecedence[(0, _last2.default)(stack)])output.push(stack.pop());
-            stack.push(token);
-        }
-        if (token === '(') stack.push(token);
-        if (token === ')') {
-            while((0, _last2.default)(stack) !== '(')output.push(stack.pop());
-            stack.pop();
-        }
-        return output;
-    }, []).concat(stack.reverse());
-}
-
-},{"lodash/fp/last":"54Dch"}],"54Dch":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('last', require('../last'), require('./_falseOptions'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../last":"fv3GK","./_falseOptions":"4QNnH","./placeholder":"cfCjP"}],"71NjS":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.default = createStreamModule;
-var _forEach2 = _interopRequireDefault(require("lodash/fp/forEach"));
-var _mapValues2 = _interopRequireDefault(require("lodash/fp/mapValues"));
-var _assignIn2 = _interopRequireDefault(require("lodash/fp/assignIn"));
-var _fastMemoize = _interopRequireDefault(require("fast-memoize"));
-var _base = _interopRequireDefault(require("../baseModule/base"));
-var _utils = require("../common/utils");
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-        default: obj
-    };
-}
-function ownKeys(object, enumerableOnly) {
-    var keys = Object.keys(object);
-    if (Object.getOwnPropertySymbols) {
-        var symbols = Object.getOwnPropertySymbols(object);
-        if (enumerableOnly) symbols = symbols.filter(function(sym) {
-            return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-        });
-        keys.push.apply(keys, symbols);
-    }
-    return keys;
-}
-function _objectSpread(target) {
-    for(var i = 1; i < arguments.length; i++){
-        var source = arguments[i] != null ? arguments[i] : {
-        };
-        if (i % 2) ownKeys(Object(source), true).forEach(function(key) {
-            _defineProperty(target, key, source[key]);
-        });
-        else if (Object.getOwnPropertyDescriptors) Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-        else ownKeys(Object(source)).forEach(function(key) {
-            Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-        });
-    }
-    return target;
-}
-function _defineProperty(obj, key, value) {
-    if (key in obj) Object.defineProperty(obj, key, {
-        value: value,
-        enumerable: true,
-        configurable: true,
-        writable: true
-    });
-    else obj[key] = value;
-    return obj;
-}
-function createStreamModule(params) {
-    if (!params.rxjs || !params.operators) throw new Error("createStreamModule called without rxjs and/or it's operators");
-    var _createBaseModule = (0, _base.default)(params), state = _createBaseModule.state, baseModule = _createBaseModule.module;
-    var buttonMapMemoized = (0, _fastMemoize.default)(_utils.buttonMap);
-    var stickMapMemoized = (0, _fastMemoize.default)(_utils.stickMap);
-    var allButtonStream = new params.rxjs.Subject();
-    allButtonStream.pipe(params.operators.map(function(a) {
-        return a();
-    }));
-    var allStickStream = new params.rxjs.Subject();
-    allStickStream.pipe(params.operators.map(function(a) {
-        return a();
-    }));
-    var buttonStreamMap = {
-    };
-    var stickStreamMap = {
-    };
-    var updateButtonStream = function updateButtonStream(streamMap) {
-        return streamMap.stream.next(streamMap.updateFn);
-    };
-    var updateStickStream = function updateStickStream(streamMap) {
-        return streamMap.stream.next(streamMap.updateFn);
-    };
-    var mapButtons = function mapButtons() {
-        return (0, _mapValues2.default)(function(button) {
-            return buttonMapMemoized(state.pad, state.prevPad, button, state.threshold, state.clampThreshold);
-        }, state.buttons);
-    };
-    var mapSticks = function mapSticks() {
-        return (0, _mapValues2.default)(function(stick) {
-            return stickMapMemoized(state.pad, state.prevPad, stick.indexes, stick.inverts, state.threshold, state.clampThreshold);
-        }, state.sticks);
-    };
-    var module = (0, _assignIn2.default)(baseModule, _objectSpread(_objectSpread({
-    }, baseModule), {
-    }, {
-        getAllButtonsStream: function getAllButtonsStream() {
-            return allButtonStream;
-        },
-        getAllStickStream: function getAllStickStream() {
-            return allStickStream;
-        },
-        getButtonStream: function getButtonStream(buttonName) {
-            if (!buttonStreamMap[buttonName]) {
-                var buttonStream = new params.rxjs.Subject();
-                buttonStream.pipe(params.operators.map(function(a) {
-                    return a();
-                }));
-                buttonStreamMap[buttonName] = {
-                    stream: buttonStream,
-                    updateFn: function updateFn() {
-                        return buttonMapMemoized(state.pad, state.prevPad, state.buttons[buttonName], state.threshold, state.clampThreshold);
-                    }
-                };
-            }
-            return buttonStreamMap[buttonName].stream;
-        },
-        getStickStream: function getStickStream(stickName) {
-            if (!stickStreamMap[stickName]) {
-                var stickStream = new params.rxjs.Subject();
-                stickStream.pipe(params.operators.map(function(a) {
-                    return a();
-                }));
-                stickStreamMap[stickName] = {
-                    stream: stickStream,
-                    updateFn: function updateFn() {
-                        return stickMapMemoized(state.pad, state.prevPad, state.sticks[stickName].indexes, state.sticks[stickName].inverts, state.threshold, state.clampThreshold);
-                    }
-                };
-            }
-            return stickStreamMap[stickName].stream;
-        },
-        update: function update(gamepad) {
-            baseModule.update(gamepad);
-            allButtonStream.next(mapButtons);
-            allStickStream.next(mapSticks);
-            (0, _forEach2.default)(updateButtonStream, buttonStreamMap);
-            (0, _forEach2.default)(updateStickStream, stickStreamMap);
-        },
-        destroy: function destroy() {
-            baseModule.destroy();
-            allButtonStream.unsubscribe();
-            allStickStream.unsubscribe();
-            (0, _forEach2.default)(function(_ref) {
-                var stream = _ref.stream;
-                return stream.unsubscribe();
-            }, buttonStreamMap);
-            (0, _forEach2.default)(function(_ref2) {
-                var stream = _ref2.stream;
-                return stream.unsubscribe();
-            }, stickStreamMap);
-        }
-    }));
-    return module;
-}
-
-},{"lodash/fp/forEach":"ea1n8","lodash/fp/mapValues":"9kdIo","lodash/fp/assignIn":"jwrLr","fast-memoize":"47Kew","../baseModule/base":"1cuY5","../common/utils":"9nLL5"}],"2ywsk":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.default = createJoymap;
-var _compact2 = _interopRequireDefault(require("lodash/fp/compact"));
-var _includes2 = _interopRequireDefault(require("lodash/fp/includes"));
-var _forEach2 = _interopRequireDefault(require("lodash/fp/forEach"));
-var _difference2 = _interopRequireDefault(require("lodash/fp/difference"));
-var _filter2 = _interopRequireDefault(require("lodash/fp/filter"));
-var _find2 = _interopRequireDefault(require("lodash/fp/find"));
-var _isFunction2 = _interopRequireDefault(require("lodash/fp/isFunction"));
-var _map2 = _interopRequireDefault(require("lodash/fp/map"));
-var _noop2 = _interopRequireDefault(require("lodash/fp/noop"));
-var _utils = require("./common/utils");
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-        default: obj
-    };
-}
-function createJoymap() {
-    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-    };
-    var animationFrameRequestId = null;
-    var _isSupported = navigator && (0, _isFunction2.default)(navigator.getGamepads);
-    var state = {
-        onPoll: params.onPoll || _noop2.default,
-        autoConnect: params.autoConnect !== false,
-        gamepads: [],
-        modules: []
-    };
-    var joymap = {
-        isSupported: function isSupported() {
-            return _isSupported;
-        },
-        start: function start() {
-            if (_isSupported && animationFrameRequestId === null) {
-                joymap.poll();
-                if (state.autoConnect) (0, _forEach2.default)(function(module) {
-                    if (!module.isConnected()) {
-                        var padId = joymap.getUnusedPadId();
-                        if (padId) module.connect(padId);
-                    }
-                }, state.modules);
-                var step1 = function step() {
-                    joymap.poll();
-                    animationFrameRequestId = window.requestAnimationFrame(step);
-                };
-                animationFrameRequestId = window.requestAnimationFrame(step1);
-            }
-        },
-        stop: function stop() {
-            if (animationFrameRequestId !== null) {
-                window.cancelAnimationFrame(animationFrameRequestId);
-                animationFrameRequestId = null;
-            }
-        },
-        setOnPoll: function setOnPoll(onPoll) {
-            state.onPoll = onPoll;
-        },
-        setAutoConnect: function setAutoConnect(autoConnect) {
-            state.autoConnect = autoConnect;
-        },
-        getGamepads: function getGamepads() {
-            return state.gamepads;
-        },
-        getModules: function getModules() {
-            return state.modules;
-        },
-        getUnusedPadIds: function getUnusedPadIds() {
-            return (0, _compact2.default)((0, _difference2.default)((0, _map2.default)('id', state.gamepads), (0, _map2.default)(function(module) {
-                return module.getPadId();
-            }, state.modules)));
-        },
-        getUnusedPadId: function getUnusedPadId() {
-            var usedIds = (0, _map2.default)(function(module) {
-                return module.getPadId();
-            }, state.modules);
-            var gamepadIds = (0, _map2.default)('id', state.gamepads);
-            return (0, _find2.default)(function(id) {
-                return !(0, _includes2.default)(id, usedIds);
-            }, gamepadIds);
-        },
-        addModule: function addModule(module) {
-            state.modules.push(module);
-            if (state.autoConnect && !module.getPadId()) {
-                var padId = joymap.getUnusedPadId();
-                if (padId) module.connect(padId);
-            }
-        },
-        removeModule: function removeModule(module) {
-            state.modules = (0, _filter2.default)(function(m) {
-                return m !== module;
-            }, state.modules);
-            module.destroy();
-        },
-        clearModules: function clearModules() {
-            (0, _forEach2.default)(function(module) {
-                return joymap.removeModule(module);
-            }, state.modules);
-        },
-        poll: function poll() {
-            state.gamepads = (0, _filter2.default)(_utils.gamepadIsValid, (0, _utils.getRawGamepads)());
-            (0, _forEach2.default)(function(module) {
-                if (state.autoConnect && !module.getPadId()) {
-                    var padId = joymap.getUnusedPadId();
-                    if (padId) {
-                        module.connect(padId);
-                        var pad = (0, _find2.default)({
-                            id: module.getPadId()
-                        }, state.gamepads);
-                        if (pad) module.update(pad);
-                    }
-                } else {
-                    var gamepad = (0, _find2.default)({
-                        id: module.getPadId()
-                    }, state.gamepads);
-                    if (gamepad) {
-                        if (!module.isConnected()) module.connect();
-                        module.update(gamepad);
-                    } else if (module.isConnected()) module.disconnect();
-                }
-            }, state.modules);
-            state.onPoll();
-        }
-    };
-    return joymap;
-}
-
-},{"lodash/fp/compact":"2hQa5","lodash/fp/includes":"9CxDN","lodash/fp/forEach":"ea1n8","lodash/fp/difference":"4BgkO","lodash/fp/filter":"fcURk","lodash/fp/find":"iu5PE","lodash/fp/isFunction":"6toPK","lodash/fp/map":"a1tsr","lodash/fp/noop":"5kDH8","./common/utils":"9nLL5"}],"2hQa5":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('compact', require('../compact'), require('./_falseOptions'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../compact":"cgwiI","./_falseOptions":"4QNnH","./placeholder":"cfCjP"}],"cgwiI":[function(require,module,exports) {
-/**
- * Creates an array with all falsey values removed. The values `false`, `null`,
- * `0`, `""`, `undefined`, and `NaN` are falsey.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Array
- * @param {Array} array The array to compact.
- * @returns {Array} Returns the new array of filtered values.
- * @example
- *
- * _.compact([0, 1, false, 2, '', 3]);
- * // => [1, 2, 3]
- */ function compact(array) {
-    var index = -1, length = array == null ? 0 : array.length, resIndex = 0, result = [];
-    while(++index < length){
-        var value = array[index];
-        if (value) result[resIndex++] = value;
-    }
-    return result;
-}
-module.exports = compact;
-
-},{}],"9CxDN":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('includes', require('../includes'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../includes":"2bHlk","./placeholder":"cfCjP"}],"2bHlk":[function(require,module,exports) {
-var baseIndexOf = require('./_baseIndexOf'), isArrayLike = require('./isArrayLike'), isString = require('./isString'), toInteger = require('./toInteger'), values = require('./values');
-/* Built-in method references for those with the same name as other `lodash` methods. */ var nativeMax = Math.max;
-/**
- * Checks if `value` is in `collection`. If `collection` is a string, it's
- * checked for a substring of `value`, otherwise
- * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
- * is used for equality comparisons. If `fromIndex` is negative, it's used as
- * the offset from the end of `collection`.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Collection
- * @param {Array|Object|string} collection The collection to inspect.
- * @param {*} value The value to search for.
- * @param {number} [fromIndex=0] The index to search from.
- * @param- {Object} [guard] Enables use as an iteratee for methods like `_.reduce`.
- * @returns {boolean} Returns `true` if `value` is found, else `false`.
- * @example
- *
- * _.includes([1, 2, 3], 1);
- * // => true
- *
- * _.includes([1, 2, 3], 1, 2);
- * // => false
- *
- * _.includes({ 'a': 1, 'b': 2 }, 1);
- * // => true
- *
- * _.includes('abcd', 'bc');
- * // => true
- */ function includes(collection, value, fromIndex, guard) {
-    collection = isArrayLike(collection) ? collection : values(collection);
-    fromIndex = fromIndex && !guard ? toInteger(fromIndex) : 0;
-    var length = collection.length;
-    if (fromIndex < 0) fromIndex = nativeMax(length + fromIndex, 0);
-    return isString(collection) ? fromIndex <= length && collection.indexOf(value, fromIndex) > -1 : !!length && baseIndexOf(collection, value, fromIndex) > -1;
-}
-module.exports = includes;
-
-},{"./_baseIndexOf":"8NgWU","./isArrayLike":"gMCbp","./isString":"iAF7t","./toInteger":"ds6ZT","./values":"cKAPx"}],"cKAPx":[function(require,module,exports) {
-var baseValues = require('./_baseValues'), keys = require('./keys');
-/**
- * Creates an array of the own enumerable string keyed property values of `object`.
- *
- * **Note:** Non-object values are coerced to objects.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Object
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property values.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- *   this.b = 2;
- * }
- *
- * Foo.prototype.c = 3;
- *
- * _.values(new Foo);
- * // => [1, 2] (iteration order is not guaranteed)
- *
- * _.values('hi');
- * // => ['h', 'i']
- */ function values(object) {
-    return object == null ? [] : baseValues(object, keys(object));
-}
-module.exports = values;
-
-},{"./_baseValues":"1CRl4","./keys":"6fHVw"}],"1CRl4":[function(require,module,exports) {
-var arrayMap = require('./_arrayMap');
-/**
- * The base implementation of `_.values` and `_.valuesIn` which creates an
- * array of `object` property values corresponding to the property names
- * of `props`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Array} props The property names to get values for.
- * @returns {Object} Returns the array of property values.
- */ function baseValues(object, props) {
-    return arrayMap(props, function(key) {
-        return object[key];
-    });
-}
-module.exports = baseValues;
-
-},{"./_arrayMap":"imI5Z"}],"4BgkO":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('difference', require('../difference'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../difference":"321p6","./placeholder":"cfCjP"}],"321p6":[function(require,module,exports) {
-var baseDifference = require('./_baseDifference'), baseFlatten = require('./_baseFlatten'), baseRest = require('./_baseRest'), isArrayLikeObject = require('./isArrayLikeObject');
-/**
- * Creates an array of `array` values not included in the other given arrays
- * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
- * for equality comparisons. The order and references of result values are
- * determined by the first array.
- *
- * **Note:** Unlike `_.pullAll`, this method returns a new array.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Array
- * @param {Array} array The array to inspect.
- * @param {...Array} [values] The values to exclude.
- * @returns {Array} Returns the new array of filtered values.
- * @see _.without, _.xor
- * @example
- *
- * _.difference([2, 1], [2, 3]);
- * // => [1]
- */ var difference = baseRest(function(array, values) {
-    return isArrayLikeObject(array) ? baseDifference(array, baseFlatten(values, 1, isArrayLikeObject, true)) : [];
-});
-module.exports = difference;
-
-},{"./_baseDifference":"8PHHD","./_baseFlatten":"60rt9","./_baseRest":"kd260","./isArrayLikeObject":"RyRVf"}],"8PHHD":[function(require,module,exports) {
-var SetCache = require('./_SetCache'), arrayIncludes = require('./_arrayIncludes'), arrayIncludesWith = require('./_arrayIncludesWith'), arrayMap = require('./_arrayMap'), baseUnary = require('./_baseUnary'), cacheHas = require('./_cacheHas');
-/** Used as the size to enable large array optimizations. */ var LARGE_ARRAY_SIZE = 200;
-/**
- * The base implementation of methods like `_.difference` without support
- * for excluding multiple arrays or iteratee shorthands.
- *
- * @private
- * @param {Array} array The array to inspect.
- * @param {Array} values The values to exclude.
- * @param {Function} [iteratee] The iteratee invoked per element.
- * @param {Function} [comparator] The comparator invoked per element.
- * @returns {Array} Returns the new array of filtered values.
- */ function baseDifference(array, values, iteratee, comparator) {
-    var index = -1, includes = arrayIncludes, isCommon = true, length = array.length, result = [], valuesLength = values.length;
-    if (!length) return result;
-    if (iteratee) values = arrayMap(values, baseUnary(iteratee));
-    if (comparator) {
-        includes = arrayIncludesWith;
-        isCommon = false;
-    } else if (values.length >= LARGE_ARRAY_SIZE) {
-        includes = cacheHas;
-        isCommon = false;
-        values = new SetCache(values);
-    }
-    outer: while(++index < length){
-        var value = array[index], computed = iteratee == null ? value : iteratee(value);
-        value = comparator || value !== 0 ? value : 0;
-        if (isCommon && computed === computed) {
-            var valuesIndex = valuesLength;
-            while(valuesIndex--){
-                if (values[valuesIndex] === computed) continue outer;
-            }
-            result.push(value);
-        } else if (!includes(values, computed, comparator)) result.push(value);
-    }
-    return result;
-}
-module.exports = baseDifference;
-
-},{"./_SetCache":"1SXrY","./_arrayIncludes":"kfd3F","./_arrayIncludesWith":"ghsru","./_arrayMap":"imI5Z","./_baseUnary":"eJXq4","./_cacheHas":"70cVb"}],"RyRVf":[function(require,module,exports) {
-var isArrayLike = require('./isArrayLike'), isObjectLike = require('./isObjectLike');
-/**
- * This method is like `_.isArrayLike` except that it also checks if `value`
- * is an object.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an array-like object,
- *  else `false`.
- * @example
- *
- * _.isArrayLikeObject([1, 2, 3]);
- * // => true
- *
- * _.isArrayLikeObject(document.body.children);
- * // => true
- *
- * _.isArrayLikeObject('abc');
- * // => false
- *
- * _.isArrayLikeObject(_.noop);
- * // => false
- */ function isArrayLikeObject(value) {
-    return isObjectLike(value) && isArrayLike(value);
-}
-module.exports = isArrayLikeObject;
-
-},{"./isArrayLike":"gMCbp","./isObjectLike":"3BLi4"}],"iu5PE":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('find', require('../find'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../find":"1aUx6","./placeholder":"cfCjP"}],"1aUx6":[function(require,module,exports) {
-var createFind = require('./_createFind'), findIndex = require('./findIndex');
-/**
- * Iterates over elements of `collection`, returning the first element
- * `predicate` returns truthy for. The predicate is invoked with three
- * arguments: (value, index|key, collection).
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Collection
- * @param {Array|Object} collection The collection to inspect.
- * @param {Function} [predicate=_.identity] The function invoked per iteration.
- * @param {number} [fromIndex=0] The index to search from.
- * @returns {*} Returns the matched element, else `undefined`.
- * @example
- *
- * var users = [
- *   { 'user': 'barney',  'age': 36, 'active': true },
- *   { 'user': 'fred',    'age': 40, 'active': false },
- *   { 'user': 'pebbles', 'age': 1,  'active': true }
- * ];
- *
- * _.find(users, function(o) { return o.age < 40; });
- * // => object for 'barney'
- *
- * // The `_.matches` iteratee shorthand.
- * _.find(users, { 'age': 1, 'active': true });
- * // => object for 'pebbles'
- *
- * // The `_.matchesProperty` iteratee shorthand.
- * _.find(users, ['active', false]);
- * // => object for 'fred'
- *
- * // The `_.property` iteratee shorthand.
- * _.find(users, 'active');
- * // => object for 'barney'
- */ var find = createFind(findIndex);
-module.exports = find;
-
-},{"./_createFind":"3B6Ah","./findIndex":"5OrPR"}],"3B6Ah":[function(require,module,exports) {
-var baseIteratee = require('./_baseIteratee'), isArrayLike = require('./isArrayLike'), keys = require('./keys');
-/**
- * Creates a `_.find` or `_.findLast` function.
- *
- * @private
- * @param {Function} findIndexFunc The function to find the collection index.
- * @returns {Function} Returns the new find function.
- */ function createFind(findIndexFunc) {
-    return function(collection, predicate, fromIndex) {
-        var iterable = Object(collection);
-        if (!isArrayLike(collection)) {
-            var iteratee = baseIteratee(predicate, 3);
-            collection = keys(collection);
-            predicate = function(key) {
-                return iteratee(iterable[key], key, iterable);
-            };
-        }
-        var index = findIndexFunc(collection, predicate, fromIndex);
-        return index > -1 ? iterable[iteratee ? collection[index] : index] : undefined;
-    };
-}
-module.exports = createFind;
-
-},{"./_baseIteratee":"2fsgg","./isArrayLike":"gMCbp","./keys":"6fHVw"}],"5OrPR":[function(require,module,exports) {
-var baseFindIndex = require('./_baseFindIndex'), baseIteratee = require('./_baseIteratee'), toInteger = require('./toInteger');
-/* Built-in method references for those with the same name as other `lodash` methods. */ var nativeMax = Math.max;
-/**
- * This method is like `_.find` except that it returns the index of the first
- * element `predicate` returns truthy for instead of the element itself.
- *
- * @static
- * @memberOf _
- * @since 1.1.0
- * @category Array
- * @param {Array} array The array to inspect.
- * @param {Function} [predicate=_.identity] The function invoked per iteration.
- * @param {number} [fromIndex=0] The index to search from.
- * @returns {number} Returns the index of the found element, else `-1`.
- * @example
- *
- * var users = [
- *   { 'user': 'barney',  'active': false },
- *   { 'user': 'fred',    'active': false },
- *   { 'user': 'pebbles', 'active': true }
- * ];
- *
- * _.findIndex(users, function(o) { return o.user == 'barney'; });
- * // => 0
- *
- * // The `_.matches` iteratee shorthand.
- * _.findIndex(users, { 'user': 'fred', 'active': false });
- * // => 1
- *
- * // The `_.matchesProperty` iteratee shorthand.
- * _.findIndex(users, ['active', false]);
- * // => 0
- *
- * // The `_.property` iteratee shorthand.
- * _.findIndex(users, 'active');
- * // => 2
- */ function findIndex(array, predicate, fromIndex) {
-    var length = array == null ? 0 : array.length;
-    if (!length) return -1;
-    var index = fromIndex == null ? 0 : toInteger(fromIndex);
-    if (index < 0) index = nativeMax(length + index, 0);
-    return baseFindIndex(array, baseIteratee(predicate, 3), index);
-}
-module.exports = findIndex;
-
-},{"./_baseFindIndex":"630D7","./_baseIteratee":"2fsgg","./toInteger":"ds6ZT"}],"6toPK":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('isFunction', require('../isFunction'), require('./_falseOptions'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../isFunction":"cfti6","./_falseOptions":"4QNnH","./placeholder":"cfCjP"}],"5kDH8":[function(require,module,exports) {
-var convert = require('./convert'), func = convert('noop', require('../noop'), require('./_falseOptions'));
-func.placeholder = require('./placeholder');
-module.exports = func;
-
-},{"./convert":"jYjrT","../noop":"dSFAq","./_falseOptions":"4QNnH","./placeholder":"cfCjP"}],"ljaQb":[function(require,module,exports) {
-"use strict";
-
-},{}],"2JE4J":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "gamepadUi", ()=>gamepadUi
-);
-const btnLabels = [
-    "button_1",
-    "button_2",
-    "button_3",
-    "button_4",
-    "shoulder_btn_front_left",
-    "shoulder_btn_front_right",
-    "shoulder_trigger_back_left",
-    "shoulder_trigger_back_right",
-    "select",
-    "start",
-    "stick_button_left",
-    "stick_button_right",
-    "d_pad_up",
-    "d_pad_down",
-    "d_pad_left",
-    "d_pad_right"
-];
-const gamepadUi = {
-    showGamepadsConnected: function(gamepads) {
-        document.getElementById("gamepad-connect-notice").style.display = "none";
-        if (gamepads.length > 1) document.getElementById("too-many-gamepads-notice").style.display = "block";
-        else document.getElementById("too-many-gamepads-notice").style.display = "none";
-        console.log("gamepads:", gamepads);
-        if (gamepads[0] && gamepads[0].emulated == true) {
-            document.getElementById("onscreen-gamepad-left").style.opacity = "1";
-            document.getElementById("onscreen-gamepad-right").style.opacity = "1";
-        } else {
-            document.getElementById("onscreen-gamepad-left").style.opacity = "0.5";
-            document.getElementById("onscreen-gamepad-right").style.opacity = "0.5";
-        }
-    },
-    showNoGamepads: function() {
-        document.getElementById("gamepad-connect-notice").style.display = "block";
-        document.getElementById("onscreen-gamepad-left").style.opacity = "1";
-        document.getElementById("onscreen-gamepad-right").style.opacity = "1";
-    },
-    showNotSupported: function() {
-        alert('Gamepad interface not supported, please use a more modern browser.');
-    },
-    handleGamepadVisualFeedbackAxisEvents: (axiesMaping, axisHoveredClass, axisMovedClass)=>{
-        axiesMaping.forEach(function(axisMap, index) {
-            // if (axisValue > 0 || axisValue < 0) {
-            var thumbstick = axisMap.thumbStickElement;
-            var axisRange = axisMap.axisRange;
-            var xValue = axisMap.xValue || 0;
-            var yValue = axisMap.yValue || 0;
-            // thumbstick.classList.add(axisMovedClass);
-            thumbstick.style.transform = `rotateY(${-xValue * 30}deg) rotateX(${yValue * 30}deg) translate(${xValue * axisRange}px,${yValue * axisRange}px)`;
-        // thumbstick.style.transformOrigin = "center";
-        // } else {
-        //     // thumbstick.classList.remove(axisMovedClass);
-        // }
-        });
-    },
-    handleGamepadVisualFeedbackButtonEvents: (gamepadButtonStates, buttonHighlightElements, btnHoveredClass, btnPressedClass)=>{
-        for(var btnIndx = 0; btnIndx < gamepadButtonStates.length; btnIndx++){
-            var gpadButton = gamepadButtonStates[btnIndx];
-            var btnElem = buttonHighlightElements[btnIndx];
-            if (!gpadButton || !btnElem) continue;
-            // console.log(gpadButton, btnElem, btnHoveredClass, btnPressedClass)
-            if (gpadButton.touched) btnElem.classList.add(btnHoveredClass);
-            else btnElem.classList.remove(btnHoveredClass);
-            if (gpadButton.pressed) btnElem.classList.add(btnPressedClass);
-            else btnElem.classList.remove(btnPressedClass);
-        }
-    },
-    getButtonHighlightElements: ()=>{
-        return btnLabels.map((btnLabel)=>document.getElementById(btnLabel + "_highlight")
-        );
-    }
-} // handleGamepadConnected: function (gamepadDevice) {
- //     // a new gamepad connected
- //     console.log('Gamepad Connected:', gamepadDevice);
- //     showToastMessage("Gamepad Connected: " + gamepadDevice);
- // },
- // handleGamepadDisconnected: function (device) {
- //     // gamepad disconnected
- //     console.log('Gamepad Disconnected:', device);
- // },
-;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iwJat":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "gamepadEmulator", ()=>gamepadEmulator
-);
-const gamepadEmulator = {
-    // The list of emulated gamepads, corresponds 1-1 to the list output by navigator.getGamepads().
-    // when an emulated gamepad is "connected" ie: call addEmulatedGamepad(), it is added to this list.
-    // when an emulated gamepad is "disconnected" ie: call removeEmulatedGamepad(), it is removed from this list.
-    // if a real gamepad is found at the same array index as an emulated gamepad, the navigator.getGamepads() list
-    // will report buttons pressed or axies moved on both the real gamepad and the emulated one.
-    emulatedGamepads: [],
-    // A number of typical buttons recognized by Gamepad API and mapped to
-    // standard controls. Any extraneous buttons will have larger indexes.
-    DEFAULT_BUTTON_COUNT: 18,
-    // A number of typical axes recognized by Gamepad API and mapped to
-    // standard controls. Any extraneous buttons will have larger indexes.
-    DEFAULT_AXIS_COUNT: 4,
-    /* creates a new emmulated gamepad at the given index as would be read in navigator.getGamepads
-     * @param {number} gpadIndex - the index of the gamepad to create
-     * @param {number} buttonCount - normally 18, the number of buttons on the gamepad
-     * @param {number} axisCount - normally 4, the number of axes on the gamepad
-    */ addEmulatedGamepad: function(gpadIndex, buttonCount, axisCount) {
-        var gpad = {
-            connected: true,
-            timestamp: Math.floor(Date.now() / 1000),
-            buttons: [],
-            axes: [],
-            id: "Emulated Gamepad " + gpadIndex
-        };
-        for(var i = 0; i < buttonCount; i++)gpad.buttons.push({
-            pressed: false,
-            value: 0,
-            touched: false
-        });
-        for(var i = 0; i < axisCount; i++)gpad.axes.push(0);
-        this.emulatedGamepads.push(gpad);
-        // trigger the (system) gamepad connected event on the window object
-        const event = new Event("gamepadconnected");
-        event.gamepad = gpad;
-        window.dispatchEvent(event);
-    },
-    /* removes the emmulated gamepad at the passed index as would be read from the list in navigator.getGamepads
-     * @param {number} gpadIndex - the index of the gamepad to remove
-    */ disconnectEmulatedGamepad: function(gpadIndex) {
-        var gpad = this.emulatedGamepads[gpadIndex];
-        if (gpad) {
-            this.emulatedGamepads.splice(gpadIndex, 1);
-            if (!window.getGamepads()[gpadIndex]) {
-                const event = new Event("gamepaddisconnected");
-                gpad.connected = false;
-                gpad.timestamp = Math.floor(Date.now() / 1000);
-                event.gamepad = gpad;
-                window.dispatchEvent(event);
-            }
-        }
-    },
-    /* emulates pressing a button on the gamepad at the given index
-
-    */ pressButton: function(gpadIndex, buttonIndex, value, touched) {
-        var gpad = this.emulatedGamepads[gpadIndex];
-        if (!gpad) gpad = this.addEmulatedGamepad(gpadIndex, this.DEFAULT_BUTTON_COUNT, this.DEFAULT_AXIS_COUNT);
-        var isPressed = value > 0.1;
-        this.emulatedGamepads[gpadIndex].buttons[buttonIndex] = {
-            pressed: isPressed,
-            value: value || 0,
-            touched: isPressed || touched || false
-        };
-    },
-    moveAxis: function(gpadIndex, axisIndex, value) {
-        var gpad = this.emulatedGamepads[gpadIndex];
-        if (!gpad) gpad = this.addEmulatedGamepad(gpadIndex, this.DEFAULT_BUTTON_COUNT, this.DEFAULT_AXIS_COUNT);
-        this.emulatedGamepads[gpadIndex].axes[axisIndex] = value;
-    },
-    /* add event listeners to the html button elements of an onscreen gamepad to emulate gamepad input
-        * @param {number} gpadIndex - the index of the gamepad to register events for
-        * @param {array} buttonTapZoneElements - an array of elements that are the tap targets for the buttons on the onscreen gamepad, in same order as the gamepad api would use.
-        * @param {array} buttonHighlightElements - an array of elements that should have the classes applied for the buttons on the onscreen gamepad, in same order as the gamepad api would use.
-        * @param {string} btnTouchedClass - the class to apply to the buttonHighlightElement when it is hovered over
-        * @param {string} btnPressedClass - the class to apply to the buttonHighlightElement when it is pressed / clicked
-    */ registerOnScreenGamepadButtonEvents: function(gpadIndex, buttonTapZoneElements) {
-        // for (var btnIndx = 0; btnIndx < buttonTapZoneElements.length; btnIndx++) {
-        var self = this;
-        buttonTapZoneElements.forEach(function(btnEl, btnIndx) {
-            var btnEl = buttonTapZoneElements[btnIndx];
-            btnEl.addEventListener("pointerover", (e)=>{
-                // tell the emulator this button is being "touched", ie: hovered over
-                self.pressButton(gpadIndex, btnIndx, 0, true);
-            });
-            btnEl.addEventListener("pointerleave", (e)=>{
-                // tell the emulator this button is no longer being "touched", ie: not hovered over
-                self.pressButton(gpadIndex, btnIndx, 0, false);
-            });
-            btnEl.addEventListener("pointerdown", (e)=>{
-                // tell the emulator this button is being pressed, ie: clicked / tapped
-                self.pressButton(gpadIndex, btnIndx, 1, true);
-            });
-            btnEl.addEventListener("pointerup", (e)=>{
-                // tell the emulator this button is no longer being pressed
-                self.pressButton(gpadIndex, btnIndx, 0, true);
-            });
-        });
-    },
-    registerOnScreenGamepadAxisEvents: function(gpadIndex, joysticksTouchDetails) {
-        var axisTouchRadius = 100;
-        var self = this;
-        var pointerToJoystickMapping = {
-        };
-        const pointerMoveHandler = function(me) {
-            for(const key in pointerToJoystickMapping)if (key == me.pointerId) {
-                const joystickData = pointerToJoystickMapping[key];
-                var deltaX = Math.max(Math.min((me.clientX - joystickData.startX) / axisTouchRadius, 1), -1);
-                var deltaY = Math.max(Math.min((me.clientY - joystickData.startY) / axisTouchRadius, 1), -1);
-                self.moveAxis(gpadIndex, joystickData.xAxisGpadAxis, deltaX);
-                self.moveAxis(gpadIndex, joystickData.yAxisGpadAxis, deltaY);
-            }
-        };
-        const pointerUpHandler = function(me) {
-            for(const key in pointerToJoystickMapping)if (key == me.pointerId) {
-                const joystickData = pointerToJoystickMapping[key];
-                self.moveAxis(gpadIndex, joystickData.xAxisGpadAxis, 0);
-                self.moveAxis(gpadIndex, joystickData.yAxisGpadAxis, 0);
-                delete pointerToJoystickMapping[key];
-            }
-            if (Object.keys(pointerToJoystickMapping).length == 0) {
-                // axisHighlightElements[index].classList.remove(axisMovedClass);
-                document.removeEventListener("pointermove", pointerMoveHandler, false);
-                document.removeEventListener("pointerup", pointerUpHandler, false);
-            }
-        };
-        document.addEventListener("pointerdown", function(de) {
-            joysticksTouchDetails.forEach(function(joystickTouchDetails) {
-                if (de.target === joystickTouchDetails.elem) {
-                    // axisTouchStartZone.elem.addEventListener("pointerover", function (e) {
-                    //     axisHighlightElements[index].classList.add(axisHoveredClass);
-                    // });
-                    // axisTouchStartZone.elem.addEventListener("pointerleave", function (e) {
-                    //     axisHighlightElements[index].classList.remove(axisHoveredClass);
-                    // });
-                    joystickTouchDetails.startX = de.clientX;
-                    joystickTouchDetails.startY = de.clientY;
-                    pointerToJoystickMapping[de.pointerId] = joystickTouchDetails;
-                }
-            });
-            if (Object.keys(pointerToJoystickMapping).length == 1) {
-                document.addEventListener("pointermove", pointerMoveHandler, false);
-                document.addEventListener("pointerup", pointerUpHandler, false);
-            }
-        });
-    },
-    monkeyPatchGetGamepads: function() {
-        var getNativeGamepads = navigator.getGamepads;
-        if (getNativeGamepads) getNativeGamepads = getNativeGamepads.bind(navigator);
-        var self = this;
-        navigator.getGamepads = function() {
-            var nativeGamepads = getNativeGamepads != undefined ? getNativeGamepads() : [];
-            nativeGamepads = Array.from(nativeGamepads);
-            // console.log("nativeGamepads:", nativeGamepads)
-            for(var i = 0; i < self.emulatedGamepads.length; i++){
-                var n_gpad = nativeGamepads[i];
-                var e_gpad = self.emulatedGamepads[i];
-                if (e_gpad && n_gpad) {
-                    // if both an emulated gamepad and a real one is available for this index,
-                    n_gpad.emulated = false; // should have some kind of mixed indication value here
-                    for(let btnIdx = 0; btnIdx < e_gpad.buttons.length; btnIdx++){
-                        const e_btn = e_gpad.buttons[btnIdx];
-                        const n_btn = n_gpad.buttons[btnIdx];
-                        if (!e_btn || !n_gpad.buttons[btnIdx]) continue;
-                        // nativeGamepads[i].buttons[btnIdx].touched = e_btn.touched || n_btn.touched || false;
-                        // nativeGamepads[i].buttons[btnIdx].pressed = e_btn.pressed || n_btn.pressed || false;
-                        // nativeGamepads[i].buttons[btnIdx].value = Math.max(e_btn.value, n_btn.value) || 0;
-                        nativeGamepads[i].buttons[btnIdx] = {
-                            touched: e_btn.touched || n_btn.touched || false,
-                            pressed: e_btn.pressed || n_btn.pressed || false,
-                            value: Math.max(e_btn.value, n_btn.value) || 0
-                        };
-                    }
-                    for(let axisIndex = 0; axisIndex < e_gpad.axes.length; axisIndex++){
-                        const e_axis = e_gpad.axes[axisIndex];
-                        const n_axis = n_gpad.axes[axisIndex];
-                        nativeGamepads[i].axes[axisIndex] = Math.max(e_axis, n_axis) || 0;
-                    }
-                // console.log("mixedGamepad:", nativeGamepads[i])
-                } else if (e_gpad) {
-                    // if only the emulated gamepad is available, use it
-                    e_gpad.emulated = true;
-                    e_gpad.timestamp = Math.floor(Date.now() / 1000);
-                    nativeGamepads[i] = e_gpad;
-                // console.log("eGamepad:", nativeGamepads[i])
-                }
-            }
-            return nativeGamepads;
-        };
-    }
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"at2SH":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "handleRovMessage", ()=>handleRovMessage
-);
-parcelHelpers.export(exports, "sendRovMessage", ()=>sendRovMessage
-);
-const handleRovMessage = (message)=>{
-    console.log("Got ROV Message:", message);
-};
-const sendRovMessage = (message)=>{
-    return (callback, onReceive)=>{
-        console.log("handleROVMessage: ", message);
-    };
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["g9TDx","1SICI"], "1SICI", "parcelRequire8802")
+},{}]},["g9TDx","1SICI"], "1SICI", "parcelRequire8802")
 
 //# sourceMappingURL=index.18dbc454.js.map

@@ -1,8 +1,8 @@
 
 class RovWebrtcConn {
     peerServerConn = null;
-    rovPeerIdBase = "SSROV_";
-    rovPeerIdEndNumber = 0; // the full rov peerid is the rovPeerIdBase with this number tacked on the end
+    ROV_PEERID_BASE = "SSROV_";
+    rovPeerIdEndNumber = 0; // the full rov peerid is the ROV_PEERID_BASE with this number tacked on the end
     rovDataConnection = null;
     rovVideoConnection = null;
     checkDataChannelIntervalId = null;
@@ -35,7 +35,7 @@ class RovWebrtcConn {
         // connectToRov() is run as a promise constructor in the reliablyConnectToROV() function, so the parameters have special meanings:
         // the closeupConnectionThen() aka "resolve()" callback should get called whevenver the rov webrtc/p2p connection should be closed without inmediately reconnecting
         // the reconnect() aka "reject()"" callback in the promise callback below (connectToRov) should get called whenever there is an error in the connection to the rov peer, where we should try to reconnect,
-        var rovPeerId = this.rovPeerIdBase + String(this.rovPeerIdEndNumber)
+        var rovPeerId = this.ROV_PEERID_BASE + String(this.rovPeerIdEndNumber)
         this.rovDataConnection = this.peerServerConn.peer.connect(rovPeerId, {
             reliable: true,
             serialization: 'none',

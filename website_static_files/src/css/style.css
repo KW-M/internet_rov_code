@@ -576,6 +576,8 @@ button:active {
   left: 50% !important;
 
   transform: translateX(-120%);
+
+  opacity: 1 !important;
 }
 
 #gamepad-container.help-open #onscreen-gamepad-right {
@@ -583,6 +585,16 @@ button:active {
   bottom: 15px;
 
   transform: translateX(120%);
+
+  opacity: 1 !important;
+}
+
+#gamepad-container.gamepad-connected #onscreen-gamepad-left {
+  opacity: 0.5;
+}
+
+#gamepad-container.gamepad-connected #onscreen-gamepad-right {
+  opacity: 0.5;
 }
 
 .gamepad-btn-highlight {
@@ -605,9 +617,10 @@ button:active {
 }
 
 .gamepad-arrow-highlight {
-  visibility: hidden;
-
+  /* visibility: hidden; */
   pointer-events: none;
+
+  opacity: 0;
 }
 
 .gamepad-arrow-highlight.touched {
@@ -707,6 +720,12 @@ button:active {
 
 /* ***** Popper Tooltip Customizations ***** */
 
+#gamepad-help-tooltip {
+  user-select: n;
+  transition: all 0.1s ease;
+  pointer-events: none;
+}
+
 .popper-tooltip {
   z-index: 1000;
 
@@ -715,6 +734,7 @@ button:active {
   padding: 5px 10px;
 
   color: #000000;
+  border: solid 3px black;
   border-radius: 8px;
   background: #fff;
 
@@ -737,15 +757,31 @@ button:active {
   border-left: 13px solid transparent;
 }
 
-.popper-tooltip[data-popper-placement^='top']::after {
-  bottom: -17px;
+.popper-tooltip::before {
+  position: absolute;
+
+  display: block;
+
+  width: 0;
+  height: 0;
+
+  content: '';
+
+  border-top: 16px solid rgb(0, 0, 0);
+  border-right: 16px solid transparent;
+  border-left: 16px solid transparent;
+}
+
+.popper-tooltip[data-popper-placement^='top']::after,
+.popper-tooltip[data-popper-placement^='top']::before {
+  bottom: -19px;
   left: 50%;
 
   transform: translateX(-7px) rotate(0);
 }
 
 .popper-tooltip[data-popper-placement^='bottom']::after {
-  top: -17px;
+  top: -19px;
   left: 50%;
 
   transform: translateX(-7px) rotate(180deg);
@@ -753,14 +789,42 @@ button:active {
 
 .popper-tooltip[data-popper-placement^='left']::after {
   top: 50%;
-  right: -17px;
+  right: -19px;
 
   transform: translateY(-7px) rotate(270deg);
 }
 
 .popper-tooltip[data-popper-placement^='right']::after {
   top: 50%;
-  left: -17px;
+  left: -19px;
 
   transform: translateY(-7px) rotate(90deg);
+}
+
+.popper-tooltip[data-popper-placement^='top']::before {
+  bottom: -24px;
+  left: 50%;
+
+  transform: translateX(-8.5px) rotate(0);
+}
+
+.popper-tooltip[data-popper-placement^='bottom']::before {
+  top: -24px;
+  left: 50%;
+
+  transform: translateX(-8.5px) rotate(180deg);
+}
+
+.popper-tooltip[data-popper-placement^='left']::before {
+  top: 50%;
+  right: -24px;
+
+  transform: translateY(-8.5px) rotate(270deg);
+}
+
+.popper-tooltip[data-popper-placement^='right']::before {
+  top: 50%;
+  left: -24px;
+
+  transform: translateY(-8.5px) rotate(90deg);
 }
