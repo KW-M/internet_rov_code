@@ -202,14 +202,14 @@ const mainMachine =
                 },
             }),
             "startPingMessageGenerator": assign({
-                pingSenderActor: spawn(() => {
-                    return (callback) => {
+                pingSenderActor: () => {
+                    return spawn((callback) => {
                         const intervalId = setInterval(() => {
-                            callback({ type: "SEND_MESSAGE_TO_ROV", data: JSON.stringify({ "ping": Date.now() }) }, { to: "rovConnectionMachine" });
-                        }, 5000)
+                            callback({ type: "SEND_MESSAGE_TO_ROV", data: JSON.stringify({ "ping": Date.now() }) }, { to: "peerConnMachine" });
+                        }, 2000)
                         return () => { clearInterval(intervalId) }
-                    }
-                }, "pingMessageGenerator"),
+                    }, "pingMessageGenerator")
+                }
             }),
             "stopPingMessageGenerator": stop("pingMessageGenerator"),
             "stopPeerServerConnMachine": stop("peerServerConnMachine"),
@@ -218,6 +218,7 @@ const mainMachine =
                 handleRovMessage(event.data)
             },
             "sendMessageToRov": send((context, event) => {
+
                 return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
             }, { to: "peerConnMachine" }),
         },

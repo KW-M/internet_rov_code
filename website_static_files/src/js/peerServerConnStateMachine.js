@@ -1,12 +1,13 @@
 import { createMachine, spawn, actions } from "xstate";
 import Peer from "peerjs"
+import { v4 as uuidV4 } from "uuid"
 // import * as consts from "./consts";
 
 import { generateStateChangeFunction } from "./util";
 import { showToastMessage, showLoadingUi } from "./ui"
 // showROVDisconnectedUi, showROVConnectingUi, showROVConnectedUi, setupConnectBtnClickHandler, showToastDialog, hideLoadingUi, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandler
 
-const { pure, stop, send, sendParent, assign } = actions;
+import { pure, stop, send, sendParent, assign } from "xstate/lib/actions";
 
 const FATAL_PEER_ERROR_TYPES = [
     "network", "unavailable-id", "invalid-id", "invalid-key", "browser-incompatible", "webrtc", "server-error", "ssl-unavailable", "socket-error", "socket-closed"
@@ -102,6 +103,9 @@ export const peerServerConnMachine = createMachine({
                 return sendParent({ type: "WEBRTC_FATAL_ERROR" })
             } else if (err.type == "peer-unavailable") {
                 return sendParent({ type: "PEER_NOT_YET_READY_ERROR", data: err })
+            } else if (err.type == "unavailable-id") {
+                localStorage.removeItem('thisClientPeerId') // discard our saved peer id so we will use a fresh one
+                return sendParent({ type: "PEER_SERVER_FATAL_ERROR", data: err })
             } else if (FATAL_PEER_ERROR_TYPES.includes(err.type)) {
                 showToastMessage("Peerjs Server Fatal Error: " + err.type + " Restarting...")
                 return sendParent({ type: "PEER_SERVER_FATAL_ERROR" })
@@ -111,18 +115,22 @@ export const peerServerConnMachine = createMachine({
                 return send({ type: "PEER_SERVER_CONNECTION_CLOSED" })
             }
         }),
-        "cleanupPeerServerConnection": () => { console.log(pure) },
-        // assign({
-        //     thisPeer: (context) => {
-        //         console.log("cleanupPeerServerConnection: ", context.thisPeer)
-        //         if (context.thisPeer) {
-        //             context.thisPeer.destroy()
-        //         }
-        //         return null;
-        //     }
-        // }),
+        "cleanupPeerServerConnection": assign({
+            thisPeer: (context) => {
+                console.log("cleanupPeerServerConnection: ", context.thisPeer)
+                if (context.thisPeer) {
+                    context.thisPeer.destroy()
+                }
+                return null;
+            }
+        }),
         "setupPeerAndStartPeerServerEventsHandler": assign((context) => {
-            const thisPeer = window.thisPeerjsPeer = new Peer(null, context.peerServerConfig);
+            var ourPeerId = localStorage.getItem('thisClientPeerId');
+            if (!ourPeerId) {
+                ourPeerId = "iROV_Pilot_" + uuidV4().slice(0, 8);
+                localStorage.setItem('thisClientPeerId', ourPeerId); // save for future runs
+            }
+            const thisPeer = window.thisPeerjsPeer = new Peer(ourPeerId, context.peerServerConfig);
             return {
                 thisPeer: thisPeer,
                 peerServerEventsHandler: spawn((sendStateChange) => {

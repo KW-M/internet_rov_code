@@ -1,7 +1,9 @@
-import { createMachine, assign, sendParent, spawn } from "xstate";
+import { createMachine, assign, spawn } from "xstate";
 import { showToastMessage, showROVConnectingUi, showROVConnectedUi, showLoadingUi, hideLoadingUi, setupSwitchRovBtnClickHandler, showLivestreamUi, hideLivestreamUi } from "./ui"
 import { generateStateChangeFunction } from "./util";
-import { stop } from "xstate/lib/actions";
+
+import { pure, stop, send, sendParent } from "xstate/lib/actions";
+
 
 // FOR CONVERTING TEXT TO/FROM BINARY FOR SENDING OVER THE WEBRTC DATACHANNEL
 const messageEncoder = new TextEncoder(); // always utf-8
@@ -160,7 +162,7 @@ export const peerConnMachine =
                 },
             }),
             rovPeerConnectionEstablished: sendParent("ROV_CONNECTION_ESTABLISHED"),
-            sendMessageToRov: (context, event) => {
+            "sendMessageToRov": (context, event) => {
                 const outgoingMessage = event.data
                 const rovDataConnection = context.rovDataConnection
                 if (!rovDataConnection || !rovDataConnection.open || !rovDataConnection.peerConnection.iceConnectionState || rovDataConnection.peerConnection.iceConnectionState != "connected") {
@@ -189,7 +191,7 @@ export const peerConnMachine =
                     context.rovDataConnection.close();
                 }
             },
-            connectToRovPeerAndStartPeerConnectionEventHandler: assign((context) => {
+            "connectToRovPeerAndStartPeerConnectionEventHandler": assign((context) => {
                 console.log("Connecting to ROV:" + context.rovPeerId);
                 const rovDataConnection = context.thisPeer.connect(context.rovPeerId, {
                     reliable: true,
@@ -209,11 +211,10 @@ export const peerConnMachine =
                     }, "peerConnectionEventHandler")
                 }
             }),
-            stopPeerConnectionEventHandler: stop("peerConnectionEventHandler"),
+            "stopPeerConnectionEventHandler": stop("peerConnectionEventHandler"),
         },
         services: {
-
-            awaitMediaCall: (context) => {
+            "awaitMediaCall": (context) => {
                 return (sendStateChange) => {
                     // showLoadingUi("Waiting for ROV Media Call...");
                     // const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
@@ -251,8 +252,9 @@ export const peerConnMachine =
                     }
                 };
             },
-            handleDataChannelEvents: (context) => {
+            "handleDataChannelEvents": (context) => {
                 return (sendStateChange) => {
+                    showToastMessage("Connected to ROV!");
                     const rovDataConnection = context.rovDataConnection
                     // handle new messages from the datachannel (comming FROM the rov)
                     console.log("handleDataChannelEvents:", rovDataConnection);
@@ -260,6 +262,8 @@ export const peerConnMachine =
                         const message = messageDecoder.decode(encodedMessage);
                         sendStateChange({ type: "GOT_MESSAGE_FROM_ROV", data: message });
                     }; rovDataConnection.on('data', dataMsgRecivedHandler)
+
+                    sendStateChange({ type: "SEND_MESSAGE_TO_ROV", data: JSON.stringify({ action: "BEGIN_LIVESTREAM" }) });
 
                     // cleanup event listeners when the state is exited
                     return () => {
