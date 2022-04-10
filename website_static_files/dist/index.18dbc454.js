@@ -167,8 +167,7 @@ function _createForOfIteratorHelper(o, allowArrayLike) {
         if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
             if (it) o = it;
             var i = 0;
-            var F = function F() {
-            };
+            var F = function F() {};
             return {
                 s: F,
                 n: function n() {
@@ -265,8 +264,7 @@ function Module(moduleName) {
         _acceptCallbacks: [],
         _disposeCallbacks: [],
         accept: function accept(fn) {
-            this._acceptCallbacks.push(fn || function() {
-            });
+            this._acceptCallbacks.push(fn || function() {});
         },
         dispose: function dispose(fn) {
             this._disposeCallbacks.push(fn);
@@ -275,7 +273,7 @@ function Module(moduleName) {
     module.bundle.hotData = undefined;
 }
 module.bundle.Module = Module;
-var checkedAssets, acceptedAssets, assetsToAccept;
+var checkedAssets, acceptedAssets, assetsToAccept /*: Array<[ParcelRequire, string]> */ ;
 function getHostname() {
     return HMR_HOST || (location.protocol.indexOf('http') === 0 ? location.hostname : 'localhost');
 }
@@ -289,10 +287,8 @@ if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
     var protocol = HMR_SECURE || location.protocol == 'https:' && !/localhost|127.0.0.1|0.0.0.0/.test(hostname) ? 'wss' : 'ws';
     var ws = new WebSocket(protocol + '://' + hostname + (port ? ':' + port : '') + '/'); // $FlowFixMe
     ws.onmessage = function(event) {
-        checkedAssets = {
-        };
-        acceptedAssets = {
-        };
+        checkedAssets = {} /*: {|[string]: boolean|} */ ;
+        acceptedAssets = {} /*: {|[string]: boolean|} */ ;
         assetsToAccept = [];
         var data = JSON.parse(event.data);
         if (data.type === 'update') {
@@ -499,8 +495,7 @@ function hmrAcceptCheckOne(bundle, id, depsByBundle) {
 }
 function hmrAcceptRun(bundle, id) {
     var cached = bundle.cache[id];
-    bundle.hotData = {
-    };
+    bundle.hotData = {};
     if (cached && cached.hot) cached.hot.data = bundle.hotData;
     if (cached && cached.hot && cached.hot._disposeCallbacks.length) cached.hot._disposeCallbacks.forEach(function(cb) {
         cb(bundle.hotData);
@@ -551,8 +546,7 @@ if (_utilJs.getURLQueryStringVariable("debug-mode")) _inspect.inspect({
 new _gamepadJs.GamepadController();
 const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QAmAGwBmbAEYAHMoAMAdg0BWbQBYVATkNyANCACeibQq0y9U1XLVqpclQF8P5tFmwMAV0xMLChsADlefDoAYRFMMABjfEhSAAUaGgY6XCyANSzYgHlw8JoYqgoSuhpcKmYAIQAZClwACRpWMT4BIRExSQRlQw1sdzkZRTk9ZTkRxT1zKwRHUbk5jVU9bXk1Q00vHwwcQODQ7DSwMCIc64A3a9j4pJSIchpw1joAWVrcZgA4vQqEVGEU8t1+IJhKIkBJEFN5NgpBpDG49HJtMo9GosUtEHptthXFN3DoZHtjIcQL4TkEQpgwpdHrh7o84sEXqkAUUqD8-oD6AAxBhFb5giFwnrQ-pwwaKRRuMYyZRSQzKDQUuSbRT4hCE7TEqSkxTkymGam0-z00KkVitGIlMoVOgNACqVBB4ToaSYuFyXSlUL6sNAgykyLUKqmalmemMmJserVemwqqkGbUihkunsUktx2tZ0Z6Uy2VyDAK2SFzHqTRqDFFDEhvRhA0QGlNRtVeh06k7ez1Mi02FRRhzKM7GYLflODKgpAA6jQGgwqDE6DW6w2my2ZaH4QhswZsMOMVIszttLrLIhpooxp2HFJtuo1BMZ3Tiwvlw1KLRYiaIpcj3EN2yPGQc2RXsDEggwUxkZMkW0QwVVjFVILkY05E-bBmAAdwwIRGQlJ5OWSV0AnwfARB9Ig4FgUhHVKco+XdT1ql9P5OlAts5TvHRsH0dZjUJEwnz1bZDDTbQXH0YZUOUTxqUwXgIDgMQrQIYh8F42Uw2kB9VRQ2ZDBsJT0T1XRR1mWZTW1KNZGxXC53OSJog5BJkkgPSD0GaMjQMLERMUNRtmTdQ0xxU0KXUbNjG0FybUZC4rhuVkiAeG5PK5CBfPAxV9mwNFcTMzQTCw5NO2RRRjAw1wUNRHDvBpQtXMZfL+IQHNRlcILZiw0LwtvBBrzGLDtRkScUL63CCKI0JSJyiiGiomjMDohjOoMhAAFodiEjNtA0TRjvsfZEJGmYZFHSlZijHYXGao4-FYEQwG2w8VEgoTNXVZQVW2RQkxGtVlFHDQ3E0ewsNxexP0+wZdsi7QjpOnRNXjKM9V241TwmJqs1cCY9i8LwgA */ _xstate.createMachine({
     context: {
-        peerServerConfig: {
-        },
+        peerServerConfig: {},
         rovIpAddr: "",
         rovPeerIdEndNumber: 0,
         attemptingNewRovPeerId: false,
@@ -719,8 +713,8 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
             }
         }),
         "startPingMessageGenerator": _xstate.assign({
-            pingSenderActor: _xstate.spawn(()=>{
-                return (callback)=>{
+            pingSenderActor: ()=>{
+                return _xstate.spawn((callback)=>{
                     const intervalId = setInterval(()=>{
                         callback({
                             type: "SEND_MESSAGE_TO_ROV",
@@ -728,14 +722,14 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
                                 "ping": Date.now()
                             })
                         }, {
-                            to: "rovConnectionMachine"
+                            to: "peerConnMachine"
                         });
-                    }, 5000);
+                    }, 2000);
                     return ()=>{
                         clearInterval(intervalId);
                     };
-                };
-            }, "pingMessageGenerator")
+                }, "pingMessageGenerator");
+            }
         }),
         "stopPingMessageGenerator": _actions.stop("pingMessageGenerator"),
         "stopPeerServerConnMachine": _actions.stop("peerServerConnMachine"),
@@ -781,8 +775,7 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
             };
         }
     },
-    guards: {
-    }
+    guards: {}
 });
 window.mainRovMachineService = _xstate.interpret(mainMachine, {
     devTools: true
@@ -977,10 +970,8 @@ var defaultInspectorOptions = {
     serialize: undefined
 };
 var getFinalOptions = function(options) {
-    var withDefaults = _tslibJs.__assign(_tslibJs.__assign({
-    }, defaultInspectorOptions), options);
-    return _tslibJs.__assign(_tslibJs.__assign({
-    }, withDefaults), {
+    var withDefaults = _tslibJs.__assign(_tslibJs.__assign({}, defaultInspectorOptions), options);
+    return _tslibJs.__assign(_tslibJs.__assign({}, withDefaults), {
         url: new URL(withDefaults.url),
         iframe: _utilsJs.getLazy(withDefaults.iframe),
         devTools: _utilsJs.getLazy(withDefaults.devTools)
@@ -1010,8 +1001,7 @@ function inspect(options) {
                     targetWindow.postMessage(e, url.origin);
                 }
             };
-            var inspectEvent = _tslibJs.__assign(_tslibJs.__assign({
-            }, event.data), {
+            var inspectEvent = _tslibJs.__assign(_tslibJs.__assign({}, event.data), {
                 client: client
             });
             inspectService.send(inspectEvent);
@@ -1100,8 +1090,7 @@ function inspect(options) {
     };
 }
 function createWindowReceiver(options) {
-    var _a = options || {
-    }, _b = _a.window, ownWindow = _b === void 0 ? window : _b, _c = _a.targetWindow, targetWindow = _c === void 0 ? window.self === window.top ? window.opener : window.parent : _c;
+    var _a = options || {}, _b = _a.window, ownWindow = _b === void 0 ? window : _b, _c = _a.targetWindow, targetWindow = _c === void 0 ? window.self === window.top ? window.opener : window.parent : _c;
     var observers = new Set();
     var latestEvent;
     var handler = function(event) {
@@ -1435,14 +1424,12 @@ function toActionObject(action, actionFunctionMap) {
     };
     else {
         var exec = getActionFunction(action.type, actionFunctionMap);
-        if (_utilsJs.isFunction(exec)) actionObject = _tslibJs.__assign(_tslibJs.__assign({
-        }, action), {
+        if (_utilsJs.isFunction(exec)) actionObject = _tslibJs.__assign(_tslibJs.__assign({}, action), {
             exec: exec
         });
         else if (exec) {
             var actionType = exec.type || action.type;
-            actionObject = _tslibJs.__assign(_tslibJs.__assign(_tslibJs.__assign({
-            }, exec), action), {
+            actionObject = _tslibJs.__assign(_tslibJs.__assign(_tslibJs.__assign({}, exec), action), {
                 type: actionType
             });
         } else actionObject = action;
@@ -1515,8 +1502,7 @@ function resolveSend(action, ctx, _event, delaysMap) {
         resolvedDelay = _utilsJs.isFunction(configDelay) ? configDelay(ctx, _event.data, meta) : configDelay;
     } else resolvedDelay = _utilsJs.isFunction(action.delay) ? action.delay(ctx, _event.data, meta) : action.delay;
     var resolvedTarget = _utilsJs.isFunction(action.to) ? action.to(ctx, _event.data, meta) : action.to;
-    return _tslibJs.__assign(_tslibJs.__assign({
-    }, action), {
+    return _tslibJs.__assign(_tslibJs.__assign({}, action), {
         to: resolvedTarget,
         _event: resolvedEvent,
         event: resolvedEvent.data,
@@ -1529,8 +1515,7 @@ function resolveSend(action, ctx, _event, delaysMap) {
  * @param event The event to send to the parent machine.
  * @param options Options to pass into the send event.
  */ function sendParent(event, options) {
-    return send(event, _tslibJs.__assign(_tslibJs.__assign({
-    }, options), {
+    return send(event, _tslibJs.__assign(_tslibJs.__assign({}, options), {
         to: _typesJs.SpecialTargets.Parent
     }));
 }
@@ -1542,8 +1527,7 @@ function resolveSend(action, ctx, _event, delaysMap) {
  * @param options Send action options
  * @returns An XState send action object
  */ function sendTo(actor, event, options) {
-    return send(event, _tslibJs.__assign(_tslibJs.__assign({
-    }, options), {
+    return send(event, _tslibJs.__assign(_tslibJs.__assign({}, options), {
         to: actor
     }));
 }
@@ -1558,8 +1542,7 @@ function resolveSend(action, ctx, _event, delaysMap) {
  * @param event The event to send back to the sender
  * @param options Options to pass into the send event
  */ function respond(event, options) {
-    return send(event, _tslibJs.__assign(_tslibJs.__assign({
-    }, options), {
+    return send(event, _tslibJs.__assign(_tslibJs.__assign({}, options), {
         to: function(_, __, _a) {
             var _event = _a._event;
             return _event.origin; // TODO: handle when _event.origin is undefined
@@ -1588,8 +1571,7 @@ var defaultLogExpr = function(context, event) {
     };
 }
 var resolveLog = function(action, ctx, _event) {
-    return _tslibJs.__assign(_tslibJs.__assign({
-    }, action), {
+    return _tslibJs.__assign(_tslibJs.__assign({}, action), {
         value: _utilsJs.isString(action.expr) ? action.expr : action.expr(ctx, _event.data, {
             _event: _event
         })
@@ -1726,8 +1708,7 @@ function pure(getActions) {
  */ function forwardTo(target, options) {
     return send(function(_, event) {
         return event;
-    }, _tslibJs.__assign(_tslibJs.__assign({
-    }, options), {
+    }, _tslibJs.__assign(_tslibJs.__assign({}, options), {
         to: target
     }));
 }
@@ -1743,8 +1724,7 @@ function pure(getActions) {
             type: _actionTypesJs.error,
             data: _utilsJs.isFunction(errorData) ? errorData(context, event, meta) : errorData
         };
-    }, _tslibJs.__assign(_tslibJs.__assign({
-    }, options), {
+    }, _tslibJs.__assign(_tslibJs.__assign({}, options), {
         to: _typesJs.SpecialTargets.Parent
     }));
 }
@@ -1809,8 +1789,7 @@ function resolveActions(machine, currentState, currentContext, _event, actions, 
                 var exec_1 = resolvedActionObject.exec;
                 if (exec_1 && preservedContexts) {
                     var contextIndex_1 = preservedContexts.length - 1;
-                    resolvedActionObject = _tslibJs.__assign(_tslibJs.__assign({
-                    }, resolvedActionObject), {
+                    resolvedActionObject = _tslibJs.__assign(_tslibJs.__assign({}, resolvedActionObject), {
                         exec: function(_ctx) {
                             var args = [];
                             for(var _i = 1; _i < arguments.length; _i++)args[_i - 1] = arguments[_i];
@@ -1868,8 +1847,7 @@ PERFORMANCE OF THIS SOFTWARE.
     return __assign.apply(this, arguments);
 };
 function __rest(s, e) {
-    var t = {
-    };
+    var t = {};
     for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
     if (s != null && typeof Object.getOwnPropertySymbols === "function") {
         for(var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++)if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
@@ -1948,14 +1926,12 @@ var ActionTypes;
     ActionTypes1["Update"] = "xstate.update";
     ActionTypes1["Pure"] = "xstate.pure";
     ActionTypes1["Choose"] = "xstate.choose";
-})(ActionTypes || (ActionTypes = {
-}));
+})(ActionTypes || (ActionTypes = {}));
 var SpecialTargets;
 (function(SpecialTargets1) {
     SpecialTargets1["Parent"] = "#_parent";
     SpecialTargets1["Internal"] = "#_internal";
-})(SpecialTargets || (SpecialTargets = {
-}));
+})(SpecialTargets || (SpecialTargets = {}));
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2WTWb":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -2165,20 +2141,17 @@ function toStateValue(stateValue, delimiter) {
 }
 function pathToStateValue(statePath) {
     if (statePath.length === 1) return statePath[0];
-    var value = {
-    };
+    var value = {};
     var marker = value;
     for(var i = 0; i < statePath.length - 1; i++)if (i === statePath.length - 2) marker[statePath[i]] = statePath[i + 1];
     else {
-        marker[statePath[i]] = {
-        };
+        marker[statePath[i]] = {};
         marker = marker[statePath[i]];
     }
     return value;
 }
 function mapValues(collection, iteratee) {
-    var result = {
-    };
+    var result = {};
     var collectionKeys = Object.keys(collection);
     for(var i = 0; i < collectionKeys.length; i++){
         var key = collectionKeys[i];
@@ -2188,8 +2161,7 @@ function mapValues(collection, iteratee) {
 }
 function mapFilterValues(collection, iteratee, predicate) {
     var e_1, _a1;
-    var result = {
-    };
+    var result = {};
     try {
         for(var _b = _tslibJs.__values(Object.keys(collection)), _c = _b.next(); !_c.done; _c = _b.next()){
             var key = _c.value;
@@ -2288,8 +2260,7 @@ function toStatePaths(stateValue) {
 }
 function pathsToStateValue(paths) {
     var e_4, _a4;
-    var result = {
-    };
+    var result = {};
     if (paths && paths.length === 1 && paths[0].length === 1) return paths[0][0];
     try {
         for(var paths_1 = _tslibJs.__values(paths), paths_1_1 = paths_1.next(); !paths_1_1.done; paths_1_1 = paths_1.next()){
@@ -2301,8 +2272,7 @@ function pathsToStateValue(paths) {
                     marker[subPath] = currentPath[i + 1];
                     break;
                 }
-                marker[subPath] = marker[subPath] || {
-                };
+                marker[subPath] = marker[subPath] || {};
                 marker = marker[subPath];
             }
         }
@@ -2336,8 +2306,7 @@ function toArray(value) {
 function mapContext(mapper, context, _event) {
     var e_5, _a6;
     if (isFunction(mapper)) return mapper(context, _event.data);
-    var result = {
-    };
+    var result = {};
     try {
         for(var _b = _tslibJs.__values(Object.keys(mapper)), _c = _b.next(); !_c.done; _c = _b.next()){
             var key = _c.value;
@@ -2425,8 +2394,7 @@ function updateContext(context, _event, assignActions, state) {
             action: assignAction,
             _event: _event
         };
-        var partialUpdate = {
-        };
+        var partialUpdate = {};
         if (isFunction(assignment)) partialUpdate = assignment(acc, _event.data, meta);
         else try {
             for(var _b = _tslibJs.__values(Object.keys(assignment)), _c = _b.next(); !_c.done; _c = _b.next()){
@@ -2445,13 +2413,11 @@ function updateContext(context, _event, assignActions, state) {
                 if (e_7) throw e_7.error;
             }
         }
-        return Object.assign({
-        }, acc, partialUpdate);
+        return Object.assign({}, acc, partialUpdate);
     }, context) : context;
     return updatedContext;
 } // tslint:disable-next-line:no-empty
-var warn = function() {
-};
+var warn = function() {};
 if (!_environmentJs.IS_PRODUCTION) warn = function(condition, message) {
     var error = condition instanceof Error ? condition : undefined;
     if (!error && condition) return;
@@ -2497,8 +2463,7 @@ function isObservable(value) {
 var symbolObservable = /*#__PURE__*/ function() {
     return typeof Symbol === 'function' && Symbol.observable || '@@observable';
 }(); // TODO: to be removed in v5, left it out just to minimize the scope of the change and maintain compatibility with older versions of integration paackages
-var interopSymbols = (_a = {
-}, _a[symbolObservable] = function() {
+var interopSymbols = (_a = {}, _a[symbolObservable] = function() {
     return this;
 }, _a[Symbol.observable] = function() {
     return this;
@@ -2539,8 +2504,7 @@ function toTransitionConfigArray(event, configLike) {
             target: transitionLike,
             event: event
         };
-        return _tslibJs.__assign(_tslibJs.__assign({
-        }, transitionLike), {
+        return _tslibJs.__assign(_tslibJs.__assign({}, transitionLike), {
             event: event
         });
     });
@@ -2606,8 +2570,7 @@ parcelHelpers.export(exports, "STATE_DELIMITER", ()=>STATE_DELIMITER
 parcelHelpers.export(exports, "TARGETLESS_KEY", ()=>TARGETLESS_KEY
 );
 var STATE_DELIMITER = '.';
-var EMPTY_ACTIVITY_MAP = {
-};
+var EMPTY_ACTIVITY_MAP = {};
 var DEFAULT_GUARD_TYPE = 'xstate.guard';
 var TARGETLESS_KEY = '';
 
@@ -2774,8 +2737,7 @@ var InterpreterStatus;
     InterpreterStatus1[InterpreterStatus1["NotStarted"] = 0] = "NotStarted";
     InterpreterStatus1[InterpreterStatus1["Running"] = 1] = "Running";
     InterpreterStatus1[InterpreterStatus1["Stopped"] = 2] = "Stopped";
-})(InterpreterStatus || (InterpreterStatus = {
-}));
+})(InterpreterStatus || (InterpreterStatus = {}));
 var Interpreter = /*#__PURE__*/ /** @class */ function() {
     /**
    * Creates a new Interpreter instance (i.e., service) for the given machine with the provided options, if any.
@@ -2787,8 +2749,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
         if (options === void 0) options = Interpreter1.defaultOptions;
         this.machine = machine;
         this.scheduler = new _schedulerJs.Scheduler();
-        this.delayedEventsMap = {
-        };
+        this.delayedEventsMap = {};
         this.listeners = new Set();
         this.contextListeners = new Set();
         this.stopListeners = new Set();
@@ -2844,16 +2805,14 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
                 return;
             }
             if ('machine' in target) // Send SCXML events to machines
-            target.send(_tslibJs.__assign(_tslibJs.__assign({
-            }, event), {
+            target.send(_tslibJs.__assign(_tslibJs.__assign({}, event), {
                 name: event.name === _actionTypesJs.error ? "".concat(_actionsJs.error(_this.id)) : event.name,
                 origin: _this.sessionId
             }));
             else // Send normal events to other targets
             target.send(event.data);
         };
-        var resolvedOptions = _tslibJs.__assign(_tslibJs.__assign({
-        }, Interpreter1.defaultOptions), options);
+        var resolvedOptions = _tslibJs.__assign(_tslibJs.__assign({}, Interpreter1.defaultOptions), options);
         var clock = resolvedOptions.clock, logger = resolvedOptions.logger, parent = resolvedOptions.parent, id = resolvedOptions.id;
         var resolvedId = id !== undefined ? id : machine.id;
         this.id = resolvedId;
@@ -3421,8 +3380,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
         else if (_utilsJs.isFunction(entity)) return this.spawnCallback(entity, name);
         else if (_actorJs.isSpawnedActor(entity)) return this.spawnActor(entity, name);
         else if (_utilsJs.isObservable(entity)) return this.spawnObservable(entity, name);
-        else if (_utilsJs.isMachine(entity)) return this.spawnMachine(entity, _tslibJs.__assign(_tslibJs.__assign({
-        }, options), {
+        else if (_utilsJs.isMachine(entity)) return this.spawnMachine(entity, _tslibJs.__assign(_tslibJs.__assign({}, options), {
             id: name
         }));
         else if (_utilsJs.isBehavior(entity)) return this.spawnBehavior(entity, name);
@@ -3430,15 +3388,12 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
     };
     Interpreter1.prototype.spawnMachine = function(machine, options) {
         var _this = this;
-        if (options === void 0) options = {
-        };
-        var childService = new Interpreter1(machine, _tslibJs.__assign(_tslibJs.__assign({
-        }, this.options), {
+        if (options === void 0) options = {};
+        var childService = new Interpreter1(machine, _tslibJs.__assign(_tslibJs.__assign({}, this.options), {
             parent: this,
             id: options.id || machine.id
         }));
-        var resolvedOptions = _tslibJs.__assign(_tslibJs.__assign({
-        }, DEFAULT_SPAWN_OPTIONS), options);
+        var resolvedOptions = _tslibJs.__assign(_tslibJs.__assign({}, DEFAULT_SPAWN_OPTIONS), options);
         if (resolvedOptions.sync) childService.onTransition(function(state) {
             _this.send(_actionTypesJs.update, {
                 state: state,
@@ -3746,12 +3701,10 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
     return Interpreter1;
 }();
 var resolveSpawnOptions = function(nameOrOptions) {
-    if (_utilsJs.isString(nameOrOptions)) return _tslibJs.__assign(_tslibJs.__assign({
-    }, DEFAULT_SPAWN_OPTIONS), {
+    if (_utilsJs.isString(nameOrOptions)) return _tslibJs.__assign(_tslibJs.__assign({}, DEFAULT_SPAWN_OPTIONS), {
         name: nameOrOptions
     });
-    return _tslibJs.__assign(_tslibJs.__assign(_tslibJs.__assign({
-    }, DEFAULT_SPAWN_OPTIONS), {
+    return _tslibJs.__assign(_tslibJs.__assign(_tslibJs.__assign({}, DEFAULT_SPAWN_OPTIONS), {
         name: _utilsJs.uniqueId()
     }), nameOrOptions);
 };
@@ -3814,8 +3767,7 @@ function isStateConfig(state) {
  */ var isState = isStateConfig;
 function bindActionToState(action, state) {
     var exec = action.exec;
-    var boundAction = _tslibJs.__assign(_tslibJs.__assign({
-    }, action), {
+    var boundAction = _tslibJs.__assign(_tslibJs.__assign({}, action), {
         exec: exec !== undefined ? function() {
             return exec(state.context, state.event, {
                 action: action,
@@ -3843,8 +3795,7 @@ var State = /*#__PURE__*/ /** @class */ function() {
         var _a;
         this.actions = [];
         this.activities = _constantsJs.EMPTY_ACTIVITY_MAP;
-        this.meta = {
-        };
+        this.meta = {};
         this.events = [];
         this.value = config.value;
         this.context = config.context;
@@ -3886,13 +3837,11 @@ var State = /*#__PURE__*/ /** @class */ function() {
                 history: stateValue.history,
                 actions: [],
                 activities: stateValue.activities,
-                meta: {
-                },
+                meta: {},
                 events: [],
                 configuration: [],
                 transitions: [],
-                children: {
-                }
+                children: {}
             });
             return stateValue;
         }
@@ -3910,8 +3859,7 @@ var State = /*#__PURE__*/ /** @class */ function() {
             events: [],
             configuration: [],
             transitions: [],
-            children: {
-            }
+            children: {}
         });
     };
     /**
@@ -3938,8 +3886,7 @@ var State = /*#__PURE__*/ /** @class */ function() {
                 activities: stateValue.activities,
                 configuration: stateValue.configuration,
                 transitions: [],
-                children: {
-                }
+                children: {}
             });
         }
         return State1.from(stateValue, context);
@@ -3974,8 +3921,7 @@ var State = /*#__PURE__*/ /** @class */ function() {
             "tags",
             "machine"
         ]);
-        return _tslibJs.__assign(_tslibJs.__assign({
-        }, jsonValues), {
+        return _tslibJs.__assign(_tslibJs.__assign({}, jsonValues), {
             tags: Array.from(tags)
         });
     };
@@ -4150,17 +4096,14 @@ function getConfiguration(prevStateNodes, stateNodes) {
 }
 function getValueFromAdj(baseNode, adjList) {
     var childStateNodes = adjList.get(baseNode);
-    if (!childStateNodes) return {
-    }; // todo: fix?
+    if (!childStateNodes) return {}; // todo: fix?
     if (baseNode.type === 'compound') {
         var childStateNode = childStateNodes[0];
         if (childStateNode) {
             if (isLeafNode(childStateNode)) return childStateNode.key;
-        } else return {
-        };
+        } else return {};
     }
-    var stateValue = {
-    };
+    var stateValue = {};
     childStateNodes.forEach(function(csn) {
         stateValue[csn.key] = getValueFromAdj(csn, adjList);
     });
@@ -4223,8 +4166,7 @@ function getMeta(configuration) {
     return configuration.reduce(function(acc, stateNode) {
         if (stateNode.meta !== undefined) acc[stateNode.id] = stateNode.meta;
         return acc;
-    }, {
-    });
+    }, {});
 }
 function getTagsFromConfiguration(configuration) {
     return new Set(_utilsJs.flatten(configuration.map(function(sn) {
@@ -4246,8 +4188,7 @@ var Scheduler = /*#__PURE__*/ /** @class */ function() {
         this.processingEvent = false;
         this.queue = [];
         this.initialized = false;
-        this.options = _tslibJs.__assign(_tslibJs.__assign({
-        }, defaultOptions), options);
+        this.options = _tslibJs.__assign(_tslibJs.__assign({}, defaultOptions), options);
     }
     Scheduler1.prototype.initialize = function(callback) {
         this.initialized = true;
@@ -4419,8 +4360,7 @@ function fromPromise(promiseFn) {
     };
 }
 function spawnBehavior(behavior, options) {
-    if (options === void 0) options = {
-    };
+    if (options === void 0) options = {};
     var state = behavior.initialState;
     var observers = new Set();
     var mailbox = [];
@@ -4502,23 +4442,17 @@ var _invokeUtilsJs = require("./invokeUtils.js");
 var NULL_EVENT = '';
 var STATE_IDENTIFIER = '#';
 var WILDCARD = '*';
-var EMPTY_OBJECT = {
-};
+var EMPTY_OBJECT = {};
 var isStateId = function(str) {
     return str[0] === STATE_IDENTIFIER;
 };
 var createDefaultOptions = function() {
     return {
-        actions: {
-        },
-        guards: {
-        },
-        services: {
-        },
-        activities: {
-        },
-        delays: {
-        }
+        actions: {},
+        guards: {},
+        services: {},
+        activities: {},
+        delays: {}
     };
 };
 var validateArrayifiedTransitions = function(stateNode, event, transitions) {
@@ -4550,12 +4484,10 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
             initialState: undefined,
             on: undefined,
             transitions: undefined,
-            candidates: {
-            },
+            candidates: {},
             delayedTransitions: undefined
         };
-        this.idMap = {
-        };
+        this.idMap = {};
         this.tags = [];
         this.options = Object.assign(createDefaultOptions(), options);
         this.parent = _stateInfo === null || _stateInfo === void 0 ? void 0 : _stateInfo.parent;
@@ -4568,20 +4500,17 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
         ], _tslibJs.__read(this.path), false).join(this.delimiter);
         this.version = this.parent ? this.parent.version : this.config.version;
         this.type = this.config.type || (this.config.parallel ? 'parallel' : this.config.states && Object.keys(this.config.states).length ? 'compound' : this.config.history ? 'history' : 'atomic');
-        this.schema = this.parent ? this.machine.schema : (_a1 = this.config.schema) !== null && _a1 !== void 0 ? _a1 : {
-        };
+        this.schema = this.parent ? this.machine.schema : (_a1 = this.config.schema) !== null && _a1 !== void 0 ? _a1 : {};
         this.description = this.config.description;
         if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(!('parallel' in this.config), "The \"parallel\" property is deprecated and will be removed in version 4.1. ".concat(this.config.parallel ? "Replace with `type: 'parallel'`" : "Use `type: '".concat(this.type, "'`"), " in the config for state node '").concat(this.id, "' instead."));
         this.initial = this.config.initial;
         this.states = this.config.states ? _utilsJs.mapValues(this.config.states, function(stateConfig, key) {
             var _a;
-            var stateNode = new StateNode1(stateConfig, {
-            }, undefined, {
+            var stateNode = new StateNode1(stateConfig, {}, undefined, {
                 parent: _this,
                 key: key
             });
-            Object.assign(_this.idMap, _tslibJs.__assign((_a = {
-            }, _a[stateNode.id] = stateNode, _a), stateNode.idMap));
+            Object.assign(_this.idMap, _tslibJs.__assign((_a = {}, _a[stateNode.id] = stateNode, _a), stateNode.idMap));
             return stateNode;
         }) : EMPTY_OBJECT; // Document order
         var order = 0;
@@ -4624,23 +4553,20 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
             var _a, _b;
             if (_utilsJs.isMachine(invokeConfig)) {
                 var invokeId = _utilsJs.createInvokeId(_this.id, i);
-                _this.machine.options.services = _tslibJs.__assign((_a = {
-                }, _a[invokeId] = invokeConfig, _a), _this.machine.options.services);
+                _this.machine.options.services = _tslibJs.__assign((_a = {}, _a[invokeId] = invokeConfig, _a), _this.machine.options.services);
                 return _invokeUtilsJs.toInvokeDefinition({
                     src: invokeId,
                     id: invokeId
                 });
             } else if (_utilsJs.isString(invokeConfig.src)) {
                 var invokeId = invokeConfig.id || _utilsJs.createInvokeId(_this.id, i);
-                return _invokeUtilsJs.toInvokeDefinition(_tslibJs.__assign(_tslibJs.__assign({
-                }, invokeConfig), {
+                return _invokeUtilsJs.toInvokeDefinition(_tslibJs.__assign(_tslibJs.__assign({}, invokeConfig), {
                     id: invokeId,
                     src: invokeConfig.src
                 }));
             } else if (_utilsJs.isMachine(invokeConfig.src) || _utilsJs.isFunction(invokeConfig.src)) {
                 var invokeId = invokeConfig.id || _utilsJs.createInvokeId(_this.id, i);
-                _this.machine.options.services = _tslibJs.__assign((_b = {
-                }, _b[invokeId] = invokeConfig.src, _b), _this.machine.options.services);
+                _this.machine.options.services = _tslibJs.__assign((_b = {}, _b[invokeId] = invokeConfig.src, _b), _this.machine.options.services);
                 return _invokeUtilsJs.toInvokeDefinition(_tslibJs.__assign(_tslibJs.__assign({
                     id: invokeId
                 }, invokeConfig), {
@@ -4679,16 +4605,11 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
    */ StateNode1.prototype.withConfig = function(options, context) {
         var _a = this.options, actions = _a.actions, activities = _a.activities, guards = _a.guards, services = _a.services, delays = _a.delays;
         return new StateNode1(this.config, {
-            actions: _tslibJs.__assign(_tslibJs.__assign({
-            }, actions), options.actions),
-            activities: _tslibJs.__assign(_tslibJs.__assign({
-            }, activities), options.activities),
-            guards: _tslibJs.__assign(_tslibJs.__assign({
-            }, guards), options.guards),
-            services: _tslibJs.__assign(_tslibJs.__assign({
-            }, services), options.services),
-            delays: _tslibJs.__assign(_tslibJs.__assign({
-            }, delays), options.delays)
+            actions: _tslibJs.__assign(_tslibJs.__assign({}, actions), options.actions),
+            activities: _tslibJs.__assign(_tslibJs.__assign({}, activities), options.activities),
+            guards: _tslibJs.__assign(_tslibJs.__assign({}, guards), options.guards),
+            services: _tslibJs.__assign(_tslibJs.__assign({}, services), options.services),
+            delays: _tslibJs.__assign(_tslibJs.__assign({}, delays), options.delays)
         }, context !== null && context !== void 0 ? context : this.context);
     };
     /**
@@ -4749,8 +4670,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
                 map[transition.eventType] = map[transition.eventType] || [];
                 map[transition.eventType].push(transition);
                 return map;
-            }, {
-            });
+            }, {});
         },
         enumerable: false,
         configurable: true
@@ -4798,8 +4718,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
         };
         var delayedTransitions = _utilsJs.isArray(afterConfig) ? afterConfig.map(function(transition, i) {
             var eventType = mutateEntryExit(transition.delay, i);
-            return _tslibJs.__assign(_tslibJs.__assign({
-            }, transition), {
+            return _tslibJs.__assign(_tslibJs.__assign({}, transition), {
                 event: eventType
             });
         }) : _utilsJs.flatten(Object.keys(afterConfig).map(function(delay, i) {
@@ -4810,8 +4729,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
             var resolvedDelay = !isNaN(+delay) ? +delay : delay;
             var eventType = mutateEntryExit(resolvedDelay, i);
             return _utilsJs.toArray(resolvedTransition).map(function(transition) {
-                return _tslibJs.__assign(_tslibJs.__assign({
-                }, transition), {
+                return _tslibJs.__assign(_tslibJs.__assign({}, transition), {
                     event: eventType,
                     delay: resolvedDelay
                 });
@@ -4819,8 +4737,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
         }));
         return delayedTransitions.map(function(delayedTransition) {
             var delay = delayedTransition.delay;
-            return _tslibJs.__assign(_tslibJs.__assign({
-            }, _this.formatTransition(delayedTransition)), {
+            return _tslibJs.__assign(_tslibJs.__assign({}, _this.formatTransition(delayedTransition)), {
                 delay: delay
             });
         });
@@ -4836,8 +4753,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
         var stateValue = state instanceof _stateJs.State ? state.value : _utilsJs.toStateValue(state, this.delimiter);
         if (_utilsJs.isString(stateValue)) {
             var initialStateValue = this.getStateNode(stateValue).initial;
-            return initialStateValue !== undefined ? this.getStateNodes((_a = {
-            }, _a[stateValue] = initialStateValue, _a)) : [
+            return initialStateValue !== undefined ? this.getStateNodes((_a = {}, _a[stateValue] = initialStateValue, _a)) : [
                 this,
                 this.states[stateValue]
             ];
@@ -4868,8 +4784,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
    */ StateNode1.prototype.resolveState = function(state) {
         var stateFromConfig = state instanceof _stateJs.State ? state : _stateJs.State.create(state);
         var configuration = Array.from(_stateUtilsJs.getConfiguration([], this.getStateNodes(stateFromConfig.value)));
-        return new _stateJs.State(_tslibJs.__assign(_tslibJs.__assign({
-        }, stateFromConfig), {
+        return new _stateJs.State(_tslibJs.__assign(_tslibJs.__assign({}, stateFromConfig), {
             value: this.resolve(stateFromConfig.value),
             configuration: configuration,
             done: _stateUtilsJs.isInFinalState(configuration, this),
@@ -4892,8 +4807,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
     };
     StateNode1.prototype.transitionParallelNode = function(stateValue, state, _event) {
         var e_2, _a;
-        var transitionMap = {
-        };
+        var transitionMap = {};
         try {
             for(var _b = _tslibJs.__values(Object.keys(stateValue)), _c = _b.next(); !_c.done; _c = _b.next()){
                 var subStateKey = _c.value;
@@ -5176,9 +5090,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
         var resolvedStateValue = willTransition ? _stateUtilsJs.getValue(this.machine, configuration) : undefined;
         var historyValue = currentState ? currentState.historyValue ? currentState.historyValue : stateTransition.source ? this.machine.historyValue(currentState.value) : undefined : undefined;
         var actions = this.getActions(stateTransition, context, _event, currentState);
-        var activities = currentState ? _tslibJs.__assign({
-        }, currentState.activities) : {
-        };
+        var activities = currentState ? _tslibJs.__assign({}, currentState.activities) : {};
         try {
             for(var actions_1 = _tslibJs.__values(actions), actions_1_1 = actions_1.next(); !actions_1_1.done; actions_1_1 = actions_1.next()){
                 var action = actions_1_1.value;
@@ -5207,9 +5119,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
         var children = invokeActions.reduce(function(acc, action) {
             acc[action.activity.id] = _actorJs.createInvocableActor(action.activity, _this.machine, updatedContext, _event);
             return acc;
-        }, currentState ? _tslibJs.__assign({
-        }, currentState.children) : {
-        });
+        }, currentState ? _tslibJs.__assign({}, currentState.children) : {});
         var resolvedConfiguration = willTransition ? stateTransition.configuration : currentState ? currentState.configuration : [];
         var isDone = _stateUtilsJs.isInFinalState(resolvedConfiguration, this);
         var nextState = new _stateJs.State({
@@ -5221,8 +5131,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
             historyValue: resolvedStateValue ? historyValue ? _utilsJs.updateHistoryValue(historyValue, resolvedStateValue) : undefined : currentState ? currentState.historyValue : undefined,
             history: !resolvedStateValue || stateTransition.source ? currentState : undefined,
             actions: resolvedStateValue ? nonRaisedActions : [],
-            activities: resolvedStateValue ? activities : currentState ? currentState.activities : {
-            },
+            activities: resolvedStateValue ? activities : currentState ? currentState.activities : {},
             events: [],
             configuration: resolvedConfiguration,
             transitions: stateTransition.transitions,
@@ -5320,12 +5229,10 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
             case 'compound':
                 if (_utilsJs.isString(stateValue)) {
                     var subStateNode = this.getStateNode(stateValue);
-                    if (subStateNode.type === 'parallel' || subStateNode.type === 'compound') return _a = {
-                    }, _a[stateValue] = subStateNode.initialStateValue, _a;
+                    if (subStateNode.type === 'parallel' || subStateNode.type === 'compound') return _a = {}, _a[stateValue] = subStateNode.initialStateValue, _a;
                     return stateValue;
                 }
-                if (!Object.keys(stateValue).length) return this.initialStateValue || {
-                };
+                if (!Object.keys(stateValue).length) return this.initialStateValue || {};
                 return _utilsJs.mapValues(stateValue, function(subStateValue, subStateKey) {
                     return subStateValue ? _this.getStateNode(subStateKey).resolve(subStateValue) : EMPTY_OBJECT;
                 });
@@ -5353,11 +5260,9 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
             });
             else if (this.initial !== undefined) {
                 if (!this.states[this.initial]) throw new Error("Initial state '".concat(this.initial, "' not found on '").concat(this.key, "'"));
-                initialStateValue = _stateUtilsJs.isLeafNode(this.states[this.initial]) ? this.initial : (_a = {
-                }, _a[this.initial] = this.states[this.initial].initialStateValue, _a);
+                initialStateValue = _stateUtilsJs.isLeafNode(this.states[this.initial]) ? this.initial : (_a = {}, _a[this.initial] = this.states[this.initial].initialStateValue, _a);
             } else // The finite state value of a machine without child states is just an empty object
-            initialStateValue = {
-            };
+            initialStateValue = {};
             this.__cache.initialStateValue = initialStateValue;
             return this.__cache.initialStateValue;
         },
@@ -5596,8 +5501,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
         }) : true;
         var guards = this.machine.options.guards;
         var target = this.resolveTarget(normalizedTarget);
-        var transition = _tslibJs.__assign(_tslibJs.__assign({
-        }, transitionConfig), {
+        var transition = _tslibJs.__assign(_tslibJs.__assign({}, transitionConfig), {
             actions: _actionsJs.toActionObjects(_utilsJs.toArray(transitionConfig.actions)),
             cond: _utilsJs.toGuard(transitionConfig.cond, guards),
             target: target,
@@ -5605,8 +5509,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
             internal: internal,
             eventType: transitionConfig.event,
             toJSON: function() {
-                return _tslibJs.__assign(_tslibJs.__assign({
-                }, transition), {
+                return _tslibJs.__assign(_tslibJs.__assign({}, transition), {
                     target: transition.target ? transition.target.map(function(t) {
                         return "#".concat(t.id);
                     }) : undefined,
@@ -5704,8 +5607,7 @@ function toInvokeDefinition(invokeConfig) {
                 "onDone",
                 "onError"
             ]);
-            return _tslibJs.__assign(_tslibJs.__assign({
-            }, invokeDef), {
+            return _tslibJs.__assign(_tslibJs.__assign({}, invokeDef), {
                 type: _actionTypesJs.invoke,
                 src: toInvokeSource(invokeConfig.src)
             });
@@ -5734,8 +5636,7 @@ function createInspectMachine(devTools, options) {
             client: undefined
         },
         states: {
-            pendingConnection: {
-            },
+            pendingConnection: {},
             connected: {
                 on: {
                     'service.state': {
@@ -5822,8 +5723,7 @@ var _tslibJs = require("./_virtual/_tslib.js");
 var _utilsJs = require("./utils.js");
 function selectivelyStringify(value, keys, replacer) {
     var e_1, _a;
-    var selected = {
-    };
+    var selected = {};
     try {
         for(var keys_1 = _tslibJs.__values(keys), keys_1_1 = keys_1.next(); !keys_1_1.done; keys_1_1 = keys_1.next()){
             var key = keys_1_1.value;
@@ -5841,8 +5741,7 @@ function selectivelyStringify(value, keys, replacer) {
         }
     }
     var serialized = JSON.parse(_utilsJs.stringify(selected, replacer));
-    return _utilsJs.stringify(_tslibJs.__assign(_tslibJs.__assign({
-    }, value), serialized));
+    return _utilsJs.stringify(_tslibJs.__assign(_tslibJs.__assign({}, value), serialized));
 }
 function stringifyState(state, replacer) {
     return selectivelyStringify(state, [
@@ -5901,19 +5800,16 @@ function parseState(stateJSON) {
 function parseReceiverEvent(event) {
     switch(event.type){
         case 'service.event':
-            return _tslibJs.__assign(_tslibJs.__assign({
-            }, event), {
+            return _tslibJs.__assign(_tslibJs.__assign({}, event), {
                 event: JSON.parse(event.event)
             });
         case 'service.register':
-            return _tslibJs.__assign(_tslibJs.__assign({
-            }, event), {
+            return _tslibJs.__assign(_tslibJs.__assign({}, event), {
                 machine: _xstate.createMachine(JSON.parse(event.machine)),
                 state: parseState(event.state)
             });
         case 'service.state':
-            return _tslibJs.__assign(_tslibJs.__assign({
-            }, event), {
+            return _tslibJs.__assign(_tslibJs.__assign({}, event), {
                 state: parseState(event.state)
             });
         default:
@@ -6062,8 +5958,7 @@ function deterministicDecirc(val, k, edgeIndex, stack, parent, depth, options) {
         if (Array.isArray(val)) for(i = 0; i < val.length; i++)deterministicDecirc(val[i], i, i, stack, val, depth, options);
         else {
             // Create a temporary object in the required way
-            var tmp = {
-            };
+            var tmp = {};
             var keys = Object.keys(val).sort(compareFunction);
             for(i = 0; i < keys.length; i++){
                 var key = keys[i];
@@ -6426,8 +6321,7 @@ const gamepadEmulator = {
     registerOnScreenGamepadAxisEvents: function(gpadIndex, joysticksTouchDetails) {
         var axisTouchRadius = 100;
         var self = this;
-        var pointerToJoystickMapping = {
-        };
+        var pointerToJoystickMapping = {};
         const pointerMoveHandler = function(me) {
             var pointerId = me.pointerId;
             for(const pointerIdKey in pointerToJoystickMapping)if (pointerIdKey == pointerId) {
@@ -6790,26 +6684,21 @@ function areValidElements() {
     });
 }
 function popperGenerator(generatorOptions) {
-    if (generatorOptions === void 0) generatorOptions = {
-    };
+    if (generatorOptions === void 0) generatorOptions = {};
     var _generatorOptions = generatorOptions, _generatorOptions$def = _generatorOptions.defaultModifiers, defaultModifiers = _generatorOptions$def === void 0 ? [] : _generatorOptions$def, _generatorOptions$def2 = _generatorOptions.defaultOptions, defaultOptions = _generatorOptions$def2 === void 0 ? DEFAULT_OPTIONS : _generatorOptions$def2;
     return function createPopper(reference1, popper1, options1) {
         if (options1 === void 0) options1 = defaultOptions;
         var state1 = {
             placement: 'bottom',
             orderedModifiers: [],
-            options: Object.assign({
-            }, DEFAULT_OPTIONS, defaultOptions),
-            modifiersData: {
-            },
+            options: Object.assign({}, DEFAULT_OPTIONS, defaultOptions),
+            modifiersData: {},
             elements: {
                 reference: reference1,
                 popper: popper1
             },
-            attributes: {
-            },
-            styles: {
-            }
+            attributes: {},
+            styles: {}
         };
         var effectCleanupFns = [];
         var isDestroyed = false;
@@ -6818,8 +6707,7 @@ function popperGenerator(generatorOptions) {
             setOptions: function setOptions(setOptionsAction) {
                 var options = typeof setOptionsAction === 'function' ? setOptionsAction(state1.options) : setOptionsAction;
                 cleanupModifierEffects();
-                state1.options = Object.assign({
-                }, defaultOptions, state1.options, options);
+                state1.options = Object.assign({}, defaultOptions, state1.options, options);
                 state1.scrollParents = {
                     reference: _instanceOfJs.isElement(reference1) ? _listScrollParentsJsDefault.default(reference1) : reference1.contextElement ? _listScrollParentsJsDefault.default(reference1.contextElement) : [],
                     popper: _listScrollParentsJsDefault.default(popper1)
@@ -6890,8 +6778,7 @@ function popperGenerator(generatorOptions) {
                 // it doesn't persist and is fresh on each update.
                 // To ensure persistent data, use `${name}#persistent`
                 state1.orderedModifiers.forEach(function(modifier) {
-                    return state1.modifiersData[modifier.name] = Object.assign({
-                    }, modifier.data);
+                    return state1.modifiersData[modifier.name] = Object.assign({}, modifier.data);
                 });
                 var __debug_loops__ = 0;
                 for(var index = 0; index < state1.orderedModifiers.length; index++){
@@ -6905,8 +6792,7 @@ function popperGenerator(generatorOptions) {
                         index = -1;
                         continue;
                     }
-                    var _state$orderedModifie = state1.orderedModifiers[index], fn = _state$orderedModifie.fn, _state$orderedModifie2 = _state$orderedModifie.options, _options = _state$orderedModifie2 === void 0 ? {
-                    } : _state$orderedModifie2, name = _state$orderedModifie.name;
+                    var _state$orderedModifie = state1.orderedModifiers[index], fn = _state$orderedModifie.fn, _state$orderedModifie2 = _state$orderedModifie.options, _options = _state$orderedModifie2 === void 0 ? {} : _state$orderedModifie2, name = _state$orderedModifie.name;
                     if (typeof fn === 'function') state1 = fn({
                         state: state1,
                         options: _options,
@@ -6941,8 +6827,7 @@ function popperGenerator(generatorOptions) {
         // one.
         function runModifierEffects() {
             state1.orderedModifiers.forEach(function(_ref3) {
-                var name = _ref3.name, _ref3$options = _ref3.options, options = _ref3$options === void 0 ? {
-                } : _ref3$options, effect = _ref3.effect;
+                var name = _ref3.name, _ref3$options = _ref3.options, options = _ref3$options === void 0 ? {} : _ref3$options, effect = _ref3.effect;
                 if (typeof effect === 'function') {
                     var cleanupFn = effect({
                         state: state1,
@@ -6950,8 +6835,7 @@ function popperGenerator(generatorOptions) {
                         instance: instance,
                         options: options
                     });
-                    var noopFn = function noopFn() {
-                    };
+                    var noopFn = function noopFn() {};
                     effectCleanupFns.push(cleanupFn || noopFn);
                 }
             });
@@ -7624,16 +7508,12 @@ parcelHelpers.defineInteropFlag(exports);
 function mergeByName(modifiers) {
     var merged1 = modifiers.reduce(function(merged, current) {
         var existing = merged[current.name];
-        merged[current.name] = existing ? Object.assign({
-        }, existing, current, {
-            options: Object.assign({
-            }, existing.options, current.options),
-            data: Object.assign({
-            }, existing.data, current.data)
+        merged[current.name] = existing ? Object.assign({}, existing, current, {
+            options: Object.assign({}, existing.options, current.options),
+            data: Object.assign({}, existing.data, current.data)
         }) : current;
         return merged;
-    }, {
-    }); // IE11 does not support Object.values
+    }, {}); // IE11 does not support Object.values
     return Object.keys(merged1).map(function(key) {
         return merged1[key];
     });
@@ -7660,8 +7540,7 @@ var _mergePaddingObjectJsDefault = parcelHelpers.interopDefault(_mergePaddingObj
 var _expandToHashMapJs = require("./expandToHashMap.js"); // eslint-disable-next-line import/no-unused-modules
 var _expandToHashMapJsDefault = parcelHelpers.interopDefault(_expandToHashMapJs);
 function detectOverflow(state, options) {
-    if (options === void 0) options = {
-    };
+    if (options === void 0) options = {};
     var _options = options, _options$placement = _options.placement, placement = _options$placement === void 0 ? state.placement : _options$placement, _options$boundary = _options.boundary, boundary = _options$boundary === void 0 ? _enumsJs.clippingParents : _options$boundary, _options$rootBoundary = _options.rootBoundary, rootBoundary = _options$rootBoundary === void 0 ? _enumsJs.viewport : _options$rootBoundary, _options$elementConte = _options.elementContext, elementContext = _options$elementConte === void 0 ? _enumsJs.popper : _options$elementConte, _options$altBoundary = _options.altBoundary, altBoundary = _options$altBoundary === void 0 ? false : _options$altBoundary, _options$padding = _options.padding, padding = _options$padding === void 0 ? 0 : _options$padding;
     var paddingObject = _mergePaddingObjectJsDefault.default(typeof padding !== 'number' ? padding : _expandToHashMapJsDefault.default(padding, _enumsJs.basePlacements));
     var altContext = elementContext === _enumsJs.popper ? _enumsJs.reference : _enumsJs.popper;
@@ -7675,8 +7554,7 @@ function detectOverflow(state, options) {
         strategy: 'absolute',
         placement: placement
     });
-    var popperClientRect = _rectToClientRectJsDefault.default(Object.assign({
-    }, popperRect, popperOffsets));
+    var popperClientRect = _rectToClientRectJsDefault.default(Object.assign({}, popperRect, popperOffsets));
     var elementClientRect = elementContext === _enumsJs.popper ? popperClientRect : referenceClientRect; // positive = overflowing the clipping rect
     // 0 or negative = within the clipping rect
     var overflowOffsets = {
@@ -7883,8 +7761,7 @@ exports.default = contains;
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 function rectToClientRect(rect) {
-    return Object.assign({
-    }, rect, {
+    return Object.assign({}, rect, {
         left: rect.x,
         top: rect.y,
         right: rect.x + rect.width,
@@ -7983,8 +7860,7 @@ parcelHelpers.defineInteropFlag(exports);
 var _getFreshSideObjectJs = require("./getFreshSideObject.js");
 var _getFreshSideObjectJsDefault = parcelHelpers.interopDefault(_getFreshSideObjectJs);
 function mergePaddingObject(paddingObject) {
-    return Object.assign({
-    }, _getFreshSideObjectJsDefault.default(), paddingObject);
+    return Object.assign({}, _getFreshSideObjectJsDefault.default(), paddingObject);
 }
 exports.default = mergePaddingObject;
 
@@ -8008,8 +7884,7 @@ function expandToHashMap(value, keys) {
     return keys.reduce(function(hashMap, key) {
         hashMap[key] = value;
         return hashMap;
-    }, {
-    });
+    }, {});
 }
 exports.default = expandToHashMap;
 
@@ -8041,11 +7916,9 @@ exports.default = {
     name: 'eventListeners',
     enabled: true,
     phase: 'write',
-    fn: function fn() {
-    },
+    fn: function fn() {},
     effect: effect,
-    data: {
-    }
+    data: {}
 };
 
 },{"../dom-utils/getWindow.js":"2SkOo","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6I679":[function(require,module,exports) {
@@ -8071,8 +7944,7 @@ exports.default = {
     enabled: true,
     phase: 'read',
     fn: popperOffsets,
-    data: {
-    }
+    data: {}
 };
 
 },{"../utils/computeOffsets.js":"7jtXk","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gDlm2":[function(require,module,exports) {
@@ -8167,13 +8039,9 @@ function mapToStyles(_ref2) {
     y = _ref4.y;
     if (gpuAcceleration) {
         var _Object$assign;
-        return Object.assign({
-        }, commonStyles, (_Object$assign = {
-        }, _Object$assign[sideY] = hasY ? '0' : '', _Object$assign[sideX] = hasX ? '0' : '', _Object$assign.transform = (win.devicePixelRatio || 1) <= 1 ? "translate(" + x + "px, " + y + "px)" : "translate3d(" + x + "px, " + y + "px, 0)", _Object$assign));
+        return Object.assign({}, commonStyles, (_Object$assign = {}, _Object$assign[sideY] = hasY ? '0' : '', _Object$assign[sideX] = hasX ? '0' : '', _Object$assign.transform = (win.devicePixelRatio || 1) <= 1 ? "translate(" + x + "px, " + y + "px)" : "translate3d(" + x + "px, " + y + "px, 0)", _Object$assign));
     }
-    return Object.assign({
-    }, commonStyles, (_Object$assign2 = {
-    }, _Object$assign2[sideY] = hasY ? y + "px" : '', _Object$assign2[sideX] = hasX ? x + "px" : '', _Object$assign2.transform = '', _Object$assign2));
+    return Object.assign({}, commonStyles, (_Object$assign2 = {}, _Object$assign2[sideY] = hasY ? y + "px" : '', _Object$assign2[sideX] = hasX ? x + "px" : '', _Object$assign2.transform = '', _Object$assign2));
 }
 function computeStyles(_ref5) {
     var state = _ref5.state, options = _ref5.options;
@@ -8207,24 +8075,19 @@ function computeStyles(_ref5) {
         gpuAcceleration: gpuAcceleration,
         isFixed: state.options.strategy === 'fixed'
     };
-    if (state.modifiersData.popperOffsets != null) state.styles.popper = Object.assign({
-    }, state.styles.popper, mapToStyles(Object.assign({
-    }, commonStyles, {
+    if (state.modifiersData.popperOffsets != null) state.styles.popper = Object.assign({}, state.styles.popper, mapToStyles(Object.assign({}, commonStyles, {
         offsets: state.modifiersData.popperOffsets,
         position: state.options.strategy,
         adaptive: adaptive,
         roundOffsets: roundOffsets
     })));
-    if (state.modifiersData.arrow != null) state.styles.arrow = Object.assign({
-    }, state.styles.arrow, mapToStyles(Object.assign({
-    }, commonStyles, {
+    if (state.modifiersData.arrow != null) state.styles.arrow = Object.assign({}, state.styles.arrow, mapToStyles(Object.assign({}, commonStyles, {
         offsets: state.modifiersData.arrow,
         position: 'absolute',
         adaptive: false,
         roundOffsets: roundOffsets
     })));
-    state.attributes.popper = Object.assign({
-    }, state.attributes.popper, {
+    state.attributes.popper = Object.assign({}, state.attributes.popper, {
         'data-popper-placement': state.placement
     });
 } // eslint-disable-next-line import/no-unused-modules
@@ -8233,8 +8096,7 @@ exports.default = {
     enabled: true,
     phase: 'beforeWrite',
     fn: computeStyles,
-    data: {
-    }
+    data: {}
 };
 
 },{"../enums.js":"lCAq5","../dom-utils/getOffsetParent.js":"laoYw","../dom-utils/getWindow.js":"2SkOo","../dom-utils/getDocumentElement.js":"eJ9Y1","../dom-utils/getComputedStyle.js":"3mZjB","../utils/getBasePlacement.js":"59Wp3","../utils/getVariation.js":"hIo7Y","../utils/math.js":"gQqVe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4iMn4":[function(require,module,exports) {
@@ -8247,10 +8109,8 @@ var _instanceOfJs = require("../dom-utils/instanceOf.js"); // This modifier take
 function applyStyles(_ref) {
     var state = _ref.state;
     Object.keys(state.elements).forEach(function(name1) {
-        var style = state.styles[name1] || {
-        };
-        var attributes = state.attributes[name1] || {
-        };
+        var style = state.styles[name1] || {};
+        var attributes = state.attributes[name1] || {};
         var element = state.elements[name1]; // arrow is optional + virtual elements
         if (!_instanceOfJs.isHTMLElement(element) || !_getNodeNameJsDefault.default(element)) return;
          // Flow doesn't support to extend this property, but it's the most
@@ -8276,8 +8136,7 @@ function effect(_ref2) {
         arrow: {
             position: 'absolute'
         },
-        reference: {
-        }
+        reference: {}
     };
     Object.assign(state.elements.popper.style, initialStyles.popper);
     state.styles = initialStyles;
@@ -8285,14 +8144,12 @@ function effect(_ref2) {
     return function() {
         Object.keys(state.elements).forEach(function(name) {
             var element = state.elements[name];
-            var attributes = state.attributes[name] || {
-            };
+            var attributes = state.attributes[name] || {};
             var styleProperties = Object.keys(state.styles.hasOwnProperty(name) ? state.styles[name] : initialStyles[name]); // Set all values to an empty string to unset them
             var style1 = styleProperties.reduce(function(style, property) {
                 style[property] = '';
                 return style;
-            }, {
-            }); // arrow is optional + virtual elements
+            }, {}); // arrow is optional + virtual elements
             if (!_instanceOfJs.isHTMLElement(element) || !_getNodeNameJsDefault.default(element)) return;
             Object.assign(element.style, style1);
             Object.keys(attributes).forEach(function(attribute) {
@@ -8475,8 +8332,7 @@ var _detectOverflowJsDefault = parcelHelpers.interopDefault(_detectOverflowJs);
 var _getBasePlacementJs = require("./getBasePlacement.js");
 var _getBasePlacementJsDefault = parcelHelpers.interopDefault(_getBasePlacementJs);
 function computeAutoPlacement(state, options) {
-    if (options === void 0) options = {
-    };
+    if (options === void 0) options = {};
     var _options = options, placement1 = _options.placement, boundary = _options.boundary, rootBoundary = _options.rootBoundary, padding = _options.padding, flipVariations = _options.flipVariations, _options$allowedAutoP = _options.allowedAutoPlacements, allowedAutoPlacements = _options$allowedAutoP === void 0 ? _enumsJs.placements : _options$allowedAutoP;
     var variation = _getVariationJsDefault.default(placement1);
     var placements = variation ? flipVariations ? _enumsJs.variationPlacements : _enumsJs.variationPlacements.filter(function(placement) {
@@ -8503,8 +8359,7 @@ function computeAutoPlacement(state, options) {
             padding: padding
         })[_getBasePlacementJsDefault.default(placement)];
         return acc;
-    }, {
-    });
+    }, {});
     return Object.keys(overflows).sort(function(a, b) {
         return overflows[a] - overflows[b];
     });
@@ -8759,10 +8614,8 @@ class GamepadInterface {
         for(bi = 0; bi < btnState.length; bi++){
             let button = btnState[bi];
             let lastButtonState = lastBtnState[bi];
-            let buttonConfig = this.buttonConfig[bi] || {
-            };
-            let btnChangeMask = {
-            };
+            let buttonConfig = this.buttonConfig[bi] || {};
+            let btnChangeMask = {};
             if (button.touched && !lastButtonState.touched) {
                 btnChangeMask.touchDown = true;
                 aButtonChangedFlag = true;
@@ -9194,7 +9047,7 @@ function setArtificialHorizonBackground(roll, pitch) {
  *
  * Copyright (C) 2018 Varun A P
  */ (function(root, factory) {
-    if (typeof module === "object" && module.exports) module.exports = factory();
+    if (module.exports) module.exports = factory();
     else root.Toastify = factory();
 })(this, function(global) {
     // Object initialization
@@ -9210,8 +9063,7 @@ function setArtificialHorizonBackground(roll, pitch) {
         node: undefined,
         duration: 3000,
         selector: undefined,
-        callback: function() {
-        },
+        callback: function() {},
         destination: undefined,
         newWindow: false,
         close: false,
@@ -9222,8 +9074,7 @@ function setArtificialHorizonBackground(roll, pitch) {
         avatar: "",
         className: "",
         stopOnFocus: true,
-        onClick: function() {
-        },
+        onClick: function() {},
         offset: {
             x: 0,
             y: 0
@@ -9240,11 +9091,9 @@ function setArtificialHorizonBackground(roll, pitch) {
         // Initializing the object with required parameters
         init: function(options) {
             // Verifying and validating the input object
-            if (!options) options = {
-            };
+            if (!options) options = {};
             // Creating the options object
-            this.options = {
-            };
+            this.options = {};
             this.toastElement = null;
             // Validating the options
             this.options.text = options.text || Toastify.defaults.text; // Display message
@@ -9510,14 +9359,12 @@ function toActionObject(action, actionFunctionMap) {
     };
     else {
         var exec = getActionFunction(action.type, actionFunctionMap);
-        if (utils.isFunction(exec)) actionObject = _tslib.__assign(_tslib.__assign({
-        }, action), {
+        if (utils.isFunction(exec)) actionObject = _tslib.__assign(_tslib.__assign({}, action), {
             exec: exec
         });
         else if (exec) {
             var actionType = exec.type || action.type;
-            actionObject = _tslib.__assign(_tslib.__assign(_tslib.__assign({
-            }, exec), action), {
+            actionObject = _tslib.__assign(_tslib.__assign(_tslib.__assign({}, exec), action), {
                 type: actionType
             });
         } else actionObject = action;
@@ -9590,8 +9437,7 @@ function resolveSend(action, ctx, _event, delaysMap) {
         resolvedDelay = utils.isFunction(configDelay) ? configDelay(ctx, _event.data, meta) : configDelay;
     } else resolvedDelay = utils.isFunction(action.delay) ? action.delay(ctx, _event.data, meta) : action.delay;
     var resolvedTarget = utils.isFunction(action.to) ? action.to(ctx, _event.data, meta) : action.to;
-    return _tslib.__assign(_tslib.__assign({
-    }, action), {
+    return _tslib.__assign(_tslib.__assign({}, action), {
         to: resolvedTarget,
         _event: resolvedEvent,
         event: resolvedEvent.data,
@@ -9604,8 +9450,7 @@ function resolveSend(action, ctx, _event, delaysMap) {
  * @param event The event to send to the parent machine.
  * @param options Options to pass into the send event.
  */ function sendParent(event, options) {
-    return send(event, _tslib.__assign(_tslib.__assign({
-    }, options), {
+    return send(event, _tslib.__assign(_tslib.__assign({}, options), {
         to: types.SpecialTargets.Parent
     }));
 }
@@ -9617,8 +9462,7 @@ function resolveSend(action, ctx, _event, delaysMap) {
  * @param options Send action options
  * @returns An XState send action object
  */ function sendTo(actor, event, options) {
-    return send(event, _tslib.__assign(_tslib.__assign({
-    }, options), {
+    return send(event, _tslib.__assign(_tslib.__assign({}, options), {
         to: actor
     }));
 }
@@ -9633,8 +9477,7 @@ function resolveSend(action, ctx, _event, delaysMap) {
  * @param event The event to send back to the sender
  * @param options Options to pass into the send event
  */ function respond(event, options) {
-    return send(event, _tslib.__assign(_tslib.__assign({
-    }, options), {
+    return send(event, _tslib.__assign(_tslib.__assign({}, options), {
         to: function(_, __, _a) {
             var _event = _a._event;
             return _event.origin; // TODO: handle when _event.origin is undefined
@@ -9663,8 +9506,7 @@ var defaultLogExpr = function(context, event) {
     };
 }
 var resolveLog = function(action, ctx, _event) {
-    return _tslib.__assign(_tslib.__assign({
-    }, action), {
+    return _tslib.__assign(_tslib.__assign({}, action), {
         value: utils.isString(action.expr) ? action.expr : action.expr(ctx, _event.data, {
             _event: _event
         })
@@ -9801,8 +9643,7 @@ function pure(getActions) {
  */ function forwardTo(target, options) {
     return send(function(_, event) {
         return event;
-    }, _tslib.__assign(_tslib.__assign({
-    }, options), {
+    }, _tslib.__assign(_tslib.__assign({}, options), {
         to: target
     }));
 }
@@ -9818,8 +9659,7 @@ function pure(getActions) {
             type: actionTypes.error,
             data: utils.isFunction(errorData) ? errorData(context, event, meta) : errorData
         };
-    }, _tslib.__assign(_tslib.__assign({
-    }, options), {
+    }, _tslib.__assign(_tslib.__assign({}, options), {
         to: types.SpecialTargets.Parent
     }));
 }
@@ -9884,8 +9724,7 @@ function resolveActions(machine, currentState, currentContext, _event, actions, 
                 var exec_1 = resolvedActionObject.exec;
                 if (exec_1 && preservedContexts) {
                     var contextIndex_1 = preservedContexts.length - 1;
-                    resolvedActionObject = _tslib.__assign(_tslib.__assign({
-                    }, resolvedActionObject), {
+                    resolvedActionObject = _tslib.__assign(_tslib.__assign({}, resolvedActionObject), {
                         exec: function(_ctx) {
                             var args = [];
                             for(var _i = 1; _i < arguments.length; _i++)args[_i - 1] = arguments[_i];
@@ -9966,8 +9805,7 @@ PERFORMANCE OF THIS SOFTWARE.
     return exports.__assign.apply(this, arguments);
 };
 function __rest(s, e) {
-    var t = {
-    };
+    var t = {};
     for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
     if (s != null && typeof Object.getOwnPropertySymbols === "function") {
         for(var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++)if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
@@ -10048,14 +9886,12 @@ exports.ActionTypes = void 0;
     ActionTypes["Update"] = "xstate.update";
     ActionTypes["Pure"] = "xstate.pure";
     ActionTypes["Choose"] = "xstate.choose";
-})(exports.ActionTypes || (exports.ActionTypes = {
-}));
+})(exports.ActionTypes || (exports.ActionTypes = {}));
 exports.SpecialTargets = void 0;
 (function(SpecialTargets) {
     SpecialTargets["Parent"] = "#_parent";
     SpecialTargets["Internal"] = "#_internal";
-})(exports.SpecialTargets || (exports.SpecialTargets = {
-}));
+})(exports.SpecialTargets || (exports.SpecialTargets = {}));
 
 },{}],"kEepo":[function(require,module,exports) {
 'use strict';
@@ -10161,20 +9997,17 @@ function toStateValue(stateValue, delimiter) {
 }
 function pathToStateValue(statePath) {
     if (statePath.length === 1) return statePath[0];
-    var value = {
-    };
+    var value = {};
     var marker = value;
     for(var i = 0; i < statePath.length - 1; i++)if (i === statePath.length - 2) marker[statePath[i]] = statePath[i + 1];
     else {
-        marker[statePath[i]] = {
-        };
+        marker[statePath[i]] = {};
         marker = marker[statePath[i]];
     }
     return value;
 }
 function mapValues(collection, iteratee) {
-    var result = {
-    };
+    var result = {};
     var collectionKeys = Object.keys(collection);
     for(var i = 0; i < collectionKeys.length; i++){
         var key = collectionKeys[i];
@@ -10184,8 +10017,7 @@ function mapValues(collection, iteratee) {
 }
 function mapFilterValues(collection, iteratee, predicate) {
     var e_1, _a1;
-    var result = {
-    };
+    var result = {};
     try {
         for(var _b = _tslib.__values(Object.keys(collection)), _c = _b.next(); !_c.done; _c = _b.next()){
             var key = _c.value;
@@ -10284,8 +10116,7 @@ function toStatePaths(stateValue) {
 }
 function pathsToStateValue(paths) {
     var e_4, _a4;
-    var result = {
-    };
+    var result = {};
     if (paths && paths.length === 1 && paths[0].length === 1) return paths[0][0];
     try {
         for(var paths_1 = _tslib.__values(paths), paths_1_1 = paths_1.next(); !paths_1_1.done; paths_1_1 = paths_1.next()){
@@ -10297,8 +10128,7 @@ function pathsToStateValue(paths) {
                     marker[subPath] = currentPath[i + 1];
                     break;
                 }
-                marker[subPath] = marker[subPath] || {
-                };
+                marker[subPath] = marker[subPath] || {};
                 marker = marker[subPath];
             }
         }
@@ -10332,8 +10162,7 @@ function toArray(value) {
 function mapContext(mapper, context, _event) {
     var e_5, _a6;
     if (isFunction(mapper)) return mapper(context, _event.data);
-    var result = {
-    };
+    var result = {};
     try {
         for(var _b = _tslib.__values(Object.keys(mapper)), _c = _b.next(); !_c.done; _c = _b.next()){
             var key = _c.value;
@@ -10421,8 +10250,7 @@ function updateContext(context, _event, assignActions, state) {
             action: assignAction,
             _event: _event
         };
-        var partialUpdate = {
-        };
+        var partialUpdate = {};
         if (isFunction(assignment)) partialUpdate = assignment(acc, _event.data, meta);
         else try {
             for(var _b = _tslib.__values(Object.keys(assignment)), _c = _b.next(); !_c.done; _c = _b.next()){
@@ -10441,13 +10269,11 @@ function updateContext(context, _event, assignActions, state) {
                 if (e_7) throw e_7.error;
             }
         }
-        return Object.assign({
-        }, acc, partialUpdate);
+        return Object.assign({}, acc, partialUpdate);
     }, context) : context;
     return updatedContext;
 } // tslint:disable-next-line:no-empty
-exports.warn = function() {
-};
+exports.warn = function() {};
 if (!environment.IS_PRODUCTION) exports.warn = function(condition, message) {
     var error = condition instanceof Error ? condition : undefined;
     if (!error && condition) return;
@@ -10493,8 +10319,7 @@ function isObservable(value) {
 var symbolObservable = /*#__PURE__*/ function() {
     return typeof Symbol === 'function' && Symbol.observable || '@@observable';
 }(); // TODO: to be removed in v5, left it out just to minimize the scope of the change and maintain compatibility with older versions of integration paackages
-var interopSymbols = (_a = {
-}, _a[symbolObservable] = function() {
+var interopSymbols = (_a = {}, _a[symbolObservable] = function() {
     return this;
 }, _a[Symbol.observable] = function() {
     return this;
@@ -10535,8 +10360,7 @@ function toTransitionConfigArray(event, configLike) {
             target: transitionLike,
             event: event
         };
-        return _tslib.__assign(_tslib.__assign({
-        }, transitionLike), {
+        return _tslib.__assign(_tslib.__assign({}, transitionLike), {
             event: event
         });
     });
@@ -10640,8 +10464,7 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 var STATE_DELIMITER = '.';
-var EMPTY_ACTIVITY_MAP = {
-};
+var EMPTY_ACTIVITY_MAP = {};
 var DEFAULT_GUARD_TYPE = 'xstate.guard';
 var TARGETLESS_KEY = '';
 exports.DEFAULT_GUARD_TYPE = DEFAULT_GUARD_TYPE;
@@ -10668,8 +10491,7 @@ var _ui = require("./ui");
 var _consts = require("./consts");
 const siteInitMachine = /** @xstate-layout N4IgpgJg5mDOIC5SwJYBcwEkB26B0AwgBZgDGA1itlAPo4YBO2YaNAgqaXLAMQCqAJQAydAMo0BAeQBqdAAqJQABwD2qNChXZFIAB6IATAFYADHgBsADhMBOACxGAzOYCMJgw-MAaEAE9ELgDslnhGdo5GLkYGLpZGToEGAL5JPupYuGiEJBRUtPRgTCzsnNw8mAByACoAogIVNVXs0myYQmwAQkI1OqrqmtpIeoaWdhbBdpaBto52NoE2Rj7+CEY2eIEuLnYm0Zb2Jnbmiylp6Bn4xGSU1HTYjMysHFywvJW19Y00kgBiP0KVHpDProAY6fQIAC0bkCeH2LnMBlGNkO5kCdjsy0MYTwzhsCKCNkcBhMpOSqRA6Rw+AA6gBDUG3H4qBg0PiwQo0USkOnYGgdACuaDQWhocgYZVEBDYFX5fCqVUksoIAIIAGkagARXpqUFacGIRwmELxayRAyOBEGFGBLEIRyBWGORyWIIOywWzaWU6U87UrLc3m4JksiQyeQ8KSyTByGg-SR8Cra4G6jT6oYQzYuXGuWbBSxoozmbx+Q2TOGLV2k2ymGzeilUzJ4QPYYO0ZmsqMRmNc6UVCqVADiNDqUgEOv66dAEMt5jhLiNro8RkSBnRduic5MrhcdecrsRjhSFOwKggcB0jcuORu+XuhUeJRe8BTk8G08QkJJjjhTncxhMS0rQMO04jwOwoniaZAIxI1zB9K8snpRl21DdlORbfkhRFPlxW4Cc9XfYYoRJMYkU2YxFxdBFHDtOxjFCAxEUCWYbCYlxjAQv0mxbNs41DLsYwItMiIhIwCw2dx0RibZLDkyw6OOPAEUmaJJg8XcbC4jB-TwARIBQCVSFYDoGBUAB3DlWSqFQw2jBRX0Ig0EHMSJcTWTYbCsUxZhLFYDCYvATAXSiPXCRwbCJbSLgDc4JDAOkIBWZRUzBDNEGLMZTECcTAlcgsLSWUsEHmPA2I9FcPGCIkjwbbj0GEtKPxIpE8HIji-0sajzFo4roR-YxHTy45xN3fZyRSIA */ _xstate.createMachine({
     context: {
-        peerServerConfig: {
-        },
+        peerServerConfig: {},
         rovIpAddr: null
     },
     id: "siteInit",
@@ -10830,8 +10652,7 @@ const siteInitMachine = /** @xstate-layout N4IgpgJg5mDOIC5SwJYBcwEkB26B0AwgBZgDG
             };
         }
     },
-    guards: {
-    }
+    guards: {}
 }); // const machineFunctionsMock = {
  //   actions: {
  //     setCloudPeerServerConfig: assign({
@@ -11045,8 +10866,7 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
                                 }
                             }
                         },
-                        Video_Stream_Open: {
-                        }
+                        Video_Stream_Open: {}
                     },
                     on: {
                         MEDIA_CHANNEL_TIMEOUT: {
@@ -11097,8 +10917,8 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
                 return rovVideoStream;
             }
         }),
-        rovPeerConnectionEstablished: _xstate.sendParent("ROV_CONNECTION_ESTABLISHED"),
-        sendMessageToRov: (context, event)=>{
+        rovPeerConnectionEstablished: _actions.sendParent("ROV_CONNECTION_ESTABLISHED"),
+        "sendMessageToRov": (context, event)=>{
             const outgoingMessage = event.data;
             const rovDataConnection = context.rovDataConnection;
             if (!rovDataConnection || !rovDataConnection.open || !rovDataConnection.peerConnection.iceConnectionState || rovDataConnection.peerConnection.iceConnectionState != "connected") {
@@ -11109,7 +10929,7 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
             const encodedMessage = messageEncoder.encode(outgoingMessage);
             rovDataConnection.send(encodedMessage);
         },
-        gotMessageFromRov: _xstate.sendParent((context, event)=>{
+        gotMessageFromRov: _actions.sendParent((context, event)=>{
             return {
                 type: "GOT_MESSAGE_FROM_ROV",
                 data: event.data
@@ -11123,7 +10943,7 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
             console.info("Closing data channel...");
             if (context.rovDataConnection) context.rovDataConnection.close();
         },
-        connectToRovPeerAndStartPeerConnectionEventHandler: _xstate.assign((context)=>{
+        "connectToRovPeerAndStartPeerConnectionEventHandler": _xstate.assign((context)=>{
             console.log("Connecting to ROV:" + context.rovPeerId);
             const rovDataConnection = context.thisPeer.connect(context.rovPeerId, {
                 reliable: true,
@@ -11144,10 +10964,10 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
                 }, "peerConnectionEventHandler")
             };
         }),
-        stopPeerConnectionEventHandler: _actions.stop("peerConnectionEventHandler")
+        "stopPeerConnectionEventHandler": _actions.stop("peerConnectionEventHandler")
     },
     services: {
-        awaitMediaCall: (context)=>{
+        "awaitMediaCall": (context)=>{
             return (sendStateChange)=>{
             // showLoadingUi("Waiting for ROV Media Call...");
             // const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
@@ -11185,8 +11005,9 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
                 };
             };
         },
-        handleDataChannelEvents: (context)=>{
+        "handleDataChannelEvents": (context)=>{
             return (sendStateChange)=>{
+                _ui.showToastMessage("Connected to ROV!");
                 const rovDataConnection = context.rovDataConnection;
                 // handle new messages from the datachannel (comming FROM the rov)
                 console.log("handleDataChannelEvents:", rovDataConnection);
@@ -11198,6 +11019,12 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
                     });
                 };
                 rovDataConnection.on('data', dataMsgRecivedHandler);
+                sendStateChange({
+                    type: "SEND_MESSAGE_TO_ROV",
+                    data: JSON.stringify({
+                        action: "BEGIN_LIVESTREAM"
+                    })
+                });
                 // cleanup event listeners when the state is exited
                 return ()=>{
                     rovDataConnection.off("data", dataMsgRecivedHandler);
@@ -11268,11 +11095,12 @@ parcelHelpers.export(exports, "peerServerConnMachine", ()=>peerServerConnMachine
 var _xstate = require("xstate");
 var _peerjs = require("peerjs");
 var _peerjsDefault = parcelHelpers.interopDefault(_peerjs);
+var _uuid = require("uuid");
 // import * as consts from "./consts";
 var _util = require("./util");
 var _ui = require("./ui");
 // showROVDisconnectedUi, showROVConnectingUi, showROVConnectedUi, setupConnectBtnClickHandler, showToastDialog, hideLoadingUi, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandler
-const { pure , stop , send , sendParent , assign  } = _xstate.actions;
+var _actions = require("xstate/lib/actions");
 const FATAL_PEER_ERROR_TYPES = [
     "network",
     "unavailable-id",
@@ -11367,55 +11195,62 @@ const peerServerConnMachine = _xstate.createMachine({
         },
         // setupThisPeerWithPeerServer: assign({
         // }),
-        "notifyParentOfPeerServerConnection": sendParent((context)=>{
+        "notifyParentOfPeerServerConnection": _actions.sendParent((context)=>{
             return {
                 type: "PEER_SERVER_CONNECTION_ESTABLISHED",
                 data: context.thisPeer
             };
         }),
-        "handlePeerServerError": pure((context, event)=>{
+        "handlePeerServerError": _actions.pure((context, event)=>{
             const err = event.data;
             if (err.type == 'browser-incompatible') {
                 alert('Your web browser does not support some WebRTC features. Please use a newer or different browser.');
-                return sendParent({
+                return _actions.sendParent({
                     type: "WEBRTC_FATAL_ERROR"
                 });
             } else if (err.type == "webrtc") {
                 _ui.showToastMessage("WebRTC protocol error! Reloading website now...");
-                return sendParent({
+                return _actions.sendParent({
                     type: "WEBRTC_FATAL_ERROR"
                 });
-            } else if (err.type == "peer-unavailable") return sendParent({
+            } else if (err.type == "peer-unavailable") return _actions.sendParent({
                 type: "PEER_NOT_YET_READY_ERROR",
                 data: err
             });
-            else if (FATAL_PEER_ERROR_TYPES.includes(err.type)) {
+            else if (err.type == "unavailable-id") {
+                localStorage.removeItem('thisClientPeerId') // discard our saved peer id so we will use a fresh one
+                ;
+                return _actions.sendParent({
+                    type: "PEER_SERVER_FATAL_ERROR",
+                    data: err
+                });
+            } else if (FATAL_PEER_ERROR_TYPES.includes(err.type)) {
                 _ui.showToastMessage("Peerjs Server Fatal Error: " + err.type + " Restarting...");
-                return sendParent({
+                return _actions.sendParent({
                     type: "PEER_SERVER_FATAL_ERROR"
                 });
             } else {
                 _ui.showToastMessage("Peerjs Server Error: " + err.type + " Restarting...");
                 console.dir("Peerjs Server Error: ", err);
-                return send({
+                return _actions.send({
                     type: "PEER_SERVER_CONNECTION_CLOSED"
                 });
             }
         }),
-        "cleanupPeerServerConnection": ()=>{
-            console.log(pure);
-        },
-        // assign({
-        //     thisPeer: (context) => {
-        //         console.log("cleanupPeerServerConnection: ", context.thisPeer)
-        //         if (context.thisPeer) {
-        //             context.thisPeer.destroy()
-        //         }
-        //         return null;
-        //     }
-        // }),
-        "setupPeerAndStartPeerServerEventsHandler": assign((context)=>{
-            const thisPeer = window.thisPeerjsPeer = new _peerjsDefault.default(null, context.peerServerConfig);
+        "cleanupPeerServerConnection": _actions.assign({
+            thisPeer: (context)=>{
+                console.log("cleanupPeerServerConnection: ", context.thisPeer);
+                if (context.thisPeer) context.thisPeer.destroy();
+                return null;
+            }
+        }),
+        "setupPeerAndStartPeerServerEventsHandler": _actions.assign((context)=>{
+            var ourPeerId = localStorage.getItem('thisClientPeerId');
+            if (!ourPeerId) {
+                ourPeerId = "iROV_Pilot_" + _uuid.v4().slice(0, 8);
+                localStorage.setItem('thisClientPeerId', ourPeerId); // save for future runs
+            }
+            const thisPeer = window.thisPeerjsPeer = new _peerjsDefault.default(ourPeerId, context.peerServerConfig);
             return {
                 thisPeer: thisPeer,
                 peerServerEventsHandler: _xstate.spawn((sendStateChange)=>{
@@ -11454,9 +11289,9 @@ const peerServerConnMachine = _xstate.createMachine({
 });
 console.log("Peerjs Server Connection Machine: ", peerServerConnMachine.options.actions);
 
-},{"xstate":"2sk4t","peerjs":"jvZeO","./util":"doATT","./ui":"efi6n","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jvZeO":[function(require,module,exports) {
-parcelRequire = (function(e1, r1, t1, n1) {
-    var i1, o = "function" == typeof parcelRequire && parcelRequire, u = "function" == typeof require && undefined;
+},{"xstate":"2sk4t","peerjs":"jvZeO","./util":"doATT","./ui":"efi6n","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","uuid":"j4KJi","xstate/lib/actions":"b9dCp"}],"jvZeO":[function(require,module,exports) {
+parcelRequire = function(e1, r1, t1, n1) {
+    var i1, o = "function" == typeof parcelRequire && parcelRequire, u = undefined;
     function f(t, n) {
         if (!r1[t]) {
             if (!e1[t]) {
@@ -11469,26 +11304,23 @@ parcelRequire = (function(e1, r1, t1, n1) {
             }
             p.resolve = function(r) {
                 return e1[t][1][r] || r;
-            }, p.cache = {
-            };
+            }, p.cache = {};
             var l = r1[t] = new f.Module(t);
             e1[t][0].call(l.exports, p, l, l.exports, this);
         }
+        return r1[t].exports;
         function p(e) {
             return f(p.resolve(e));
         }
-        return r1[t].exports;
     }
     f.isParcelRequire = !0, f.Module = function(e) {
-        this.id = e, this.bundle = f, this.exports = {
-        };
+        this.id = e, this.bundle = f, this.exports = {};
     }, f.modules = e1, f.cache = r1, f.parent = o, f.register = function(r2, t) {
         e1[r2] = [
             function(e, r) {
                 r.exports = t;
             },
-            {
-            }
+            {}
         ];
     };
     for(var c1 = 0; c1 < t1.length; c1++)try {
@@ -11498,24 +11330,21 @@ parcelRequire = (function(e1, r1, t1, n1) {
     }
     if (t1.length) {
         var l1 = f(t1[t1.length - 1]);
-        "object" == typeof exports && "undefined" != typeof module ? module.exports = l1 : "function" == typeof define && define.amd ? define(function() {
-            return l1;
-        }) : n1 && (this[n1] = l1);
+        module.exports = l1;
     }
     if (parcelRequire = f, i1) throw i1;
     return f;
-})({
+}({
     "EgBh": [
         function(require, module, exports) {
-            var e2 = {
-            };
-            e2.useBlobBuilder = (function() {
+            var e2 = {};
+            e2.useBlobBuilder = function() {
                 try {
                     return new Blob([]), !1;
                 } catch (e) {
                     return !0;
                 }
-            })(), e2.useArrayBufferView = !e2.useBlobBuilder && (function() {
+            }(), e2.useArrayBufferView = !e2.useBlobBuilder && function() {
                 try {
                     return 0 === new Blob([
                         new Uint8Array([])
@@ -11523,7 +11352,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 } catch (e) {
                     return !0;
                 }
-            })(), module.exports.binaryFeatures = e2;
+            }(), module.exports.binaryFeatures = e2;
             var r3 = module.exports.BlobBuilder;
             function t2() {
                 this._pieces = [], this._parts = [];
@@ -11543,8 +11372,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 return new Blob(this._parts);
             }, module.exports.BufferBuilder = t2;
         },
-        {
-        }
+        {}
     ],
     "kdPp": [
         function(require, module, exports) {
@@ -11666,8 +11494,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 for(var e = new Array(t), i = 0; i < t; i++)e[i] = this.unpack();
                 return e;
             }, r4.prototype.unpack_map = function(t) {
-                for(var e = {
-                }, i = 0; i < t; i++){
+                for(var e = {}, i = 0; i < t; i++){
                     var r = this.unpack(), n = this.unpack();
                     e[r] = n;
                 }
@@ -11822,8 +11649,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             var t = n4(e);
                             t && (r.handleEvent ? r.handleEvent(t) : r(t));
                         };
-                        return this._eventMap = this._eventMap || {
-                        }, this._eventMap[t5] || (this._eventMap[t5] = new Map), this._eventMap[t5].set(r, i), o.apply(this, [
+                        return this._eventMap = this._eventMap || {}, this._eventMap[t5] || (this._eventMap[t5] = new Map), this._eventMap[t5].set(r, i), o.apply(this, [
                             e7,
                             i
                         ]);
@@ -11886,10 +11712,8 @@ parcelRequire = (function(e1, r1, t1, n1) {
             function f(t) {
                 return d(t) ? Object.keys(t).reduce(function(n, r) {
                     var o = d(t[r]), i = o ? f(t[r]) : t[r], s = o && !Object.keys(i).length;
-                    return void 0 === i || s ? n : Object.assign(n, e4({
-                    }, r, i));
-                }, {
-                }) : t;
+                    return void 0 === i || s ? n : Object.assign(n, e4({}, r, i));
+                }, {}) : t;
             }
             function l(e, t6, n) {
                 t6 && !n.has(t6.id) && (n.set(t6.id, t6), Object.keys(t6).forEach(function(r) {
@@ -11911,8 +11735,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 }), o;
             }
         },
-        {
-        }
+        {}
     ],
     "s6SN": [
         function(require, module, exports) {
@@ -11935,8 +11758,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 };
                 var t = r8();
                 if (t && t.has(e)) return t.get(e);
-                var o = {
-                }, n = Object.defineProperty && Object.getOwnPropertyDescriptor;
+                var o = {}, n = Object.defineProperty && Object.getOwnPropertyDescriptor;
                 for(var i in e)if (Object.prototype.hasOwnProperty.call(e, i)) {
                     var a = n ? Object.getOwnPropertyDescriptor(e, i) : null;
                     a && (a.get || a.set) ? Object.defineProperty(o, i, a) : o[i] = e[i];
@@ -11954,10 +11776,9 @@ parcelRequire = (function(e1, r1, t1, n1) {
             function i6(e11, r9) {
                 var t9 = e11 && e11.navigator;
                 if (t9.mediaDevices) {
-                    var i = function(e12) {
+                    var i7 = function(e12) {
                         if ("object" !== o2(e12) || e12.mandatory || e12.optional) return e12;
-                        var r10 = {
-                        };
+                        var r10 = {};
                         return Object.keys(e12).forEach(function(t) {
                             if ("require" !== t && "advanced" !== t && "mediaSource" !== t) {
                                 var n = "object" === o2(e12[t]) ? e12[t] : {
@@ -11969,18 +11790,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
                                 };
                                 if (void 0 !== n.ideal) {
                                     r10.optional = r10.optional || [];
-                                    var a = {
-                                    };
-                                    "number" == typeof n.ideal ? (a[i("min", t)] = n.ideal, r10.optional.push(a), (a = {
-                                    })[i("max", t)] = n.ideal, r10.optional.push(a)) : (a[i("", t)] = n.ideal, r10.optional.push(a));
+                                    var a = {};
+                                    "number" == typeof n.ideal ? (a[i("min", t)] = n.ideal, r10.optional.push(a), (a = {})[i("max", t)] = n.ideal, r10.optional.push(a)) : (a[i("", t)] = n.ideal, r10.optional.push(a));
                                 }
-                                void 0 !== n.exact && "number" != typeof n.exact ? (r10.mandatory = r10.mandatory || {
-                                }, r10.mandatory[i("", t)] = n.exact) : [
+                                void 0 !== n.exact && "number" != typeof n.exact ? (r10.mandatory = r10.mandatory || {}, r10.mandatory[i("", t)] = n.exact) : [
                                     "min",
                                     "max"
                                 ].forEach(function(e) {
-                                    void 0 !== n[e] && (r10.mandatory = r10.mandatory || {
-                                    }, r10.mandatory[i(e, t)] = n[e]);
+                                    void 0 !== n[e] && (r10.mandatory = r10.mandatory || {}, r10.mandatory[i(e, t)] = n[e]);
                                 });
                             }
                         }), e12.advanced && (r10.optional = (r10.optional || []).concat(e12.advanced)), r10;
@@ -11990,7 +11807,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             var c = function(e, r, t) {
                                 r in e && !(t in e) && (e[t] = e[r], delete e[r]);
                             };
-                            c((e13 = JSON.parse(JSON.stringify(e13))).audio, "autoGainControl", "googAutoGainControl"), c(e13.audio, "noiseSuppression", "googNoiseSuppression"), e13.audio = i(e13.audio);
+                            c((e13 = JSON.parse(JSON.stringify(e13))).audio, "autoGainControl", "googAutoGainControl"), c(e13.audio, "noiseSuppression", "googNoiseSuppression"), e13.audio = i7(e13.audio);
                         }
                         if (e13 && "object" === o2(e13.video)) {
                             var d = e13.video.facingMode;
@@ -12016,10 +11833,10 @@ parcelRequire = (function(e1, r1, t1, n1) {
                                         exact: t.deviceId
                                     } : {
                                         ideal: t.deviceId
-                                    }), e13.video = i(e13.video), n6("chrome: " + JSON.stringify(e13)), a(e13);
+                                    }), e13.video = i7(e13.video), n6("chrome: " + JSON.stringify(e13)), a(e13);
                                 });
                             }
-                            e13.video = i(e13.video);
+                            e13.video = i7(e13.video);
                         }
                         return n6("chrome: " + JSON.stringify(e13)), a(e13);
                     }, c2 = function(e) {
@@ -12075,9 +11892,9 @@ parcelRequire = (function(e1, r1, t1, n1) {
     "VHa8": [
         function(require, module, exports) {
             "use strict";
-            function e18(e, i7) {
-                e.navigator.mediaDevices && "getDisplayMedia" in e.navigator.mediaDevices || e.navigator.mediaDevices && ("function" == typeof i7 ? e.navigator.mediaDevices.getDisplayMedia = function(a) {
-                    return i7(a).then(function(i) {
+            function e18(e, i9) {
+                e.navigator.mediaDevices && "getDisplayMedia" in e.navigator.mediaDevices || e.navigator.mediaDevices && ("function" == typeof i9 ? e.navigator.mediaDevices.getDisplayMedia = function(a) {
+                    return i9(a).then(function(i) {
                         var t = a.video && a.video.width, o = a.video && a.video.height, d = a.video && a.video.frameRate;
                         return a.video = {
                             mandatory: {
@@ -12093,8 +11910,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 value: !0
             }), exports.shimGetDisplayMedia = e18;
         },
-        {
-        }
+        {}
     ],
     "uI5X": [
         function(require, module, exports) {
@@ -12112,7 +11928,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     return r12.shimGetDisplayMedia;
                 }
             });
-            var e19 = i8(require("../utils.js")), t10 = require("./getusermedia"), r12 = require("./getdisplaymedia");
+            var e19 = i10(require("../utils.js")), t10 = require("./getusermedia"), r12 = require("./getdisplaymedia");
             function n7() {
                 if ("function" != typeof WeakMap) return null;
                 var e = new WeakMap;
@@ -12120,15 +11936,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     return e;
                 }, e;
             }
-            function i8(e) {
+            function i10(e) {
                 if (e && e.__esModule) return e;
                 if (null === e || "object" != typeof e && "function" != typeof e) return {
                     default: e
                 };
                 var t = n7();
                 if (t && t.has(e)) return t.get(e);
-                var r = {
-                }, i = Object.defineProperty && Object.getOwnPropertyDescriptor;
+                var r = {}, i = Object.defineProperty && Object.getOwnPropertyDescriptor;
                 for(var o in e)if (Object.prototype.hasOwnProperty.call(e, o)) {
                     var s = i ? Object.getOwnPropertyDescriptor(e, o) : null;
                     s && (s.get || s.set) ? Object.defineProperty(r, o, s) : r[o] = e[o];
@@ -12234,10 +12049,10 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             -1 !== t && this._senders.splice(t, 1);
                         };
                     }
-                    var i9 = e22.RTCPeerConnection.prototype.addStream;
+                    var i11 = e22.RTCPeerConnection.prototype.addStream;
                     e22.RTCPeerConnection.prototype.addStream = function(e23) {
                         var r = this;
-                        this._senders = this._senders || [], i9.apply(this, [
+                        this._senders = this._senders || [], i11.apply(this, [
                             e23
                         ]), e23.getTracks().forEach(function(e) {
                             r._senders.push(t11(r, e));
@@ -12277,8 +12092,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         if (arguments.length > 0 && "function" == typeof r15) return t15.apply(this, arguments);
                         if (0 === t15.length && (0 === arguments.length || "function" != typeof r15)) return t15.apply(this, []);
                         var o = function(e27) {
-                            var t17 = {
-                            };
+                            var t17 = {};
                             return e27.result().forEach(function(e) {
                                 var r = {
                                     id: e.id,
@@ -12373,16 +12187,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
             function f(e30) {
                 e30.RTCPeerConnection.prototype.getLocalStreams = function() {
                     var e = this;
-                    return this._shimmedLocalStreams = this._shimmedLocalStreams || {
-                    }, Object.keys(this._shimmedLocalStreams).map(function(t) {
+                    return this._shimmedLocalStreams = this._shimmedLocalStreams || {}, Object.keys(this._shimmedLocalStreams).map(function(t) {
                         return e._shimmedLocalStreams[t][0];
                     });
                 };
                 var t21 = e30.RTCPeerConnection.prototype.addTrack;
                 e30.RTCPeerConnection.prototype.addTrack = function(e, r) {
                     if (!r) return t21.apply(this, arguments);
-                    this._shimmedLocalStreams = this._shimmedLocalStreams || {
-                    };
+                    this._shimmedLocalStreams = this._shimmedLocalStreams || {};
                     var n = t21.apply(this, arguments);
                     return this._shimmedLocalStreams[r.id] ? -1 === this._shimmedLocalStreams[r.id].indexOf(n) && this._shimmedLocalStreams[r.id].push(n) : this._shimmedLocalStreams[r.id] = [
                         r,
@@ -12392,8 +12204,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 var r19 = e30.RTCPeerConnection.prototype.addStream;
                 e30.RTCPeerConnection.prototype.addStream = function(e31) {
                     var t22 = this;
-                    this._shimmedLocalStreams = this._shimmedLocalStreams || {
-                    }, e31.getTracks().forEach(function(e) {
+                    this._shimmedLocalStreams = this._shimmedLocalStreams || {}, e31.getTracks().forEach(function(e) {
                         if (t22.getSenders().find(function(t) {
                             return t.track === e;
                         })) throw new DOMException("Track already exists.", "InvalidAccessError");
@@ -12409,17 +12220,15 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 };
                 var n9 = e30.RTCPeerConnection.prototype.removeStream;
                 e30.RTCPeerConnection.prototype.removeStream = function(e) {
-                    return this._shimmedLocalStreams = this._shimmedLocalStreams || {
-                    }, delete this._shimmedLocalStreams[e.id], n9.apply(this, arguments);
+                    return this._shimmedLocalStreams = this._shimmedLocalStreams || {}, delete this._shimmedLocalStreams[e.id], n9.apply(this, arguments);
                 };
-                var i11 = e30.RTCPeerConnection.prototype.removeTrack;
+                var i13 = e30.RTCPeerConnection.prototype.removeTrack;
                 e30.RTCPeerConnection.prototype.removeTrack = function(e) {
                     var t = this;
-                    return this._shimmedLocalStreams = this._shimmedLocalStreams || {
-                    }, e && Object.keys(this._shimmedLocalStreams).forEach(function(r) {
+                    return this._shimmedLocalStreams = this._shimmedLocalStreams || {}, e && Object.keys(this._shimmedLocalStreams).forEach(function(r) {
                         var n = t._shimmedLocalStreams[r].indexOf(e);
                         -1 !== n && t._shimmedLocalStreams[r].splice(n, 1), 1 === t._shimmedLocalStreams[r].length && delete t._shimmedLocalStreams[r];
-                    }), i11.apply(this, arguments);
+                    }), i13.apply(this, arguments);
                 };
             }
             function m(e32, t23) {
@@ -12427,34 +12236,29 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     if (e32.RTCPeerConnection.prototype.addTrack && t23.version >= 65) return f(e32);
                     var r20 = e32.RTCPeerConnection.prototype.getLocalStreams;
                     e32.RTCPeerConnection.prototype.getLocalStreams = function() {
-                        var e = this, t = r20.apply(this);
-                        return this._reverseStreams = this._reverseStreams || {
-                        }, t.map(function(t) {
+                        var e = this, t24 = r20.apply(this);
+                        return this._reverseStreams = this._reverseStreams || {}, t24.map(function(t) {
                             return e._reverseStreams[t.id];
                         });
                     };
                     var n10 = e32.RTCPeerConnection.prototype.addStream;
-                    e32.RTCPeerConnection.prototype.addStream = function(t24) {
+                    e32.RTCPeerConnection.prototype.addStream = function(t25) {
                         var r = this;
-                        if (this._streams = this._streams || {
-                        }, this._reverseStreams = this._reverseStreams || {
-                        }, t24.getTracks().forEach(function(e) {
+                        if (this._streams = this._streams || {}, this._reverseStreams = this._reverseStreams || {}, t25.getTracks().forEach(function(e) {
                             if (r.getSenders().find(function(t) {
                                 return t.track === e;
                             })) throw new DOMException("Track already exists.", "InvalidAccessError");
-                        }), !this._reverseStreams[t24.id]) {
-                            var i = new e32.MediaStream(t24.getTracks());
-                            this._streams[t24.id] = i, this._reverseStreams[i.id] = t24, t24 = i;
+                        }), !this._reverseStreams[t25.id]) {
+                            var i = new e32.MediaStream(t25.getTracks());
+                            this._streams[t25.id] = i, this._reverseStreams[i.id] = t25, t25 = i;
                         }
                         n10.apply(this, [
-                            t24
+                            t25
                         ]);
                     };
-                    var i12 = e32.RTCPeerConnection.prototype.removeStream;
+                    var i14 = e32.RTCPeerConnection.prototype.removeStream;
                     e32.RTCPeerConnection.prototype.removeStream = function(e) {
-                        this._streams = this._streams || {
-                        }, this._reverseStreams = this._reverseStreams || {
-                        }, i12.apply(this, [
+                        this._streams = this._streams || {}, this._reverseStreams = this._reverseStreams || {}, i14.apply(this, [
                             this._streams[e.id] || e
                         ]), delete this._reverseStreams[this._streams[e.id] ? this._streams[e.id].id : e.id], delete this._streams[e.id];
                     }, e32.RTCPeerConnection.prototype.addTrack = function(t, r) {
@@ -12467,9 +12271,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         if (this.getSenders().find(function(e) {
                             return e.track === t;
                         })) throw new DOMException("Track already exists.", "InvalidAccessError");
-                        this._streams = this._streams || {
-                        }, this._reverseStreams = this._reverseStreams || {
-                        };
+                        this._streams = this._streams || {}, this._reverseStreams = this._reverseStreams || {};
                         var o = this._streams[r.id];
                         if (o) o.addTrack(t), Promise.resolve().then(function() {
                             n.dispatchEvent(new Event("negotiationneeded"));
@@ -12486,35 +12288,34 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     }, [
                         "createOffer",
                         "createAnswer"
-                    ].forEach(function(t25) {
-                        var r22 = e32.RTCPeerConnection.prototype[t25], n12 = o3({
-                        }, t25, function() {
-                            var e33 = this, t26 = arguments;
+                    ].forEach(function(t26) {
+                        var r22 = e32.RTCPeerConnection.prototype[t26], n12 = o3({}, t26, function() {
+                            var e33 = this, t27 = arguments;
                             return arguments.length && "function" == typeof arguments[0] ? r22.apply(this, [
                                 function(r) {
                                     var n = c(e33, r);
-                                    t26[0].apply(null, [
+                                    t27[0].apply(null, [
                                         n
                                     ]);
                                 },
                                 function(e) {
-                                    t26[1] && t26[1].apply(null, e);
+                                    t27[1] && t27[1].apply(null, e);
                                 },
                                 arguments[2]
                             ]) : r22.apply(this, arguments).then(function(t) {
                                 return c(e33, t);
                             });
                         });
-                        e32.RTCPeerConnection.prototype[t25] = n12[t25];
+                        e32.RTCPeerConnection.prototype[t26] = n12[t26];
                     });
                     var s3 = e32.RTCPeerConnection.prototype.setLocalDescription;
                     e32.RTCPeerConnection.prototype.setLocalDescription = function() {
-                        var e, t, r;
-                        return arguments.length && arguments[0].type ? (arguments[0] = (e = this, t = arguments[0], r = t.sdp, Object.keys(e._reverseStreams || []).forEach(function(t) {
+                        var e, t28, r;
+                        return arguments.length && arguments[0].type ? (arguments[0] = (e = this, t28 = arguments[0], r = t28.sdp, Object.keys(e._reverseStreams || []).forEach(function(t) {
                             var n = e._reverseStreams[t], i = e._streams[n.id];
                             r = r.replace(new RegExp(n.id, "g"), i.id);
                         }), new RTCSessionDescription({
-                            type: t.type,
+                            type: t28.type,
                             sdp: r
                         })), s3.apply(this, arguments)) : s3.apply(this, arguments);
                     };
@@ -12525,44 +12326,42 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             return "" === e.type ? e : c(this, e);
                         }
                     }), e32.RTCPeerConnection.prototype.removeTrack = function(e) {
-                        var t27, r = this;
+                        var t29, r = this;
                         if ("closed" === this.signalingState) throw new DOMException("The RTCPeerConnection's signalingState is 'closed'.", "InvalidStateError");
                         if (!e._pc) throw new DOMException("Argument 1 of RTCPeerConnection.removeTrack does not implement interface RTCRtpSender.", "TypeError");
                         if (!(e._pc === this)) throw new DOMException("Sender was not created by this connection.", "InvalidAccessError");
-                        this._streams = this._streams || {
-                        }, Object.keys(this._streams).forEach(function(n) {
+                        this._streams = this._streams || {}, Object.keys(this._streams).forEach(function(n) {
                             r._streams[n].getTracks().find(function(t) {
                                 return e.track === t;
-                            }) && (t27 = r._streams[n]);
-                        }), t27 && (1 === t27.getTracks().length ? this.removeStream(this._reverseStreams[t27.id]) : t27.removeTrack(e.track), this.dispatchEvent(new Event("negotiationneeded")));
+                            }) && (t29 = r._streams[n]);
+                        }), t29 && (1 === t29.getTracks().length ? this.removeStream(this._reverseStreams[t29.id]) : t29.removeTrack(e.track), this.dispatchEvent(new Event("negotiationneeded")));
                     };
                 }
-                function c(e, t) {
-                    var r = t.sdp;
+                function c(e, t30) {
+                    var r = t30.sdp;
                     return Object.keys(e._reverseStreams || []).forEach(function(t) {
                         var n = e._reverseStreams[t], i = e._streams[n.id];
                         r = r.replace(new RegExp(i.id, "g"), n.id);
                     }), new RTCSessionDescription({
-                        type: t.type,
+                        type: t30.type,
                         sdp: r
                     });
                 }
             }
-            function u(e, t28) {
-                !e.RTCPeerConnection && e.webkitRTCPeerConnection && (e.RTCPeerConnection = e.webkitRTCPeerConnection), e.RTCPeerConnection && t28.version < 53 && [
+            function u(e, t31) {
+                !e.RTCPeerConnection && e.webkitRTCPeerConnection && (e.RTCPeerConnection = e.webkitRTCPeerConnection), e.RTCPeerConnection && t31.version < 53 && [
                     "setLocalDescription",
                     "setRemoteDescription",
                     "addIceCandidate"
                 ].forEach(function(t) {
-                    var r = e.RTCPeerConnection.prototype[t], n = o3({
-                    }, t, function() {
+                    var r = e.RTCPeerConnection.prototype[t], n = o3({}, t, function() {
                         return arguments[0] = new ("addIceCandidate" === t ? e.RTCIceCandidate : e.RTCSessionDescription)(arguments[0]), r.apply(this, arguments);
                     });
                     e.RTCPeerConnection.prototype[t] = n[t];
                 });
             }
-            function l(t29, r) {
-                e19.wrapPeerConnectionEvent(t29, "negotiationneeded", function(e) {
+            function l(t32, r) {
+                e19.wrapPeerConnectionEvent(t32, "negotiationneeded", function(e) {
                     var t = e.target;
                     if (!(r.version < 72 || t.getConfiguration && "plan-b" === t.getConfiguration().sdpSemantics) || "stable" === t.signalingState) return e;
                 });
@@ -12580,7 +12379,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
             Object.defineProperty(exports, "__esModule", {
                 value: !0
             }), exports.filterIceServers = n13;
-            var r23 = t30(require("../utils"));
+            var r23 = t33(require("../utils"));
             function e34() {
                 if ("function" != typeof WeakMap) return null;
                 var r = new WeakMap;
@@ -12588,22 +12387,21 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     return r;
                 }, r;
             }
-            function t30(r) {
+            function t33(r) {
                 if (r && r.__esModule) return r;
                 if (null === r || "object" != typeof r && "function" != typeof r) return {
                     default: r
                 };
                 var t = e34();
                 if (t && t.has(r)) return t.get(r);
-                var n = {
-                }, u = Object.defineProperty && Object.getOwnPropertyDescriptor;
+                var n = {}, u = Object.defineProperty && Object.getOwnPropertyDescriptor;
                 for(var i in r)if (Object.prototype.hasOwnProperty.call(r, i)) {
                     var f = u ? Object.getOwnPropertyDescriptor(r, i) : null;
                     f && (f.get || f.set) ? Object.defineProperty(n, i, f) : n[i] = r[i];
                 }
                 return n.default = r, t && t.set(r, n), n;
             }
-            function n13(e35, t31) {
+            function n13(e35, t34) {
                 var n = !1;
                 return (e35 = JSON.parse(JSON.stringify(e35))).filter(function(e36) {
                     if (e36 && (e36.urls || e36.url)) {
@@ -12705,8 +12503,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
             }, r24.writeExtmap = function(r) {
                 return "a=extmap:" + (r.id || r.preferredId) + (r.direction && "sendrecv" !== r.direction ? "/" + r.direction : "") + " " + r.uri + "\r\n";
             }, r24.parseFmtp = function(r) {
-                for(var e, t = {
-                }, a = r.substr(r.indexOf(" ") + 1).split(";"), n = 0; n < a.length; n++)t[(e = a[n].trim().split("="))[0].trim()] = e[1];
+                for(var e, t = {}, a = r.substr(r.indexOf(" ") + 1).split(";"), n = 0; n < a.length; n++)t[(e = a[n].trim().split("="))[0].trim()] = e[1];
                 return t;
             }, r24.writeFmtp = function(r) {
                 var e37 = "", t = r.payloadType;
@@ -12802,8 +12599,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     var s = a[n], i = r24.matchPrefix(e38, "a=rtpmap:" + s + " ")[0];
                     if (i) {
                         var p = r24.parseRtpMap(i), c = r24.matchPrefix(e38, "a=fmtp:" + s + " ");
-                        switch(p.parameters = c.length ? r24.parseFmtp(c[0]) : {
-                        }, p.rtcpFeedback = r24.matchPrefix(e38, "a=rtcp-fb:" + s + " ").map(r24.parseRtcpFb), t.codecs.push(p), p.name.toUpperCase()){
+                        switch(p.parameters = c.length ? r24.parseFmtp(c[0]) : {}, p.rtcpFeedback = r24.matchPrefix(e38, "a=rtcp-fb:" + s + " ").map(r24.parseRtcpFb), t.codecs.push(p), p.name.toUpperCase()){
                             case "RED":
                             case "ULPFEC":
                                 t.fecMechanisms.push(p.name.toUpperCase());
@@ -12857,8 +12653,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     r.maxBitrate = u;
                 })), a;
             }, r24.parseRtcpParameters = function(e41) {
-                var t = {
-                }, a = r24.matchPrefix(e41, "a=ssrc:").map(function(e) {
+                var t = {}, a = r24.matchPrefix(e41, "a=ssrc:").map(function(e) {
                     return r24.parseSsrcMedia(e);
                 }).filter(function(r) {
                     return "cname" === r.attribute;
@@ -12960,14 +12755,13 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 return !0;
             }, "object" == typeof module && (module.exports = r24);
         },
-        {
-        }
+        {}
     ],
     "NJ2u": [
         function(require, module, exports) {
             "use strict";
             var e43 = require("sdp");
-            function t32(e) {
+            function t35(e) {
                 return ({
                     inboundrtp: "inbound-rtp",
                     outboundrtp: "outbound-rtp",
@@ -13001,7 +12795,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     }
                 });
             }
-            function a5(e46, t33) {
+            function a5(e46, t36) {
                 var r32 = {
                     codecs: [],
                     headerExtensions: [],
@@ -13014,10 +12808,10 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     return i && s && i.name.toLowerCase() === s.name.toLowerCase();
                 };
                 return e46.codecs.forEach(function(n) {
-                    for(var i = 0; i < t33.codecs.length; i++){
-                        var s = t33.codecs[i];
+                    for(var i = 0; i < t36.codecs.length; i++){
+                        var s = t36.codecs[i];
                         if (n.name.toLowerCase() === s.name.toLowerCase() && n.clockRate === s.clockRate) {
-                            if ("rtx" === n.name.toLowerCase() && n.parameters && s.parameters.apt && !a6(n, s, e46.codecs, t33.codecs)) continue;
+                            if ("rtx" === n.name.toLowerCase() && n.parameters && s.parameters.apt && !a6(n, s, e46.codecs, t36.codecs)) continue;
                             (s = JSON.parse(JSON.stringify(s))).numChannels = Math.min(n.numChannels, s.numChannels), r32.codecs.push(s), s.rtcpFeedback = s.rtcpFeedback.filter(function(e) {
                                 for(var t = 0; t < n.rtcpFeedback.length; t++)if (n.rtcpFeedback[t].type === e.type && n.rtcpFeedback[t].parameter === e.parameter) return !0;
                                 return !1;
@@ -13026,8 +12820,8 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         }
                     }
                 }), e46.headerExtensions.forEach(function(e) {
-                    for(var n = 0; n < t33.headerExtensions.length; n++){
-                        var a = t33.headerExtensions[n];
+                    for(var n = 0; n < t36.headerExtensions.length; n++){
+                        var a = t36.headerExtensions[n];
                         if (e.uri === a.uri) {
                             r32.headerExtensions.push(a);
                             break;
@@ -13035,7 +12829,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     }
                 }), r32;
             }
-            function i14(e, t, r) {
+            function i16(e, t, r) {
                 return -1 !== ({
                     offer: {
                         setLocalDescription: [
@@ -13097,8 +12891,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         "dispatchEvent"
                     ].forEach(function(e) {
                         r[e] = a[e].bind(a);
-                    }), this.canTrickleIceCandidates = null, this.needNegotiation = !1, this.localStreams = [], this.remoteStreams = [], this._localDescription = null, this._remoteDescription = null, this.signalingState = "stable", this.iceConnectionState = "new", this.connectionState = "new", this.iceGatheringState = "new", t = JSON.parse(JSON.stringify(t || {
-                    })), this.usingBundle = "max-bundle" === t.bundlePolicy, "negotiate" === t.rtcpMuxPolicy) throw o4("NotSupportedError", "rtcpMuxPolicy 'negotiate' is not supported");
+                    }), this.canTrickleIceCandidates = null, this.needNegotiation = !1, this.localStreams = [], this.remoteStreams = [], this._localDescription = null, this._remoteDescription = null, this.signalingState = "stable", this.iceConnectionState = "new", this.connectionState = "new", this.iceGatheringState = "new", t = JSON.parse(JSON.stringify(t || {})), this.usingBundle = "max-bundle" === t.bundlePolicy, "negotiate" === t.rtcpMuxPolicy) throw o4("NotSupportedError", "rtcpMuxPolicy 'negotiate' is not supported");
                     switch(t.rtcpMuxPolicy || (t.rtcpMuxPolicy = "require"), t.iceTransportPolicy){
                         case "all":
                         case "relay":
@@ -13166,18 +12959,18 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         n.iceTransport = a.iceTransport, n.dtlsTransport = a.dtlsTransport;
                     }
                     return t || this.transceivers.push(n), n;
-                }, f1.prototype.addTrack = function(e, t34) {
+                }, f1.prototype.addTrack = function(e, t37) {
                     if (this._isClosed) throw o4("InvalidStateError", "Attempted to call addTrack on a closed peerconnection.");
                     var r;
                     if (this.transceivers.find(function(t) {
                         return t.track === e;
                     })) throw o4("InvalidAccessError", "Track already exists.");
                     for(var n = 0; n < this.transceivers.length; n++)this.transceivers[n].track || this.transceivers[n].kind !== e.kind || (r = this.transceivers[n]);
-                    return r || (r = this._createTransceiver(e.kind)), this._maybeFireNegotiationNeeded(), -1 === this.localStreams.indexOf(t34) && this.localStreams.push(t34), r.track = e, r.stream = t34, r.rtpSender = new c5.RTCRtpSender(e, r.dtlsTransport), r.rtpSender;
+                    return r || (r = this._createTransceiver(e.kind)), this._maybeFireNegotiationNeeded(), -1 === this.localStreams.indexOf(t37) && this.localStreams.push(t37), r.track = e, r.stream = t37, r.rtpSender = new c5.RTCRtpSender(e, r.dtlsTransport), r.rtpSender;
                 }, f1.prototype.addStream = function(e48) {
-                    var t = this;
+                    var t38 = this;
                     if (d3 >= 15025) e48.getTracks().forEach(function(r) {
-                        t.addTrack(r, e48);
+                        t38.addTrack(r, e48);
                     });
                     else {
                         var r33 = e48.clone();
@@ -13187,27 +12980,27 @@ parcelRequire = (function(e1, r1, t1, n1) {
                                 n.enabled = e.enabled;
                             });
                         }), r33.getTracks().forEach(function(e) {
-                            t.addTrack(e, r33);
+                            t38.addTrack(e, r33);
                         });
                     }
                 }, f1.prototype.removeTrack = function(e50) {
                     if (this._isClosed) throw o4("InvalidStateError", "Attempted to call removeTrack on a closed peerconnection.");
                     if (!(e50 instanceof c5.RTCRtpSender)) throw new TypeError("Argument 1 of RTCPeerConnection.removeTrack does not implement interface RTCRtpSender.");
-                    var t35 = this.transceivers.find(function(t) {
+                    var t39 = this.transceivers.find(function(t) {
                         return t.rtpSender === e50;
                     });
-                    if (!t35) throw o4("InvalidAccessError", "Sender was not created by this connection.");
-                    var r = t35.stream;
-                    t35.rtpSender.stop(), t35.rtpSender = null, t35.track = null, t35.stream = null, -1 === this.transceivers.map(function(e) {
+                    if (!t39) throw o4("InvalidAccessError", "Sender was not created by this connection.");
+                    var r = t39.stream;
+                    t39.rtpSender.stop(), t39.rtpSender = null, t39.track = null, t39.stream = null, -1 === this.transceivers.map(function(e) {
                         return e.stream;
                     }).indexOf(r) && this.localStreams.indexOf(r) > -1 && this.localStreams.splice(this.localStreams.indexOf(r), 1), this._maybeFireNegotiationNeeded();
                 }, f1.prototype.removeStream = function(e51) {
-                    var t36 = this;
+                    var t40 = this;
                     e51.getTracks().forEach(function(e) {
-                        var r = t36.getSenders().find(function(t) {
+                        var r = t40.getSenders().find(function(t) {
                             return t.track === e;
                         });
-                        r && t36.removeTrack(r);
+                        r && t40.removeTrack(r);
                     });
                 }, f1.prototype.getSenders = function() {
                     return this.transceivers.filter(function(e) {
@@ -13221,9 +13014,9 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     }).map(function(e) {
                         return e.rtpReceiver;
                     });
-                }, f1.prototype._createIceGatherer = function(e, t37) {
+                }, f1.prototype._createIceGatherer = function(e, t41) {
                     var r = this;
-                    if (t37 && e > 0) return this.transceivers[0].iceGatherer;
+                    if (t41 && e > 0) return this.transceivers[0].iceGatherer;
                     if (this._iceGatherers.length) return this._iceGatherers.shift();
                     var n = new c5.RTCIceGatherer({
                         iceServers: this._config.iceServers,
@@ -13239,7 +13032,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 }, f1.prototype._gather = function(t, r) {
                     var n = this, a = this.transceivers[r].iceGatherer;
                     if (!a.onlocalcandidate) {
-                        var i15 = this.transceivers[r].bufferedCandidateEvents;
+                        var i17 = this.transceivers[r].bufferedCandidateEvents;
                         this.transceivers[r].bufferedCandidateEvents = null, a.removeEventListener("localcandidate", this.transceivers[r].bufferCandidates), a.onlocalcandidate = function(i) {
                             if (!(n.usingBundle && r > 0)) {
                                 var s = new Event("icecandidate");
@@ -13269,7 +13062,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                                 "gathering" !== n.iceGatheringState && (n.iceGatheringState = "gathering", n._emitGatheringStateChange()), c || n._dispatchEvent("icecandidate", s), l && (n._dispatchEvent("icecandidate", new Event("icecandidate")), n.iceGatheringState = "complete", n._emitGatheringStateChange());
                             }
                         }, c5.setTimeout(function() {
-                            i15.forEach(function(e) {
+                            i17.forEach(function(e) {
                                 a.onlocalcandidate(e);
                             });
                         }, 0);
@@ -13306,25 +13099,24 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     }, t.recvEncodingParameters.length && (i.rtcp.ssrc = t.recvEncodingParameters[0].ssrc), t.rtpSender.send(i)), n && t.rtpReceiver && i.codecs.length > 0 && ("video" === t.kind && t.recvEncodingParameters && d3 < 15019 && t.recvEncodingParameters.forEach(function(e) {
                         delete e.rtx;
                     }), t.recvEncodingParameters.length ? i.encodings = t.recvEncodingParameters : i.encodings = [
-                        {
-                        }
+                        {}
                     ], i.rtcp = {
                         compound: t.rtcpParameters.compound
                     }, t.rtcpParameters.cname && (i.rtcp.cname = t.rtcpParameters.cname), t.sendEncodingParameters.length && (i.rtcp.ssrc = t.sendEncodingParameters[0].ssrc), t.rtpReceiver.receive(i));
-                }, f1.prototype.setLocalDescription = function(t38) {
+                }, f1.prototype.setLocalDescription = function(t42) {
                     var r34, n16, s = this;
                     if (-1 === [
                         "offer",
                         "answer"
-                    ].indexOf(t38.type)) return Promise.reject(o4("TypeError", 'Unsupported type "' + t38.type + '"'));
-                    if (!i14("setLocalDescription", t38.type, s.signalingState) || s._isClosed) return Promise.reject(o4("InvalidStateError", "Can not set local " + t38.type + " in state " + s.signalingState));
-                    if ("offer" === t38.type) r34 = e43.splitSections(t38.sdp), n16 = r34.shift(), r34.forEach(function(t, r) {
+                    ].indexOf(t42.type)) return Promise.reject(o4("TypeError", 'Unsupported type "' + t42.type + '"'));
+                    if (!i16("setLocalDescription", t42.type, s.signalingState) || s._isClosed) return Promise.reject(o4("InvalidStateError", "Can not set local " + t42.type + " in state " + s.signalingState));
+                    if ("offer" === t42.type) r34 = e43.splitSections(t42.sdp), n16 = r34.shift(), r34.forEach(function(t, r) {
                         var n = e43.parseRtpParameters(t);
                         s.transceivers[r].localCapabilities = n;
                     }), s.transceivers.forEach(function(e, t) {
                         s._gather(e.mid, t);
                     });
-                    else if ("answer" === t38.type) {
+                    else if ("answer" === t42.type) {
                         r34 = e43.splitSections(s._remoteDescription.sdp), n16 = r34.shift();
                         var c = e43.matchPrefix(n16, "a=ice-lite").length > 0;
                         r34.forEach(function(t, r) {
@@ -13338,22 +13130,21 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         });
                     }
                     return s._localDescription = {
-                        type: t38.type,
-                        sdp: t38.sdp
-                    }, "offer" === t38.type ? s._updateSignalingState("have-local-offer") : s._updateSignalingState("stable"), Promise.resolve();
-                }, f1.prototype.setRemoteDescription = function(t39) {
+                        type: t42.type,
+                        sdp: t42.sdp
+                    }, "offer" === t42.type ? s._updateSignalingState("have-local-offer") : s._updateSignalingState("stable"), Promise.resolve();
+                }, f1.prototype.setRemoteDescription = function(t43) {
                     var r35 = this;
                     if (-1 === [
                         "offer",
                         "answer"
-                    ].indexOf(t39.type)) return Promise.reject(o4("TypeError", 'Unsupported type "' + t39.type + '"'));
-                    if (!i14("setRemoteDescription", t39.type, r35.signalingState) || r35._isClosed) return Promise.reject(o4("InvalidStateError", "Can not set remote " + t39.type + " in state " + r35.signalingState));
-                    var n17 = {
-                    };
+                    ].indexOf(t43.type)) return Promise.reject(o4("TypeError", 'Unsupported type "' + t43.type + '"'));
+                    if (!i16("setRemoteDescription", t43.type, r35.signalingState) || r35._isClosed) return Promise.reject(o4("InvalidStateError", "Can not set remote " + t43.type + " in state " + r35.signalingState));
+                    var n17 = {};
                     r35.remoteStreams.forEach(function(e) {
                         n17[e.id] = e;
                     });
-                    var f = [], u3 = e43.splitSections(t39.sdp), v = u3.shift(), h = e43.matchPrefix(v, "a=ice-lite").length > 0, m = e43.matchPrefix(v, "a=group:BUNDLE ").length > 0;
+                    var f = [], u3 = e43.splitSections(t43.sdp), v = u3.shift(), h = e43.matchPrefix(v, "a=ice-lite").length > 0, m = e43.matchPrefix(v, "a=group:BUNDLE ").length > 0;
                     r35.usingBundle = m;
                     var g1 = e43.matchPrefix(v, "a=ice-options:")[0];
                     return r35.canTrickleIceCandidates = !!g1 && g1.substr(14).split(" ").indexOf("trickle") >= 0, u3.forEach(function(i, o) {
@@ -13374,8 +13165,8 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             }).filter(function(e) {
                                 return 1 === e.component;
                             });
-                            if (("offer" === t39.type || "answer" === t39.type) && !g && m && o > 0 && r35.transceivers[o] && (r35._disposeIceAndDtlsTransports(o), r35.transceivers[o].iceGatherer = r35.transceivers[0].iceGatherer, r35.transceivers[o].iceTransport = r35.transceivers[0].iceTransport, r35.transceivers[o].dtlsTransport = r35.transceivers[0].dtlsTransport, r35.transceivers[o].rtpSender && r35.transceivers[o].rtpSender.setTransport(r35.transceivers[0].dtlsTransport), r35.transceivers[o].rtpReceiver && r35.transceivers[o].rtpReceiver.setTransport(r35.transceivers[0].dtlsTransport)), "offer" !== t39.type || g) {
-                                if ("answer" === t39.type && !g) P = (C = r35.transceivers[o]).iceGatherer, w = C.iceTransport, R = C.dtlsTransport, _ = C.rtpReceiver, k = C.sendEncodingParameters, x = C.localCapabilities, r35.transceivers[o].recvEncodingParameters = b, r35.transceivers[o].remoteCapabilities = M, r35.transceivers[o].rtcpParameters = O, j.length && "new" === w.state && (!h && !G || m && 0 !== o ? j.forEach(function(e) {
+                            if (("offer" === t43.type || "answer" === t43.type) && !g && m && o > 0 && r35.transceivers[o] && (r35._disposeIceAndDtlsTransports(o), r35.transceivers[o].iceGatherer = r35.transceivers[0].iceGatherer, r35.transceivers[o].iceTransport = r35.transceivers[0].iceTransport, r35.transceivers[o].dtlsTransport = r35.transceivers[0].dtlsTransport, r35.transceivers[o].rtpSender && r35.transceivers[o].rtpSender.setTransport(r35.transceivers[0].dtlsTransport), r35.transceivers[o].rtpReceiver && r35.transceivers[o].rtpReceiver.setTransport(r35.transceivers[0].dtlsTransport)), "offer" !== t43.type || g) {
+                                if ("answer" === t43.type && !g) P = (C = r35.transceivers[o]).iceGatherer, w = C.iceTransport, R = C.dtlsTransport, _ = C.rtpReceiver, k = C.sendEncodingParameters, x = C.localCapabilities, r35.transceivers[o].recvEncodingParameters = b, r35.transceivers[o].remoteCapabilities = M, r35.transceivers[o].rtcpParameters = O, j.length && "new" === w.state && (!h && !G || m && 0 !== o ? j.forEach(function(e) {
                                     s5(C.iceTransport, e);
                                 }) : w.setRemoteCandidates(j)), m && 0 !== o || ("new" === w.state && w.start(P, I, "controlling"), "new" === R.state && R.start(L)), !a5(C.localCapabilities, C.remoteCapabilities).codecs.filter(function(e) {
                                     return "rtx" === e.name.toLowerCase();
@@ -13424,10 +13215,10 @@ parcelRequire = (function(e1, r1, t1, n1) {
                                 C.localCapabilities = x, C.remoteCapabilities = M, C.rtpReceiver = _, C.rtcpParameters = O, C.sendEncodingParameters = k, C.recvEncodingParameters = b, r35._transceive(r35.transceivers[o], !1, A);
                             }
                         }
-                    }), void 0 === r35._dtlsRole && (r35._dtlsRole = "offer" === t39.type ? "active" : "passive"), r35._remoteDescription = {
-                        type: t39.type,
-                        sdp: t39.sdp
-                    }, "offer" === t39.type ? r35._updateSignalingState("have-remote-offer") : r35._updateSignalingState("stable"), Object.keys(n17).forEach(function(e53) {
+                    }), void 0 === r35._dtlsRole && (r35._dtlsRole = "offer" === t43.type ? "active" : "passive"), r35._remoteDescription = {
+                        type: t43.type,
+                        sdp: t43.sdp
+                    }, "offer" === t43.type ? r35._updateSignalingState("have-remote-offer") : r35._updateSignalingState("stable"), Object.keys(n17).forEach(function(e53) {
                         var t = n17[e53];
                         if (t.getTracks().length) {
                             if (-1 === r35.remoteStreams.indexOf(t)) {
@@ -13448,8 +13239,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         e[2] || l2(r35, e[0], e[1], []);
                     }), c5.setTimeout(function() {
                         r35 && r35.transceivers && r35.transceivers.forEach(function(e) {
-                            e.iceTransport && "new" === e.iceTransport.state && e.iceTransport.getRemoteCandidates().length > 0 && (console.warn("Timeout for addRemoteCandidate. Consider sending an end-of-candidates notification"), e.iceTransport.addRemoteCandidate({
-                            }));
+                            e.iceTransport && "new" === e.iceTransport.state && e.iceTransport.getRemoteCandidates().length > 0 && (console.warn("Timeout for addRemoteCandidate. Consider sending an end-of-candidates notification"), e.iceTransport.addRemoteCandidate({}));
                         });
                     }, 4000), Promise.resolve();
                 }, f1.prototype.close = function() {
@@ -13504,24 +13294,24 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         this._dispatchEvent("connectionstatechange", r);
                     }
                 }, f1.prototype.createOffer = function() {
-                    var t40 = this;
-                    if (t40._isClosed) return Promise.reject(o4("InvalidStateError", "Can not call createOffer after close"));
-                    var n18 = t40.transceivers.filter(function(e) {
+                    var t44 = this;
+                    if (t44._isClosed) return Promise.reject(o4("InvalidStateError", "Can not call createOffer after close"));
+                    var n18 = t44.transceivers.filter(function(e) {
                         return "audio" === e.kind;
-                    }).length, a7 = t40.transceivers.filter(function(e) {
+                    }).length, a7 = t44.transceivers.filter(function(e) {
                         return "video" === e.kind;
-                    }).length, i17 = arguments[0];
-                    if (i17) {
-                        if (i17.mandatory || i17.optional) throw new TypeError("Legacy mandatory/optional constraints not supported.");
-                        void 0 !== i17.offerToReceiveAudio && (n18 = !0 === i17.offerToReceiveAudio ? 1 : !1 === i17.offerToReceiveAudio ? 0 : i17.offerToReceiveAudio), void 0 !== i17.offerToReceiveVideo && (a7 = !0 === i17.offerToReceiveVideo ? 1 : !1 === i17.offerToReceiveVideo ? 0 : i17.offerToReceiveVideo);
+                    }).length, i19 = arguments[0];
+                    if (i19) {
+                        if (i19.mandatory || i19.optional) throw new TypeError("Legacy mandatory/optional constraints not supported.");
+                        void 0 !== i19.offerToReceiveAudio && (n18 = !0 === i19.offerToReceiveAudio ? 1 : !1 === i19.offerToReceiveAudio ? 0 : i19.offerToReceiveAudio), void 0 !== i19.offerToReceiveVideo && (a7 = !0 === i19.offerToReceiveVideo ? 1 : !1 === i19.offerToReceiveVideo ? 0 : i19.offerToReceiveVideo);
                     }
-                    for(t40.transceivers.forEach(function(e) {
+                    for(t44.transceivers.forEach(function(e) {
                         "audio" === e.kind ? --n18 < 0 && (e.wantReceive = !1) : "video" === e.kind && --a7 < 0 && (e.wantReceive = !1);
-                    }); n18 > 0 || a7 > 0;)n18 > 0 && (t40._createTransceiver("audio"), n18--), a7 > 0 && (t40._createTransceiver("video"), a7--);
-                    var s6 = e43.writeSessionBoilerplate(t40._sdpSessionId, t40._sdpSessionVersion++);
-                    t40.transceivers.forEach(function(r, n) {
+                    }); n18 > 0 || a7 > 0;)n18 > 0 && (t44._createTransceiver("audio"), n18--), a7 > 0 && (t44._createTransceiver("video"), a7--);
+                    var s6 = e43.writeSessionBoilerplate(t44._sdpSessionId, t44._sdpSessionVersion++);
+                    t44.transceivers.forEach(function(r, n) {
                         var a = r.track, i = r.kind, s = r.mid || e43.generateIdentifier();
-                        r.mid = s, r.iceGatherer || (r.iceGatherer = t40._createIceGatherer(n, t40.usingBundle));
+                        r.mid = s, r.iceGatherer || (r.iceGatherer = t44._createIceGatherer(n, t44.usingBundle));
                         var o = c5.RTCRtpSender.getCapabilities(i);
                         d3 < 15019 && (o.codecs = o.codecs.filter(function(e) {
                             return "rtx" !== e.name;
@@ -13542,10 +13332,10 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         a && d3 >= 15019 && "video" === i && !p[0].rtx && (p[0].rtx = {
                             ssrc: p[0].ssrc + 1
                         }), r.wantReceive && (r.rtpReceiver = new c5.RTCRtpReceiver(r.dtlsTransport, i)), r.localCapabilities = o, r.sendEncodingParameters = p;
-                    }), "max-compat" !== t40._config.bundlePolicy && (s6 += "a=group:BUNDLE " + t40.transceivers.map(function(e) {
+                    }), "max-compat" !== t44._config.bundlePolicy && (s6 += "a=group:BUNDLE " + t44.transceivers.map(function(e) {
                         return e.mid;
-                    }).join(" ") + "\r\n"), s6 += "a=ice-options:trickle\r\n", t40.transceivers.forEach(function(n, a) {
-                        s6 += r31(n, n.localCapabilities, "offer", n.stream, t40._dtlsRole), s6 += "a=rtcp-rsize\r\n", !n.iceGatherer || "new" === t40.iceGatheringState || 0 !== a && t40.usingBundle || (n.iceGatherer.getLocalCandidates().forEach(function(t) {
+                    }).join(" ") + "\r\n"), s6 += "a=ice-options:trickle\r\n", t44.transceivers.forEach(function(n, a) {
+                        s6 += r31(n, n.localCapabilities, "offer", n.stream, t44._dtlsRole), s6 += "a=rtcp-rsize\r\n", !n.iceGatherer || "new" === t44.iceGatheringState || 0 !== a && t44.usingBundle || (n.iceGatherer.getLocalCandidates().forEach(function(t) {
                             t.component = 1, s6 += "a=" + e43.writeCandidate(t) + "\r\n";
                         }), "completed" === n.iceGatherer.state && (s6 += "a=end-of-candidates\r\n"));
                     });
@@ -13596,15 +13386,13 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             var p = n.transceivers[c];
                             if (!p) return i(o4("OperationError", "Can not add ICE candidate"));
                             if (p.rejected) return a();
-                            var l = Object.keys(t.candidate).length > 0 ? e43.parseCandidate(t.candidate) : {
-                            };
+                            var l = Object.keys(t.candidate).length > 0 ? e43.parseCandidate(t.candidate) : {};
                             if ("tcp" === l.protocol && (0 === l.port || 9 === l.port)) return a();
                             if (l.component && 1 !== l.component) return a();
                             if ((0 === c || c > 0 && p.iceTransport !== n.transceivers[0].iceTransport) && !s5(p.iceTransport, l)) return i(o4("OperationError", "Can not add ICE candidate"));
                             var f = t.candidate.trim();
                             0 === f.indexOf("a=") && (f = f.substr(2)), (r = e43.getMediaSections(n._remoteDescription.sdp))[c] += "a=" + (l.type ? f : "end-of-candidates") + "\r\n", n._remoteDescription.sdp = e43.getDescription(n._remoteDescription.sdp) + r.join("");
-                        } else for(var u = 0; u < n.transceivers.length && (n.transceivers[u].rejected || (n.transceivers[u].iceTransport.addRemoteCandidate({
-                        }), (r = e43.getMediaSections(n._remoteDescription.sdp))[u] += "a=end-of-candidates\r\n", n._remoteDescription.sdp = e43.getDescription(n._remoteDescription.sdp) + r.join(""), !n.usingBundle)); u++);
+                        } else for(var u = 0; u < n.transceivers.length && (n.transceivers[u].rejected || (n.transceivers[u].iceTransport.addRemoteCandidate({}), (r = e43.getMediaSections(n._remoteDescription.sdp))[u] += "a=end-of-candidates\r\n", n._remoteDescription.sdp = e43.getDescription(n._remoteDescription.sdp) + r.join(""), !n.usingBundle)); u++);
                         a();
                     });
                 }, f1.prototype.getStats = function(e57) {
@@ -13649,7 +13437,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             return n19.apply(this).then(function(e) {
                                 var r = new Map;
                                 return Object.keys(e).forEach(function(n) {
-                                    e[n].type = t32(e[n]), r.set(n, e[n]);
+                                    e[n].type = t35(e[n]), r.set(n, e[n]);
                                 }), r;
                             });
                         };
@@ -13660,10 +13448,10 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     "createAnswer"
                 ];
                 return u2.forEach(function(e61) {
-                    var t41 = f1.prototype[e61];
+                    var t45 = f1.prototype[e61];
                     f1.prototype[e61] = function() {
                         var e = arguments;
-                        return "function" == typeof e[0] || "function" == typeof e[1] ? t41.apply(this, [
+                        return "function" == typeof e[0] || "function" == typeof e[1] ? t45.apply(this, [
                             arguments[2]
                         ]).then(function(t) {
                             "function" == typeof e[0] && e[0].apply(null, [
@@ -13673,23 +13461,23 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             "function" == typeof e[1] && e[1].apply(null, [
                                 t
                             ]);
-                        }) : t41.apply(this, arguments);
+                        }) : t45.apply(this, arguments);
                     };
                 }), (u2 = [
                     "setLocalDescription",
                     "setRemoteDescription",
                     "addIceCandidate"
                 ]).forEach(function(e62) {
-                    var t42 = f1.prototype[e62];
+                    var t46 = f1.prototype[e62];
                     f1.prototype[e62] = function() {
                         var e = arguments;
-                        return "function" == typeof e[1] || "function" == typeof e[2] ? t42.apply(this, arguments).then(function() {
+                        return "function" == typeof e[1] || "function" == typeof e[2] ? t46.apply(this, arguments).then(function() {
                             "function" == typeof e[1] && e[1].apply(null);
                         }, function(t) {
                             "function" == typeof e[2] && e[2].apply(null, [
                                 t
                             ]);
-                        }) : t42.apply(this, arguments);
+                        }) : t46.apply(this, arguments);
                     };
                 }), [
                     "getStats"
@@ -13734,8 +13522,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 value: !0
             }), exports.shimGetUserMedia = e64;
         },
-        {
-        }
+        {}
     ],
     "P3bV": [
         function(require, module, exports) {
@@ -13747,8 +13534,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 value: !0
             }), exports.shimGetDisplayMedia = e68;
         },
-        {
-        }
+        {}
     ],
     "XRic": [
         function(require, module, exports) {
@@ -13763,10 +13549,10 @@ parcelRequire = (function(e1, r1, t1, n1) {
             }), Object.defineProperty(exports, "shimGetDisplayMedia", {
                 enumerable: !0,
                 get: function() {
-                    return i18.shimGetDisplayMedia;
+                    return i20.shimGetDisplayMedia;
                 }
             });
-            var e69 = s(require("../utils")), t43 = require("./filtericeservers"), r38 = o5(require("rtcpeerconnection-shim")), n21 = require("./getusermedia"), i18 = require("./getdisplaymedia");
+            var e69 = s(require("../utils")), t47 = require("./filtericeservers"), r38 = o5(require("rtcpeerconnection-shim")), n21 = require("./getusermedia"), i20 = require("./getdisplaymedia");
             function o5(e) {
                 return e && e.__esModule ? e : {
                     default: e
@@ -13786,8 +13572,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 };
                 var t = c6();
                 if (t && t.has(e)) return t.get(e);
-                var r = {
-                }, n = Object.defineProperty && Object.getOwnPropertyDescriptor;
+                var r = {}, n = Object.defineProperty && Object.getOwnPropertyDescriptor;
                 for(var i in e)if (Object.prototype.hasOwnProperty.call(e, i)) {
                     var o = n ? Object.getOwnPropertyDescriptor(e, i) : null;
                     o && (o.get || o.set) ? Object.defineProperty(r, i, o) : r[i] = e[i];
@@ -13816,7 +13601,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 }), n.RTCDtmfSender && !n.RTCDTMFSender && (n.RTCDTMFSender = n.RTCDtmfSender);
                 var c = (0, r38.default)(n, i.version);
                 n.RTCPeerConnection = function(r) {
-                    return r && r.iceServers && (r.iceServers = (0, t43.filterIceServers)(r.iceServers, i.version), e69.log("ICE servers after filtering:", r.iceServers)), new c(r);
+                    return r && r.iceServers && (r.iceServers = (0, t47.filterIceServers)(r.iceServers, i.version), e69.log("ICE servers after filtering:", r.iceServers)), new c(r);
                 }, n.RTCPeerConnection.prototype = c.prototype;
             }
             function a(e) {
@@ -13838,10 +13623,10 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 value: !0
             }), exports.shimGetUserMedia = n22;
             var e70 = o6(require("../utils"));
-            function t44() {
+            function t48() {
                 if ("function" != typeof WeakMap) return null;
                 var e = new WeakMap;
-                return t44 = function() {
+                return t48 = function() {
                     return e;
                 }, e;
             }
@@ -13850,10 +13635,9 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 if (null === e || "object" != typeof e && "function" != typeof e) return {
                     default: e
                 };
-                var o = t44();
+                var o = t48();
                 if (o && o.has(e)) return o.get(e);
-                var r = {
-                }, n = Object.defineProperty && Object.getOwnPropertyDescriptor;
+                var r = {}, n = Object.defineProperty && Object.getOwnPropertyDescriptor;
                 for(var i in e)if (Object.prototype.hasOwnProperty.call(e, i)) {
                     var a = n ? Object.getOwnPropertyDescriptor(e, i) : null;
                     a && (a.get || a.set) ? Object.defineProperty(r, i, a) : r[i] = e[i];
@@ -13867,8 +13651,8 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
                 })(e71);
             }
-            function n22(t45, o7) {
-                var n = t45 && t45.navigator, i = t45 && t45.MediaStreamTrack;
+            function n22(t49, o7) {
+                var n = t49 && t49.navigator, i = t49 && t49.MediaStreamTrack;
                 if (n.getUserMedia = function(t, o, r) {
                     e70.deprecated("navigator.getUserMedia", "navigator.mediaDevices.getUserMedia"), n.mediaDevices.getUserMedia(t).then(o, r);
                 }, !(o7.version > 55 && "autoGainControl" in n.mediaDevices.getSupportedConstraints())) {
@@ -13917,8 +13701,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 value: !0
             }), exports.shimGetDisplayMedia = e72;
         },
-        {
-        }
+        {}
     ],
     "Fzdr": [
         function(require, module, exports) {
@@ -13928,7 +13711,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
             }), exports.shimOnTrack = s, exports.shimPeerConnection = c, exports.shimSenderGetStats = p, exports.shimReceiverGetStats = u, exports.shimRemoveStream = f, exports.shimRTCDataChannel = d, exports.shimAddTransceiver = C, exports.shimGetParameters = y, exports.shimCreateOffer = l, exports.shimCreateAnswer = m, Object.defineProperty(exports, "shimGetUserMedia", {
                 enumerable: !0,
                 get: function() {
-                    return t46.shimGetUserMedia;
+                    return t50.shimGetUserMedia;
                 }
             }), Object.defineProperty(exports, "shimGetDisplayMedia", {
                 enumerable: !0,
@@ -13936,7 +13719,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     return n23.shimGetDisplayMedia;
                 }
             });
-            var e73 = o8(require("../utils")), t46 = require("./getusermedia"), n23 = require("./getdisplaymedia");
+            var e73 = o8(require("../utils")), t50 = require("./getusermedia"), n23 = require("./getdisplaymedia");
             function r40() {
                 if ("function" != typeof WeakMap) return null;
                 var e = new WeakMap;
@@ -13951,15 +13734,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 };
                 var t = r40();
                 if (t && t.has(e)) return t.get(e);
-                var n = {
-                }, o = Object.defineProperty && Object.getOwnPropertyDescriptor;
+                var n = {}, o = Object.defineProperty && Object.getOwnPropertyDescriptor;
                 for(var i in e)if (Object.prototype.hasOwnProperty.call(e, i)) {
                     var a = o ? Object.getOwnPropertyDescriptor(e, i) : null;
                     a && (a.get || a.set) ? Object.defineProperty(n, i, a) : n[i] = e[i];
                 }
                 return n.default = e, t && t.set(e, n), n;
             }
-            function i19(e, t, n) {
+            function i21(e, t, n) {
                 return t in e ? Object.defineProperty(e, t, {
                     value: n,
                     enumerable: !0,
@@ -13983,15 +13765,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     }
                 });
             }
-            function c(e75, t47) {
+            function c(e75, t51) {
                 if ("object" === a8(e75) && (e75.RTCPeerConnection || e75.mozRTCPeerConnection)) {
-                    !e75.RTCPeerConnection && e75.mozRTCPeerConnection && (e75.RTCPeerConnection = e75.mozRTCPeerConnection), t47.version < 53 && [
+                    !e75.RTCPeerConnection && e75.mozRTCPeerConnection && (e75.RTCPeerConnection = e75.mozRTCPeerConnection), t51.version < 53 && [
                         "setLocalDescription",
                         "setRemoteDescription",
                         "addIceCandidate"
                     ].forEach(function(t) {
-                        var n = e75.RTCPeerConnection.prototype[t], r = i19({
-                        }, t, function() {
+                        var n = e75.RTCPeerConnection.prototype[t], r = i21({}, t, function() {
                             return arguments[0] = new ("addIceCandidate" === t ? e75.RTCIceCandidate : e75.RTCSessionDescription)(arguments[0]), n.apply(this, arguments);
                         });
                         e75.RTCPeerConnection.prototype[t] = r[t];
@@ -14008,15 +13789,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         return r41.apply(this, [
                             e76 || null
                         ]).then(function(e77) {
-                            if (t47.version < 53 && !o) try {
+                            if (t51.version < 53 && !o) try {
                                 e77.forEach(function(e) {
                                     e.type = n24[e.type] || e.type;
                                 });
                             } catch (r43) {
                                 if ("TypeError" !== r43.name) throw r43;
                                 e77.forEach(function(t, r) {
-                                    e77.set(r, Object.assign({
-                                    }, t, {
+                                    e77.set(r, Object.assign({}, t, {
                                         type: n24[t.type] || t.type
                                     }));
                                 });
@@ -14028,9 +13808,9 @@ parcelRequire = (function(e1, r1, t1, n1) {
             }
             function p(e78) {
                 if ("object" === a8(e78) && e78.RTCPeerConnection && e78.RTCRtpSender && !(e78.RTCRtpSender && "getStats" in e78.RTCRtpSender.prototype)) {
-                    var t48 = e78.RTCPeerConnection.prototype.getSenders;
-                    t48 && (e78.RTCPeerConnection.prototype.getSenders = function() {
-                        var e = this, n = t48.apply(this, []);
+                    var t52 = e78.RTCPeerConnection.prototype.getSenders;
+                    t52 && (e78.RTCPeerConnection.prototype.getSenders = function() {
+                        var e = this, n = t52.apply(this, []);
                         return n.forEach(function(t) {
                             return t._pc = e;
                         }), n;
@@ -14044,23 +13824,23 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     };
                 }
             }
-            function u(t50) {
-                if ("object" === a8(t50) && t50.RTCPeerConnection && t50.RTCRtpSender && !(t50.RTCRtpSender && "getStats" in t50.RTCRtpReceiver.prototype)) {
-                    var n = t50.RTCPeerConnection.prototype.getReceivers;
-                    n && (t50.RTCPeerConnection.prototype.getReceivers = function() {
-                        var e = this, t51 = n.apply(this, []);
-                        return t51.forEach(function(t) {
+            function u(t54) {
+                if ("object" === a8(t54) && t54.RTCPeerConnection && t54.RTCRtpSender && !(t54.RTCRtpSender && "getStats" in t54.RTCRtpReceiver.prototype)) {
+                    var n = t54.RTCPeerConnection.prototype.getReceivers;
+                    n && (t54.RTCPeerConnection.prototype.getReceivers = function() {
+                        var e = this, t55 = n.apply(this, []);
+                        return t55.forEach(function(t) {
                             return t._pc = e;
-                        }), t51;
-                    }), e73.wrapPeerConnectionEvent(t50, "track", function(e) {
+                        }), t55;
+                    }), e73.wrapPeerConnectionEvent(t54, "track", function(e) {
                         return e.receiver._pc = e.srcElement, e;
-                    }), t50.RTCRtpReceiver.prototype.getStats = function() {
+                    }), t54.RTCRtpReceiver.prototype.getStats = function() {
                         return this._pc.getStats(this.track);
                     };
                 }
             }
-            function f(t52) {
-                !t52.RTCPeerConnection || "removeStream" in t52.RTCPeerConnection.prototype || (t52.RTCPeerConnection.prototype.removeStream = function(t) {
+            function f(t56) {
+                !t56.RTCPeerConnection || "removeStream" in t56.RTCPeerConnection.prototype || (t56.RTCPeerConnection.prototype.removeStream = function(t) {
                     var n = this;
                     e73.deprecated("removeStream", "removeTrack"), this.getSenders().forEach(function(e) {
                         e.track && t.getTracks().includes(e.track) && n.removeTrack(e);
@@ -14102,8 +13882,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     t && (e81.RTCRtpSender.prototype.getParameters = function() {
                         var e = t.apply(this, arguments);
                         return "encodings" in e || (e.encodings = [].concat(this.sendEncodings || [
-                            {
-                            }
+                            {}
                         ])), e;
                     });
                 }
@@ -14146,12 +13925,12 @@ parcelRequire = (function(e1, r1, t1, n1) {
             "use strict";
             Object.defineProperty(exports, "__esModule", {
                 value: !0
-            }), exports.shimLocalStreamsAPI = n28, exports.shimRemoteStreamsAPI = i20, exports.shimCallbacksAPI = a9, exports.shimGetUserMedia = c7, exports.shimConstraints = s8, exports.shimRTCIceServerUrls = d, exports.shimTrackEventTransceiver = f, exports.shimCreateOfferLegacy = p, exports.shimAudioContext = u;
+            }), exports.shimLocalStreamsAPI = n28, exports.shimRemoteStreamsAPI = i22, exports.shimCallbacksAPI = a9, exports.shimGetUserMedia = c7, exports.shimConstraints = s8, exports.shimRTCIceServerUrls = d, exports.shimTrackEventTransceiver = f, exports.shimCreateOfferLegacy = p, exports.shimAudioContext = u;
             var e84 = r44(require("../utils"));
-            function t53() {
+            function t57() {
                 if ("function" != typeof WeakMap) return null;
                 var e = new WeakMap;
-                return t53 = function() {
+                return t57 = function() {
                     return e;
                 }, e;
             }
@@ -14160,10 +13939,9 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 if (null === e || "object" != typeof e && "function" != typeof e) return {
                     default: e
                 };
-                var r = t53();
+                var r = t57();
                 if (r && r.has(e)) return r.get(e);
-                var o = {
-                }, n = Object.defineProperty && Object.getOwnPropertyDescriptor;
+                var o = {}, n = Object.defineProperty && Object.getOwnPropertyDescriptor;
                 for(var i in e)if (Object.prototype.hasOwnProperty.call(e, i)) {
                     var a = n ? Object.getOwnPropertyDescriptor(e, i) : null;
                     a && (a.get || a.set) ? Object.defineProperty(o, i, a) : o[i] = e[i];
@@ -14213,7 +13991,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     });
                 }
             }
-            function i20(e89) {
+            function i22(e89) {
                 if ("object" === o9(e89) && e89.RTCPeerConnection && ("getRemoteStreams" in e89.RTCPeerConnection.prototype || (e89.RTCPeerConnection.prototype.getRemoteStreams = function() {
                     return this._remoteStreams ? this._remoteStreams : [];
                 }), !("onaddstream" in e89.RTCPeerConnection.prototype))) {
@@ -14234,30 +14012,30 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             });
                         }
                     });
-                    var t54 = e89.RTCPeerConnection.prototype.setRemoteDescription;
+                    var t58 = e89.RTCPeerConnection.prototype.setRemoteDescription;
                     e89.RTCPeerConnection.prototype.setRemoteDescription = function() {
                         var e = this;
-                        return this._onaddstreampoly || this.addEventListener("track", this._onaddstreampoly = function(t56) {
-                            t56.streams.forEach(function(t) {
+                        return this._onaddstreampoly || this.addEventListener("track", this._onaddstreampoly = function(t60) {
+                            t60.streams.forEach(function(t) {
                                 if (e._remoteStreams || (e._remoteStreams = []), !(e._remoteStreams.indexOf(t) >= 0)) {
                                     e._remoteStreams.push(t);
                                     var r = new Event("addstream");
                                     r.stream = t, e.dispatchEvent(r);
                                 }
                             });
-                        }), t54.apply(e, arguments);
+                        }), t58.apply(e, arguments);
                     };
                 }
             }
             function a9(e92) {
                 if ("object" === o9(e92) && e92.RTCPeerConnection) {
-                    var t57 = e92.RTCPeerConnection.prototype, r45 = t57.createOffer, n29 = t57.createAnswer, i = t57.setLocalDescription, a = t57.setRemoteDescription, c = t57.addIceCandidate;
-                    t57.createOffer = function(e, t) {
+                    var t61 = e92.RTCPeerConnection.prototype, r45 = t61.createOffer, n29 = t61.createAnswer, i = t61.setLocalDescription, a = t61.setRemoteDescription, c = t61.addIceCandidate;
+                    t61.createOffer = function(e, t) {
                         var o = arguments.length >= 2 ? arguments[2] : arguments[0], n = r45.apply(this, [
                             o
                         ]);
                         return t ? (n.then(e, t), Promise.resolve()) : n;
-                    }, t57.createAnswer = function(e, t) {
+                    }, t61.createAnswer = function(e, t) {
                         var r = arguments.length >= 2 ? arguments[2] : arguments[0], o = n29.apply(this, [
                             r
                         ]);
@@ -14269,17 +14047,17 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         ]);
                         return r ? (o.then(t, r), Promise.resolve()) : o;
                     };
-                    t57.setLocalDescription = s, s = function(e, t, r) {
+                    t61.setLocalDescription = s, s = function(e, t, r) {
                         var o = a.apply(this, [
                             e
                         ]);
                         return r ? (o.then(t, r), Promise.resolve()) : o;
-                    }, t57.setRemoteDescription = s, s = function(e, t, r) {
+                    }, t61.setRemoteDescription = s, s = function(e, t, r) {
                         var o = c.apply(this, [
                             e
                         ]);
                         return r ? (o.then(t, r), Promise.resolve()) : o;
-                    }, t57.addIceCandidate = s;
+                    }, t61.addIceCandidate = s;
                 }
             }
             function c7(e93) {
@@ -14295,15 +14073,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 }).bind(t));
             }
             function s8(t) {
-                return t && void 0 !== t.video ? Object.assign({
-                }, t, {
+                return t && void 0 !== t.video ? Object.assign({}, t, {
                     video: e84.compactObject(t.video)
                 }) : t;
             }
-            function d(t59) {
-                if (t59.RTCPeerConnection) {
-                    var r = t59.RTCPeerConnection;
-                    t59.RTCPeerConnection = function(t, o) {
+            function d(t63) {
+                if (t63.RTCPeerConnection) {
+                    var r = t63.RTCPeerConnection;
+                    t63.RTCPeerConnection = function(t, o) {
                         if (t && t.iceServers) {
                             for(var n = [], i = 0; i < t.iceServers.length; i++){
                                 var a = t.iceServers[i];
@@ -14312,7 +14089,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             t.iceServers = n;
                         }
                         return new r(t, o);
-                    }, t59.RTCPeerConnection.prototype = r.prototype, "generateCertificate" in r && Object.defineProperty(t59.RTCPeerConnection, "generateCertificate", {
+                    }, t63.RTCPeerConnection.prototype = r.prototype, "generateCertificate" in r && Object.defineProperty(t63.RTCPeerConnection, "generateCertificate", {
                         get: function() {
                             return r.generateCertificate;
                         }
@@ -14359,7 +14136,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
             Object.defineProperty(exports, "__esModule", {
                 value: !0
             }), exports.shimRTCIceCandidate = a10, exports.shimMaxMessageSize = c8, exports.shimSendThrowTypeError = s9, exports.shimConnectionState = p3, exports.removeExtmapAllowMixed = d4, exports.shimAddIceCandidateNullOrEmpty = u;
-            var e96 = r47(require("sdp")), t60 = o10(require("./utils"));
+            var e96 = r47(require("sdp")), t64 = o10(require("./utils"));
             function n31() {
                 if ("function" != typeof WeakMap) return null;
                 var e = new WeakMap;
@@ -14374,8 +14151,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 };
                 var t = n31();
                 if (t && t.has(e)) return t.get(e);
-                var o = {
-                }, r = Object.defineProperty && Object.getOwnPropertyDescriptor;
+                var o = {}, r = Object.defineProperty && Object.getOwnPropertyDescriptor;
                 for(var i in e)if (Object.prototype.hasOwnProperty.call(e, i)) {
                     var a = r ? Object.getOwnPropertyDescriptor(e, i) : null;
                     a && (a.get || a.set) ? Object.defineProperty(o, i, a) : o[i] = e[i];
@@ -14387,8 +14163,8 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     default: e
                 };
             }
-            function i21(e97) {
-                return (i21 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
+            function i23(e97) {
+                return (i23 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
                     return typeof e;
                 } : function(e) {
                     return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
@@ -14398,7 +14174,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 if (n32.RTCIceCandidate && !(n32.RTCIceCandidate && "foundation" in n32.RTCIceCandidate.prototype)) {
                     var o = n32.RTCIceCandidate;
                     n32.RTCIceCandidate = function(t) {
-                        if ("object" === i21(t) && t.candidate && 0 === t.candidate.indexOf("a=") && ((t = JSON.parse(JSON.stringify(t))).candidate = t.candidate.substr(2)), t.candidate && t.candidate.length) {
+                        if ("object" === i23(t) && t.candidate && 0 === t.candidate.indexOf("a=") && ((t = JSON.parse(JSON.stringify(t))).candidate = t.candidate.substr(2)), t.candidate && t.candidate.length) {
                             var n = new o(t), r = e96.default.parseCandidate(t.candidate), a = Object.assign(n, r);
                             return a.toJSON = function() {
                                 return {
@@ -14410,7 +14186,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             }, a;
                         }
                         return new o(t);
-                    }, n32.RTCIceCandidate.prototype = o.prototype, t60.wrapPeerConnectionEvent(n32, "icecandidate", function(e) {
+                    }, n32.RTCIceCandidate.prototype = o.prototype, t64.wrapPeerConnectionEvent(n32, "icecandidate", function(e) {
                         return e.candidate && Object.defineProperty(e, "candidate", {
                             value: new n32.RTCIceCandidate(e.candidate),
                             writable: "false"
@@ -14418,15 +14194,15 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     });
                 }
             }
-            function c8(t61, n33) {
-                if (t61.RTCPeerConnection) {
-                    "sctp" in t61.RTCPeerConnection.prototype || Object.defineProperty(t61.RTCPeerConnection.prototype, "sctp", {
+            function c8(t65, n33) {
+                if (t65.RTCPeerConnection) {
+                    "sctp" in t65.RTCPeerConnection.prototype || Object.defineProperty(t65.RTCPeerConnection.prototype, "sctp", {
                         get: function() {
                             return void 0 === this._sctp ? null : this._sctp;
                         }
                     });
-                    var o11 = t61.RTCPeerConnection.prototype.setRemoteDescription;
-                    t61.RTCPeerConnection.prototype.setRemoteDescription = function() {
+                    var o11 = t65.RTCPeerConnection.prototype.setRemoteDescription;
+                    t65.RTCPeerConnection.prototype.setRemoteDescription = function() {
                         if (this._sctp = null, "chrome" === n33.browser && n33.version >= 76) {
                             var { sdpSemantics: t  } = this.getConfiguration();
                             "plan-b" === t && Object.defineProperty(this, "sctp", {
@@ -14437,28 +14213,27 @@ parcelRequire = (function(e1, r1, t1, n1) {
                                 configurable: !0
                             });
                         }
-                        if ((function(t62) {
-                            if (!t62 || !t62.sdp) return !1;
-                            var n34 = e96.default.splitSections(t62.sdp);
+                        if (function(t66) {
+                            if (!t66 || !t66.sdp) return !1;
+                            var n34 = e96.default.splitSections(t66.sdp);
                             return n34.shift(), n34.some(function(t) {
                                 var n = e96.default.parseMLine(t);
                                 return n && "application" === n.kind && -1 !== n.protocol.indexOf("SCTP");
                             });
-                        })(arguments[0])) {
-                            var r48, i22 = function(e) {
+                        }(arguments[0])) {
+                            var r48, i24 = function(e) {
                                 var t = e.sdp.match(/mozilla...THIS_IS_SDPARTA-(\d+)/);
                                 if (null === t || t.length < 2) return -1;
                                 var n = parseInt(t[1], 10);
                                 return n != n ? -1 : n;
-                            }(arguments[0]), a = (p = i22, d = 65536, "firefox" === n33.browser && (d = n33.version < 57 ? -1 === p ? 16384 : 2147483637 : n33.version < 60 ? 57 === n33.version ? 65535 : 65536 : 2147483637), d), c = function(t, o) {
+                            }(arguments[0]), a = (p = i24, d = 65536, "firefox" === n33.browser && (d = n33.version < 57 ? -1 === p ? 16384 : 2147483637 : n33.version < 60 ? 57 === n33.version ? 65535 : 65536 : 2147483637), d), c = function(t, o) {
                                 var r = 65536;
                                 "firefox" === n33.browser && 57 === n33.version && (r = 65535);
                                 var i = e96.default.matchPrefix(t.sdp, "a=max-message-size:");
                                 return i.length > 0 ? r = parseInt(i[0].substr(19), 10) : "firefox" === n33.browser && -1 !== o && (r = 2147483637), r;
-                            }(arguments[0], i22);
+                            }(arguments[0], i24);
                             r48 = 0 === a && 0 === c ? Number.POSITIVE_INFINITY : 0 === a || 0 === c ? Math.max(a, c) : Math.min(a, c);
-                            var s = {
-                            };
+                            var s = {};
                             Object.defineProperty(s, "maxMessageSize", {
                                 get: function() {
                                     return r48;
@@ -14476,7 +14251,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     e98.RTCPeerConnection.prototype.createDataChannel = function() {
                         var e = n.apply(this, arguments);
                         return o13(e, this), e;
-                    }, t60.wrapPeerConnectionEvent(e98, "datachannel", function(e) {
+                    }, t64.wrapPeerConnectionEvent(e98, "datachannel", function(e) {
                         return o13(e.channel, e.target), e;
                     });
                 }
@@ -14491,8 +14266,8 @@ parcelRequire = (function(e1, r1, t1, n1) {
             }
             function p3(e99) {
                 if (e99.RTCPeerConnection && !("connectionState" in e99.RTCPeerConnection.prototype)) {
-                    var t63 = e99.RTCPeerConnection.prototype;
-                    Object.defineProperty(t63, "connectionState", {
+                    var t67 = e99.RTCPeerConnection.prototype;
+                    Object.defineProperty(t67, "connectionState", {
                         get: function() {
                             return ({
                                 completed: "connected",
@@ -14501,7 +14276,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         },
                         enumerable: !0,
                         configurable: !0
-                    }), Object.defineProperty(t63, "onconnectionstatechange", {
+                    }), Object.defineProperty(t67, "onconnectionstatechange", {
                         get: function() {
                             return this._onconnectionstatechange || null;
                         },
@@ -14514,8 +14289,8 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         "setLocalDescription",
                         "setRemoteDescription"
                     ].forEach(function(e100) {
-                        var n35 = t63[e100];
-                        t63[e100] = function() {
+                        var n35 = t67[e100];
+                        t67[e100] = function() {
                             return this._connectionstatechangepoly || (this._connectionstatechangepoly = function(e) {
                                 var t = e.target;
                                 if (t._lastConnectionState !== t.connectionState) {
@@ -14529,8 +14304,8 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     });
                 }
             }
-            function d4(e101, t65) {
-                if (e101.RTCPeerConnection && !("chrome" === t65.browser && t65.version >= 71 || "safari" === t65.browser && t65.version >= 605)) {
+            function d4(e101, t69) {
+                if (e101.RTCPeerConnection && !("chrome" === t69.browser && t69.version >= 71 || "safari" === t69.browser && t69.version >= 605)) {
                     var n = e101.RTCPeerConnection.prototype.setRemoteDescription;
                     e101.RTCPeerConnection.prototype.setRemoteDescription = function(t) {
                         if (t && t.sdp && -1 !== t.sdp.indexOf("\na=extmap-allow-mixed")) {
@@ -14566,7 +14341,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
             Object.defineProperty(exports, "__esModule", {
                 value: !0
             }), exports.adapterFactory = o14;
-            var e102 = m1(require("./utils")), i24 = m1(require("./chrome/chrome_shim")), r50 = m1(require("./edge/edge_shim")), s10 = m1(require("./firefox/firefox_shim")), t66 = m1(require("./safari/safari_shim")), a11 = m1(require("./common_shim"));
+            var e102 = m1(require("./utils")), i26 = m1(require("./chrome/chrome_shim")), r50 = m1(require("./edge/edge_shim")), s10 = m1(require("./firefox/firefox_shim")), t70 = m1(require("./safari/safari_shim")), a11 = m1(require("./common_shim"));
             function n36() {
                 if ("function" != typeof WeakMap) return null;
                 var e = new WeakMap;
@@ -14581,8 +14356,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 };
                 var i = n36();
                 if (i && i.has(e)) return i.get(e);
-                var r = {
-                }, s = Object.defineProperty && Object.getOwnPropertyDescriptor;
+                var r = {}, s = Object.defineProperty && Object.getOwnPropertyDescriptor;
                 for(var t in e)if (Object.prototype.hasOwnProperty.call(e, t)) {
                     var a = s ? Object.getOwnPropertyDescriptor(e, t) : null;
                     a && (a.get || a.set) ? Object.defineProperty(r, t, a) : r[t] = e[t];
@@ -14590,8 +14364,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 return r.default = e, i && i.set(e, r), r;
             }
             function o14() {
-                var { window: n  } = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {
-                }, m = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {
+                var { window: n  } = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {}, m = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {
                     shimChrome: !0,
                     shimFirefox: !0,
                     shimEdge: !0,
@@ -14605,9 +14378,9 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 };
                 switch(h.browser){
                     case "chrome":
-                        if (!i24 || !i24.shimPeerConnection || !m.shimChrome) return o("Chrome shim is not included in this adapter release."), d;
+                        if (!i26 || !i26.shimPeerConnection || !m.shimChrome) return o("Chrome shim is not included in this adapter release."), d;
                         if (null === h.version) return o("Chrome shim can not determine version, not shimming."), d;
-                        o("adapter.js shimming chrome."), d.browserShim = i24, a11.shimAddIceCandidateNullOrEmpty(n, h), i24.shimGetUserMedia(n, h), i24.shimMediaStream(n, h), i24.shimPeerConnection(n, h), i24.shimOnTrack(n, h), i24.shimAddTrackRemoveTrack(n, h), i24.shimGetSendersWithDtmf(n, h), i24.shimGetStats(n, h), i24.shimSenderReceiverGetStats(n, h), i24.fixNegotiationNeeded(n, h), a11.shimRTCIceCandidate(n, h), a11.shimConnectionState(n, h), a11.shimMaxMessageSize(n, h), a11.shimSendThrowTypeError(n, h), a11.removeExtmapAllowMixed(n, h);
+                        o("adapter.js shimming chrome."), d.browserShim = i26, a11.shimAddIceCandidateNullOrEmpty(n, h), i26.shimGetUserMedia(n, h), i26.shimMediaStream(n, h), i26.shimPeerConnection(n, h), i26.shimOnTrack(n, h), i26.shimAddTrackRemoveTrack(n, h), i26.shimGetSendersWithDtmf(n, h), i26.shimGetStats(n, h), i26.shimSenderReceiverGetStats(n, h), i26.fixNegotiationNeeded(n, h), a11.shimRTCIceCandidate(n, h), a11.shimConnectionState(n, h), a11.shimMaxMessageSize(n, h), a11.shimSendThrowTypeError(n, h), a11.removeExtmapAllowMixed(n, h);
                         break;
                     case "firefox":
                         if (!s10 || !s10.shimPeerConnection || !m.shimFirefox) return o("Firefox shim is not included in this adapter release."), d;
@@ -14618,8 +14391,8 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         o("adapter.js shimming edge."), d.browserShim = r50, r50.shimGetUserMedia(n, h), r50.shimGetDisplayMedia(n, h), r50.shimPeerConnection(n, h), r50.shimReplaceTrack(n, h), a11.shimMaxMessageSize(n, h), a11.shimSendThrowTypeError(n, h);
                         break;
                     case "safari":
-                        if (!t66 || !m.shimSafari) return o("Safari shim is not included in this adapter release."), d;
-                        o("adapter.js shimming safari."), d.browserShim = t66, a11.shimAddIceCandidateNullOrEmpty(n, h), t66.shimRTCIceServerUrls(n, h), t66.shimCreateOfferLegacy(n, h), t66.shimCallbacksAPI(n, h), t66.shimLocalStreamsAPI(n, h), t66.shimRemoteStreamsAPI(n, h), t66.shimTrackEventTransceiver(n, h), t66.shimGetUserMedia(n, h), t66.shimAudioContext(n, h), a11.shimRTCIceCandidate(n, h), a11.shimMaxMessageSize(n, h), a11.shimSendThrowTypeError(n, h), a11.removeExtmapAllowMixed(n, h);
+                        if (!t70 || !m.shimSafari) return o("Safari shim is not included in this adapter release."), d;
+                        o("adapter.js shimming safari."), d.browserShim = t70, a11.shimAddIceCandidateNullOrEmpty(n, h), t70.shimRTCIceServerUrls(n, h), t70.shimCreateOfferLegacy(n, h), t70.shimCallbacksAPI(n, h), t70.shimLocalStreamsAPI(n, h), t70.shimRemoteStreamsAPI(n, h), t70.shimTrackEventTransceiver(n, h), t70.shimGetUserMedia(n, h), t70.shimAudioContext(n, h), a11.shimRTCIceCandidate(n, h), a11.shimMaxMessageSize(n, h), a11.shimSendThrowTypeError(n, h), a11.removeExtmapAllowMixed(n, h);
                         break;
                     default:
                         o("Unsupported browser!");
@@ -14705,8 +14478,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     var o = !1;
                     try {
                         (e = new RTCPeerConnection).addTransceiver("audio"), o = !0;
-                    } catch (s) {
-                    } finally{
+                    } catch (s) {} finally{
                         e && e.close();
                     }
                     return o;
@@ -14731,7 +14503,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 });
             } : function(e, t, r, o) {
                 void 0 === o && (o = r), e[o] = t[r];
-            }), t67 = this && this.__setModuleDefault || (Object.create ? function(e, t) {
+            }), t71 = this && this.__setModuleDefault || (Object.create ? function(e, t) {
                 Object.defineProperty(e, "default", {
                     enumerable: !0,
                     value: t
@@ -14740,15 +14512,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 e.default = t;
             }), r52 = this && this.__importStar || function(r) {
                 if (r && r.__esModule) return r;
-                var o = {
-                };
+                var o = {};
                 if (null != r) for(var n in r)"default" !== n && Object.prototype.hasOwnProperty.call(r, n) && e105(o, r, n);
-                return t67(o, r), o;
+                return t71(o, r), o;
             };
             Object.defineProperty(exports, "__esModule", {
                 value: !0
             }), exports.util = void 0;
-            var o15 = r52(require("peerjs-js-binarypack")), n37 = require("./supports"), i25 = {
+            var o15 = r52(require("peerjs-js-binarypack")), n37 = require("./supports"), i27 = {
                 iceServers: [
                     {
                         urls: "stun:stun.l.google.com:19302"
@@ -14766,7 +14537,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     this.CLOUD_HOST = "0.peerjs.com", this.CLOUD_PORT = 443, this.chunkedBrowsers = {
                         Chrome: 1,
                         chrome: 1
-                    }, this.chunkedMTU = 16300, this.defaultConfig = i25, this.browser = n37.Supports.getBrowser(), this.browserVersion = n37.Supports.getVersion(), this.supports = (function() {
+                    }, this.chunkedMTU = 16300, this.defaultConfig = i27, this.browser = n37.Supports.getBrowser(), this.browserVersion = n37.Supports.getVersion(), this.supports = function() {
                         var e, t = {
                             browser: n37.Supports.isBrowserSupported(),
                             webRTC: n37.Supports.isWebRTCSupported(),
@@ -14777,7 +14548,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         };
                         if (!t.webRTC) return t;
                         try {
-                            e = new RTCPeerConnection(i25), t.audioVideo = !0;
+                            e = new RTCPeerConnection(i27), t.audioVideo = !0;
                             var r = void 0;
                             try {
                                 r = e.createDataChannel("_PEERJSTEST", {
@@ -14785,21 +14556,17 @@ parcelRequire = (function(e1, r1, t1, n1) {
                                 }), t.data = !0, t.reliable = !!r.ordered;
                                 try {
                                     r.binaryType = "blob", t.binaryBlob = !n37.Supports.isIOS;
-                                } catch (o) {
-                                }
-                            } catch (o) {
-                            } finally{
+                                } catch (o) {}
+                            } catch (o) {} finally{
                                 r && r.close();
                             }
-                        } catch (o) {
-                        } finally{
+                        } catch (o) {} finally{
                             e && e.close();
                         }
                         return t;
-                    })(), this.pack = o15.pack, this.unpack = o15.unpack, this._dataCount = 1;
+                    }(), this.pack = o15.pack, this.unpack = o15.unpack, this._dataCount = 1;
                 }
-                return e106.prototype.noop = function() {
-                }, e106.prototype.validateId = function(e) {
+                return e106.prototype.noop = function() {}, e106.prototype.validateId = function(e) {
                     return !e || /^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/.test(e);
                 }, e106.prototype.chunk = function(e) {
                     for(var t = [], r = e.size, o = Math.ceil(r / exports.util.chunkedMTU), n = 0, i = 0; i < r;){
@@ -14835,15 +14602,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
     "JJlS": [
         function(require, module, exports) {
             "use strict";
-            var e108 = Object.prototype.hasOwnProperty, t68 = "~";
-            function n38() {
-            }
+            var e108 = Object.prototype.hasOwnProperty, t72 = "~";
+            function n38() {}
             function r53(e, t, n) {
                 this.fn = e, this.context = t, this.once = n || !1;
             }
             function o16(e, n, o, s, i) {
                 if ("function" != typeof o) throw new TypeError("The listener must be a function");
-                var c = new r53(o, s || e, i), f = t68 ? t68 + n : n;
+                var c = new r53(o, s || e, i), f = t72 ? t72 + n : n;
                 return e._events[f] ? e._events[f].fn ? e._events[f] = [
                     e._events[f],
                     c
@@ -14852,27 +14618,27 @@ parcelRequire = (function(e1, r1, t1, n1) {
             function s11(e, t) {
                 0 == --e._eventsCount ? e._events = new n38 : delete e._events[t];
             }
-            function i26() {
+            function i28() {
                 this._events = new n38, this._eventsCount = 0;
             }
-            Object.create && (n38.prototype = Object.create(null), (new n38).__proto__ || (t68 = !1)), i26.prototype.eventNames = function() {
+            Object.create && (n38.prototype = Object.create(null), (new n38).__proto__ || (t72 = !1)), i28.prototype.eventNames = function() {
                 var n, r, o = [];
                 if (0 === this._eventsCount) return o;
-                for(r in n = this._events)e108.call(n, r) && o.push(t68 ? r.slice(1) : r);
+                for(r in n = this._events)e108.call(n, r) && o.push(t72 ? r.slice(1) : r);
                 return Object.getOwnPropertySymbols ? o.concat(Object.getOwnPropertySymbols(n)) : o;
-            }, i26.prototype.listeners = function(e) {
-                var n = t68 ? t68 + e : e, r = this._events[n];
+            }, i28.prototype.listeners = function(e) {
+                var n = t72 ? t72 + e : e, r = this._events[n];
                 if (!r) return [];
                 if (r.fn) return [
                     r.fn
                 ];
                 for(var o = 0, s = r.length, i = new Array(s); o < s; o++)i[o] = r[o].fn;
                 return i;
-            }, i26.prototype.listenerCount = function(e) {
-                var n = t68 ? t68 + e : e, r = this._events[n];
+            }, i28.prototype.listenerCount = function(e) {
+                var n = t72 ? t72 + e : e, r = this._events[n];
                 return r ? r.fn ? 1 : r.length : 0;
-            }, i26.prototype.emit = function(e, n, r, o, s, i) {
-                var c = t68 ? t68 + e : e;
+            }, i28.prototype.emit = function(e, n, r, o, s, i) {
+                var c = t72 ? t72 + e : e;
                 if (!this._events[c]) return !1;
                 var f, u, a = this._events[c], l = arguments.length;
                 if (a.fn) {
@@ -14913,12 +14679,12 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     }
                 }
                 return !0;
-            }, i26.prototype.on = function(e, t, n) {
+            }, i28.prototype.on = function(e, t, n) {
                 return o16(this, e, t, n, !1);
-            }, i26.prototype.once = function(e, t, n) {
+            }, i28.prototype.once = function(e, t, n) {
                 return o16(this, e, t, n, !0);
-            }, i26.prototype.removeListener = function(e, n, r, o) {
-                var i = t68 ? t68 + e : e;
+            }, i28.prototype.removeListener = function(e, n, r, o) {
+                var i = t72 ? t72 + e : e;
                 if (!this._events[i]) return this;
                 if (!n) return s11(this, i), this;
                 var c = this._events[i];
@@ -14928,13 +14694,12 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     u.length ? this._events[i] = 1 === u.length ? u[0] : u : s11(this, i);
                 }
                 return this;
-            }, i26.prototype.removeAllListeners = function(e) {
+            }, i28.prototype.removeAllListeners = function(e) {
                 var r;
-                return e ? (r = t68 ? t68 + e : e, this._events[r] && s11(this, r)) : (this._events = new n38, this._eventsCount = 0), this;
-            }, i26.prototype.off = i26.prototype.removeListener, i26.prototype.addListener = i26.prototype.on, i26.prefixed = t68, i26.EventEmitter = i26, "undefined" != typeof module && (module.exports = i26);
+                return e ? (r = t72 ? t72 + e : e, this._events[r] && s11(this, r)) : (this._events = new n38, this._eventsCount = 0), this;
+            }, i28.prototype.off = i28.prototype.removeListener, i28.prototype.addListener = i28.prototype.on, i28.prefixed = t72, i28.EventEmitter = i28, "undefined" != typeof module && (module.exports = i28);
         },
-        {
-        }
+        {}
     ],
     "WOs9": [
         function(require, module, exports) {
@@ -14964,11 +14729,10 @@ parcelRequire = (function(e1, r1, t1, n1) {
             Object.defineProperty(exports, "__esModule", {
                 value: !0
             }), exports.LogLevel = void 0;
-            var o17, t69 = "PeerJS: ";
+            var o17, t73 = "PeerJS: ";
             !function(r) {
                 r[r.Disabled = 0] = "Disabled", r[r.Errors = 1] = "Errors", r[r.Warnings = 2] = "Warnings", r[r.All = 3] = "All";
-            }(o17 = exports.LogLevel || (exports.LogLevel = {
-            }));
+            }(o17 = exports.LogLevel || (exports.LogLevel = {}));
             var n39 = function() {
                 function n40() {
                     this._logLevel = o17.Disabled;
@@ -15002,7 +14766,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 }, n40.prototype._print = function(n) {
                     for(var l = [], i = 1; i < arguments.length; i++)l[i - 1] = arguments[i];
                     var s = e109([
-                        t69
+                        t73
                     ], r54(l));
                     for(var a in s)s[a] instanceof Error && (s[a] = "(" + s[a].name + ") " + s[a].message);
                     n >= o17.All ? console.log.apply(console, e109([], r54(s))) : n >= o17.Warnings ? console.warn.apply(console, e109([
@@ -15014,8 +14778,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
             }();
             exports.default = new n39;
         },
-        {
-        }
+        {}
     ],
     "ZRYf": [
         function(require, module, exports) {
@@ -15023,44 +14786,36 @@ parcelRequire = (function(e1, r1, t1, n1) {
             var e110, r, o, n, t, a, i;
             Object.defineProperty(exports, "__esModule", {
                 value: !0
-            }), exports.ServerMessageType = exports.SocketEventType = exports.SerializationType = exports.PeerErrorType = exports.PeerEventType = exports.ConnectionType = exports.ConnectionEventType = void 0, (function(e) {
+            }), exports.ServerMessageType = exports.SocketEventType = exports.SerializationType = exports.PeerErrorType = exports.PeerEventType = exports.ConnectionType = exports.ConnectionEventType = void 0, function(e) {
                 e.Open = "open", e.Stream = "stream", e.Data = "data", e.Close = "close", e.Error = "error", e.IceStateChanged = "iceStateChanged";
-            })(e110 = exports.ConnectionEventType || (exports.ConnectionEventType = {
-            })), (function(e) {
+            }(e110 = exports.ConnectionEventType || (exports.ConnectionEventType = {})), function(e) {
                 e.Data = "data", e.Media = "media";
-            })(r = exports.ConnectionType || (exports.ConnectionType = {
-            })), (function(e) {
+            }(r = exports.ConnectionType || (exports.ConnectionType = {})), function(e) {
                 e.Open = "open", e.Close = "close", e.Connection = "connection", e.Call = "call", e.Disconnected = "disconnected", e.Error = "error";
-            })(o = exports.PeerEventType || (exports.PeerEventType = {
-            })), (function(e) {
+            }(o = exports.PeerEventType || (exports.PeerEventType = {})), function(e) {
                 e.BrowserIncompatible = "browser-incompatible", e.Disconnected = "disconnected", e.InvalidID = "invalid-id", e.InvalidKey = "invalid-key", e.Network = "network", e.PeerUnavailable = "peer-unavailable", e.SslUnavailable = "ssl-unavailable", e.ServerError = "server-error", e.SocketError = "socket-error", e.SocketClosed = "socket-closed", e.UnavailableID = "unavailable-id", e.WebRTC = "webrtc";
-            })(n = exports.PeerErrorType || (exports.PeerErrorType = {
-            })), (function(e) {
+            }(n = exports.PeerErrorType || (exports.PeerErrorType = {})), function(e) {
                 e.Binary = "binary", e.BinaryUTF8 = "binary-utf8", e.JSON = "json";
-            })(t = exports.SerializationType || (exports.SerializationType = {
-            })), (function(e) {
+            }(t = exports.SerializationType || (exports.SerializationType = {})), function(e) {
                 e.Message = "message", e.Disconnected = "disconnected", e.Error = "error", e.Close = "close";
-            })(a = exports.SocketEventType || (exports.SocketEventType = {
-            })), (function(e) {
+            }(a = exports.SocketEventType || (exports.SocketEventType = {})), function(e) {
                 e.Heartbeat = "HEARTBEAT", e.Candidate = "CANDIDATE", e.Offer = "OFFER", e.Answer = "ANSWER", e.Open = "OPEN", e.Error = "ERROR", e.IdTaken = "ID-TAKEN", e.InvalidKey = "INVALID-KEY", e.Leave = "LEAVE", e.Expire = "EXPIRE";
-            })(i = exports.ServerMessageType || (exports.ServerMessageType = {
-            }));
+            }(i = exports.ServerMessageType || (exports.ServerMessageType = {}));
         },
-        {
-        }
+        {}
     ],
     "wJlv": [
         function(require, module, exports) {
             "use strict";
             var e111 = this && this.__extends || function() {
-                var e112 = function(t71, n42) {
+                var e112 = function(t75, n42) {
                     return (e112 = Object.setPrototypeOf || ({
                         __proto__: []
                     }) instanceof Array && function(e, t) {
                         e.__proto__ = t;
                     } || function(e, t) {
                         for(var n in t)Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);
-                    })(t71, n42);
+                    })(t75, n42);
                 };
                 return function(t, n) {
                     if ("function" != typeof n && null !== n) throw new TypeError("Class extends value " + String(n) + " is not a constructor or null");
@@ -15069,7 +14824,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     }
                     e112(t, n), t.prototype = null === n ? Object.create(n) : (o.prototype = n.prototype, new o);
                 };
-            }(), t70 = this && this.__read || function(e, t) {
+            }(), t74 = this && this.__read || function(e, t) {
                 var n = "function" == typeof Symbol && e[Symbol.iterator];
                 if (!n) return e;
                 var o, s, r = n.call(e), i = [];
@@ -15110,7 +14865,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
             Object.defineProperty(exports, "__esModule", {
                 value: !0
             }), exports.Socket = void 0;
-            var r55 = require("eventemitter3"), i27 = s12(require("./logger")), c9 = require("./enums"), a12 = function(s13) {
+            var r55 = require("eventemitter3"), i29 = s12(require("./logger")), c9 = require("./enums"), a12 = function(s13) {
                 function r56(e, t, n, o, r, i) {
                     void 0 === i && (i = 5000);
                     var c = s13.call(this) || this;
@@ -15118,22 +14873,22 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     var a = e ? "wss://" : "ws://";
                     return c._baseUrl = a + t + ":" + n + o + "peerjs?key=" + r, c;
                 }
-                return e111(r56, s13), r56.prototype.start = function(e113, t72) {
+                return e111(r56, s13), r56.prototype.start = function(e113, t76) {
                     var n = this;
                     this._id = e113;
-                    var o = this._baseUrl + "&id=" + e113 + "&token=" + t72;
+                    var o = this._baseUrl + "&id=" + e113 + "&token=" + t76;
                     !this._socket && this._disconnected && (this._socket = new WebSocket(o), this._disconnected = !1, this._socket.onmessage = function(e) {
                         var t;
                         try {
-                            t = JSON.parse(e.data), i27.default.log("Server message received:", t);
+                            t = JSON.parse(e.data), i29.default.log("Server message received:", t);
                         } catch (o) {
-                            return void i27.default.log("Invalid server message", e.data);
+                            return void i29.default.log("Invalid server message", e.data);
                         }
                         n.emit(c9.SocketEventType.Message, t);
                     }, this._socket.onclose = function(e) {
-                        n._disconnected || (i27.default.log("Socket closed.", e), n._cleanup(), n._disconnected = !0, n.emit(c9.SocketEventType.Disconnected));
+                        n._disconnected || (i29.default.log("Socket closed.", e), n._cleanup(), n._disconnected = !0, n.emit(c9.SocketEventType.Disconnected));
                     }, this._socket.onopen = function() {
-                        n._disconnected || (n._sendQueuedMessages(), i27.default.log("Socket open"), n._scheduleHeartbeat());
+                        n._disconnected || (n._sendQueuedMessages(), i29.default.log("Socket open"), n._scheduleHeartbeat());
                     });
                 }, r56.prototype._scheduleHeartbeat = function() {
                     var e = this;
@@ -15146,11 +14901,11 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             type: c9.ServerMessageType.Heartbeat
                         });
                         this._socket.send(e), this._scheduleHeartbeat();
-                    } else i27.default.log("Cannot send heartbeat, because socket closed");
+                    } else i29.default.log("Cannot send heartbeat, because socket closed");
                 }, r56.prototype._wsOpen = function() {
                     return !!this._socket && 1 === this._socket.readyState;
                 }, r56.prototype._sendQueuedMessages = function() {
-                    var e, s, r = n41([], t70(this._messagesQueue));
+                    var e, s, r = n41([], t74(this._messagesQueue));
                     this._messagesQueue = [];
                     try {
                         for(var i = o18(r), c = i.next(); !c.done; c = i.next()){
@@ -15225,7 +14980,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     }
                     s((o = o.apply(e115, n44 || [])).next());
                 });
-            }, t73 = this && this.__generator || function(e, n) {
+            }, t77 = this && this.__generator || function(e, n) {
                 var t, o, i, r58, c = {
                     label: 0,
                     sent: function() {
@@ -15235,9 +14990,16 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     trys: [],
                     ops: []
                 };
+                return r58 = {
+                    next: a14(0),
+                    throw: a14(1),
+                    return: a14(2)
+                }, "function" == typeof Symbol && (r58[Symbol.iterator] = function() {
+                    return this;
+                }), r58;
                 function a14(r59) {
                     return function(a15) {
-                        return (function(r) {
+                        return function(r) {
                             if (t) throw new TypeError("Generator is already executing.");
                             for(; c;)try {
                                 if (t = 1, o && (i = 2 & r[0] ? o.return : r[0] ? o.throw || ((i = o.return) && i.call(o), 0) : o.next) && !(i = i.call(o, r[1])).done) return i;
@@ -15296,19 +15058,12 @@ parcelRequire = (function(e1, r1, t1, n1) {
                                 value: r[0] ? r[1] : void 0,
                                 done: !0
                             };
-                        })([
+                        }([
                             r59,
                             a15
                         ]);
                     };
                 }
-                return r58 = {
-                    next: a14(0),
-                    throw: a14(1),
-                    return: a14(2)
-                }, "function" == typeof Symbol && (r58[Symbol.iterator] = function() {
-                    return this;
-                }), r58;
             }, o19 = this && this.__importDefault || function(e) {
                 return e && e.__esModule ? e : {
                     default: e
@@ -15317,7 +15072,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
             Object.defineProperty(exports, "__esModule", {
                 value: !0
             }), exports.Negotiator = void 0;
-            var i28 = require("./util"), r57 = o19(require("./logger")), c10 = require("./enums"), a13 = function() {
+            var i30 = require("./util"), r57 = o19(require("./logger")), c10 = require("./enums"), a13 = function() {
                 function o20(e) {
                     this.connection = e;
                 }
@@ -15360,7 +15115,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                                 r57.default.log("iceConnectionState changed to disconnected on the connection with " + t);
                                 break;
                             case "completed":
-                                e117.onicecandidate = i28.util.noop;
+                                e117.onicecandidate = i30.util.noop;
                         }
                         n45.connection.emit(c10.ConnectionEventType.IceStateChanged, e117.iceConnectionState);
                     }, r57.default.log("Listening for data channel"), e117.ondatachannel = function(e) {
@@ -15379,8 +15134,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     r57.default.log("Cleaning up PeerConnection to " + this.connection.peer);
                     var e = this.connection.peerConnection;
                     if (e) {
-                        this.connection.peerConnection = null, e.onicecandidate = e.oniceconnectionstatechange = e.ondatachannel = e.ontrack = function() {
-                        };
+                        this.connection.peerConnection = null, e.onicecandidate = e.oniceconnectionstatechange = e.ondatachannel = e.ontrack = function() {};
                         var n = "closed" !== e.signalingState, t = !1;
                         if (this.connection.type === c10.ConnectionType.Data) {
                             var o = this.connection.dataChannel;
@@ -15391,7 +15145,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 }, o20.prototype._makeOffer = function() {
                     return n43(this, void 0, Promise, function() {
                         var n, o, a, s, d, l, u;
-                        return t73(this, function(t) {
+                        return t77(this, function(t) {
                             switch(t.label){
                                 case 0:
                                     n = this.connection.peerConnection, o = this.connection.provider, t.label = 1;
@@ -15423,9 +15177,8 @@ parcelRequire = (function(e1, r1, t1, n1) {
                                         type: this.connection.type,
                                         connectionId: this.connection.connectionId,
                                         metadata: this.connection.metadata,
-                                        browser: i28.util.browser
-                                    }, this.connection.type === c10.ConnectionType.Data && (d = this.connection, s = e114(e114({
-                                    }, s), {
+                                        browser: i30.util.browser
+                                    }, this.connection.type === c10.ConnectionType.Data && (d = this.connection, s = e114(e114({}, s), {
                                         label: d.label,
                                         reliable: d.reliable,
                                         serialization: d.serialization
@@ -15462,7 +15215,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 }, o20.prototype._makeAnswer = function() {
                     return n43(this, void 0, Promise, function() {
                         var e, n, o, a, s;
-                        return t73(this, function(t) {
+                        return t77(this, function(t) {
                             switch(t.label){
                                 case 0:
                                     e = this.connection.peerConnection, n = this.connection.provider, t.label = 1;
@@ -15495,7 +15248,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                                             sdp: o,
                                             type: this.connection.type,
                                             connectionId: this.connection.connectionId,
-                                            browser: i28.util.browser
+                                            browser: i30.util.browser
                                         },
                                         dst: this.connection.peer
                                     }), [
@@ -15527,7 +15280,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 }, o20.prototype.handleSDP = function(e, o) {
                     return n43(this, void 0, Promise, function() {
                         var n, i, a, s;
-                        return t73(this, function(t) {
+                        return t77(this, function(t) {
                             switch(t.label){
                                 case 0:
                                     o = new RTCSessionDescription(o), n = this.connection.peerConnection, i = this.connection.provider, r57.default.log("Setting remote description", o), a = this, t.label = 1;
@@ -15571,7 +15324,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 }, o20.prototype.handleCandidate = function(e) {
                     return n43(this, void 0, Promise, function() {
                         var n, o, i, a, s, d;
-                        return t73(this, function(t) {
+                        return t77(this, function(t) {
                             switch(t.label){
                                 case 0:
                                     r57.default.log("handleCandidate:", e), n = e.candidate, o = e.sdpMLineIndex, i = e.sdpMid, a = this.connection.peerConnection, s = this.connection.provider, t.label = 1;
@@ -15626,9 +15379,9 @@ parcelRequire = (function(e1, r1, t1, n1) {
     "tQFK": [
         function(require, module, exports) {
             "use strict";
-            var t74 = this && this.__extends || function() {
-                var t75 = function(e119, n47) {
-                    return (t75 = Object.setPrototypeOf || ({
+            var t78 = this && this.__extends || function() {
+                var t79 = function(e119, n47) {
+                    return (t79 = Object.setPrototypeOf || ({
                         __proto__: []
                     }) instanceof Array && function(t, e) {
                         t.__proto__ = e;
@@ -15641,7 +15394,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     function o() {
                         this.constructor = e;
                     }
-                    t75(e, n), e.prototype = null === n ? Object.create(n) : (o.prototype = n.prototype, new o);
+                    t79(e, n), e.prototype = null === n ? Object.create(n) : (o.prototype = n.prototype, new o);
                 };
             }();
             Object.defineProperty(exports, "__esModule", {
@@ -15652,7 +15405,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     var r = e.call(this) || this;
                     return r.peer = t, r.provider = n, r.options = o, r._open = !1, r.metadata = o.metadata, r;
                 }
-                return t74(n48, e), Object.defineProperty(n48.prototype, "open", {
+                return t78(n48, e), Object.defineProperty(n48.prototype, "open", {
                     get: function() {
                         return this._open;
                     },
@@ -15670,14 +15423,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
         function(require, module, exports) {
             "use strict";
             var e120 = this && this.__extends || function() {
-                var e121 = function(t77, o22) {
+                var e121 = function(t81, o22) {
                     return (e121 = Object.setPrototypeOf || ({
                         __proto__: []
                     }) instanceof Array && function(e, t) {
                         e.__proto__ = t;
                     } || function(e, t) {
                         for(var o in t)Object.prototype.hasOwnProperty.call(t, o) && (e[o] = t[o]);
-                    })(t77, o22);
+                    })(t81, o22);
                 };
                 return function(t, o) {
                     if ("function" != typeof o && null !== o) throw new TypeError("Class extends value " + String(o) + " is not a constructor or null");
@@ -15686,8 +15439,8 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     }
                     e121(t, o), t.prototype = null === o ? Object.create(o) : (r.prototype = o.prototype, new r);
                 };
-            }(), t76 = this && this.__assign || function() {
-                return (t76 = Object.assign || function(e) {
+            }(), t80 = this && this.__assign || function() {
+                return (t80 = Object.assign || function(e) {
                     for(var t, o = 1, r = arguments.length; o < r; o++)for(var n in t = arguments[o])Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);
                     return e;
                 }).apply(this, arguments);
@@ -15711,7 +15464,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
             Object.defineProperty(exports, "__esModule", {
                 value: !0
             }), exports.MediaConnection = void 0;
-            var n49 = require("./util"), i29 = r60(require("./logger")), a17 = require("./negotiator"), s14 = require("./enums"), l3 = require("./baseconnection"), c11 = function(r61) {
+            var n49 = require("./util"), i31 = r60(require("./logger")), a17 = require("./negotiator"), s14 = require("./enums"), l3 = require("./baseconnection"), c11 = function(r61) {
                 function l4(e, t, o) {
                     var i = r61.call(this, e, t, o) || this;
                     return i._localStream = i.options._stream, i.connectionId = i.options.connectionId || l4.ID_PREFIX + n49.util.randomToken(), i._negotiator = new a17.Negotiator(i), i._localStream && i._negotiator.startConnection({
@@ -15738,7 +15491,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     enumerable: !1,
                     configurable: !0
                 }), l4.prototype.addStream = function(e) {
-                    i29.default.log("Receiving stream", e), this._remoteStream = e, r61.prototype.emit.call(this, s14.ConnectionEventType.Stream, e);
+                    i31.default.log("Receiving stream", e), this._remoteStream = e, r61.prototype.emit.call(this, s14.ConnectionEventType.Stream, e);
                 }, l4.prototype.handleMessage = function(e) {
                     var t = e.type, o = e.payload;
                     switch(e.type){
@@ -15749,15 +15502,13 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             this._negotiator.handleCandidate(o.candidate);
                             break;
                         default:
-                            i29.default.warn("Unrecognized message type:" + t + " from peer:" + this.peer);
+                            i31.default.warn("Unrecognized message type:" + t + " from peer:" + this.peer);
                     }
                 }, l4.prototype.answer = function(e, r) {
                     var n, a;
-                    if (void 0 === r && (r = {
-                    }), this._localStream) i29.default.warn("Local stream already exists on this MediaConnection. Are you answering a call twice?");
+                    if (void 0 === r && (r = {}), this._localStream) i31.default.warn("Local stream already exists on this MediaConnection. Are you answering a call twice?");
                     else {
-                        this._localStream = e, r && r.sdpTransform && (this.options.sdpTransform = r.sdpTransform), this._negotiator.startConnection(t76(t76({
-                        }, this.options._payload), {
+                        this._localStream = e, r && r.sdpTransform && (this.options.sdpTransform = r.sdpTransform), this._negotiator.startConnection(t80(t80({}, this.options._payload), {
                             _stream: e
                         }));
                         var s = this.provider._getMessages(this.connectionId);
@@ -15797,14 +15548,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
         function(require, module, exports) {
             "use strict";
             var e122 = this && this.__extends || function() {
-                var e123 = function(t79, r63) {
+                var e123 = function(t83, r63) {
                     return (e123 = Object.setPrototypeOf || ({
                         __proto__: []
                     }) instanceof Array && function(e, t) {
                         e.__proto__ = t;
                     } || function(e, t) {
                         for(var r in t)Object.prototype.hasOwnProperty.call(t, r) && (e[r] = t[r]);
-                    })(t79, r63);
+                    })(t83, r63);
                 };
                 return function(t, r) {
                     if ("function" != typeof r && null !== r) throw new TypeError("Class extends value " + String(r) + " is not a constructor or null");
@@ -15813,7 +15564,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     }
                     e123(t, r), t.prototype = null === r ? Object.create(r) : (o.prototype = r.prototype, new o);
                 };
-            }(), t78 = this && this.__importDefault || function(e) {
+            }(), t82 = this && this.__importDefault || function(e) {
                 return e && e.__esModule ? e : {
                     default: e
                 };
@@ -15821,16 +15572,16 @@ parcelRequire = (function(e1, r1, t1, n1) {
             Object.defineProperty(exports, "__esModule", {
                 value: !0
             }), exports.EncodingQueue = void 0;
-            var r62 = require("eventemitter3"), o23 = t78(require("./logger")), n = function(t80) {
+            var r62 = require("eventemitter3"), o23 = t82(require("./logger")), n = function(t84) {
                 function r() {
-                    var e = t80.call(this) || this;
+                    var e = t84.call(this) || this;
                     return e.fileReader = new FileReader, e._queue = [], e._processing = !1, e.fileReader.onload = function(t) {
                         e._processing = !1, t.target && e.emit("done", t.target.result), e.doNextTask();
                     }, e.fileReader.onerror = function(t) {
                         o23.default.error("EncodingQueue error:", t), e._processing = !1, e.destroy(), e.emit("error", t);
                     }, e;
                 }
-                return e122(r, t80), Object.defineProperty(r.prototype, "queue", {
+                return e122(r, t84), Object.defineProperty(r.prototype, "queue", {
                     get: function() {
                         return this._queue;
                     },
@@ -15867,14 +15618,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
         function(require, module, exports) {
             "use strict";
             var e124 = this && this.__extends || function() {
-                var e125 = function(t82, n51) {
+                var e125 = function(t86, n51) {
                     return (e125 = Object.setPrototypeOf || ({
                         __proto__: []
                     }) instanceof Array && function(e, t) {
                         e.__proto__ = t;
                     } || function(e, t) {
                         for(var n in t)Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);
-                    })(t82, n51);
+                    })(t86, n51);
                 };
                 return function(t, n) {
                     if ("function" != typeof n && null !== n) throw new TypeError("Class extends value " + String(n) + " is not a constructor or null");
@@ -15883,7 +15634,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     }
                     e125(t, n), t.prototype = null === n ? Object.create(n) : (i.prototype = n.prototype, new i);
                 };
-            }(), t81 = this && this.__values || function(e) {
+            }(), t85 = this && this.__values || function(e) {
                 var t = "function" == typeof Symbol && Symbol.iterator, n = t && e[t], i = 0;
                 if (n) return n.call(e);
                 if (e && "number" == typeof e.length) return {
@@ -15903,11 +15654,10 @@ parcelRequire = (function(e1, r1, t1, n1) {
             Object.defineProperty(exports, "__esModule", {
                 value: !0
             }), exports.DataConnection = void 0;
-            var i30 = require("./util"), o24 = n50(require("./logger")), r64 = require("./negotiator"), a18 = require("./enums"), s15 = require("./baseconnection"), u4 = require("./encodingQueue"), l5 = function(n52) {
+            var i32 = require("./util"), o24 = n50(require("./logger")), r64 = require("./negotiator"), a18 = require("./enums"), s15 = require("./baseconnection"), u4 = require("./encodingQueue"), l5 = function(n52) {
                 function s16(e126, t, l) {
                     var f = n52.call(this, e126, t, l) || this;
-                    return f.stringify = JSON.stringify, f.parse = JSON.parse, f._buffer = [], f._bufferSize = 0, f._buffering = !1, f._chunkedData = {
-                    }, f._encodingQueue = new u4.EncodingQueue, f.connectionId = f.options.connectionId || s16.ID_PREFIX + i30.util.randomToken(), f.label = f.options.label || f.connectionId, f.serialization = f.options.serialization || a18.SerializationType.Binary, f.reliable = !!f.options.reliable, f._encodingQueue.on("done", function(e) {
+                    return f.stringify = JSON.stringify, f.parse = JSON.parse, f._buffer = [], f._bufferSize = 0, f._buffering = !1, f._chunkedData = {}, f._encodingQueue = new u4.EncodingQueue, f.connectionId = f.options.connectionId || s16.ID_PREFIX + i32.util.randomToken(), f.label = f.options.label || f.connectionId, f.serialization = f.options.serialization || a18.SerializationType.Binary, f.reliable = !!f.options.reliable, f._encodingQueue.on("done", function(e) {
                         f._bufferedSend(e);
                     }), f._encodingQueue.on("error", function() {
                         o24.default.error("DC#" + f.connectionId + ": Error occured in encoding from blob to arraybuffer, close DC"), f.close();
@@ -15937,7 +15687,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     this._dc = e, this._configureDataChannel();
                 }, s16.prototype._configureDataChannel = function() {
                     var e = this;
-                    i30.util.supports.binaryBlob && !i30.util.supports.reliable || (this.dataChannel.binaryType = "arraybuffer"), this.dataChannel.onopen = function() {
+                    i32.util.supports.binaryBlob && !i32.util.supports.reliable || (this.dataChannel.binaryType = "arraybuffer"), this.dataChannel.onopen = function() {
                         o24.default.log("DC#" + e.connectionId + " dc connection success"), e._open = !0, e.emit(a18.ConnectionEventType.Open);
                     }, this.dataChannel.onmessage = function(t) {
                         o24.default.log("DC#" + e.connectionId + " dc onmessage:", t.data), e._handleDataMessage(t);
@@ -15947,14 +15697,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
                 }, s16.prototype._handleDataMessage = function(e127) {
                     var t = this, o = e127.data, r = o.constructor, s = o;
                     if (this.serialization === a18.SerializationType.Binary || this.serialization === a18.SerializationType.BinaryUTF8) {
-                        if (r === Blob) return void i30.util.blobToArrayBuffer(o, function(e) {
-                            var n = i30.util.unpack(e);
+                        if (r === Blob) return void i32.util.blobToArrayBuffer(o, function(e) {
+                            var n = i32.util.unpack(e);
                             t.emit(a18.ConnectionEventType.Data, n);
                         });
-                        if (r === ArrayBuffer) s = i30.util.unpack(o);
+                        if (r === ArrayBuffer) s = i32.util.unpack(o);
                         else if (r === String) {
-                            var u = i30.util.binaryStringToArrayBuffer(o);
-                            s = i30.util.unpack(u);
+                            var u = i32.util.binaryStringToArrayBuffer(o);
+                            s = i32.util.unpack(u);
                         }
                     } else this.serialization === a18.SerializationType.JSON && (s = this.parse(o));
                     s.__peerData ? this._handleChunk(s) : n52.prototype.emit.call(this, a18.ConnectionEventType.Data, s);
@@ -15972,15 +15722,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         });
                     }
                 }, s16.prototype.close = function() {
-                    this._buffer = [], this._bufferSize = 0, this._chunkedData = {
-                    }, this._negotiator && (this._negotiator.cleanup(), this._negotiator = null), this.provider && (this.provider._removeConnection(this), this.provider = null), this.dataChannel && (this.dataChannel.onopen = null, this.dataChannel.onmessage = null, this.dataChannel.onclose = null, this._dc = null), this._encodingQueue && (this._encodingQueue.destroy(), this._encodingQueue.removeAllListeners(), this._encodingQueue = null), this.open && (this._open = !1, n52.prototype.emit.call(this, a18.ConnectionEventType.Close));
+                    this._buffer = [], this._bufferSize = 0, this._chunkedData = {}, this._negotiator && (this._negotiator.cleanup(), this._negotiator = null), this.provider && (this.provider._removeConnection(this), this.provider = null), this.dataChannel && (this.dataChannel.onopen = null, this.dataChannel.onmessage = null, this.dataChannel.onclose = null, this._dc = null), this._encodingQueue && (this._encodingQueue.destroy(), this._encodingQueue.removeAllListeners(), this._encodingQueue = null), this.open && (this._open = !1, n52.prototype.emit.call(this, a18.ConnectionEventType.Close));
                 }, s16.prototype.send = function(e, t) {
                     if (this.open) {
                         if (this.serialization === a18.SerializationType.JSON) this._bufferedSend(this.stringify(e));
                         else if (this.serialization === a18.SerializationType.Binary || this.serialization === a18.SerializationType.BinaryUTF8) {
-                            var o = i30.util.pack(e);
-                            if (!t && o.size > i30.util.chunkedMTU) return void this._sendChunks(o);
-                            i30.util.supports.binaryBlob ? this._bufferedSend(o) : this._encodingQueue.enque(o);
+                            var o = i32.util.pack(e);
+                            if (!t && o.size > i32.util.chunkedMTU) return void this._sendChunks(o);
+                            i32.util.supports.binaryBlob ? this._bufferedSend(o) : this._encodingQueue.enque(o);
                         } else this._bufferedSend(e);
                     } else n52.prototype.emit.call(this, a18.ConnectionEventType.Error, new Error("Connection is not open. You should listen for the `open` event before sending messages."));
                 }, s16.prototype._bufferedSend = function(e) {
@@ -16003,10 +15752,10 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         this._trySend(e) && (this._buffer.shift(), this._bufferSize = this._buffer.length, this._tryBuffer());
                     }
                 }, s16.prototype._sendChunks = function(e) {
-                    var n, r, a = i30.util.chunk(e);
+                    var n, r, a = i32.util.chunk(e);
                     o24.default.log("DC#" + this.connectionId + " Try to send " + a.length + " chunks...");
                     try {
-                        for(var s = t81(a), u = s.next(); !u.done; u = s.next()){
+                        for(var s = t85(a), u = s.next(); !u.done; u = s.next()){
                             var l = u.value;
                             this.send(l, !0);
                         }
@@ -16049,7 +15798,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
     "in7L": [
         function(require, module, exports) {
             "use strict";
-            var t83 = this && this.__awaiter || function(t84, e129, r, o) {
+            var t87 = this && this.__awaiter || function(t88, e129, r, o) {
                 return new (r || (r = Promise))(function(n, s) {
                     function i(t) {
                         try {
@@ -16065,13 +15814,13 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             s(e);
                         }
                     }
-                    function a(t85) {
+                    function a(t89) {
                         var e;
-                        t85.done ? n(t85.value) : (e = t85.value, e instanceof r ? e : new r(function(t) {
+                        t89.done ? n(t89.value) : (e = t89.value, e instanceof r ? e : new r(function(t) {
                             t(e);
                         })).then(i, u);
                     }
-                    a((o = o.apply(t84, e129 || [])).next());
+                    a((o = o.apply(t88, e129 || [])).next());
                 });
             }, e128 = this && this.__generator || function(t, e) {
                 var r, o, n, s18, i = {
@@ -16083,9 +15832,16 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     trys: [],
                     ops: []
                 };
+                return s18 = {
+                    next: u5(0),
+                    throw: u5(1),
+                    return: u5(2)
+                }, "function" == typeof Symbol && (s18[Symbol.iterator] = function() {
+                    return this;
+                }), s18;
                 function u5(s19) {
                     return function(u6) {
-                        return (function(s) {
+                        return function(s) {
                             if (r) throw new TypeError("Generator is already executing.");
                             for(; i;)try {
                                 if (r = 1, o && (n = 2 & s[0] ? o.return : s[0] ? o.throw || ((n = o.return) && n.call(o), 0) : o.next) && !(n = n.call(o, s[1])).done) return n;
@@ -16144,19 +15900,12 @@ parcelRequire = (function(e1, r1, t1, n1) {
                                 value: s[0] ? s[1] : void 0,
                                 done: !0
                             };
-                        })([
+                        }([
                             s19,
                             u6
                         ]);
                     };
                 }
-                return s18 = {
-                    next: u5(0),
-                    throw: u5(1),
-                    return: u5(2)
-                }, "function" == typeof Symbol && (s18[Symbol.iterator] = function() {
-                    return this;
-                }), s18;
             }, r65 = this && this.__importDefault || function(t) {
                 return t && t.__esModule ? t : {
                     default: t
@@ -16173,7 +15922,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     var e = (this._options.secure ? "https://" : "http://") + this._options.host + ":" + this._options.port + this._options.path + this._options.key + "/" + t;
                     return e += "?ts=" + (new Date).getTime() + Math.random();
                 }, r66.prototype.retrieveId = function() {
-                    return t83(this, void 0, Promise, function() {
+                    return t87(this, void 0, Promise, function() {
                         var t, r, s, i;
                         return e128(this, function(e) {
                             switch(e.label){
@@ -16205,7 +15954,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         });
                     });
                 }, r66.prototype.listAllPeers = function() {
-                    return t83(this, void 0, Promise, function() {
+                    return t87(this, void 0, Promise, function() {
                         var t, r, s, i;
                         return e128(this, function(e) {
                             switch(e.label){
@@ -16252,14 +16001,14 @@ parcelRequire = (function(e1, r1, t1, n1) {
         function(require, module, exports) {
             "use strict";
             var e130 = this && this.__extends || function() {
-                var e131 = function(t87, n55) {
+                var e131 = function(t91, n55) {
                     return (e131 = Object.setPrototypeOf || ({
                         __proto__: []
                     }) instanceof Array && function(e, t) {
                         e.__proto__ = t;
                     } || function(e, t) {
                         for(var n in t)Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);
-                    })(t87, n55);
+                    })(t91, n55);
                 };
                 return function(t, n) {
                     if ("function" != typeof n && null !== n) throw new TypeError("Class extends value " + String(n) + " is not a constructor or null");
@@ -16268,8 +16017,8 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     }
                     e131(t, n), t.prototype = null === n ? Object.create(n) : (r.prototype = n.prototype, new r);
                 };
-            }(), t86 = this && this.__assign || function() {
-                return (t86 = Object.assign || function(e) {
+            }(), t90 = this && this.__assign || function() {
+                return (t90 = Object.assign || function(e) {
                     for(var t, n = 1, r = arguments.length; n < r; n++)for(var o in t = arguments[n])Object.prototype.hasOwnProperty.call(t, o) && (e[o] = t[o]);
                     return e;
                 }).apply(this, arguments);
@@ -16311,18 +16060,17 @@ parcelRequire = (function(e1, r1, t1, n1) {
             Object.defineProperty(exports, "__esModule", {
                 value: !0
             }), exports.Peer = void 0;
-            var i31 = require("eventemitter3"), s20 = require("./util"), a19 = o26(require("./logger")), c12 = require("./socket"), l6 = require("./mediaconnection"), u7 = require("./dataconnection"), d = require("./enums"), p4 = require("./api"), h1 = function() {
-                return function() {
-                };
+            var i33 = require("eventemitter3"), s20 = require("./util"), a19 = o26(require("./logger")), c12 = require("./socket"), l6 = require("./mediaconnection"), u7 = require("./dataconnection"), d = require("./enums"), p4 = require("./api"), h1 = function() {
+                return function() {};
             }(), f2 = function(o27) {
-                function i32(e132, n) {
+                function i34(e132, n) {
                     var r, c = o27.call(this) || this;
-                    return c._id = null, c._lastServerId = null, c._destroyed = !1, c._disconnected = !1, c._open = !1, c._connections = new Map, c._lostMessages = new Map, e132 && e132.constructor == Object ? n = e132 : e132 && (r = e132.toString()), n = t86({
+                    return c._id = null, c._lastServerId = null, c._destroyed = !1, c._disconnected = !1, c._open = !1, c._connections = new Map, c._lostMessages = new Map, e132 && e132.constructor == Object ? n = e132 : e132 && (r = e132.toString()), n = t90({
                         debug: 0,
                         host: s20.util.CLOUD_HOST,
                         port: s20.util.CLOUD_PORT,
                         path: "/",
-                        key: i32.DEFAULT_KEY,
+                        key: i34.DEFAULT_KEY,
                         token: s20.util.randomToken(),
                         config: s20.util.defaultConfig
                     }, n), c._options = n, "/" === c._options.host && (c._options.host = window.location.hostname), c._options.path && ("/" !== c._options.path[0] && (c._options.path = "/" + c._options.path), "/" !== c._options.path[c._options.path.length - 1] && (c._options.path += "/")), void 0 === c._options.secure && c._options.host !== s20.util.CLOUD_HOST ? c._options.secure = s20.util.isSecure() : c._options.host == s20.util.CLOUD_HOST && (c._options.secure = !0), c._options.logFunction && a19.default.setLogFunction(c._options.logFunction), a19.default.logLevel = c._options.debug || 0, c._api = new p4.API(n), c._socket = c._createServerConnection(), s20.util.supports.audioVideo || s20.util.supports.data ? r && !s20.util.validateId(r) ? (c._delayedAbort(d.PeerErrorType.InvalidID, 'ID "' + r + '" is invalid'), c) : (r ? c._initialize(r) : c._api.retrieveId().then(function(e) {
@@ -16331,31 +16079,31 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         return c._abort(d.PeerErrorType.ServerError, e);
                     }), c) : (c._delayedAbort(d.PeerErrorType.BrowserIncompatible, "The current browser does not support WebRTC"), c);
                 }
-                return e130(i32, o27), Object.defineProperty(i32.prototype, "id", {
+                return e130(i34, o27), Object.defineProperty(i34.prototype, "id", {
                     get: function() {
                         return this._id;
                     },
                     enumerable: !1,
                     configurable: !0
-                }), Object.defineProperty(i32.prototype, "options", {
+                }), Object.defineProperty(i34.prototype, "options", {
                     get: function() {
                         return this._options;
                     },
                     enumerable: !1,
                     configurable: !0
-                }), Object.defineProperty(i32.prototype, "open", {
+                }), Object.defineProperty(i34.prototype, "open", {
                     get: function() {
                         return this._open;
                     },
                     enumerable: !1,
                     configurable: !0
-                }), Object.defineProperty(i32.prototype, "socket", {
+                }), Object.defineProperty(i34.prototype, "socket", {
                     get: function() {
                         return this._socket;
                     },
                     enumerable: !1,
                     configurable: !0
-                }), Object.defineProperty(i32.prototype, "connections", {
+                }), Object.defineProperty(i34.prototype, "connections", {
                     get: function() {
                         var e, t, o = Object.create(null);
                         try {
@@ -16378,32 +16126,32 @@ parcelRequire = (function(e1, r1, t1, n1) {
                     },
                     enumerable: !1,
                     configurable: !0
-                }), Object.defineProperty(i32.prototype, "destroyed", {
+                }), Object.defineProperty(i34.prototype, "destroyed", {
                     get: function() {
                         return this._destroyed;
                     },
                     enumerable: !1,
                     configurable: !0
-                }), Object.defineProperty(i32.prototype, "disconnected", {
+                }), Object.defineProperty(i34.prototype, "disconnected", {
                     get: function() {
                         return this._disconnected;
                     },
                     enumerable: !1,
                     configurable: !0
-                }), i32.prototype._createServerConnection = function() {
-                    var e = this, t88 = new c12.Socket(this._options.secure, this._options.host, this._options.port, this._options.path, this._options.key, this._options.pingInterval);
-                    return t88.on(d.SocketEventType.Message, function(t) {
+                }), i34.prototype._createServerConnection = function() {
+                    var e = this, t92 = new c12.Socket(this._options.secure, this._options.host, this._options.port, this._options.path, this._options.key, this._options.pingInterval);
+                    return t92.on(d.SocketEventType.Message, function(t) {
                         e._handleMessage(t);
-                    }), t88.on(d.SocketEventType.Error, function(t) {
+                    }), t92.on(d.SocketEventType.Error, function(t) {
                         e._abort(d.PeerErrorType.SocketError, t);
-                    }), t88.on(d.SocketEventType.Disconnected, function() {
+                    }), t92.on(d.SocketEventType.Disconnected, function() {
                         e.disconnected || (e.emitError(d.PeerErrorType.Network, "Lost connection to server."), e.disconnect());
-                    }), t88.on(d.SocketEventType.Close, function() {
+                    }), t92.on(d.SocketEventType.Close, function() {
                         e.disconnected || e._abort(d.PeerErrorType.SocketClosed, "Underlying socket is already closed.");
-                    }), t88;
-                }, i32.prototype._initialize = function(e) {
+                    }), t92;
+                }, i34.prototype._initialize = function(e) {
                     this._id = e, this.socket.start(e, this._options.token);
-                }, i32.prototype._handleMessage = function(e) {
+                }, i34.prototype._handleMessage = function(e) {
                     var t, r, o = e.type, i = e.payload, s = e.src;
                     switch(o){
                         case d.ServerMessageType.Open:
@@ -16466,35 +16214,33 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             c = i.connectionId;
                             (_ = this.getConnection(s, c)) && _.peerConnection ? _.handleMessage(e) : c ? this._storeMessage(c, e) : a19.default.warn("You received an unrecognized message:", e);
                     }
-                }, i32.prototype._storeMessage = function(e, t) {
+                }, i34.prototype._storeMessage = function(e, t) {
                     this._lostMessages.has(e) || this._lostMessages.set(e, []), this._lostMessages.get(e).push(t);
-                }, i32.prototype._getMessages = function(e) {
+                }, i34.prototype._getMessages = function(e) {
                     var t = this._lostMessages.get(e);
                     return t ? (this._lostMessages.delete(e), t) : [];
-                }, i32.prototype.connect = function(e, t) {
-                    if (void 0 === t && (t = {
-                    }), this.disconnected) return a19.default.warn("You cannot connect to a new Peer because you called .disconnect() on this Peer and ended your connection with the server. You can create a new Peer to reconnect, or call reconnect on this peer if you believe its ID to still be available."), void this.emitError(d.PeerErrorType.Disconnected, "Cannot connect to new Peer after disconnecting from server.");
+                }, i34.prototype.connect = function(e, t) {
+                    if (void 0 === t && (t = {}), this.disconnected) return a19.default.warn("You cannot connect to a new Peer because you called .disconnect() on this Peer and ended your connection with the server. You can create a new Peer to reconnect, or call reconnect on this peer if you believe its ID to still be available."), void this.emitError(d.PeerErrorType.Disconnected, "Cannot connect to new Peer after disconnecting from server.");
                     var n = new u7.DataConnection(e, this, t);
                     return this._addConnection(e, n), n;
-                }, i32.prototype.call = function(e, t, n) {
-                    if (void 0 === n && (n = {
-                    }), this.disconnected) return a19.default.warn("You cannot connect to a new Peer because you called .disconnect() on this Peer and ended your connection with the server. You can create a new Peer to reconnect."), void this.emitError(d.PeerErrorType.Disconnected, "Cannot connect to new Peer after disconnecting from server.");
+                }, i34.prototype.call = function(e, t, n) {
+                    if (void 0 === n && (n = {}), this.disconnected) return a19.default.warn("You cannot connect to a new Peer because you called .disconnect() on this Peer and ended your connection with the server. You can create a new Peer to reconnect."), void this.emitError(d.PeerErrorType.Disconnected, "Cannot connect to new Peer after disconnecting from server.");
                     if (t) {
                         n._stream = t;
                         var r = new l6.MediaConnection(e, this, n);
                         return this._addConnection(e, r), r;
                     }
                     a19.default.error("To call a peer, you must provide a stream from your browser's `getUserMedia`.");
-                }, i32.prototype._addConnection = function(e, t) {
+                }, i34.prototype._addConnection = function(e, t) {
                     a19.default.log("add connection " + t.type + ":" + t.connectionId + " to peerId:" + e), this._connections.has(e) || this._connections.set(e, []), this._connections.get(e).push(t);
-                }, i32.prototype._removeConnection = function(e) {
+                }, i34.prototype._removeConnection = function(e) {
                     var t = this._connections.get(e.peer);
                     if (t) {
                         var n = t.indexOf(e);
                         -1 !== n && t.splice(n, 1);
                     }
                     this._lostMessages.delete(e.connectionId);
-                }, i32.prototype.getConnection = function(e, t) {
+                }, i34.prototype.getConnection = function(e, t) {
                     var r, o, i = this._connections.get(e);
                     if (!i) return null;
                     try {
@@ -16514,19 +16260,19 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         }
                     }
                     return null;
-                }, i32.prototype._delayedAbort = function(e, t) {
+                }, i34.prototype._delayedAbort = function(e, t) {
                     var n = this;
                     setTimeout(function() {
                         n._abort(e, t);
                     }, 0);
-                }, i32.prototype._abort = function(e, t) {
+                }, i34.prototype._abort = function(e, t) {
                     a19.default.error("Aborting!"), this.emitError(e, t), this._lastServerId ? this.disconnect() : this.destroy();
-                }, i32.prototype.emitError = function(e, t) {
+                }, i34.prototype.emitError = function(e, t) {
                     var n;
                     a19.default.error("Error:", t), (n = "string" == typeof t ? new Error(t) : t).type = e, this.emit(d.PeerEventType.Error, n);
-                }, i32.prototype.destroy = function() {
+                }, i34.prototype.destroy = function() {
                     this.destroyed || (a19.default.log("Destroy peer with ID:" + this.id), this.disconnect(), this._cleanup(), this._destroyed = !0, this.emit(d.PeerEventType.Close));
-                }, i32.prototype._cleanup = function() {
+                }, i34.prototype._cleanup = function() {
                     var e, t;
                     try {
                         for(var r = n54(this._connections.keys()), o = r.next(); !o.done; o = r.next()){
@@ -16545,7 +16291,7 @@ parcelRequire = (function(e1, r1, t1, n1) {
                         }
                     }
                     this.socket.removeAllListeners();
-                }, i32.prototype._cleanupPeer = function(e) {
+                }, i34.prototype._cleanupPeer = function(e) {
                     var t, r, o = this._connections.get(e);
                     if (o) try {
                         for(var i = n54(o), s = i.next(); !s.done; s = i.next())s.value.close();
@@ -16560,28 +16306,27 @@ parcelRequire = (function(e1, r1, t1, n1) {
                             if (t) throw t.error;
                         }
                     }
-                }, i32.prototype.disconnect = function() {
+                }, i34.prototype.disconnect = function() {
                     if (!this.disconnected) {
                         var e = this.id;
                         a19.default.log("Disconnect peer with ID:" + e), this._disconnected = !0, this._open = !1, this.socket.close(), this._lastServerId = e, this._id = null, this.emit(d.PeerEventType.Disconnected, e);
                     }
-                }, i32.prototype.reconnect = function() {
+                }, i34.prototype.reconnect = function() {
                     if (this.disconnected && !this.destroyed) a19.default.log("Attempting reconnection to server with ID " + this._lastServerId), this._disconnected = !1, this._initialize(this._lastServerId);
                     else {
                         if (this.destroyed) throw new Error("This peer cannot reconnect to the server. It has already been destroyed.");
                         if (this.disconnected || this.open) throw new Error("Peer " + this.id + " cannot reconnect because it is not disconnected from the server!");
                         a19.default.error("In a hurry? We're still trying to make the initial connection!");
                     }
-                }, i32.prototype.listAllPeers = function(e133) {
-                    var t89 = this;
-                    void 0 === e133 && (e133 = function(e) {
-                    }), this._api.listAllPeers().then(function(t) {
+                }, i34.prototype.listAllPeers = function(e133) {
+                    var t93 = this;
+                    void 0 === e133 && (e133 = function(e) {}), this._api.listAllPeers().then(function(t) {
                         return e133(t);
                     }).catch(function(e) {
-                        return t89._abort(d.PeerErrorType.ServerError, e);
+                        return t93._abort(d.PeerErrorType.ServerError, e);
                     });
-                }, i32.DEFAULT_KEY = "peerjs", i32;
-            }(i31.EventEmitter);
+                }, i34.DEFAULT_KEY = "peerjs", i34;
+            }(i33.EventEmitter);
             exports.Peer = f2;
         },
         {
@@ -16612,13 +16357,132 @@ parcelRequire = (function(e1, r1, t1, n1) {
             "./peer": "Hxpd"
         }
     ]
-}, {
-}, [
+}, {}, [
     "iTK6"
 ], null) //# sourceMappingURL=/peerjs.min.js.map
 ;
 
-},{}],"dczPN":[function(require,module,exports) {
+},{}],"j4KJi":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "v1", ()=>_v1JsDefault.default
+);
+parcelHelpers.export(exports, "v3", ()=>_v3JsDefault.default
+);
+parcelHelpers.export(exports, "v4", ()=>_v4JsDefault.default
+);
+parcelHelpers.export(exports, "v5", ()=>_v5JsDefault.default
+);
+parcelHelpers.export(exports, "NIL", ()=>_nilJsDefault.default
+);
+parcelHelpers.export(exports, "version", ()=>_versionJsDefault.default
+);
+parcelHelpers.export(exports, "validate", ()=>_validateJsDefault.default
+);
+parcelHelpers.export(exports, "stringify", ()=>_stringifyJsDefault.default
+);
+parcelHelpers.export(exports, "parse", ()=>_parseJsDefault.default
+);
+var _v1Js = require("./v1.js");
+var _v1JsDefault = parcelHelpers.interopDefault(_v1Js);
+var _v3Js = require("./v3.js");
+var _v3JsDefault = parcelHelpers.interopDefault(_v3Js);
+var _v4Js = require("./v4.js");
+var _v4JsDefault = parcelHelpers.interopDefault(_v4Js);
+var _v5Js = require("./v5.js");
+var _v5JsDefault = parcelHelpers.interopDefault(_v5Js);
+var _nilJs = require("./nil.js");
+var _nilJsDefault = parcelHelpers.interopDefault(_nilJs);
+var _versionJs = require("./version.js");
+var _versionJsDefault = parcelHelpers.interopDefault(_versionJs);
+var _validateJs = require("./validate.js");
+var _validateJsDefault = parcelHelpers.interopDefault(_validateJs);
+var _stringifyJs = require("./stringify.js");
+var _stringifyJsDefault = parcelHelpers.interopDefault(_stringifyJs);
+var _parseJs = require("./parse.js");
+var _parseJsDefault = parcelHelpers.interopDefault(_parseJs);
+
+},{"./v1.js":false,"./v3.js":false,"./v4.js":"8zJtu","./v5.js":false,"./nil.js":false,"./version.js":false,"./validate.js":"eHPgI","./stringify.js":"5Y9F1","./parse.js":false,"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8zJtu":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _rngJs = require("./rng.js");
+var _rngJsDefault = parcelHelpers.interopDefault(_rngJs);
+var _stringifyJs = require("./stringify.js");
+var _stringifyJsDefault = parcelHelpers.interopDefault(_stringifyJs);
+function v4(options, buf, offset) {
+    options = options || {};
+    var rnds = options.random || (options.rng || _rngJsDefault.default)(); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+    rnds[6] = rnds[6] & 15 | 64;
+    rnds[8] = rnds[8] & 63 | 128; // Copy bytes to buffer, if provided
+    if (buf) {
+        offset = offset || 0;
+        for(var i = 0; i < 16; ++i)buf[offset + i] = rnds[i];
+        return buf;
+    }
+    return _stringifyJsDefault.default(rnds);
+}
+exports.default = v4;
+
+},{"./rng.js":"2psyE","./stringify.js":"5Y9F1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2psyE":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+// Unique ID creation requires a high quality random # generator. In the browser we therefore
+// require the crypto API and do not support built-in fallback to lower quality random number
+// generators (like Math.random()).
+var getRandomValues;
+var rnds8 = new Uint8Array(16);
+function rng() {
+    // lazy load so that environments that need to polyfill have a chance to do so
+    if (!getRandomValues) {
+        // getRandomValues needs to be invoked in a context where "this" is a Crypto implementation. Also,
+        // find the complete implementation of crypto (msCrypto) on IE11.
+        getRandomValues = typeof crypto !== 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto !== 'undefined' && typeof msCrypto.getRandomValues === 'function' && msCrypto.getRandomValues.bind(msCrypto);
+        if (!getRandomValues) throw new Error('crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported');
+    }
+    return getRandomValues(rnds8);
+}
+exports.default = rng;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5Y9F1":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _validateJs = require("./validate.js");
+var _validateJsDefault = parcelHelpers.interopDefault(_validateJs);
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */ var byteToHex = [];
+for(var i = 0; i < 256; ++i)byteToHex.push((i + 256).toString(16).substr(1));
+function stringify(arr) {
+    var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+    // Note: Be careful editing this code!  It's been tuned for performance
+    // and works in ways you may not expect. See https://github.com/uuidjs/uuid/pull/434
+    var uuid = (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + '-' + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + '-' + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + '-' + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + '-' + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase(); // Consistency check for valid UUID.  If this throws, it's likely due to one
+    // of the following:
+    // - One or more input array values don't map to a hex octet (leading to
+    // "undefined" in the uuid)
+    // - Invalid input values for the RFC `version` or `variant` fields
+    if (!_validateJsDefault.default(uuid)) throw TypeError('Stringified UUID is invalid');
+    return uuid;
+}
+exports.default = stringify;
+
+},{"./validate.js":"eHPgI","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"eHPgI":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _regexJs = require("./regex.js");
+var _regexJsDefault = parcelHelpers.interopDefault(_regexJs);
+function validate(uuid) {
+    return typeof uuid === 'string' && _regexJsDefault.default.test(uuid);
+}
+exports.default = validate;
+
+},{"./regex.js":"bUa5g","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bUa5g":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+exports.default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dczPN":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "DisclosureNav", ()=>DisclosureNav

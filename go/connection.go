@@ -100,6 +100,18 @@ func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
 					dataChannel.Send([]byte(msgFromUnixSocket), false)
 				}
 			}
+		case <-time.After(time.Second * 5):
+			for peerIdAndHost, dataChannel := range activeDataConnectionsToThisRobot {
+				var peerId string = strings.Split(peerIdAndHost, "::")[0]
+				var host string = strings.Split(peerIdAndHost, "::")[1]
+				if dataChannel != nil {
+					log.WithFields(log.Fields{
+						"peerId": peerId,
+						"host":   host,
+					}).Println("Sending d message to peer:", time.Now().Format(time.RFC850))
+					dataChannel.Send([]byte(time.Now().Format(time.RFC850)), false)
+				}
+			}
 		case <-programShouldQuitSignal.GetSignal():
 			log.Println("Exiting handleOutgoingDatachannelMessages loop.")
 			return
