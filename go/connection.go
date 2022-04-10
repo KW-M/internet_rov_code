@@ -113,7 +113,7 @@ func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
  */
 func getNextPeerServerOptions(tries int) peerjs.Options {
 	var peerServerOptions = peerjs.NewOptions()
-	peerServerOptions.Debug = 3
+	peerServerOptions.Debug = 1
 
 	// integer division results in rounded-down whole numbers:
 	tries = (tries / 2) % 3
@@ -222,9 +222,10 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 		var clientPeerId string = clientPeerDataConnection.GetPeerID()
 
 		log := robotConnLog.WithField("peer", robotPeer.ID)
-		log.Info("Peer is connecting tor rov... peer id: ", clientPeerDataConnection.GetPeerID())
+		log.Info("Peer is connecting to rov... peer id: ", clientPeerDataConnection.GetPeerID())
 
 		clientPeerDataConnection.On("open", func(interface{}) {
+			log.Info("Peer connection established with Peer ID: ", clientPeerDataConnection.GetPeerID())
 			// add this newly open peer connection to the map of active connections
 			activeDataConnectionsToThisRobot[clientPeerId+"::"+peerServerOpts.Host] = clientPeerDataConnection
 
@@ -232,8 +233,6 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
 				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Connected", "")
 			}
-
-			log.Debug("Peer connection established with Peer ID: ", clientPeerDataConnection.GetPeerID())
 
 			// log.Info("VIDEO CALLING client peer: %s\n", clientPeerId)
 			// _, err = robotPeer.Call(clientPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
