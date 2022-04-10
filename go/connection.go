@@ -246,13 +246,13 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 			clientPeerDataConnection.On("data", func(msgBytes interface{}) {
 				var msgString string = string(msgBytes.([]byte))
 				log.Printf("clientDataConnection GOT MESSAGE: %s", msgString)
-				var msgForSocket string = msgString
-				if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-					var metadata string = generateToUnixSocketMetadataMessage(clientPeerId, "", "")
-					msgForSocket = metadata + UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR + msgForSocket
-				}
-				// send a message down the unix socket with the message from the client peer
-				sendMessagesToUnixSocketChan <- msgForSocket
+				// var msgForSocket string = msgString
+				// if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
+				// 	var metadata string = generateToUnixSocketMetadataMessage(clientPeerId, "", "")
+				// 	msgForSocket = metadata + UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR + msgForSocket
+				// }
+				//// send a message down the unix socket with the message from the client peer
+				// sendMessagesToUnixSocketChan <- msgForSocket
 			})
 		})
 
