@@ -1,0 +1,2159 @@
+level=info msg=Setting up connection to peerjs server: 0.peerjs.com:443
+[libcamera-vid --width 960 --height 720 --codec h264 --profile high --level 4.2 --bitrate 800000 --framerate 16 --inline 1 --flush 1 --timeout 0 --nopreview 1 --output -]
+DEBU[0000] Initializing id=iROV-0                        module=peer source="peer:iROV-0"
+level=info msg=Listening for connection... uSocket=/tmp/go_robot.socket
+DEBU[0000] Connecting to wss://0.peerjs.com:443/peerjs?key=peerjs&id=iROV-0&token=7V5GJQ2yhS7  module=peer source=socket
+DEBU[0001] WS msg 1                                      module=peer source=socket
+INFO[0001] websocket message: {"type":"OPEN"}            module=peer source=socket
+DEBU[0001] Open session with id=iROV-0                   module=peer source="peer:iROV-0"
+level=info msg=Robot Peer Established! peer=iROV-0 peerServer=0.peerjs.com
+DEBU[0400] WS msg 1                                      module=peer source=socket
+INFO[0400] websocket message: {"type":"OFFER","src":"069a4be8-d7d6-48e3-aaae-08b7a06a3498","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 6369924241416896455 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 8B:30:90:03:CC:90:2D:C3:47:B4:A6:81:4A:66:1E:F2:4B:E8:0E:5D:1B:3A:F5:89:C3:1F:7F:8B:B5:CC:C5:63\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:9e1c2dce54d84c60bfefc11a27c419a8\r\na=ice-ufrag:d4b4aae6\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_vbjtbacn55b","browser":"firefox","label":"dc_vbjtbacn55b","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  069a4be8-d7d6-48e3-aaae-08b7a06a3498 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[0400] WS msg 1                                      module=peer source=socket
+INFO[0400] websocket message: {"type":"CANDIDATE","src":"069a4be8-d7d6-48e3-aaae-08b7a06a3498","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 b07e9d1f-6a50-4e62-b392-ef0843266461.local 62663 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"d4b4aae6"},"type":"data","connectionId":"dc_vbjtbacn55b"}}  module=peer source=socket
+DEBU[0400] WS msg 1                                      module=peer source=socket
+INFO[0400] websocket message: {"type":"CANDIDATE","src":"069a4be8-d7d6-48e3-aaae-08b7a06a3498","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 b07e9d1f-6a50-4e62-b392-ef0843266461.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"d4b4aae6"},"type":"data","connectionId":"dc_vbjtbacn55b"}}  module=peer source=socket
+DEBU[0400] WS msg 1                                      module=peer source=socket
+INFO[0400] websocket message: {"type":"CANDIDATE","src":"069a4be8-d7d6-48e3-aaae-08b7a06a3498","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 62663 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"d4b4aae6"},"type":"data","connectionId":"dc_vbjtbacn55b"}}  module=peer source=socket
+level=info msg=VIDEO CALLING client peer: %s
+069a4be8-d7d6-48e3-aaae-08b7a06a3498 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[0400] Creating RTCPeerConnection                    module=peer source=negotiator
+DEBU[0401] Listening for ICE candidates.                 module=peer source=negotiator
+DEBU[0401] Listening for data channel                    module=peer source=negotiator
+DEBU[0401] Listening for remote stream                   module=peer source=negotiator
+DEBU[0401] &{PeerConnection-1649554143225626712 {{0 0} 0 0 0 0} { 0 0   } 0x100ec00 {[{[stun:stun.l.google.com:19302]  <nil> 0} {[turn:0.peerjs.com:3478] peerjs peerjsp 0}] 0 1 2  [{0x11128e8 0x1494000 certificate-1649554143248789263}] 0 0} <nil> <nil> <nil> <nil> 1 {1} {1} <nil> 0x139ef68 0x139ef6c 0   -1 [] <nil> {0x4a20f8} {<nil>} 0x4a1c70 0x4a1f34 {<nil>} 0x123e3c0 0x123e420 0x121a7e0 0x12025b0 0x11128d0 0x10b4c40 0x48acc4}  module=peer source=media
+DEBU[0401] Created offer                                 module=peer source=negotiator
+DEBU[0401] Set localDescription: v=0
+o=- 8941603054139751456 1649554143 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 D4:82:43:E5:A6:21:9E:BD:77:89:88:72:FB:EF:E2:35:DA:F5:28:61:10:E2:B4:5B:44:57:6D:D7:A1:7B:10:6B
+a=group:BUNDLE 0
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 100 101 102 121 127 120 125 107 108 109 123 118 116
+c=IN IP4 0.0.0.0
+a=setup:actpass
+a=mid:0
+a=ice-ufrag:dPwQMFWIBGDbbUdx
+a=ice-pwd:fMykGMxeZaTknRpeqXknQgkidHgoDVLn
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtpmap:97 rtx/90000
+a=fmtp:97 apt=96
+a=rtpmap:98 VP9/90000
+a=fmtp:98 profile-id=0
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtpmap:99 rtx/90000
+a=fmtp:99 apt=98
+a=rtpmap:100 VP9/90000
+a=fmtp:100 profile-id=1
+a=rtcp-fb:100 goog-remb
+a=rtcp-fb:100 ccm fir
+a=rtcp-fb:100 nack
+a=rtcp-fb:100 nack pli
+a=rtpmap:101 rtx/90000
+a=fmtp:101 apt=100
+a=rtpmap:102 H264/90000
+a=fmtp:102 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f
+a=rtcp-fb:102 goog-remb
+a=rtcp-fb:102 ccm fir
+a=rtcp-fb:102 nack
+a=rtcp-fb:102 nack pli
+a=rtpmap:121 rtx/90000
+a=fmtp:121 apt=102
+a=rtpmap:127 H264/90000
+a=fmtp:127 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f
+a=rtcp-fb:127 goog-remb
+a=rtcp-fb:127 ccm fir
+a=rtcp-fb:127 nack
+a=rtcp-fb:127 nack pli
+a=rtpmap:120 rtx/90000
+a=fmtp:120 apt=127
+a=rtpmap:125 H264/90000
+a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtpmap:107 rtx/90000
+a=fmtp:107 apt=125
+a=rtpmap:108 H264/90000
+a=fmtp:108 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f
+a=rtcp-fb:108 goog-remb
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtpmap:109 rtx/90000
+a=fmtp:109 apt=108
+a=rtpmap:123 H264/90000
+a=fmtp:123 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640032
+a=rtcp-fb:123 goog-remb
+a=rtcp-fb:123 ccm fir
+a=rtcp-fb:123 nack
+a=rtcp-fb:123 nack pli
+a=rtpmap:118 rtx/90000
+a=fmtp:118 apt=123
+a=rtpmap:116 ulpfec/90000
+a=ssrc:1764369107 cname:rov-front-cam-stream
+a=ssrc:1764369107 msid:rov-front-cam-stream rov-front-cam
+a=ssrc:1764369107 mslabel:rov-front-cam-stream
+a=ssrc:1764369107 label:rov-front-cam
+a=msid:rov-front-cam-stream rov-front-cam
+a=sendrecv
+ for:069a4be8-d7d6-48e3-aaae-08b7a06a3498  module=peer source=negotiator
+DEBU[0401] Received ICE candidates for 069a4be8-d7d6-48e3-aaae-08b7a06a3498: candidate:1200985806 1 udp 2130706431 192.168.1.79 48505 typ host  module=peer source=negotiator
+DEBU[0401] Received ICE candidates for 069a4be8-d7d6-48e3-aaae-08b7a06a3498: candidate:757137109 1 udp 1694498815 63.249.68.2 57674 typ srflx raddr 0.0.0.0 rport 57674  module=peer source=negotiator
+DEBU[0401] WS msg 1                                      module=peer source=socket
+INFO[0401] websocket message: {"type":"ANSWER","src":"069a4be8-d7d6-48e3-aaae-08b7a06a3498","dst":"iROV-0","payload":{"sdp":{"type":"answer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 6143485539962193399 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 61:4C:E8:09:B7:A4:41:B8:21:49:60:E3:02:19:4A:A9:25:31:E9:9A:CD:E6:0D:01:17:22:29:2E:CC:A8:A8:24\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109\r\nc=IN IP4 0.0.0.0\r\na=recvonly\r\na=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1\r\na=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1\r\na=fmtp:96 max-fs=12288;max-fr=60\r\na=fmtp:97 apt=96\r\na=fmtp:98 max-fs=12288;max-fr=60\r\na=fmtp:99 apt=98\r\na=fmtp:107 apt=125\r\na=fmtp:109 apt=108\r\na=ice-pwd:929a739b6da429e4d0ef95863421635c\r\na=ice-ufrag:1ab83c9d\r\na=mid:0\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:125 nack\r\na=rtcp-fb:125 nack pli\r\na=rtcp-fb:125 ccm fir\r\na=rtcp-fb:125 goog-remb\r\na=rtcp-fb:108 nack\r\na=rtcp-fb:108 nack pli\r\na=rtcp-fb:108 ccm fir\r\na=rtcp-fb:108 goog-remb\r\na=rtcp-mux\r\na=rtcp-rsize\r\na=rtpmap:96 VP8/90000\r\na=rtpmap:97 rtx/90000\r\na=rtpmap:98 VP9/90000\r\na=rtpmap:99 rtx/90000\r\na=rtpmap:125 H264/90000\r\na=rtpmap:107 rtx/90000\r\na=rtpmap:108 H264/90000\r\na=rtpmap:109 rtx/90000\r\na=setup:active\r\na=ssrc:3578642795 cname:{58739e55-c3d6-4180-83fc-11490005616f}\r\n"},"type":"media","connectionId":"mc_PCXnUB7lbRH","browser":"firefox"}}  module=peer source=socket
+DEBU[0401] Setting remote description {answer v=0
+o=mozilla...THIS_IS_SDPARTA-100.0 6143485539962193399 0 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 61:4C:E8:09:B7:A4:41:B8:21:49:60:E3:02:19:4A:A9:25:31:E9:9A:CD:E6:0D:01:17:22:29:2E:CC:A8:A8:24
+a=group:BUNDLE 0
+a=ice-options:trickle
+a=msid-semantic:WMS *
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109
+c=IN IP4 0.0.0.0
+a=recvonly
+a=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1
+a=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1
+a=fmtp:96 max-fs=12288;max-fr=60
+a=fmtp:97 apt=96
+a=fmtp:98 max-fs=12288;max-fr=60
+a=fmtp:99 apt=98
+a=fmtp:107 apt=125
+a=fmtp:109 apt=108
+a=ice-pwd:929a739b6da429e4d0ef95863421635c
+a=ice-ufrag:1ab83c9d
+a=mid:0
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 goog-remb
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtpmap:97 rtx/90000
+a=rtpmap:98 VP9/90000
+a=rtpmap:99 rtx/90000
+a=rtpmap:125 H264/90000
+a=rtpmap:107 rtx/90000
+a=rtpmap:108 H264/90000
+a=rtpmap:109 rtx/90000
+a=setup:active
+a=ssrc:3578642795 cname:{58739e55-c3d6-4180-83fc-11490005616f}
+ <nil>}  module=peer source=negotiator
+DEBU[0401] Set remoteDescription:ANSWER for:069a4be8-d7d6-48e3-aaae-08b7a06a3498  module=peer source=negotiator
+DEBU[0401] WS msg 1                                      module=peer source=socket
+INFO[0401] websocket message: {"type":"CANDIDATE","src":"069a4be8-d7d6-48e3-aaae-08b7a06a3498","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 02f6723b-a235-44be-b7f4-611c98deddd2.local 55499 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"1ab83c9d"},"type":"media","connectionId":"mc_PCXnUB7lbRH"}}  module=peer source=socket
+DEBU[0401] HandleCandidate: &{candidate:0 1 UDP 2122252543 02f6723b-a235-44be-b7f4-611c98deddd2.local 55499 typ host 0x1149658 0x119ed20 0x1149660}  module=peer source=negotiator
+DEBU[0401] Added ICE candidate for:069a4be8-d7d6-48e3-aaae-08b7a06a3498  module=peer source=negotiator
+DEBU[0401] WS msg 1                                      module=peer source=socket
+INFO[0401] websocket message: {"type":"CANDIDATE","src":"069a4be8-d7d6-48e3-aaae-08b7a06a3498","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 02f6723b-a235-44be-b7f4-611c98deddd2.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"1ab83c9d"},"type":"media","connectionId":"mc_PCXnUB7lbRH"}}  module=peer source=socket
+DEBU[0401] HandleCandidate: &{candidate:3 1 TCP 2105524479 02f6723b-a235-44be-b7f4-611c98deddd2.local 9 typ host tcptype active 0x1149780 0x119edce 0x1149788}  module=peer source=negotiator
+DEBU[0401] Added ICE candidate for:069a4be8-d7d6-48e3-aaae-08b7a06a3498  module=peer source=negotiator
+DEBU[0401] WS msg 1                                      module=peer source=socket
+INFO[0401] websocket message: {"type":"CANDIDATE","src":"069a4be8-d7d6-48e3-aaae-08b7a06a3498","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 55499 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"1ab83c9d"},"type":"media","connectionId":"mc_PCXnUB7lbRH"}}  module=peer source=socket
+DEBU[0401] HandleCandidate: &{candidate:1 1 UDP 1686052863 63.249.68.2 55499 typ srflx raddr 0.0.0.0 rport 0 0x109c370 0x10b076e 0x109c378}  module=peer source=negotiator
+DEBU[0401] Added ICE candidate for:069a4be8-d7d6-48e3-aaae-08b7a06a3498  module=peer source=negotiator
+DEBU[0408] ICECandidate gathering completed for peer=069a4be8-d7d6-48e3-aaae-08b7a06a3498 conn=mc_PCXnUB7lbRH  module=peer source=negotiator
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[0569] WS msg 1                                      module=peer source=socket
+INFO[0569] websocket message: {"type":"OFFER","src":"8c6f2a42-d557-402c-b783-e8197dc62498","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 2643241279667008148 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 36:10:C6:55:30:8F:25:53:F6:F6:6E:18:21:08:27:94:37:B9:E5:0F:5E:57:4B:53:13:CE:D7:DA:16:80:A3:4E\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:92f159b7cb4e99f0e8c36d19e8bf2e4d\r\na=ice-ufrag:26079168\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_9gh5132isev","browser":"firefox","label":"dc_9gh5132isev","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  8c6f2a42-d557-402c-b783-e8197dc62498 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[0569] WS msg 1                                      module=peer source=socket
+INFO[0569] websocket message: {"type":"CANDIDATE","src":"8c6f2a42-d557-402c-b783-e8197dc62498","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 4ca7fc3c-3fc4-42d2-a305-709856bd5441.local 53973 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"26079168"},"type":"data","connectionId":"dc_9gh5132isev"}}  module=peer source=socket
+DEBU[0569] WS msg 1                                      module=peer source=socket
+INFO[0569] websocket message: {"type":"CANDIDATE","src":"8c6f2a42-d557-402c-b783-e8197dc62498","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 4ca7fc3c-3fc4-42d2-a305-709856bd5441.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"26079168"},"type":"data","connectionId":"dc_9gh5132isev"}}  module=peer source=socket
+DEBU[0569] WS msg 1                                      module=peer source=socket
+INFO[0569] websocket message: {"type":"CANDIDATE","src":"8c6f2a42-d557-402c-b783-e8197dc62498","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 53973 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"26079168"},"type":"data","connectionId":"dc_9gh5132isev"}}  module=peer source=socket
+level=info msg=VIDEO CALLING client peer: %s
+8c6f2a42-d557-402c-b783-e8197dc62498 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[0569] Creating RTCPeerConnection                    module=peer source=negotiator
+DEBU[0569] Listening for ICE candidates.                 module=peer source=negotiator
+DEBU[0569] Listening for data channel                    module=peer source=negotiator
+DEBU[0569] Listening for remote stream                   module=peer source=negotiator
+DEBU[0569] &{PeerConnection-1649554312190618362 {{0 0} 0 0 0 0} { 0 0   } 0x100ffd0 {[{[stun:stun.l.google.com:19302]  <nil> 0} {[turn:0.peerjs.com:3478] peerjs peerjsp 0}] 0 1 2  [{0x119b428 0x1494840 certificate-1649554312208629153}] 0 0} <nil> <nil> <nil> <nil> 1 {1} {1} <nil> 0x119ef68 0x119ef6c 0   -1 [] <nil> {0x4a20f8} {<nil>} 0x4a1c70 0x4a1f34 {<nil>} 0x14009c0 0x1400a20 0x1386cf0 0x1202a10 0x119b410 0x1327a40 0x48acc4}  module=peer source=media
+DEBU[0569] Created offer                                 module=peer source=negotiator
+DEBU[0569] Received ICE candidates for 8c6f2a42-d557-402c-b783-e8197dc62498: candidate:1200985806 1 udp 2130706431 192.168.1.79 39990 typ host  module=peer source=negotiator
+DEBU[0569] Set localDescription: v=0
+o=- 3037076849542762045 1649554312 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 B9:B1:E1:50:A1:CD:DC:C9:5A:0E:73:78:43:7D:9B:85:79:AB:0B:DB:B4:3E:2A:CE:72:9B:93:79:6B:DE:29:79
+a=group:BUNDLE 0
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 100 101 102 121 127 120 125 107 108 109 123 118 116
+c=IN IP4 0.0.0.0
+a=setup:actpass
+a=mid:0
+a=ice-ufrag:IwxEKDamKPXqPJAV
+a=ice-pwd:ZyWUgULminqwumbdLxhsljFRmMXNkGMF
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtpmap:97 rtx/90000
+a=fmtp:97 apt=96
+a=rtpmap:98 VP9/90000
+a=fmtp:98 profile-id=0
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtpmap:99 rtx/90000
+a=fmtp:99 apt=98
+a=rtpmap:100 VP9/90000
+a=fmtp:100 profile-id=1
+a=rtcp-fb:100 goog-remb
+a=rtcp-fb:100 ccm fir
+a=rtcp-fb:100 nack
+a=rtcp-fb:100 nack pli
+a=rtpmap:101 rtx/90000
+a=fmtp:101 apt=100
+a=rtpmap:102 H264/90000
+a=fmtp:102 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f
+a=rtcp-fb:102 goog-remb
+a=rtcp-fb:102 ccm fir
+a=rtcp-fb:102 nack
+a=rtcp-fb:102 nack pli
+a=rtpmap:121 rtx/90000
+a=fmtp:121 apt=102
+a=rtpmap:127 H264/90000
+a=fmtp:127 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f
+a=rtcp-fb:127 goog-remb
+a=rtcp-fb:127 ccm fir
+a=rtcp-fb:127 nack
+a=rtcp-fb:127 nack pli
+a=rtpmap:120 rtx/90000
+a=fmtp:120 apt=127
+a=rtpmap:125 H264/90000
+a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtpmap:107 rtx/90000
+a=fmtp:107 apt=125
+a=rtpmap:108 H264/90000
+a=fmtp:108 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f
+a=rtcp-fb:108 goog-remb
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtpmap:109 rtx/90000
+a=fmtp:109 apt=108
+a=rtpmap:123 H264/90000
+a=fmtp:123 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640032
+a=rtcp-fb:123 goog-remb
+a=rtcp-fb:123 ccm fir
+a=rtcp-fb:123 nack
+a=rtcp-fb:123 nack pli
+a=rtpmap:118 rtx/90000
+a=fmtp:118 apt=123
+a=rtpmap:116 ulpfec/90000
+a=ssrc:1310036188 cname:rov-front-cam-stream
+a=ssrc:1310036188 msid:rov-front-cam-stream rov-front-cam
+a=ssrc:1310036188 mslabel:rov-front-cam-stream
+a=ssrc:1310036188 label:rov-front-cam
+a=msid:rov-front-cam-stream rov-front-cam
+a=sendrecv
+ for:8c6f2a42-d557-402c-b783-e8197dc62498  module=peer source=negotiator
+DEBU[0570] Received ICE candidates for 8c6f2a42-d557-402c-b783-e8197dc62498: candidate:757137109 1 udp 1694498815 63.249.68.2 40033 typ srflx raddr 0.0.0.0 rport 40033  module=peer source=negotiator
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[0571] WS msg 1                                      module=peer source=socket
+INFO[0571] websocket message: {"type":"OFFER","src":"8c3c85fd-25b5-4e17-849b-598a9c7ea645","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 3066228818859738356 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 27:7B:39:27:CE:2C:B2:5D:13:37:96:4A:E1:21:95:71:F7:E5:F5:11:37:F2:6B:D7:03:71:03:59:A3:3D:09:C1\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:0d1032b5e2d74063e3c82c683ba77a23\r\na=ice-ufrag:f07f15a4\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_31ubc278mj9","browser":"firefox","label":"dc_31ubc278mj9","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  8c3c85fd-25b5-4e17-849b-598a9c7ea645 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[0571] WS msg 1                                      module=peer source=socket
+INFO[0571] websocket message: {"type":"CANDIDATE","src":"8c3c85fd-25b5-4e17-849b-598a9c7ea645","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 daa33220-0c00-43f9-a180-c1eff20a6379.local 62592 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"f07f15a4"},"type":"data","connectionId":"dc_31ubc278mj9"}}  module=peer source=socket
+DEBU[0571] WS msg 1                                      module=peer source=socket
+INFO[0571] websocket message: {"type":"CANDIDATE","src":"8c3c85fd-25b5-4e17-849b-598a9c7ea645","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 daa33220-0c00-43f9-a180-c1eff20a6379.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"f07f15a4"},"type":"data","connectionId":"dc_31ubc278mj9"}}  module=peer source=socket
+DEBU[0571] WS msg 1                                      module=peer source=socket
+INFO[0571] websocket message: {"type":"CANDIDATE","src":"8c3c85fd-25b5-4e17-849b-598a9c7ea645","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 62592 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"f07f15a4"},"type":"data","connectionId":"dc_31ubc278mj9"}}  module=peer source=socket
+level=info msg=VIDEO CALLING client peer: %s
+8c3c85fd-25b5-4e17-849b-598a9c7ea645 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[0571] Creating RTCPeerConnection                    module=peer source=negotiator
+DEBU[0571] Listening for ICE candidates.                 module=peer source=negotiator
+DEBU[0571] Listening for data channel                    module=peer source=negotiator
+DEBU[0571] Listening for remote stream                   module=peer source=negotiator
+DEBU[0571] &{PeerConnection-1649554313508937382 {{0 0} 0 0 0 0} { 0 0   } 0x1422790 {[{[stun:stun.l.google.com:19302]  <nil> 0} {[turn:0.peerjs.com:3478] peerjs peerjsp 0}] 0 1 2  [{0x13b8a50 0x111edc0 certificate-1649554313531326597}] 0 0} <nil> <nil> <nil> <nil> 1 {1} {1} <nil> 0x132edc8 0x132edcc 0   -1 [] <nil> {0x4a20f8} {<nil>} 0x4a1c70 0x4a1f34 {<nil>} 0x123e660 0x123e6c0 0x13ec5a0 0x13d6070 0x13b8a38 0x142e9c0 0x48acc4}  module=peer source=media
+DEBU[0571] Created offer                                 module=peer source=negotiator
+DEBU[0571] Set localDescription: v=0
+o=- 8470686180325842591 1649554313 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 50:2A:96:9B:4C:FE:A0:0F:14:2F:AD:AC:42:30:A2:4B:4C:C1:E7:2F:F3:2D:91:99:5E:CD:2B:10:7E:BD:F7:63
+a=group:BUNDLE 0
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 100 101 102 121 127 120 125 107 108 109 123 118 116
+c=IN IP4 0.0.0.0
+a=setup:actpass
+a=mid:0
+a=ice-ufrag:pjcbJIeSejkgNZVl
+a=ice-pwd:ltVAqzJBzKZKxvBHPVwMsudsJfCXNysG
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtpmap:97 rtx/90000
+a=fmtp:97 apt=96
+a=rtpmap:98 VP9/90000
+a=fmtp:98 profile-id=0
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtpmap:99 rtx/90000
+a=fmtp:99 apt=98
+a=rtpmap:100 VP9/90000
+a=fmtp:100 profile-id=1
+a=rtcp-fb:100 goog-remb
+a=rtcp-fb:100 ccm fir
+a=rtcp-fb:100 nack
+a=rtcp-fb:100 nack pli
+a=rtpmap:101 rtx/90000
+a=fmtp:101 apt=100
+a=rtpmap:102 H264/90000
+a=fmtp:102 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f
+a=rtcp-fb:102 goog-remb
+a=rtcp-fb:102 ccm fir
+a=rtcp-fb:102 nack
+a=rtcp-fb:102 nack pli
+a=rtpmap:121 rtx/90000
+a=fmtp:121 apt=102
+a=rtpmap:127 H264/90000
+a=fmtp:127 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f
+a=rtcp-fb:127 goog-remb
+a=rtcp-fb:127 ccm fir
+a=rtcp-fb:127 nack
+a=rtcp-fb:127 nack pli
+a=rtpmap:120 rtx/90000
+a=fmtp:120 apt=127
+a=rtpmap:125 H264/90000
+a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtpmap:107 rtx/90000
+a=fmtp:107 apt=125
+a=rtpmap:108 H264/90000
+a=fmtp:108 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f
+a=rtcp-fb:108 goog-remb
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtpmap:109 rtx/90000
+a=fmtp:109 apt=108
+a=rtpmap:123 H264/90000
+a=fmtp:123 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640032
+a=rtcp-fb:123 goog-remb
+a=rtcp-fb:123 ccm fir
+a=rtcp-fb:123 nack
+a=rtcp-fb:123 nack pli
+a=rtpmap:118 rtx/90000
+a=fmtp:118 apt=123
+a=rtpmap:116 ulpfec/90000
+a=ssrc:2192189933 cname:rov-front-cam-stream
+a=ssrc:2192189933 msid:rov-front-cam-stream rov-front-cam
+a=ssrc:2192189933 mslabel:rov-front-cam-stream
+a=ssrc:2192189933 label:rov-front-cam
+a=msid:rov-front-cam-stream rov-front-cam
+a=sendrecv
+ for:8c3c85fd-25b5-4e17-849b-598a9c7ea645  module=peer source=negotiator
+DEBU[0571] Received ICE candidates for 8c3c85fd-25b5-4e17-849b-598a9c7ea645: candidate:1200985806 1 udp 2130706431 192.168.1.79 45362 typ host  module=peer source=negotiator
+DEBU[0571] Received ICE candidates for 8c3c85fd-25b5-4e17-849b-598a9c7ea645: candidate:757137109 1 udp 1694498815 63.249.68.2 48205 typ srflx raddr 0.0.0.0 rport 48205  module=peer source=negotiator
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[0571] WS msg 1                                      module=peer source=socket
+INFO[0571] websocket message: {"type":"ANSWER","src":"8c3c85fd-25b5-4e17-849b-598a9c7ea645","dst":"iROV-0","payload":{"sdp":{"type":"answer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 6284326841302517101 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 37:1D:84:A2:EE:15:D7:51:04:2B:A7:28:BB:A0:32:40:44:42:BF:9B:99:E6:83:90:3F:39:5F:F1:7F:AA:51:83\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109\r\nc=IN IP4 0.0.0.0\r\na=recvonly\r\na=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1\r\na=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1\r\na=fmtp:96 max-fs=12288;max-fr=60\r\na=fmtp:97 apt=96\r\na=fmtp:98 max-fs=12288;max-fr=60\r\na=fmtp:99 apt=98\r\na=fmtp:107 apt=125\r\na=fmtp:109 apt=108\r\na=ice-pwd:12d18502af1f4e723d94ea14e8b33885\r\na=ice-ufrag:06504fd7\r\na=mid:0\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:125 nack\r\na=rtcp-fb:125 nack pli\r\na=rtcp-fb:125 ccm fir\r\na=rtcp-fb:125 goog-remb\r\na=rtcp-fb:108 nack\r\na=rtcp-fb:108 nack pli\r\na=rtcp-fb:108 ccm fir\r\na=rtcp-fb:108 goog-remb\r\na=rtcp-mux\r\na=rtcp-rsize\r\na=rtpmap:96 VP8/90000\r\na=rtpmap:97 rtx/90000\r\na=rtpmap:98 VP9/90000\r\na=rtpmap:99 rtx/90000\r\na=rtpmap:125 H264/90000\r\na=rtpmap:107 rtx/90000\r\na=rtpmap:108 H264/90000\r\na=rtpmap:109 rtx/90000\r\na=setup:active\r\na=ssrc:543526179 cname:{c664501e-4a4e-41cf-a10d-fa794c7130f5}\r\n"},"type":"media","connectionId":"mc_9WIRRRTyuxZ","browser":"firefox"}}  module=peer source=socket
+DEBU[0571] Setting remote description {answer v=0
+o=mozilla...THIS_IS_SDPARTA-100.0 6284326841302517101 0 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 37:1D:84:A2:EE:15:D7:51:04:2B:A7:28:BB:A0:32:40:44:42:BF:9B:99:E6:83:90:3F:39:5F:F1:7F:AA:51:83
+a=group:BUNDLE 0
+a=ice-options:trickle
+a=msid-semantic:WMS *
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109
+c=IN IP4 0.0.0.0
+a=recvonly
+a=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1
+a=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1
+a=fmtp:96 max-fs=12288;max-fr=60
+a=fmtp:97 apt=96
+a=fmtp:98 max-fs=12288;max-fr=60
+a=fmtp:99 apt=98
+a=fmtp:107 apt=125
+a=fmtp:109 apt=108
+a=ice-pwd:12d18502af1f4e723d94ea14e8b33885
+a=ice-ufrag:06504fd7
+a=mid:0
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 goog-remb
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtpmap:97 rtx/90000
+a=rtpmap:98 VP9/90000
+a=rtpmap:99 rtx/90000
+a=rtpmap:125 H264/90000
+a=rtpmap:107 rtx/90000
+a=rtpmap:108 H264/90000
+a=rtpmap:109 rtx/90000
+a=setup:active
+a=ssrc:543526179 cname:{c664501e-4a4e-41cf-a10d-fa794c7130f5}
+ <nil>}  module=peer source=negotiator
+DEBU[0571] Set remoteDescription:ANSWER for:8c3c85fd-25b5-4e17-849b-598a9c7ea645  module=peer source=negotiator
+DEBU[0571] WS msg 1                                      module=peer source=socket
+INFO[0571] websocket message: {"type":"CANDIDATE","src":"8c3c85fd-25b5-4e17-849b-598a9c7ea645","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 11746f58-7ea5-4efd-8ce3-d13b4f0bbe04.local 62735 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"06504fd7"},"type":"media","connectionId":"mc_9WIRRRTyuxZ"}}  module=peer source=socket
+DEBU[0571] HandleCandidate: &{candidate:0 1 UDP 2122252543 11746f58-7ea5-4efd-8ce3-d13b4f0bbe04.local 62735 typ host 0x11495a8 0x101b580 0x11495b0}  module=peer source=negotiator
+DEBU[0571] Added ICE candidate for:8c3c85fd-25b5-4e17-849b-598a9c7ea645  module=peer source=negotiator
+DEBU[0571] WS msg 1                                      module=peer source=socket
+INFO[0571] websocket message: {"type":"CANDIDATE","src":"8c3c85fd-25b5-4e17-849b-598a9c7ea645","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 11746f58-7ea5-4efd-8ce3-d13b4f0bbe04.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"06504fd7"},"type":"media","connectionId":"mc_9WIRRRTyuxZ"}}  module=peer source=socket
+DEBU[0571] HandleCandidate: &{candidate:3 1 TCP 2105524479 11746f58-7ea5-4efd-8ce3-d13b4f0bbe04.local 9 typ host tcptype active 0x1149730 0x101b62e 0x1149738}  module=peer source=negotiator
+DEBU[0571] Added ICE candidate for:8c3c85fd-25b5-4e17-849b-598a9c7ea645  module=peer source=negotiator
+DEBU[0572] WS msg 1                                      module=peer source=socket
+INFO[0572] websocket message: {"type":"OFFER","src":"fd1f8d91-f05e-4095-8433-23e7e0a637c9","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 2662016424939456243 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 91:73:98:5E:2D:0B:5F:83:C8:D0:71:B1:F5:6A:76:99:FA:AF:D4:6F:56:4B:F5:6F:DE:E1:D3:6F:51:09:9F:99\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:f99350954973bedd431d8a8baf7f904e\r\na=ice-ufrag:ce83d3bd\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_fmfopon5zwm","browser":"firefox","label":"dc_fmfopon5zwm","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  fd1f8d91-f05e-4095-8433-23e7e0a637c9 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[0572] WS msg 1                                      module=peer source=socket
+INFO[0572] websocket message: {"type":"CANDIDATE","src":"fd1f8d91-f05e-4095-8433-23e7e0a637c9","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 c58c866c-e6f1-46af-8772-29c5d2cc3f6e.local 57138 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"ce83d3bd"},"type":"data","connectionId":"dc_fmfopon5zwm"}}  module=peer source=socket
+DEBU[0572] WS msg 1                                      module=peer source=socket
+INFO[0572] websocket message: {"type":"CANDIDATE","src":"fd1f8d91-f05e-4095-8433-23e7e0a637c9","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 c58c866c-e6f1-46af-8772-29c5d2cc3f6e.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"ce83d3bd"},"type":"data","connectionId":"dc_fmfopon5zwm"}}  module=peer source=socket
+DEBU[0572] WS msg 1                                      module=peer source=socket
+INFO[0572] websocket message: {"type":"CANDIDATE","src":"fd1f8d91-f05e-4095-8433-23e7e0a637c9","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 57138 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"ce83d3bd"},"type":"data","connectionId":"dc_fmfopon5zwm"}}  module=peer source=socket
+level=info msg=VIDEO CALLING client peer: %s
+fd1f8d91-f05e-4095-8433-23e7e0a637c9 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[0572] Creating RTCPeerConnection                    module=peer source=negotiator
+DEBU[0572] Listening for ICE candidates.                 module=peer source=negotiator
+DEBU[0572] Listening for data channel                    module=peer source=negotiator
+DEBU[0572] Listening for remote stream                   module=peer source=negotiator
+DEBU[0572] &{PeerConnection-1649554314807366804 {{0 0} 0 0 0 0} { 0 0   } 0x12e2c90 {[{[stun:stun.l.google.com:19302]  <nil> 0} {[turn:0.peerjs.com:3478] peerjs peerjsp 0}] 0 1 2  [{0x1096ee8 0x1476000 certificate-1649554314830659579}] 0 0} <nil> <nil> <nil> <nil> 1 {1} {1} <nil> 0x139f168 0x139f16c 0   -1 [] <nil> {0x4a20f8} {<nil>} 0x4a1c70 0x4a1f34 {<nil>} 0x14006c0 0x1400720 0x107ad80 0x12028c0 0x1096ed0 0x1394ce0 0x48acc4}  module=peer source=media
+DEBU[0572] Created offer                                 module=peer source=negotiator
+DEBU[0572] Received ICE candidates for fd1f8d91-f05e-4095-8433-23e7e0a637c9: candidate:1200985806 1 udp 2130706431 192.168.1.79 33204 typ host  module=peer source=negotiator
+DEBU[0572] Set localDescription: v=0
+o=- 7849992382498229628 1649554314 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 98:CA:56:E9:39:A4:F3:6B:21:9B:3A:04:6C:29:6F:95:43:DB:9C:1C:A6:3B:43:33:B7:90:E6:FF:23:17:87:6E
+a=group:BUNDLE 0
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 100 101 102 121 127 120 125 107 108 109 123 118 116
+c=IN IP4 0.0.0.0
+a=setup:actpass
+a=mid:0
+a=ice-ufrag:CqKVRQNwGmCyfRPd
+a=ice-pwd:qLERebMtjGkGwXJbwYgiIQJDNADzsOcm
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtpmap:97 rtx/90000
+a=fmtp:97 apt=96
+a=rtpmap:98 VP9/90000
+a=fmtp:98 profile-id=0
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtpmap:99 rtx/90000
+a=fmtp:99 apt=98
+a=rtpmap:100 VP9/90000
+a=fmtp:100 profile-id=1
+a=rtcp-fb:100 goog-remb
+a=rtcp-fb:100 ccm fir
+a=rtcp-fb:100 nack
+a=rtcp-fb:100 nack pli
+a=rtpmap:101 rtx/90000
+a=fmtp:101 apt=100
+a=rtpmap:102 H264/90000
+a=fmtp:102 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f
+a=rtcp-fb:102 goog-remb
+a=rtcp-fb:102 ccm fir
+a=rtcp-fb:102 nack
+a=rtcp-fb:102 nack pli
+a=rtpmap:121 rtx/90000
+a=fmtp:121 apt=102
+a=rtpmap:127 H264/90000
+a=fmtp:127 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f
+a=rtcp-fb:127 goog-remb
+a=rtcp-fb:127 ccm fir
+a=rtcp-fb:127 nack
+a=rtcp-fb:127 nack pli
+a=rtpmap:120 rtx/90000
+a=fmtp:120 apt=127
+a=rtpmap:125 H264/90000
+a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtpmap:107 rtx/90000
+a=fmtp:107 apt=125
+a=rtpmap:108 H264/90000
+a=fmtp:108 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f
+a=rtcp-fb:108 goog-remb
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtpmap:109 rtx/90000
+a=fmtp:109 apt=108
+a=rtpmap:123 H264/90000
+a=fmtp:123 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640032
+a=rtcp-fb:123 goog-remb
+a=rtcp-fb:123 ccm fir
+a=rtcp-fb:123 nack
+a=rtcp-fb:123 nack pli
+a=rtpmap:118 rtx/90000
+a=fmtp:118 apt=123
+a=rtpmap:116 ulpfec/90000
+a=ssrc:438645108 cname:rov-front-cam-stream
+a=ssrc:438645108 msid:rov-front-cam-stream rov-front-cam
+a=ssrc:438645108 mslabel:rov-front-cam-stream
+a=ssrc:438645108 label:rov-front-cam
+a=msid:rov-front-cam-stream rov-front-cam
+a=sendrecv
+ for:fd1f8d91-f05e-4095-8433-23e7e0a637c9  module=peer source=negotiator
+DEBU[0572] Received ICE candidates for fd1f8d91-f05e-4095-8433-23e7e0a637c9: candidate:757137109 1 udp 1694498815 63.249.68.2 38709 typ srflx raddr 0.0.0.0 rport 38709  module=peer source=negotiator
+DEBU[0572] WS msg 1                                      module=peer source=socket
+INFO[0572] websocket message: {"type":"ANSWER","src":"fd1f8d91-f05e-4095-8433-23e7e0a637c9","dst":"iROV-0","payload":{"sdp":{"type":"answer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 1646175992709885500 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 46:D7:76:2F:9C:04:9D:8A:D9:58:49:D3:9E:3F:31:F4:A9:91:B8:B4:2F:2C:F6:89:91:91:6D:AC:88:E6:9A:27\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109\r\nc=IN IP4 0.0.0.0\r\na=recvonly\r\na=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1\r\na=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1\r\na=fmtp:96 max-fs=12288;max-fr=60\r\na=fmtp:97 apt=96\r\na=fmtp:98 max-fs=12288;max-fr=60\r\na=fmtp:99 apt=98\r\na=fmtp:107 apt=125\r\na=fmtp:109 apt=108\r\na=ice-pwd:72a0a4bb86d61d8f6f2acf8f059c7c1b\r\na=ice-ufrag:64311e07\r\na=mid:0\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:125 nack\r\na=rtcp-fb:125 nack pli\r\na=rtcp-fb:125 ccm fir\r\na=rtcp-fb:125 goog-remb\r\na=rtcp-fb:108 nack\r\na=rtcp-fb:108 nack pli\r\na=rtcp-fb:108 ccm fir\r\na=rtcp-fb:108 goog-remb\r\na=rtcp-mux\r\na=rtcp-rsize\r\na=rtpmap:96 VP8/90000\r\na=rtpmap:97 rtx/90000\r\na=rtpmap:98 VP9/90000\r\na=rtpmap:99 rtx/90000\r\na=rtpmap:125 H264/90000\r\na=rtpmap:107 rtx/90000\r\na=rtpmap:108 H264/90000\r\na=rtpmap:109 rtx/90000\r\na=setup:active\r\na=ssrc:3482501396 cname:{e93a6653-f8cc-4fd2-b17d-d727b9726ef5}\r\n"},"type":"media","connectionId":"mc_u6nnD9v8h6o","browser":"firefox"}}  module=peer source=socket
+DEBU[0572] Setting remote description {answer v=0
+o=mozilla...THIS_IS_SDPARTA-100.0 1646175992709885500 0 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 46:D7:76:2F:9C:04:9D:8A:D9:58:49:D3:9E:3F:31:F4:A9:91:B8:B4:2F:2C:F6:89:91:91:6D:AC:88:E6:9A:27
+a=group:BUNDLE 0
+a=ice-options:trickle
+a=msid-semantic:WMS *
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109
+c=IN IP4 0.0.0.0
+a=recvonly
+a=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1
+a=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1
+a=fmtp:96 max-fs=12288;max-fr=60
+a=fmtp:97 apt=96
+a=fmtp:98 max-fs=12288;max-fr=60
+a=fmtp:99 apt=98
+a=fmtp:107 apt=125
+a=fmtp:109 apt=108
+a=ice-pwd:72a0a4bb86d61d8f6f2acf8f059c7c1b
+a=ice-ufrag:64311e07
+a=mid:0
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 goog-remb
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtpmap:97 rtx/90000
+a=rtpmap:98 VP9/90000
+a=rtpmap:99 rtx/90000
+a=rtpmap:125 H264/90000
+a=rtpmap:107 rtx/90000
+a=rtpmap:108 H264/90000
+a=rtpmap:109 rtx/90000
+a=setup:active
+a=ssrc:3482501396 cname:{e93a6653-f8cc-4fd2-b17d-d727b9726ef5}
+ <nil>}  module=peer source=negotiator
+DEBU[0572] Set remoteDescription:ANSWER for:fd1f8d91-f05e-4095-8433-23e7e0a637c9  module=peer source=negotiator
+DEBU[0572] WS msg 1                                      module=peer source=socket
+INFO[0572] websocket message: {"type":"CANDIDATE","src":"fd1f8d91-f05e-4095-8433-23e7e0a637c9","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 7c2be843-fce7-4108-92de-78290e724ecb.local 50877 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"64311e07"},"type":"media","connectionId":"mc_u6nnD9v8h6o"}}  module=peer source=socket
+DEBU[0572] HandleCandidate: &{candidate:0 1 UDP 2122252543 7c2be843-fce7-4108-92de-78290e724ecb.local 50877 typ host 0x118ece0 0x10b1540 0x118ece8}  module=peer source=negotiator
+DEBU[0572] Added ICE candidate for:fd1f8d91-f05e-4095-8433-23e7e0a637c9  module=peer source=negotiator
+DEBU[0572] WS msg 1                                      module=peer source=socket
+INFO[0572] websocket message: {"type":"CANDIDATE","src":"fd1f8d91-f05e-4095-8433-23e7e0a637c9","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 7c2be843-fce7-4108-92de-78290e724ecb.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"64311e07"},"type":"media","connectionId":"mc_u6nnD9v8h6o"}}  module=peer source=socket
+DEBU[0572] HandleCandidate: &{candidate:3 1 TCP 2105524479 7c2be843-fce7-4108-92de-78290e724ecb.local 9 typ host tcptype active 0x118edf8 0x10b15ee 0x118ee00}  module=peer source=negotiator
+DEBU[0572] Added ICE candidate for:fd1f8d91-f05e-4095-8433-23e7e0a637c9  module=peer source=negotiator
+DEBU[0572] WS msg 1                                      module=peer source=socket
+INFO[0572] websocket message: {"type":"CANDIDATE","src":"fd1f8d91-f05e-4095-8433-23e7e0a637c9","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 50877 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"64311e07"},"type":"media","connectionId":"mc_u6nnD9v8h6o"}}  module=peer source=socket
+DEBU[0572] HandleCandidate: &{candidate:1 1 UDP 1686052863 63.249.68.2 50877 typ srflx raddr 0.0.0.0 rport 0 0x13021a0 0x12c8910 0x13021a8}  module=peer source=negotiator
+DEBU[0572] Added ICE candidate for:fd1f8d91-f05e-4095-8433-23e7e0a637c9  module=peer source=negotiator
+DEBU[0574] iceConnectionState changed to disconnected on the connection with 069a4be8-d7d6-48e3-aaae-08b7a06a3498  module=peer source=negotiator
+DEBU[0577] ICECandidate gathering completed for peer=8c6f2a42-d557-402c-b783-e8197dc62498 conn=mc_1yVJKahFuwQ  module=peer source=negotiator
+DEBU[0579] ICECandidate gathering completed for peer=8c3c85fd-25b5-4e17-849b-598a9c7ea645 conn=mc_9WIRRRTyuxZ  module=peer source=negotiator
+DEBU[0580] ICECandidate gathering completed for peer=fd1f8d91-f05e-4095-8433-23e7e0a637c9 conn=mc_u6nnD9v8h6o  module=peer source=negotiator
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[0590] iceConnectionState changed to disconnected on the connection with fd1f8d91-f05e-4095-8433-23e7e0a637c9  module=peer source=negotiator
+DEBU[0600] iceConnectionState is failed, closing connections to 069a4be8-d7d6-48e3-aaae-08b7a06a3498  module=peer source=negotiator
+DEBU[0600] Cleaning up PeerConnection to 069a4be8-d7d6-48e3-aaae-08b7a06a3498  module=peer source=negotiator
+DEBU[0600] <nil>                                         module=peer source=media
+DEBU[0601] iceConnectionState is failed, closing connections to 8c3c85fd-25b5-4e17-849b-598a9c7ea645  module=peer source=negotiator
+DEBU[0601] Cleaning up PeerConnection to 8c3c85fd-25b5-4e17-849b-598a9c7ea645  module=peer source=negotiator
+DEBU[0601] <nil>                                         module=peer source=media
+DEBU[0614] iceConnectionState is failed, closing connections to fd1f8d91-f05e-4095-8433-23e7e0a637c9  module=peer source=negotiator
+DEBU[0614] Cleaning up PeerConnection to fd1f8d91-f05e-4095-8433-23e7e0a637c9  module=peer source=negotiator
+DEBU[0614] <nil>                                         module=peer source=media
+DEBU[1055] WS msg 1                                      module=peer source=socket
+INFO[1055] websocket message: {"type":"OFFER","src":"43bbf892-0cb0-4fc7-a206-8a2525d5f6a7","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 2820184307791792932 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 B2:5F:50:E4:D2:6D:03:54:24:66:AA:B3:1D:B9:E0:55:3F:D6:00:8E:EB:34:1F:10:B1:B4:B7:23:3F:3C:E3:11\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:3fd504f9b314cbc8ca03f1fb11233145\r\na=ice-ufrag:4c9ec4ea\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_2tgll51v1vv","browser":"firefox","label":"dc_2tgll51v1vv","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  43bbf892-0cb0-4fc7-a206-8a2525d5f6a7 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1055] WS msg 1                                      module=peer source=socket
+INFO[1055] websocket message: {"type":"CANDIDATE","src":"43bbf892-0cb0-4fc7-a206-8a2525d5f6a7","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 d6c2ae4d-3d8c-485d-b996-674522be6b9f.local 62233 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"4c9ec4ea"},"type":"data","connectionId":"dc_2tgll51v1vv"}}  module=peer source=socket
+DEBU[1056] WS msg 1                                      module=peer source=socket
+INFO[1056] websocket message: {"type":"CANDIDATE","src":"43bbf892-0cb0-4fc7-a206-8a2525d5f6a7","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 d6c2ae4d-3d8c-485d-b996-674522be6b9f.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"4c9ec4ea"},"type":"data","connectionId":"dc_2tgll51v1vv"}}  module=peer source=socket
+DEBU[1056] WS msg 1                                      module=peer source=socket
+INFO[1056] websocket message: {"type":"CANDIDATE","src":"43bbf892-0cb0-4fc7-a206-8a2525d5f6a7","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 62233 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"4c9ec4ea"},"type":"data","connectionId":"dc_2tgll51v1vv"}}  module=peer source=socket
+level=info msg=VIDEO CALLING client peer: %s
+43bbf892-0cb0-4fc7-a206-8a2525d5f6a7 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1056] Creating RTCPeerConnection                    module=peer source=negotiator
+DEBU[1056] Listening for ICE candidates.                 module=peer source=negotiator
+DEBU[1056] Listening for data channel                    module=peer source=negotiator
+DEBU[1056] Listening for remote stream                   module=peer source=negotiator
+DEBU[1056] &{PeerConnection-1649554798395995069 {{0 0} 0 0 0 0} { 0 0   } 0x100f210 {[{[stun:stun.l.google.com:19302]  <nil> 0} {[turn:0.peerjs.com:3478] peerjs peerjsp 0}] 0 1 2  [{0x1096f78 0x1476b00 certificate-1649554798423263411}] 0 0} <nil> <nil> <nil> <nil> 1 {1} {1} <nil> 0x119f508 0x119f50c 0   -1 [] <nil> {0x4a20f8} {<nil>} 0x4a1c70 0x4a1f34 {<nil>} 0x1390d20 0x1390d80 0x107afc0 0x13d61c0 0x1096f60 0x120d000 0x48acc4}  module=peer source=media
+DEBU[1056] Created offer                                 module=peer source=negotiator
+DEBU[1056] Set localDescription: v=0
+o=- 1696358854510623693 1649554798 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 61:3C:ED:06:F4:AA:20:6A:D8:F7:A3:7C:28:1B:85:74:7F:7A:7F:E2:0A:35:82:98:02:07:8E:11:53:01:0F:7E
+a=group:BUNDLE 0
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 100 101 102 121 127 120 125 107 108 109 123 118 116
+c=IN IP4 0.0.0.0
+a=setup:actpass
+a=mid:0
+a=ice-ufrag:XZweurrMaenbIqgH
+a=ice-pwd:iVHcafskbOMWvTBJGgzSXUxCYXWzSfsA
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtpmap:97 rtx/90000
+a=fmtp:97 apt=96
+a=rtpmap:98 VP9/90000
+a=fmtp:98 profile-id=0
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtpmap:99 rtx/90000
+a=fmtp:99 apt=98
+a=rtpmap:100 VP9/90000
+a=fmtp:100 profile-id=1
+a=rtcp-fb:100 goog-remb
+a=rtcp-fb:100 ccm fir
+a=rtcp-fb:100 nack
+a=rtcp-fb:100 nack pli
+a=rtpmap:101 rtx/90000
+a=fmtp:101 apt=100
+a=rtpmap:102 H264/90000
+a=fmtp:102 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f
+a=rtcp-fb:102 goog-remb
+a=rtcp-fb:102 ccm fir
+a=rtcp-fb:102 nack
+a=rtcp-fb:102 nack pli
+a=rtpmap:121 rtx/90000
+a=fmtp:121 apt=102
+a=rtpmap:127 H264/90000
+a=fmtp:127 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f
+a=rtcp-fb:127 goog-remb
+a=rtcp-fb:127 ccm fir
+a=rtcp-fb:127 nack
+a=rtcp-fb:127 nack pli
+a=rtpmap:120 rtx/90000
+a=fmtp:120 apt=127
+a=rtpmap:125 H264/90000
+a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtpmap:107 rtx/90000
+a=fmtp:107 apt=125
+a=rtpmap:108 H264/90000
+a=fmtp:108 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f
+a=rtcp-fb:108 goog-remb
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtpmap:109 rtx/90000
+a=fmtp:109 apt=108
+a=rtpmap:123 H264/90000
+a=fmtp:123 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640032
+a=rtcp-fb:123 goog-remb
+a=rtcp-fb:123 ccm fir
+a=rtcp-fb:123 nack
+a=rtcp-fb:123 nack pli
+a=rtpmap:118 rtx/90000
+a=fmtp:118 apt=123
+a=rtpmap:116 ulpfec/90000
+a=ssrc:2357290678 cname:rov-front-cam-stream
+a=ssrc:2357290678 msid:rov-front-cam-stream rov-front-cam
+a=ssrc:2357290678 mslabel:rov-front-cam-stream
+a=ssrc:2357290678 label:rov-front-cam
+a=msid:rov-front-cam-stream rov-front-cam
+a=sendrecv
+ for:43bbf892-0cb0-4fc7-a206-8a2525d5f6a7  module=peer source=negotiator
+DEBU[1056] Received ICE candidates for 43bbf892-0cb0-4fc7-a206-8a2525d5f6a7: candidate:1200985806 1 udp 2130706431 192.168.1.79 34018 typ host  module=peer source=negotiator
+DEBU[1056] Received ICE candidates for 43bbf892-0cb0-4fc7-a206-8a2525d5f6a7: candidate:757137109 1 udp 1694498815 63.249.68.2 57170 typ srflx raddr 0.0.0.0 rport 57170  module=peer source=negotiator
+DEBU[1056] WS msg 1                                      module=peer source=socket
+INFO[1056] websocket message: {"type":"ANSWER","src":"43bbf892-0cb0-4fc7-a206-8a2525d5f6a7","dst":"iROV-0","payload":{"sdp":{"type":"answer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 4412442474781003199 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 B9:6C:F2:31:56:93:56:99:A7:DB:E8:19:35:0C:FA:A4:37:A4:D5:2B:2B:A6:E3:E9:CD:01:E5:D7:5C:13:AC:36\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109\r\nc=IN IP4 0.0.0.0\r\na=recvonly\r\na=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1\r\na=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1\r\na=fmtp:96 max-fs=12288;max-fr=60\r\na=fmtp:97 apt=96\r\na=fmtp:98 max-fs=12288;max-fr=60\r\na=fmtp:99 apt=98\r\na=fmtp:107 apt=125\r\na=fmtp:109 apt=108\r\na=ice-pwd:5becb9a0339e4219a2bb4a911ecc5609\r\na=ice-ufrag:3cf84da2\r\na=mid:0\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:125 nack\r\na=rtcp-fb:125 nack pli\r\na=rtcp-fb:125 ccm fir\r\na=rtcp-fb:125 goog-remb\r\na=rtcp-fb:108 nack\r\na=rtcp-fb:108 nack pli\r\na=rtcp-fb:108 ccm fir\r\na=rtcp-fb:108 goog-remb\r\na=rtcp-mux\r\na=rtcp-rsize\r\na=rtpmap:96 VP8/90000\r\na=rtpmap:97 rtx/90000\r\na=rtpmap:98 VP9/90000\r\na=rtpmap:99 rtx/90000\r\na=rtpmap:125 H264/90000\r\na=rtpmap:107 rtx/90000\r\na=rtpmap:108 H264/90000\r\na=rtpmap:109 rtx/90000\r\na=setup:active\r\na=ssrc:3476142665 cname:{e693339d-5c80-4a45-93e4-acb38c8673b2}\r\n"},"type":"media","connectionId":"mc_iSUNZ6W4sxR","browser":"firefox"}}  module=peer source=socket
+DEBU[1056] Setting remote description {answer v=0
+o=mozilla...THIS_IS_SDPARTA-100.0 4412442474781003199 0 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 B9:6C:F2:31:56:93:56:99:A7:DB:E8:19:35:0C:FA:A4:37:A4:D5:2B:2B:A6:E3:E9:CD:01:E5:D7:5C:13:AC:36
+a=group:BUNDLE 0
+a=ice-options:trickle
+a=msid-semantic:WMS *
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109
+c=IN IP4 0.0.0.0
+a=recvonly
+a=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1
+a=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1
+a=fmtp:96 max-fs=12288;max-fr=60
+a=fmtp:97 apt=96
+a=fmtp:98 max-fs=12288;max-fr=60
+a=fmtp:99 apt=98
+a=fmtp:107 apt=125
+a=fmtp:109 apt=108
+a=ice-pwd:5becb9a0339e4219a2bb4a911ecc5609
+a=ice-ufrag:3cf84da2
+a=mid:0
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 goog-remb
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtpmap:97 rtx/90000
+a=rtpmap:98 VP9/90000
+a=rtpmap:99 rtx/90000
+a=rtpmap:125 H264/90000
+a=rtpmap:107 rtx/90000
+a=rtpmap:108 H264/90000
+a=rtpmap:109 rtx/90000
+a=setup:active
+a=ssrc:3476142665 cname:{e693339d-5c80-4a45-93e4-acb38c8673b2}
+ <nil>}  module=peer source=negotiator
+DEBU[1056] Set remoteDescription:ANSWER for:43bbf892-0cb0-4fc7-a206-8a2525d5f6a7  module=peer source=negotiator
+DEBU[1056] WS msg 1                                      module=peer source=socket
+INFO[1056] websocket message: {"type":"CANDIDATE","src":"43bbf892-0cb0-4fc7-a206-8a2525d5f6a7","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 bbde002d-41fe-4086-9cbc-e98f95e95573.local 60492 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"3cf84da2"},"type":"media","connectionId":"mc_iSUNZ6W4sxR"}}  module=peer source=socket
+DEBU[1056] HandleCandidate: &{candidate:0 1 UDP 2122252543 bbde002d-41fe-4086-9cbc-e98f95e95573.local 60492 typ host 0x13035a0 0x132e710 0x13035a8}  module=peer source=negotiator
+DEBU[1056] Added ICE candidate for:43bbf892-0cb0-4fc7-a206-8a2525d5f6a7  module=peer source=negotiator
+DEBU[1056] WS msg 1                                      module=peer source=socket
+INFO[1056] websocket message: {"type":"CANDIDATE","src":"43bbf892-0cb0-4fc7-a206-8a2525d5f6a7","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 bbde002d-41fe-4086-9cbc-e98f95e95573.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"3cf84da2"},"type":"media","connectionId":"mc_iSUNZ6W4sxR"}}  module=peer source=socket
+DEBU[1056] HandleCandidate: &{candidate:3 1 TCP 2105524479 bbde002d-41fe-4086-9cbc-e98f95e95573.local 9 typ host tcptype active 0x1303690 0x132e7ee 0x1303698}  module=peer source=negotiator
+DEBU[1056] Added ICE candidate for:43bbf892-0cb0-4fc7-a206-8a2525d5f6a7  module=peer source=negotiator
+DEBU[1056] WS msg 1                                      module=peer source=socket
+INFO[1056] websocket message: {"type":"CANDIDATE","src":"43bbf892-0cb0-4fc7-a206-8a2525d5f6a7","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 60492 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"3cf84da2"},"type":"media","connectionId":"mc_iSUNZ6W4sxR"}}  module=peer source=socket
+DEBU[1056] HandleCandidate: &{candidate:1 1 UDP 1686052863 63.249.68.2 60492 typ srflx raddr 0.0.0.0 rport 0 0x13037a0 0x132e930 0x13037a8}  module=peer source=negotiator
+DEBU[1056] Added ICE candidate for:43bbf892-0cb0-4fc7-a206-8a2525d5f6a7  module=peer source=negotiator
+DEBU[1064] ICECandidate gathering completed for peer=43bbf892-0cb0-4fc7-a206-8a2525d5f6a7 conn=mc_iSUNZ6W4sxR  module=peer source=negotiator
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1104] WS msg 1                                      module=peer source=socket
+INFO[1104] websocket message: {"type":"OFFER","src":"800ecaa5-e8e4-4391-a75c-38d1b71c2065","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 2309387368700070017 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 23:1C:E8:94:9D:A0:76:A5:F4:A1:CE:AA:03:C4:14:1D:26:C5:C6:92:4B:29:49:C9:55:B2:98:E4:79:12:63:FA\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:182612621e1d9e548ddbec0d9356832a\r\na=ice-ufrag:a7ba107d\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_uzcoa0pqedh","browser":"firefox","label":"dc_uzcoa0pqedh","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  800ecaa5-e8e4-4391-a75c-38d1b71c2065 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1104] WS msg 1                                      module=peer source=socket
+INFO[1104] websocket message: {"type":"CANDIDATE","src":"800ecaa5-e8e4-4391-a75c-38d1b71c2065","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 acbc15b9-424e-48e6-9f9f-aa9d29ef56f7.local 63587 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"a7ba107d"},"type":"data","connectionId":"dc_uzcoa0pqedh"}}  module=peer source=socket
+DEBU[1104] WS msg 1                                      module=peer source=socket
+INFO[1104] websocket message: {"type":"CANDIDATE","src":"800ecaa5-e8e4-4391-a75c-38d1b71c2065","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 acbc15b9-424e-48e6-9f9f-aa9d29ef56f7.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"a7ba107d"},"type":"data","connectionId":"dc_uzcoa0pqedh"}}  module=peer source=socket
+DEBU[1104] WS msg 1                                      module=peer source=socket
+INFO[1104] websocket message: {"type":"CANDIDATE","src":"800ecaa5-e8e4-4391-a75c-38d1b71c2065","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 63587 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"a7ba107d"},"type":"data","connectionId":"dc_uzcoa0pqedh"}}  module=peer source=socket
+level=info msg=VIDEO CALLING client peer: %s
+800ecaa5-e8e4-4391-a75c-38d1b71c2065 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1105] Creating RTCPeerConnection                    module=peer source=negotiator
+DEBU[1105] Listening for ICE candidates.                 module=peer source=negotiator
+DEBU[1105] Listening for data channel                    module=peer source=negotiator
+DEBU[1105] Listening for remote stream                   module=peer source=negotiator
+DEBU[1105] &{PeerConnection-1649554847334035060 {{0 0} 0 0 0 0} { 0 0   } 0x100e6a0 {[{[stun:stun.l.google.com:19302]  <nil> 0} {[turn:0.peerjs.com:3478] peerjs peerjsp 0}] 0 1 2  [{0x121e228 0x1494000 certificate-1649554847348489455}] 0 0} <nil> <nil> <nil> <nil> 1 {1} {1} <nil> 0x119e458 0x119e45c 0   -1 [] <nil> {0x4a20f8} {<nil>} 0x4a1c70 0x4a1f34 {<nil>} 0x123e4e0 0x123e540 0x1386360 0x1382070 0x121e210 0x1326380 0x48acc4}  module=peer source=media
+DEBU[1105] Created offer                                 module=peer source=negotiator
+DEBU[1105] Set localDescription: v=0
+o=- 3591976527969010099 1649554847 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 BA:1A:CC:DD:13:E7:A0:F2:AD:CB:ED:FE:08:50:6B:C2:68:F3:5E:56:27:E9:BD:04:77:C1:E2:CC:E0:15:9D:5E
+a=group:BUNDLE 0
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 100 101 102 121 127 120 125 107 108 109 123 118 116
+c=IN IP4 0.0.0.0
+a=setup:actpass
+a=mid:0
+a=ice-ufrag:yxULeNBdSYldDvWs
+a=ice-pwd:CtSuPrbPCMnZvDZMMlNfPbphaFpfRqNT
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtpmap:97 rtx/90000
+a=fmtp:97 apt=96
+a=rtpmap:98 VP9/90000
+a=fmtp:98 profile-id=0
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtpmap:99 rtx/90000
+a=fmtp:99 apt=98
+a=rtpmap:100 VP9/90000
+a=fmtp:100 profile-id=1
+a=rtcp-fb:100 goog-remb
+a=rtcp-fb:100 ccm fir
+a=rtcp-fb:100 nack
+a=rtcp-fb:100 nack pli
+a=rtpmap:101 rtx/90000
+a=fmtp:101 apt=100
+a=rtpmap:102 H264/90000
+a=fmtp:102 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f
+a=rtcp-fb:102 goog-remb
+a=rtcp-fb:102 ccm fir
+a=rtcp-fb:102 nack
+a=rtcp-fb:102 nack pli
+a=rtpmap:121 rtx/90000
+a=fmtp:121 apt=102
+a=rtpmap:127 H264/90000
+a=fmtp:127 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f
+a=rtcp-fb:127 goog-remb
+a=rtcp-fb:127 ccm fir
+a=rtcp-fb:127 nack
+a=rtcp-fb:127 nack pli
+a=rtpmap:120 rtx/90000
+a=fmtp:120 apt=127
+a=rtpmap:125 H264/90000
+a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtpmap:107 rtx/90000
+a=fmtp:107 apt=125
+a=rtpmap:108 H264/90000
+a=fmtp:108 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f
+a=rtcp-fb:108 goog-remb
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtpmap:109 rtx/90000
+a=fmtp:109 apt=108
+a=rtpmap:123 H264/90000
+a=fmtp:123 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640032
+a=rtcp-fb:123 goog-remb
+a=rtcp-fb:123 ccm fir
+a=rtcp-fb:123 nack
+a=rtcp-fb:123 nack pli
+a=rtpmap:118 rtx/90000
+a=fmtp:118 apt=123
+a=rtpmap:116 ulpfec/90000
+a=ssrc:199010067 cname:rov-front-cam-stream
+a=ssrc:199010067 msid:rov-front-cam-stream rov-front-cam
+a=ssrc:199010067 mslabel:rov-front-cam-stream
+a=ssrc:199010067 label:rov-front-cam
+a=msid:rov-front-cam-stream rov-front-cam
+a=sendrecv
+ for:800ecaa5-e8e4-4391-a75c-38d1b71c2065  module=peer source=negotiator
+DEBU[1105] Received ICE candidates for 800ecaa5-e8e4-4391-a75c-38d1b71c2065: candidate:1200985806 1 udp 2130706431 192.168.1.79 60748 typ host  module=peer source=negotiator
+DEBU[1105] Received ICE candidates for 800ecaa5-e8e4-4391-a75c-38d1b71c2065: candidate:757137109 1 udp 1694498815 63.249.68.2 49635 typ srflx raddr 0.0.0.0 rport 49635  module=peer source=negotiator
+DEBU[1105] WS msg 1                                      module=peer source=socket
+INFO[1105] websocket message: {"type":"ANSWER","src":"800ecaa5-e8e4-4391-a75c-38d1b71c2065","dst":"iROV-0","payload":{"sdp":{"type":"answer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 8605117310271324838 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 47:92:71:D0:3B:4B:9E:C6:C1:C7:B5:7E:AB:CD:0A:29:57:00:BB:20:EE:92:D4:7D:D6:EB:4C:60:6C:20:E0:0E\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109\r\nc=IN IP4 0.0.0.0\r\na=recvonly\r\na=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1\r\na=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1\r\na=fmtp:96 max-fs=12288;max-fr=60\r\na=fmtp:97 apt=96\r\na=fmtp:98 max-fs=12288;max-fr=60\r\na=fmtp:99 apt=98\r\na=fmtp:107 apt=125\r\na=fmtp:109 apt=108\r\na=ice-pwd:047b5a364819dd15f87af0b40fc9cf6d\r\na=ice-ufrag:86b6fedc\r\na=mid:0\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:125 nack\r\na=rtcp-fb:125 nack pli\r\na=rtcp-fb:125 ccm fir\r\na=rtcp-fb:125 goog-remb\r\na=rtcp-fb:108 nack\r\na=rtcp-fb:108 nack pli\r\na=rtcp-fb:108 ccm fir\r\na=rtcp-fb:108 goog-remb\r\na=rtcp-mux\r\na=rtcp-rsize\r\na=rtpmap:96 VP8/90000\r\na=rtpmap:97 rtx/90000\r\na=rtpmap:98 VP9/90000\r\na=rtpmap:99 rtx/90000\r\na=rtpmap:125 H264/90000\r\na=rtpmap:107 rtx/90000\r\na=rtpmap:108 H264/90000\r\na=rtpmap:109 rtx/90000\r\na=setup:active\r\na=ssrc:1391120066 cname:{5efa6c7b-c7ad-4566-bf53-2e5d76ef6293}\r\n"},"type":"media","connectionId":"mc_uzpOF1J3j6J","browser":"firefox"}}  module=peer source=socket
+DEBU[1105] Setting remote description {answer v=0
+o=mozilla...THIS_IS_SDPARTA-100.0 8605117310271324838 0 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 47:92:71:D0:3B:4B:9E:C6:C1:C7:B5:7E:AB:CD:0A:29:57:00:BB:20:EE:92:D4:7D:D6:EB:4C:60:6C:20:E0:0E
+a=group:BUNDLE 0
+a=ice-options:trickle
+a=msid-semantic:WMS *
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109
+c=IN IP4 0.0.0.0
+a=recvonly
+a=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1
+a=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1
+a=fmtp:96 max-fs=12288;max-fr=60
+a=fmtp:97 apt=96
+a=fmtp:98 max-fs=12288;max-fr=60
+a=fmtp:99 apt=98
+a=fmtp:107 apt=125
+a=fmtp:109 apt=108
+a=ice-pwd:047b5a364819dd15f87af0b40fc9cf6d
+a=ice-ufrag:86b6fedc
+a=mid:0
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 goog-remb
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtpmap:97 rtx/90000
+a=rtpmap:98 VP9/90000
+a=rtpmap:99 rtx/90000
+a=rtpmap:125 H264/90000
+a=rtpmap:107 rtx/90000
+a=rtpmap:108 H264/90000
+a=rtpmap:109 rtx/90000
+a=setup:active
+a=ssrc:1391120066 cname:{5efa6c7b-c7ad-4566-bf53-2e5d76ef6293}
+ <nil>}  module=peer source=negotiator
+DEBU[1105] Set remoteDescription:ANSWER for:800ecaa5-e8e4-4391-a75c-38d1b71c2065  module=peer source=negotiator
+DEBU[1105] WS msg 1                                      module=peer source=socket
+INFO[1105] websocket message: {"type":"CANDIDATE","src":"800ecaa5-e8e4-4391-a75c-38d1b71c2065","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 6bb26970-17af-48b2-8237-472dd1d81db1.local 54562 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"86b6fedc"},"type":"media","connectionId":"mc_uzpOF1J3j6J"}}  module=peer source=socket
+DEBU[1105] HandleCandidate: &{candidate:0 1 UDP 2122252543 6bb26970-17af-48b2-8237-472dd1d81db1.local 54562 typ host 0x109cf18 0x132f340 0x109cf20}  module=peer source=negotiator
+DEBU[1105] Added ICE candidate for:800ecaa5-e8e4-4391-a75c-38d1b71c2065  module=peer source=negotiator
+DEBU[1105] WS msg 1                                      module=peer source=socket
+INFO[1105] websocket message: {"type":"CANDIDATE","src":"800ecaa5-e8e4-4391-a75c-38d1b71c2065","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 6bb26970-17af-48b2-8237-472dd1d81db1.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"86b6fedc"},"type":"media","connectionId":"mc_uzpOF1J3j6J"}}  module=peer source=socket
+DEBU[1105] HandleCandidate: &{candidate:3 1 TCP 2105524479 6bb26970-17af-48b2-8237-472dd1d81db1.local 9 typ host tcptype active 0x109d008 0x132f44e 0x109d010}  module=peer source=negotiator
+DEBU[1105] Added ICE candidate for:800ecaa5-e8e4-4391-a75c-38d1b71c2065  module=peer source=negotiator
+DEBU[1105] WS msg 1                                      module=peer source=socket
+INFO[1105] websocket message: {"type":"CANDIDATE","src":"800ecaa5-e8e4-4391-a75c-38d1b71c2065","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 54562 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"86b6fedc"},"type":"media","connectionId":"mc_uzpOF1J3j6J"}}  module=peer source=socket
+DEBU[1105] HandleCandidate: &{candidate:1 1 UDP 1686052863 63.249.68.2 54562 typ srflx raddr 0.0.0.0 rport 0 0x109d100 0x132f610 0x109d108}  module=peer source=negotiator
+DEBU[1105] Added ICE candidate for:800ecaa5-e8e4-4391-a75c-38d1b71c2065  module=peer source=negotiator
+DEBU[1109] iceConnectionState changed to disconnected on the connection with 43bbf892-0cb0-4fc7-a206-8a2525d5f6a7  module=peer source=negotiator
+DEBU[1112] ICECandidate gathering completed for peer=800ecaa5-e8e4-4391-a75c-38d1b71c2065 conn=mc_uzpOF1J3j6J  module=peer source=negotiator
+DEBU[1135] iceConnectionState is failed, closing connections to 43bbf892-0cb0-4fc7-a206-8a2525d5f6a7  module=peer source=negotiator
+DEBU[1135] Cleaning up PeerConnection to 43bbf892-0cb0-4fc7-a206-8a2525d5f6a7  module=peer source=negotiator
+DEBU[1135] <nil>                                         module=peer source=media
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1210] WS msg 1                                      module=peer source=socket
+INFO[1210] websocket message: {"type":"OFFER","src":"78e2b7d9-b5f7-4253-8b32-82cb9050cd9d","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 1096002979965624740 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 DB:F0:C4:16:F3:F9:83:FE:38:2D:E7:98:92:DB:F0:8B:DC:DC:82:BD:97:60:C0:BE:26:A6:48:BA:F2:B6:CF:B1\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:aae61b2fcce5a40448bcf4c6b7d141fc\r\na=ice-ufrag:90aa69be\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_ng3tf72jdt","browser":"firefox","label":"dc_ng3tf72jdt","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  78e2b7d9-b5f7-4253-8b32-82cb9050cd9d peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1210] WS msg 1                                      module=peer source=socket
+INFO[1210] websocket message: {"type":"CANDIDATE","src":"78e2b7d9-b5f7-4253-8b32-82cb9050cd9d","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 43bfc9f4-8467-4a35-a543-35d7a15fe8e2.local 57401 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"90aa69be"},"type":"data","connectionId":"dc_ng3tf72jdt"}}  module=peer source=socket
+DEBU[1210] WS msg 1                                      module=peer source=socket
+INFO[1210] websocket message: {"type":"CANDIDATE","src":"78e2b7d9-b5f7-4253-8b32-82cb9050cd9d","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 43bfc9f4-8467-4a35-a543-35d7a15fe8e2.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"90aa69be"},"type":"data","connectionId":"dc_ng3tf72jdt"}}  module=peer source=socket
+DEBU[1210] WS msg 1                                      module=peer source=socket
+INFO[1210] websocket message: {"type":"CANDIDATE","src":"78e2b7d9-b5f7-4253-8b32-82cb9050cd9d","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 57401 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"90aa69be"},"type":"data","connectionId":"dc_ng3tf72jdt"}}  module=peer source=socket
+level=info msg=VIDEO CALLING client peer: %s
+78e2b7d9-b5f7-4253-8b32-82cb9050cd9d peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1211] Creating RTCPeerConnection                    module=peer source=negotiator
+DEBU[1211] Listening for ICE candidates.                 module=peer source=negotiator
+DEBU[1211] Listening for data channel                    module=peer source=negotiator
+DEBU[1211] Listening for remote stream                   module=peer source=negotiator
+DEBU[1211] &{PeerConnection-1649554953265338082 {{0 0} 0 0 0 0} { 0 0   } 0x1208650 {[{[stun:stun.l.google.com:19302]  <nil> 0} {[turn:0.peerjs.com:3478] peerjs peerjsp 0}] 0 1 2  [{0x11fe870 0x1476840 certificate-1649554953293259717}] 0 0} <nil> <nil> <nil> <nil> 1 {1} {1} <nil> 0x10b11d8 0x10b11dc 0   -1 [] <nil> {0x4a20f8} {<nil>} 0x4a1c70 0x4a1f34 {<nil>} 0x123e600 0x123e660 0x13865a0 0x13d61c0 0x11fe858 0x13269a0 0x48acc4}  module=peer source=media
+DEBU[1211] Created offer                                 module=peer source=negotiator
+DEBU[1211] Set localDescription: v=0
+o=- 3578688752061948353 1649554953 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 8A:5C:D4:DD:76:98:52:43:C8:F5:CF:38:63:1A:FC:C9:CD:5D:2A:75:A5:C3:25:7F:DA:18:5D:45:57:95:84:D2
+a=group:BUNDLE 0
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 100 101 102 121 127 120 125 107 108 109 123 118 116
+c=IN IP4 0.0.0.0
+a=setup:actpass
+a=mid:0
+a=ice-ufrag:mWnhsLjFQQklUrFN
+a=ice-pwd:HPAqnARnwVFGbHOFEFWheRhAxQKouXmu
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtpmap:97 rtx/90000
+a=fmtp:97 apt=96
+a=rtpmap:98 VP9/90000
+a=fmtp:98 profile-id=0
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtpmap:99 rtx/90000
+a=fmtp:99 apt=98
+a=rtpmap:100 VP9/90000
+a=fmtp:100 profile-id=1
+a=rtcp-fb:100 goog-remb
+a=rtcp-fb:100 ccm fir
+a=rtcp-fb:100 nack
+a=rtcp-fb:100 nack pli
+a=rtpmap:101 rtx/90000
+a=fmtp:101 apt=100
+a=rtpmap:102 H264/90000
+a=fmtp:102 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f
+a=rtcp-fb:102 goog-remb
+a=rtcp-fb:102 ccm fir
+a=rtcp-fb:102 nack
+a=rtcp-fb:102 nack pli
+a=rtpmap:121 rtx/90000
+a=fmtp:121 apt=102
+a=rtpmap:127 H264/90000
+a=fmtp:127 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f
+a=rtcp-fb:127 goog-remb
+a=rtcp-fb:127 ccm fir
+a=rtcp-fb:127 nack
+a=rtcp-fb:127 nack pli
+a=rtpmap:120 rtx/90000
+a=fmtp:120 apt=127
+a=rtpmap:125 H264/90000
+a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtpmap:107 rtx/90000
+a=fmtp:107 apt=125
+a=rtpmap:108 H264/90000
+a=fmtp:108 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f
+a=rtcp-fb:108 goog-remb
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtpmap:109 rtx/90000
+a=fmtp:109 apt=108
+a=rtpmap:123 H264/90000
+a=fmtp:123 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640032
+a=rtcp-fb:123 goog-remb
+a=rtcp-fb:123 ccm fir
+a=rtcp-fb:123 nack
+a=rtcp-fb:123 nack pli
+a=rtpmap:118 rtx/90000
+a=fmtp:118 apt=123
+a=rtpmap:116 ulpfec/90000
+a=ssrc:2853236745 cname:rov-front-cam-stream
+a=ssrc:2853236745 msid:rov-front-cam-stream rov-front-cam
+a=ssrc:2853236745 mslabel:rov-front-cam-stream
+a=ssrc:2853236745 label:rov-front-cam
+a=msid:rov-front-cam-stream rov-front-cam
+a=sendrecv
+ for:78e2b7d9-b5f7-4253-8b32-82cb9050cd9d  module=peer source=negotiator
+DEBU[1211] Received ICE candidates for 78e2b7d9-b5f7-4253-8b32-82cb9050cd9d: candidate:1200985806 1 udp 2130706431 192.168.1.79 36084 typ host  module=peer source=negotiator
+DEBU[1211] Received ICE candidates for 78e2b7d9-b5f7-4253-8b32-82cb9050cd9d: candidate:757137109 1 udp 1694498815 63.249.68.2 51677 typ srflx raddr 0.0.0.0 rport 51677  module=peer source=negotiator
+DEBU[1211] WS msg 1                                      module=peer source=socket
+INFO[1211] websocket message: {"type":"ANSWER","src":"78e2b7d9-b5f7-4253-8b32-82cb9050cd9d","dst":"iROV-0","payload":{"sdp":{"type":"answer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 4955950442374004705 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 6C:85:1C:4E:7A:C4:6B:A4:2B:0D:F7:F6:86:EB:33:B6:E0:E6:6B:E0:38:B8:C0:D6:BA:C7:7B:8D:EC:B8:02:B8\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109\r\nc=IN IP4 0.0.0.0\r\na=recvonly\r\na=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1\r\na=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1\r\na=fmtp:96 max-fs=12288;max-fr=60\r\na=fmtp:97 apt=96\r\na=fmtp:98 max-fs=12288;max-fr=60\r\na=fmtp:99 apt=98\r\na=fmtp:107 apt=125\r\na=fmtp:109 apt=108\r\na=ice-pwd:333c82d3c9fe2808ce271080a28ff602\r\na=ice-ufrag:327b7fa3\r\na=mid:0\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:125 nack\r\na=rtcp-fb:125 nack pli\r\na=rtcp-fb:125 ccm fir\r\na=rtcp-fb:125 goog-remb\r\na=rtcp-fb:108 nack\r\na=rtcp-fb:108 nack pli\r\na=rtcp-fb:108 ccm fir\r\na=rtcp-fb:108 goog-remb\r\na=rtcp-mux\r\na=rtcp-rsize\r\na=rtpmap:96 VP8/90000\r\na=rtpmap:97 rtx/90000\r\na=rtpmap:98 VP9/90000\r\na=rtpmap:99 rtx/90000\r\na=rtpmap:125 H264/90000\r\na=rtpmap:107 rtx/90000\r\na=rtpmap:108 H264/90000\r\na=rtpmap:109 rtx/90000\r\na=setup:active\r\na=ssrc:3117054299 cname:{75100c39-479a-4079-af33-e2370b857846}\r\n"},"type":"media","connectionId":"mc_CIbV8JVBmkM","browser":"firefox"}}  module=peer source=socket
+DEBU[1211] Setting remote description {answer v=0
+o=mozilla...THIS_IS_SDPARTA-100.0 4955950442374004705 0 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 6C:85:1C:4E:7A:C4:6B:A4:2B:0D:F7:F6:86:EB:33:B6:E0:E6:6B:E0:38:B8:C0:D6:BA:C7:7B:8D:EC:B8:02:B8
+a=group:BUNDLE 0
+a=ice-options:trickle
+a=msid-semantic:WMS *
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109
+c=IN IP4 0.0.0.0
+a=recvonly
+a=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1
+a=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1
+a=fmtp:96 max-fs=12288;max-fr=60
+a=fmtp:97 apt=96
+a=fmtp:98 max-fs=12288;max-fr=60
+a=fmtp:99 apt=98
+a=fmtp:107 apt=125
+a=fmtp:109 apt=108
+a=ice-pwd:333c82d3c9fe2808ce271080a28ff602
+a=ice-ufrag:327b7fa3
+a=mid:0
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 goog-remb
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtpmap:97 rtx/90000
+a=rtpmap:98 VP9/90000
+a=rtpmap:99 rtx/90000
+a=rtpmap:125 H264/90000
+a=rtpmap:107 rtx/90000
+a=rtpmap:108 H264/90000
+a=rtpmap:109 rtx/90000
+a=setup:active
+a=ssrc:3117054299 cname:{75100c39-479a-4079-af33-e2370b857846}
+ <nil>}  module=peer source=negotiator
+DEBU[1211] Set remoteDescription:ANSWER for:78e2b7d9-b5f7-4253-8b32-82cb9050cd9d  module=peer source=negotiator
+DEBU[1211] WS msg 1                                      module=peer source=socket
+INFO[1211] websocket message: {"type":"CANDIDATE","src":"78e2b7d9-b5f7-4253-8b32-82cb9050cd9d","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 e9d43cca-c890-48e6-a75f-3509efa32723.local 60934 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"327b7fa3"},"type":"media","connectionId":"mc_CIbV8JVBmkM"}}  module=peer source=socket
+DEBU[1211] HandleCandidate: &{candidate:0 1 UDP 2122252543 e9d43cca-c890-48e6-a75f-3509efa32723.local 60934 typ host 0x1302580 0x12e4cee 0x1302588}  module=peer source=negotiator
+DEBU[1211] Added ICE candidate for:78e2b7d9-b5f7-4253-8b32-82cb9050cd9d  module=peer source=negotiator
+DEBU[1211] WS msg 1                                      module=peer source=socket
+INFO[1211] websocket message: {"type":"CANDIDATE","src":"78e2b7d9-b5f7-4253-8b32-82cb9050cd9d","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 e9d43cca-c890-48e6-a75f-3509efa32723.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"327b7fa3"},"type":"media","connectionId":"mc_CIbV8JVBmkM"}}  module=peer source=socket
+DEBU[1211] HandleCandidate: &{candidate:3 1 TCP 2105524479 e9d43cca-c890-48e6-a75f-3509efa32723.local 9 typ host tcptype active 0x1302678 0x12e4de0 0x1302680}  module=peer source=negotiator
+DEBU[1211] Added ICE candidate for:78e2b7d9-b5f7-4253-8b32-82cb9050cd9d  module=peer source=negotiator
+DEBU[1211] WS msg 1                                      module=peer source=socket
+INFO[1211] websocket message: {"type":"CANDIDATE","src":"78e2b7d9-b5f7-4253-8b32-82cb9050cd9d","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 60934 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"327b7fa3"},"type":"media","connectionId":"mc_CIbV8JVBmkM"}}  module=peer source=socket
+DEBU[1211] HandleCandidate: &{candidate:1 1 UDP 1686052863 63.249.68.2 60934 typ srflx raddr 0.0.0.0 rport 0 0x118ed00 0x120073e 0x118ed20}  module=peer source=negotiator
+DEBU[1211] Added ICE candidate for:78e2b7d9-b5f7-4253-8b32-82cb9050cd9d  module=peer source=negotiator
+DEBU[1214] iceConnectionState changed to disconnected on the connection with 800ecaa5-e8e4-4391-a75c-38d1b71c2065  module=peer source=negotiator
+DEBU[1218] ICECandidate gathering completed for peer=78e2b7d9-b5f7-4253-8b32-82cb9050cd9d conn=mc_CIbV8JVBmkM  module=peer source=negotiator
+DEBU[1240] iceConnectionState is failed, closing connections to 800ecaa5-e8e4-4391-a75c-38d1b71c2065  module=peer source=negotiator
+DEBU[1240] Cleaning up PeerConnection to 800ecaa5-e8e4-4391-a75c-38d1b71c2065  module=peer source=negotiator
+DEBU[1240] <nil>                                         module=peer source=media
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1258] iceConnectionState changed to disconnected on the connection with 78e2b7d9-b5f7-4253-8b32-82cb9050cd9d  module=peer source=negotiator
+DEBU[1284] iceConnectionState is failed, closing connections to 78e2b7d9-b5f7-4253-8b32-82cb9050cd9d  module=peer source=negotiator
+DEBU[1284] Cleaning up PeerConnection to 78e2b7d9-b5f7-4253-8b32-82cb9050cd9d  module=peer source=negotiator
+DEBU[1284] <nil>                                         module=peer source=media
+DEBU[1451] WS msg 1                                      module=peer source=socket
+INFO[1451] websocket message: {"type":"OFFER","src":"78244cdf-16ff-49cc-a734-ca6da5f8bb5b","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 1496892152938759898 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 26:CA:B4:FF:91:98:C0:91:1C:DD:60:44:D8:4A:33:28:53:FC:17:43:BA:1A:56:D2:7F:56:C7:FE:EF:85:D8:04\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:38c7cee65634e82c05f5df494b41f8b3\r\na=ice-ufrag:8e99ff7c\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_vxr3c9at4vh","browser":"firefox","label":"dc_vxr3c9at4vh","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  78244cdf-16ff-49cc-a734-ca6da5f8bb5b peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1451] WS msg 1                                      module=peer source=socket
+INFO[1451] websocket message: {"type":"CANDIDATE","src":"78244cdf-16ff-49cc-a734-ca6da5f8bb5b","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 7fbeb1e7-b4c2-49b0-85ae-886bfb52a76a.local 50666 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"8e99ff7c"},"type":"data","connectionId":"dc_vxr3c9at4vh"}}  module=peer source=socket
+DEBU[1451] WS msg 1                                      module=peer source=socket
+INFO[1451] websocket message: {"type":"CANDIDATE","src":"78244cdf-16ff-49cc-a734-ca6da5f8bb5b","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 7fbeb1e7-b4c2-49b0-85ae-886bfb52a76a.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"8e99ff7c"},"type":"data","connectionId":"dc_vxr3c9at4vh"}}  module=peer source=socket
+DEBU[1451] WS msg 1                                      module=peer source=socket
+INFO[1451] websocket message: {"type":"CANDIDATE","src":"78244cdf-16ff-49cc-a734-ca6da5f8bb5b","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 50666 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"8e99ff7c"},"type":"data","connectionId":"dc_vxr3c9at4vh"}}  module=peer source=socket
+level=info msg=VIDEO CALLING client peer: %s
+78244cdf-16ff-49cc-a734-ca6da5f8bb5b peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1452] Creating RTCPeerConnection                    module=peer source=negotiator
+DEBU[1452] Listening for ICE candidates.                 module=peer source=negotiator
+DEBU[1452] Listening for data channel                    module=peer source=negotiator
+DEBU[1452] Listening for remote stream                   module=peer source=negotiator
+DEBU[1452] &{PeerConnection-1649555194263700153 {{0 0} 0 0 0 0} { 0 0   } 0x100fa60 {[{[stun:stun.l.google.com:19302]  <nil> 0} {[turn:0.peerjs.com:3478] peerjs peerjsp 0}] 0 1 2  [{0x119b770 0x1476dc0 certificate-1649555194291823199}] 0 0} <nil> <nil> <nil> <nil> 1 {1} {1} <nil> 0x1361c88 0x1361c8c 0   -1 [] <nil> {0x4a20f8} {<nil>} 0x4a1c70 0x4a1f34 {<nil>} 0x111b020 0x111b080 0x107b320 0x1382540 0x119b758 0x10b52c0 0x48acc4}  module=peer source=media
+DEBU[1452] Created offer                                 module=peer source=negotiator
+DEBU[1452] Received ICE candidates for 78244cdf-16ff-49cc-a734-ca6da5f8bb5b: candidate:1200985806 1 udp 2130706431 192.168.1.79 50254 typ host  module=peer source=negotiator
+DEBU[1452] Set localDescription: v=0
+o=- 7550613725019787594 1649555194 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 EA:17:2A:9A:1E:A9:E7:7A:11:97:FC:88:04:BA:DA:34:F2:6C:08:8C:C1:DE:05:7E:FF:68:A7:98:01:9D:15:1B
+a=group:BUNDLE 0
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 100 101 102 121 127 120 125 107 108 109 123 118 116
+c=IN IP4 0.0.0.0
+a=setup:actpass
+a=mid:0
+a=ice-ufrag:lEbbIpVdHAataDsI
+a=ice-pwd:ueEDrGhXyfbbxTCzDwTVnhfuZTveSVjh
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtpmap:97 rtx/90000
+a=fmtp:97 apt=96
+a=rtpmap:98 VP9/90000
+a=fmtp:98 profile-id=0
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtpmap:99 rtx/90000
+a=fmtp:99 apt=98
+a=rtpmap:100 VP9/90000
+a=fmtp:100 profile-id=1
+a=rtcp-fb:100 goog-remb
+a=rtcp-fb:100 ccm fir
+a=rtcp-fb:100 nack
+a=rtcp-fb:100 nack pli
+a=rtpmap:101 rtx/90000
+a=fmtp:101 apt=100
+a=rtpmap:102 H264/90000
+a=fmtp:102 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f
+a=rtcp-fb:102 goog-remb
+a=rtcp-fb:102 ccm fir
+a=rtcp-fb:102 nack
+a=rtcp-fb:102 nack pli
+a=rtpmap:121 rtx/90000
+a=fmtp:121 apt=102
+a=rtpmap:127 H264/90000
+a=fmtp:127 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f
+a=rtcp-fb:127 goog-remb
+a=rtcp-fb:127 ccm fir
+a=rtcp-fb:127 nack
+a=rtcp-fb:127 nack pli
+a=rtpmap:120 rtx/90000
+a=fmtp:120 apt=127
+a=rtpmap:125 H264/90000
+a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtpmap:107 rtx/90000
+a=fmtp:107 apt=125
+a=rtpmap:108 H264/90000
+a=fmtp:108 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f
+a=rtcp-fb:108 goog-remb
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtpmap:109 rtx/90000
+a=fmtp:109 apt=108
+a=rtpmap:123 H264/90000
+a=fmtp:123 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640032
+a=rtcp-fb:123 goog-remb
+a=rtcp-fb:123 ccm fir
+a=rtcp-fb:123 nack
+a=rtcp-fb:123 nack pli
+a=rtpmap:118 rtx/90000
+a=fmtp:118 apt=123
+a=rtpmap:116 ulpfec/90000
+a=ssrc:3670624304 cname:rov-front-cam-stream
+a=ssrc:3670624304 msid:rov-front-cam-stream rov-front-cam
+a=ssrc:3670624304 mslabel:rov-front-cam-stream
+a=ssrc:3670624304 label:rov-front-cam
+a=msid:rov-front-cam-stream rov-front-cam
+a=sendrecv
+ for:78244cdf-16ff-49cc-a734-ca6da5f8bb5b  module=peer source=negotiator
+DEBU[1452] Received ICE candidates for 78244cdf-16ff-49cc-a734-ca6da5f8bb5b: candidate:757137109 1 udp 1694498815 63.249.68.2 52311 typ srflx raddr 0.0.0.0 rport 52311  module=peer source=negotiator
+DEBU[1452] WS msg 1                                      module=peer source=socket
+INFO[1452] websocket message: {"type":"ANSWER","src":"78244cdf-16ff-49cc-a734-ca6da5f8bb5b","dst":"iROV-0","payload":{"sdp":{"type":"answer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 2369333088396943561 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 B4:99:D9:57:AC:49:F0:4B:D3:99:76:BD:DD:11:3B:3F:A9:43:E6:B1:2E:99:B6:00:DB:2E:27:F8:A8:47:E4:B9\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109\r\nc=IN IP4 0.0.0.0\r\na=recvonly\r\na=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1\r\na=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1\r\na=fmtp:96 max-fs=12288;max-fr=60\r\na=fmtp:97 apt=96\r\na=fmtp:98 max-fs=12288;max-fr=60\r\na=fmtp:99 apt=98\r\na=fmtp:107 apt=125\r\na=fmtp:109 apt=108\r\na=ice-pwd:686e311e65ef5f9af2447890ce65d9f8\r\na=ice-ufrag:3f60190c\r\na=mid:0\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:125 nack\r\na=rtcp-fb:125 nack pli\r\na=rtcp-fb:125 ccm fir\r\na=rtcp-fb:125 goog-remb\r\na=rtcp-fb:108 nack\r\na=rtcp-fb:108 nack pli\r\na=rtcp-fb:108 ccm fir\r\na=rtcp-fb:108 goog-remb\r\na=rtcp-mux\r\na=rtcp-rsize\r\na=rtpmap:96 VP8/90000\r\na=rtpmap:97 rtx/90000\r\na=rtpmap:98 VP9/90000\r\na=rtpmap:99 rtx/90000\r\na=rtpmap:125 H264/90000\r\na=rtpmap:107 rtx/90000\r\na=rtpmap:108 H264/90000\r\na=rtpmap:109 rtx/90000\r\na=setup:active\r\na=ssrc:1581849577 cname:{0e2230f1-c3b4-4801-be97-04037e1c64e1}\r\n"},"type":"media","connectionId":"mc_wpn3NHlS182","browser":"firefox"}}  module=peer source=socket
+DEBU[1452] Setting remote description {answer v=0
+o=mozilla...THIS_IS_SDPARTA-100.0 2369333088396943561 0 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 B4:99:D9:57:AC:49:F0:4B:D3:99:76:BD:DD:11:3B:3F:A9:43:E6:B1:2E:99:B6:00:DB:2E:27:F8:A8:47:E4:B9
+a=group:BUNDLE 0
+a=ice-options:trickle
+a=msid-semantic:WMS *
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109
+c=IN IP4 0.0.0.0
+a=recvonly
+a=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1
+a=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1
+a=fmtp:96 max-fs=12288;max-fr=60
+a=fmtp:97 apt=96
+a=fmtp:98 max-fs=12288;max-fr=60
+a=fmtp:99 apt=98
+a=fmtp:107 apt=125
+a=fmtp:109 apt=108
+a=ice-pwd:686e311e65ef5f9af2447890ce65d9f8
+a=ice-ufrag:3f60190c
+a=mid:0
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 goog-remb
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtpmap:97 rtx/90000
+a=rtpmap:98 VP9/90000
+a=rtpmap:99 rtx/90000
+a=rtpmap:125 H264/90000
+a=rtpmap:107 rtx/90000
+a=rtpmap:108 H264/90000
+a=rtpmap:109 rtx/90000
+a=setup:active
+a=ssrc:1581849577 cname:{0e2230f1-c3b4-4801-be97-04037e1c64e1}
+ <nil>}  module=peer source=negotiator
+DEBU[1452] Set remoteDescription:ANSWER for:78244cdf-16ff-49cc-a734-ca6da5f8bb5b  module=peer source=negotiator
+DEBU[1452] WS msg 1                                      module=peer source=socket
+INFO[1452] websocket message: {"type":"CANDIDATE","src":"78244cdf-16ff-49cc-a734-ca6da5f8bb5b","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 5de8a5df-080e-40d7-a7ed-709dd8ea890b.local 55187 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"3f60190c"},"type":"media","connectionId":"mc_wpn3NHlS182"}}  module=peer source=socket
+DEBU[1452] HandleCandidate: &{candidate:0 1 UDP 2122252543 5de8a5df-080e-40d7-a7ed-709dd8ea890b.local 55187 typ host 0x118e430 0x1200860 0x118e438}  module=peer source=negotiator
+DEBU[1452] Added ICE candidate for:78244cdf-16ff-49cc-a734-ca6da5f8bb5b  module=peer source=negotiator
+DEBU[1452] WS msg 1                                      module=peer source=socket
+INFO[1452] websocket message: {"type":"CANDIDATE","src":"78244cdf-16ff-49cc-a734-ca6da5f8bb5b","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 5de8a5df-080e-40d7-a7ed-709dd8ea890b.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"3f60190c"},"type":"media","connectionId":"mc_wpn3NHlS182"}}  module=peer source=socket
+DEBU[1452] HandleCandidate: &{candidate:3 1 TCP 2105524479 5de8a5df-080e-40d7-a7ed-709dd8ea890b.local 9 typ host tcptype active 0x118e560 0x120090e 0x118e568}  module=peer source=negotiator
+DEBU[1452] Added ICE candidate for:78244cdf-16ff-49cc-a734-ca6da5f8bb5b  module=peer source=negotiator
+DEBU[1452] WS msg 1                                      module=peer source=socket
+INFO[1452] websocket message: {"type":"CANDIDATE","src":"78244cdf-16ff-49cc-a734-ca6da5f8bb5b","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 55187 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"3f60190c"},"type":"media","connectionId":"mc_wpn3NHlS182"}}  module=peer source=socket
+DEBU[1452] HandleCandidate: &{candidate:1 1 UDP 1686052863 63.249.68.2 55187 typ srflx raddr 0.0.0.0 rport 0 0x1148818 0x12e415e 0x1148820}  module=peer source=negotiator
+DEBU[1452] Added ICE candidate for:78244cdf-16ff-49cc-a734-ca6da5f8bb5b  module=peer source=negotiator
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1461] iceConnectionState changed to disconnected on the connection with 78244cdf-16ff-49cc-a734-ca6da5f8bb5b  module=peer source=negotiator
+DEBU[1464] ICECandidate gathering completed for peer=78244cdf-16ff-49cc-a734-ca6da5f8bb5b conn=mc_wpn3NHlS182  module=peer source=negotiator
+DEBU[1473] WS msg 1                                      module=peer source=socket
+INFO[1473] websocket message: {"type":"OFFER","src":"aef08370-073a-4896-814f-ed602b56d976","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 2141656122957721331 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 AA:6F:14:47:DA:DA:A4:48:04:20:51:71:0E:08:93:9A:70:3E:AA:FD:4F:62:5F:45:FA:6E:C3:32:90:1F:E8:70\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:bce2ff9a6107893e51d0dfdedeef9505\r\na=ice-ufrag:55b23f85\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_sqv7t07oa3","browser":"firefox","label":"dc_sqv7t07oa3","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  aef08370-073a-4896-814f-ed602b56d976 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1473] WS msg 1                                      module=peer source=socket
+INFO[1473] websocket message: {"type":"CANDIDATE","src":"aef08370-073a-4896-814f-ed602b56d976","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 b03cba25-1311-4e01-a4e7-dc52d8e944b8.local 56590 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"55b23f85"},"type":"data","connectionId":"dc_sqv7t07oa3"}}  module=peer source=socket
+DEBU[1473] WS msg 1                                      module=peer source=socket
+INFO[1473] websocket message: {"type":"CANDIDATE","src":"aef08370-073a-4896-814f-ed602b56d976","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 b03cba25-1311-4e01-a4e7-dc52d8e944b8.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"55b23f85"},"type":"data","connectionId":"dc_sqv7t07oa3"}}  module=peer source=socket
+DEBU[1474] WS msg 1                                      module=peer source=socket
+INFO[1474] websocket message: {"type":"CANDIDATE","src":"aef08370-073a-4896-814f-ed602b56d976","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 56590 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"55b23f85"},"type":"data","connectionId":"dc_sqv7t07oa3"}}  module=peer source=socket
+level=info msg=VIDEO CALLING client peer: %s
+aef08370-073a-4896-814f-ed602b56d976 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1474] Creating RTCPeerConnection                    module=peer source=negotiator
+DEBU[1474] Listening for ICE candidates.                 module=peer source=negotiator
+DEBU[1474] Listening for data channel                    module=peer source=negotiator
+DEBU[1474] Listening for remote stream                   module=peer source=negotiator
+DEBU[1474] &{PeerConnection-1649555216414609081 {{0 0} 0 0 0 0} { 0 0   } 0x12aca10 {[{[stun:stun.l.google.com:19302]  <nil> 0} {[turn:0.peerjs.com:3478] peerjs peerjsp 0}] 0 1 2  [{0x121ed68 0x14942c0 certificate-1649555216430211466}] 0 0} <nil> <nil> <nil> <nil> 1 {1} {1} <nil> 0x1201af8 0x1201afc 0   -1 [] <nil> {0x4a20f8} {<nil>} 0x4a1c70 0x4a1f34 {<nil>} 0x111ad80 0x111ade0 0x1190ab0 0x106c230 0x121ed50 0x11af2c0 0x48acc4}  module=peer source=media
+DEBU[1474] Created offer                                 module=peer source=negotiator
+DEBU[1474] Set localDescription: v=0
+o=- 4973463712067558050 1649555216 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 1A:59:AC:5D:7F:21:99:25:1C:FF:F0:20:27:23:99:56:9B:08:40:64:F6:19:51:FB:87:10:0E:8A:5A:BE:4A:D2
+a=group:BUNDLE 0
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 100 101 102 121 127 120 125 107 108 109 123 118 116
+c=IN IP4 0.0.0.0
+a=setup:actpass
+a=mid:0
+a=ice-ufrag:oYNHvIoliZnoKcKo
+a=ice-pwd:mpEKCZUgoxPkRBcVMkZmynCRrUJcTcqH
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtpmap:97 rtx/90000
+a=fmtp:97 apt=96
+a=rtpmap:98 VP9/90000
+a=fmtp:98 profile-id=0
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtpmap:99 rtx/90000
+a=fmtp:99 apt=98
+a=rtpmap:100 VP9/90000
+a=fmtp:100 profile-id=1
+a=rtcp-fb:100 goog-remb
+a=rtcp-fb:100 ccm fir
+a=rtcp-fb:100 nack
+a=rtcp-fb:100 nack pli
+a=rtpmap:101 rtx/90000
+a=fmtp:101 apt=100
+a=rtpmap:102 H264/90000
+a=fmtp:102 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f
+a=rtcp-fb:102 goog-remb
+a=rtcp-fb:102 ccm fir
+a=rtcp-fb:102 nack
+a=rtcp-fb:102 nack pli
+a=rtpmap:121 rtx/90000
+a=fmtp:121 apt=102
+a=rtpmap:127 H264/90000
+a=fmtp:127 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f
+a=rtcp-fb:127 goog-remb
+a=rtcp-fb:127 ccm fir
+a=rtcp-fb:127 nack
+a=rtcp-fb:127 nack pli
+a=rtpmap:120 rtx/90000
+a=fmtp:120 apt=127
+a=rtpmap:125 H264/90000
+a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtpmap:107 rtx/90000
+a=fmtp:107 apt=125
+a=rtpmap:108 H264/90000
+a=fmtp:108 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f
+a=rtcp-fb:108 goog-remb
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtpmap:109 rtx/90000
+a=fmtp:109 apt=108
+a=rtpmap:123 H264/90000
+a=fmtp:123 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640032
+a=rtcp-fb:123 goog-remb
+a=rtcp-fb:123 ccm fir
+a=rtcp-fb:123 nack
+a=rtcp-fb:123 nack pli
+a=rtpmap:118 rtx/90000
+a=fmtp:118 apt=123
+a=rtpmap:116 ulpfec/90000
+a=ssrc:3025681903 cname:rov-front-cam-stream
+a=ssrc:3025681903 msid:rov-front-cam-stream rov-front-cam
+a=ssrc:3025681903 mslabel:rov-front-cam-stream
+a=ssrc:3025681903 label:rov-front-cam
+a=msid:rov-front-cam-stream rov-front-cam
+a=sendrecv
+ for:aef08370-073a-4896-814f-ed602b56d976  module=peer source=negotiator
+DEBU[1474] Received ICE candidates for aef08370-073a-4896-814f-ed602b56d976: candidate:1200985806 1 udp 2130706431 192.168.1.79 44088 typ host  module=peer source=negotiator
+DEBU[1474] WS msg 1                                      module=peer source=socket
+INFO[1474] websocket message: {"type":"ANSWER","src":"aef08370-073a-4896-814f-ed602b56d976","dst":"iROV-0","payload":{"sdp":{"type":"answer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 4069763807769496388 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 C5:A5:22:2D:55:B9:ED:E5:10:19:49:04:68:79:0E:28:C7:C1:12:17:5C:52:05:3C:24:96:19:B8:3C:8B:02:34\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109\r\nc=IN IP4 0.0.0.0\r\na=recvonly\r\na=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1\r\na=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1\r\na=fmtp:96 max-fs=12288;max-fr=60\r\na=fmtp:97 apt=96\r\na=fmtp:98 max-fs=12288;max-fr=60\r\na=fmtp:99 apt=98\r\na=fmtp:107 apt=125\r\na=fmtp:109 apt=108\r\na=ice-pwd:56c0fcdd2cb0e51560c9b879dfcce092\r\na=ice-ufrag:ae04675f\r\na=mid:0\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:125 nack\r\na=rtcp-fb:125 nack pli\r\na=rtcp-fb:125 ccm fir\r\na=rtcp-fb:125 goog-remb\r\na=rtcp-fb:108 nack\r\na=rtcp-fb:108 nack pli\r\na=rtcp-fb:108 ccm fir\r\na=rtcp-fb:108 goog-remb\r\na=rtcp-mux\r\na=rtcp-rsize\r\na=rtpmap:96 VP8/90000\r\na=rtpmap:97 rtx/90000\r\na=rtpmap:98 VP9/90000\r\na=rtpmap:99 rtx/90000\r\na=rtpmap:125 H264/90000\r\na=rtpmap:107 rtx/90000\r\na=rtpmap:108 H264/90000\r\na=rtpmap:109 rtx/90000\r\na=setup:active\r\na=ssrc:589592353 cname:{818f868e-8930-4628-9e5d-8bd94a4233e6}\r\n"},"type":"media","connectionId":"mc_HW51sKbU75y","browser":"firefox"}}  module=peer source=socket
+DEBU[1474] Setting remote description {answer v=0
+o=mozilla...THIS_IS_SDPARTA-100.0 4069763807769496388 0 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 C5:A5:22:2D:55:B9:ED:E5:10:19:49:04:68:79:0E:28:C7:C1:12:17:5C:52:05:3C:24:96:19:B8:3C:8B:02:34
+a=group:BUNDLE 0
+a=ice-options:trickle
+a=msid-semantic:WMS *
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109
+c=IN IP4 0.0.0.0
+a=recvonly
+a=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1
+a=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1
+a=fmtp:96 max-fs=12288;max-fr=60
+a=fmtp:97 apt=96
+a=fmtp:98 max-fs=12288;max-fr=60
+a=fmtp:99 apt=98
+a=fmtp:107 apt=125
+a=fmtp:109 apt=108
+a=ice-pwd:56c0fcdd2cb0e51560c9b879dfcce092
+a=ice-ufrag:ae04675f
+a=mid:0
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 goog-remb
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtpmap:97 rtx/90000
+a=rtpmap:98 VP9/90000
+a=rtpmap:99 rtx/90000
+a=rtpmap:125 H264/90000
+a=rtpmap:107 rtx/90000
+a=rtpmap:108 H264/90000
+a=rtpmap:109 rtx/90000
+a=setup:active
+a=ssrc:589592353 cname:{818f868e-8930-4628-9e5d-8bd94a4233e6}
+ <nil>}  module=peer source=negotiator
+DEBU[1474] Set remoteDescription:ANSWER for:aef08370-073a-4896-814f-ed602b56d976  module=peer source=negotiator
+DEBU[1474] WS msg 1                                      module=peer source=socket
+INFO[1474] websocket message: {"type":"CANDIDATE","src":"aef08370-073a-4896-814f-ed602b56d976","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 a70b9852-b1f1-4538-9f27-709fc684e875.local 59381 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"ae04675f"},"type":"media","connectionId":"mc_HW51sKbU75y"}}  module=peer source=socket
+DEBU[1474] HandleCandidate: &{candidate:0 1 UDP 2122252543 a70b9852-b1f1-4538-9f27-709fc684e875.local 59381 typ host 0x118eff0 0x1361050 0x118eff8}  module=peer source=negotiator
+DEBU[1474] Added ICE candidate for:aef08370-073a-4896-814f-ed602b56d976  module=peer source=negotiator
+DEBU[1474] WS msg 1                                      module=peer source=socket
+INFO[1474] websocket message: {"type":"CANDIDATE","src":"aef08370-073a-4896-814f-ed602b56d976","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 a70b9852-b1f1-4538-9f27-709fc684e875.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"ae04675f"},"type":"media","connectionId":"mc_HW51sKbU75y"}}  module=peer source=socket
+DEBU[1474] HandleCandidate: &{candidate:3 1 TCP 2105524479 a70b9852-b1f1-4538-9f27-709fc684e875.local 9 typ host tcptype active 0x118f0e0 0x136112e 0x118f0e8}  module=peer source=negotiator
+DEBU[1474] Added ICE candidate for:aef08370-073a-4896-814f-ed602b56d976  module=peer source=negotiator
+DEBU[1474] WS msg 1                                      module=peer source=socket
+INFO[1474] websocket message: {"type":"CANDIDATE","src":"aef08370-073a-4896-814f-ed602b56d976","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 59381 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"ae04675f"},"type":"media","connectionId":"mc_HW51sKbU75y"}}  module=peer source=socket
+DEBU[1474] HandleCandidate: &{candidate:1 1 UDP 1686052863 63.249.68.2 59381 typ srflx raddr 0.0.0.0 rport 0 0x118f220 0x1361380 0x118f228}  module=peer source=negotiator
+DEBU[1474] Added ICE candidate for:aef08370-073a-4896-814f-ed602b56d976  module=peer source=negotiator
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1475] WS msg 1                                      module=peer source=socket
+INFO[1475] websocket message: {"type":"OFFER","src":"8cefb778-25b2-4211-b08b-b7cf4d08a691","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 5571643186893285951 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 CD:21:6B:D4:79:F5:73:17:00:98:E8:ED:2A:C6:81:90:0F:06:42:0F:32:C4:02:83:7A:DF:01:BE:2D:FC:12:64\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:619bd4cb95a57b2ae88cddfef31b0554\r\na=ice-ufrag:4c2d81f6\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_0enpvz2qjihc","browser":"firefox","label":"dc_0enpvz2qjihc","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  8cefb778-25b2-4211-b08b-b7cf4d08a691 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1475] WS msg 1                                      module=peer source=socket
+INFO[1475] websocket message: {"type":"CANDIDATE","src":"8cefb778-25b2-4211-b08b-b7cf4d08a691","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 75b92751-a595-4d00-9f2b-5186578fce78.local 63638 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"4c2d81f6"},"type":"data","connectionId":"dc_0enpvz2qjihc"}}  module=peer source=socket
+DEBU[1475] WS msg 1                                      module=peer source=socket
+INFO[1475] websocket message: {"type":"CANDIDATE","src":"8cefb778-25b2-4211-b08b-b7cf4d08a691","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 75b92751-a595-4d00-9f2b-5186578fce78.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"4c2d81f6"},"type":"data","connectionId":"dc_0enpvz2qjihc"}}  module=peer source=socket
+level=info msg=VIDEO CALLING client peer: %s
+8cefb778-25b2-4211-b08b-b7cf4d08a691 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1475] Creating RTCPeerConnection                    module=peer source=negotiator
+DEBU[1475] Listening for ICE candidates.                 module=peer source=negotiator
+DEBU[1475] Listening for data channel                    module=peer source=negotiator
+DEBU[1475] Listening for remote stream                   module=peer source=negotiator
+DEBU[1475] &{PeerConnection-1649555217888243435 {{0 0} 0 0 0 0} { 0 0   } 0x132b690 {[{[stun:stun.l.google.com:19302]  <nil> 0} {[turn:0.peerjs.com:3478] peerjs peerjsp 0}] 0 1 2  [{0x13b9728 0x111f080 certificate-1649555217911453781}] 0 0} <nil> <nil> <nil> <nil> 1 {1} {1} <nil> 0x119fb58 0x119fb5c 0   -1 [] <nil> {0x4a20f8} {<nil>} 0x4a1c70 0x4a1f34 {<nil>} 0x1401260 0x14012c0 0x107b290 0x13827e0 0x13b9710 0x120daa0 0x48acc4}  module=peer source=media
+DEBU[1475] Created offer                                 module=peer source=negotiator
+DEBU[1475] Received ICE candidates for 8cefb778-25b2-4211-b08b-b7cf4d08a691: candidate:1200985806 1 udp 2130706431 192.168.1.79 58522 typ host  module=peer source=negotiator
+DEBU[1475] Set localDescription: v=0
+o=- 4816550850539697227 1649555217 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 4E:C1:DD:F5:28:74:2A:B3:21:13:4A:D3:43:CF:BA:24:18:73:3F:A8:66:36:DD:BC:2D:7D:FA:07:85:C9:AC:E3
+a=group:BUNDLE 0
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 100 101 102 121 127 120 125 107 108 109 123 118 116
+c=IN IP4 0.0.0.0
+a=setup:actpass
+a=mid:0
+a=ice-ufrag:UxBvtPKETypHzKYq
+a=ice-pwd:cTyAohAmZFAVWQKIHmjeaGJTzYnsNfwI
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtpmap:97 rtx/90000
+a=fmtp:97 apt=96
+a=rtpmap:98 VP9/90000
+a=fmtp:98 profile-id=0
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtpmap:99 rtx/90000
+a=fmtp:99 apt=98
+a=rtpmap:100 VP9/90000
+a=fmtp:100 profile-id=1
+a=rtcp-fb:100 goog-remb
+a=rtcp-fb:100 ccm fir
+a=rtcp-fb:100 nack
+a=rtcp-fb:100 nack pli
+a=rtpmap:101 rtx/90000
+a=fmtp:101 apt=100
+a=rtpmap:102 H264/90000
+a=fmtp:102 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f
+a=rtcp-fb:102 goog-remb
+a=rtcp-fb:102 ccm fir
+a=rtcp-fb:102 nack
+a=rtcp-fb:102 nack pli
+a=rtpmap:121 rtx/90000
+a=fmtp:121 apt=102
+a=rtpmap:127 H264/90000
+a=fmtp:127 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f
+a=rtcp-fb:127 goog-remb
+a=rtcp-fb:127 ccm fir
+a=rtcp-fb:127 nack
+a=rtcp-fb:127 nack pli
+a=rtpmap:120 rtx/90000
+a=fmtp:120 apt=127
+a=rtpmap:125 H264/90000
+a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtpmap:107 rtx/90000
+a=fmtp:107 apt=125
+a=rtpmap:108 H264/90000
+a=fmtp:108 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f
+a=rtcp-fb:108 goog-remb
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtpmap:109 rtx/90000
+a=fmtp:109 apt=108
+a=rtpmap:123 H264/90000
+a=fmtp:123 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640032
+a=rtcp-fb:123 goog-remb
+a=rtcp-fb:123 ccm fir
+a=rtcp-fb:123 nack
+a=rtcp-fb:123 nack pli
+a=rtpmap:118 rtx/90000
+a=fmtp:118 apt=123
+a=rtpmap:116 ulpfec/90000
+a=ssrc:2396712479 cname:rov-front-cam-stream
+a=ssrc:2396712479 msid:rov-front-cam-stream rov-front-cam
+a=ssrc:2396712479 mslabel:rov-front-cam-stream
+a=ssrc:2396712479 label:rov-front-cam
+a=msid:rov-front-cam-stream rov-front-cam
+a=sendrecv
+ for:8cefb778-25b2-4211-b08b-b7cf4d08a691  module=peer source=negotiator
+DEBU[1475] WS msg 1                                      module=peer source=socket
+INFO[1475] websocket message: {"type":"CANDIDATE","src":"8cefb778-25b2-4211-b08b-b7cf4d08a691","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 63638 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"4c2d81f6"},"type":"data","connectionId":"dc_0enpvz2qjihc"}}  module=peer source=socket
+DEBU[1475] WS msg 1                                      module=peer source=socket
+INFO[1475] websocket message: {"type":"ANSWER","src":"8cefb778-25b2-4211-b08b-b7cf4d08a691","dst":"iROV-0","payload":{"sdp":{"type":"answer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 8245040554063298438 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 A9:5F:2B:A1:24:FB:8F:86:69:3E:0D:7E:D2:56:30:3B:3E:9A:F6:FE:8A:97:83:2C:11:D3:63:11:F6:0E:5B:E4\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109\r\nc=IN IP4 0.0.0.0\r\na=recvonly\r\na=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1\r\na=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1\r\na=fmtp:96 max-fs=12288;max-fr=60\r\na=fmtp:97 apt=96\r\na=fmtp:98 max-fs=12288;max-fr=60\r\na=fmtp:99 apt=98\r\na=fmtp:107 apt=125\r\na=fmtp:109 apt=108\r\na=ice-pwd:df6a1542f026f89d160541d1d865b647\r\na=ice-ufrag:215a3b60\r\na=mid:0\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:125 nack\r\na=rtcp-fb:125 nack pli\r\na=rtcp-fb:125 ccm fir\r\na=rtcp-fb:125 goog-remb\r\na=rtcp-fb:108 nack\r\na=rtcp-fb:108 nack pli\r\na=rtcp-fb:108 ccm fir\r\na=rtcp-fb:108 goog-remb\r\na=rtcp-mux\r\na=rtcp-rsize\r\na=rtpmap:96 VP8/90000\r\na=rtpmap:97 rtx/90000\r\na=rtpmap:98 VP9/90000\r\na=rtpmap:99 rtx/90000\r\na=rtpmap:125 H264/90000\r\na=rtpmap:107 rtx/90000\r\na=rtpmap:108 H264/90000\r\na=rtpmap:109 rtx/90000\r\na=setup:active\r\na=ssrc:2261136950 cname:{e5348823-1220-4b26-a0f4-4acc8d072c2f}\r\n"},"type":"media","connectionId":"mc_xZldZwbAUsC","browser":"firefox"}}  module=peer source=socket
+DEBU[1475] Setting remote description {answer v=0
+o=mozilla...THIS_IS_SDPARTA-100.0 8245040554063298438 0 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 A9:5F:2B:A1:24:FB:8F:86:69:3E:0D:7E:D2:56:30:3B:3E:9A:F6:FE:8A:97:83:2C:11:D3:63:11:F6:0E:5B:E4
+a=group:BUNDLE 0
+a=ice-options:trickle
+a=msid-semantic:WMS *
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109
+c=IN IP4 0.0.0.0
+a=recvonly
+a=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1
+a=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1
+a=fmtp:96 max-fs=12288;max-fr=60
+a=fmtp:97 apt=96
+a=fmtp:98 max-fs=12288;max-fr=60
+a=fmtp:99 apt=98
+a=fmtp:107 apt=125
+a=fmtp:109 apt=108
+a=ice-pwd:df6a1542f026f89d160541d1d865b647
+a=ice-ufrag:215a3b60
+a=mid:0
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 goog-remb
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtpmap:97 rtx/90000
+a=rtpmap:98 VP9/90000
+a=rtpmap:99 rtx/90000
+a=rtpmap:125 H264/90000
+a=rtpmap:107 rtx/90000
+a=rtpmap:108 H264/90000
+a=rtpmap:109 rtx/90000
+a=setup:active
+a=ssrc:2261136950 cname:{e5348823-1220-4b26-a0f4-4acc8d072c2f}
+ <nil>}  module=peer source=negotiator
+DEBU[1475] Set remoteDescription:ANSWER for:8cefb778-25b2-4211-b08b-b7cf4d08a691  module=peer source=negotiator
+DEBU[1475] WS msg 1                                      module=peer source=socket
+INFO[1475] websocket message: {"type":"CANDIDATE","src":"8cefb778-25b2-4211-b08b-b7cf4d08a691","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 afc3aee8-4cd2-4747-88d1-ae1c6b14c94c.local 60301 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"215a3b60"},"type":"media","connectionId":"mc_xZldZwbAUsC"}}  module=peer source=socket
+DEBU[1475] HandleCandidate: &{candidate:0 1 UDP 2122252543 afc3aee8-4cd2-4747-88d1-ae1c6b14c94c.local 60301 typ host 0x11496a8 0x12e5360 0x11496b0}  module=peer source=negotiator
+DEBU[1475] Added ICE candidate for:8cefb778-25b2-4211-b08b-b7cf4d08a691  module=peer source=negotiator
+DEBU[1475] WS msg 1                                      module=peer source=socket
+INFO[1475] websocket message: {"type":"CANDIDATE","src":"8cefb778-25b2-4211-b08b-b7cf4d08a691","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 afc3aee8-4cd2-4747-88d1-ae1c6b14c94c.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"215a3b60"},"type":"media","connectionId":"mc_xZldZwbAUsC"}}  module=peer source=socket
+DEBU[1475] HandleCandidate: &{candidate:3 1 TCP 2105524479 afc3aee8-4cd2-4747-88d1-ae1c6b14c94c.local 9 typ host tcptype active 0x11497c8 0x12e544e 0x11497d0}  module=peer source=negotiator
+DEBU[1475] Added ICE candidate for:8cefb778-25b2-4211-b08b-b7cf4d08a691  module=peer source=negotiator
+DEBU[1475] WS msg 1                                      module=peer source=socket
+INFO[1475] websocket message: {"type":"CANDIDATE","src":"8cefb778-25b2-4211-b08b-b7cf4d08a691","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 60301 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"215a3b60"},"type":"media","connectionId":"mc_xZldZwbAUsC"}}  module=peer source=socket
+DEBU[1475] HandleCandidate: &{candidate:1 1 UDP 1686052863 63.249.68.2 60301 typ srflx raddr 0.0.0.0 rport 0 0x11498c0 0x12e55d0 0x11498c8}  module=peer source=negotiator
+DEBU[1475] Added ICE candidate for:8cefb778-25b2-4211-b08b-b7cf4d08a691  module=peer source=negotiator
+DEBU[1478] Received ICE candidates for 8cefb778-25b2-4211-b08b-b7cf4d08a691: candidate:757137109 1 udp 1694498815 63.249.68.2 46933 typ srflx raddr 0.0.0.0 rport 46933  module=peer source=negotiator
+DEBU[1478] Received ICE candidates for aef08370-073a-4896-814f-ed602b56d976: candidate:757137109 1 udp 1694498815 63.249.68.2 58860 typ srflx raddr 0.0.0.0 rport 58860  module=peer source=negotiator
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1481] WS msg 1                                      module=peer source=socket
+INFO[1481] websocket message: {"type":"OFFER","src":"75d42782-6a3c-4e59-a5ae-bc29dd0abbcf","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 6459237829343975992 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 0C:A4:27:E3:89:D4:2A:81:F7:D2:2F:3C:C6:5C:0A:2A:0B:2E:75:9C:22:0E:2A:68:FB:8F:F1:89:2B:7B:55:7E\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:beb0ce92eb0e75d0d004126adb48d04d\r\na=ice-ufrag:2ad41ce6\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_pnnled5eeq","browser":"firefox","label":"dc_pnnled5eeq","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  75d42782-6a3c-4e59-a5ae-bc29dd0abbcf peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1481] WS msg 1                                      module=peer source=socket
+INFO[1481] websocket message: {"type":"CANDIDATE","src":"75d42782-6a3c-4e59-a5ae-bc29dd0abbcf","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 4750333c-ee40-4292-a358-d8d965d7c735.local 64360 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"2ad41ce6"},"type":"data","connectionId":"dc_pnnled5eeq"}}  module=peer source=socket
+DEBU[1481] WS msg 1                                      module=peer source=socket
+INFO[1481] websocket message: {"type":"CANDIDATE","src":"75d42782-6a3c-4e59-a5ae-bc29dd0abbcf","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 4750333c-ee40-4292-a358-d8d965d7c735.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"2ad41ce6"},"type":"data","connectionId":"dc_pnnled5eeq"}}  module=peer source=socket
+DEBU[1481] WS msg 1                                      module=peer source=socket
+INFO[1481] websocket message: {"type":"CANDIDATE","src":"75d42782-6a3c-4e59-a5ae-bc29dd0abbcf","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 64360 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"2ad41ce6"},"type":"data","connectionId":"dc_pnnled5eeq"}}  module=peer source=socket
+level=info msg=VIDEO CALLING client peer: %s
+75d42782-6a3c-4e59-a5ae-bc29dd0abbcf peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1481] Creating RTCPeerConnection                    module=peer source=negotiator
+DEBU[1481] Listening for ICE candidates.                 module=peer source=negotiator
+DEBU[1481] Listening for data channel                    module=peer source=negotiator
+DEBU[1481] Listening for remote stream                   module=peer source=negotiator
+DEBU[1481] &{PeerConnection-1649555223516342978 {{0 0} 0 0 0 0} { 0 0   } 0x108edf0 {[{[stun:stun.l.google.com:19302]  <nil> 0} {[turn:0.peerjs.com:3478] peerjs peerjsp 0}] 0 1 2  [{0x13b9170 0x111eb00 certificate-1649555223541363515}] 0 0} <nil> <nil> <nil> <nil> 1 {1} {1} <nil> 0x139f1b8 0x139f1bc 0   -1 [] <nil> {0x4a20f8} {<nil>} 0x4a1c70 0x4a1f34 {<nil>} 0x1390a80 0x1390ae0 0x13ec900 0x13d6460 0x13b90e0 0x11aeee0 0x48acc4}  module=peer source=media
+DEBU[1481] Created offer                                 module=peer source=negotiator
+DEBU[1481] Set localDescription: v=0
+o=- 5094629154518665292 1649555223 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 74:31:94:F0:4F:DB:CE:0E:E8:BC:A1:A9:A4:69:71:86:94:F8:5D:50:8B:50:F6:C1:B5:C5:0C:B9:3C:A7:92:46
+a=group:BUNDLE 0
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 100 101 102 121 127 120 125 107 108 109 123 118 116
+c=IN IP4 0.0.0.0
+a=setup:actpass
+a=mid:0
+a=ice-ufrag:gFBnAyRqdKVPYEdD
+a=ice-pwd:mBlDDdaLkAedtTAqEgUJphFRdsyNMZzB
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtpmap:97 rtx/90000
+a=fmtp:97 apt=96
+a=rtpmap:98 VP9/90000
+a=fmtp:98 profile-id=0
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtpmap:99 rtx/90000
+a=fmtp:99 apt=98
+a=rtpmap:100 VP9/90000
+a=fmtp:100 profile-id=1
+a=rtcp-fb:100 goog-remb
+a=rtcp-fb:100 ccm fir
+a=rtcp-fb:100 nack
+a=rtcp-fb:100 nack pli
+a=rtpmap:101 rtx/90000
+a=fmtp:101 apt=100
+a=rtpmap:102 H264/90000
+a=fmtp:102 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f
+a=rtcp-fb:102 goog-remb
+a=rtcp-fb:102 ccm fir
+a=rtcp-fb:102 nack
+a=rtcp-fb:102 nack pli
+a=rtpmap:121 rtx/90000
+a=fmtp:121 apt=102
+a=rtpmap:127 H264/90000
+a=fmtp:127 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f
+a=rtcp-fb:127 goog-remb
+a=rtcp-fb:127 ccm fir
+a=rtcp-fb:127 nack
+a=rtcp-fb:127 nack pli
+a=rtpmap:120 rtx/90000
+a=fmtp:120 apt=127
+a=rtpmap:125 H264/90000
+a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtpmap:107 rtx/90000
+a=fmtp:107 apt=125
+a=rtpmap:108 H264/90000
+a=fmtp:108 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f
+a=rtcp-fb:108 goog-remb
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtpmap:109 rtx/90000
+a=fmtp:109 apt=108
+a=rtpmap:123 H264/90000
+a=fmtp:123 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640032
+a=rtcp-fb:123 goog-remb
+a=rtcp-fb:123 ccm fir
+a=rtcp-fb:123 nack
+a=rtcp-fb:123 nack pli
+a=rtpmap:118 rtx/90000
+a=fmtp:118 apt=123
+a=rtpmap:116 ulpfec/90000
+a=ssrc:1140143279 cname:rov-front-cam-stream
+a=ssrc:1140143279 msid:rov-front-cam-stream rov-front-cam
+a=ssrc:1140143279 mslabel:rov-front-cam-stream
+a=ssrc:1140143279 label:rov-front-cam
+a=msid:rov-front-cam-stream rov-front-cam
+a=sendrecv
+ for:75d42782-6a3c-4e59-a5ae-bc29dd0abbcf  module=peer source=negotiator
+DEBU[1481] Received ICE candidates for 75d42782-6a3c-4e59-a5ae-bc29dd0abbcf: candidate:1200985806 1 udp 2130706431 192.168.1.79 36988 typ host  module=peer source=negotiator
+DEBU[1481] Received ICE candidates for 75d42782-6a3c-4e59-a5ae-bc29dd0abbcf: candidate:757137109 1 udp 1694498815 63.249.68.2 41431 typ srflx raddr 0.0.0.0 rport 41431  module=peer source=negotiator
+DEBU[1481] WS msg 1                                      module=peer source=socket
+INFO[1481] websocket message: {"type":"ANSWER","src":"75d42782-6a3c-4e59-a5ae-bc29dd0abbcf","dst":"iROV-0","payload":{"sdp":{"type":"answer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 4041595644836098715 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 1D:2A:77:B6:33:77:6E:1F:0A:40:D8:95:38:6B:A8:B2:CD:D5:6B:06:17:81:5E:54:4B:88:2A:29:F7:8E:DC:25\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109\r\nc=IN IP4 0.0.0.0\r\na=recvonly\r\na=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1\r\na=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1\r\na=fmtp:96 max-fs=12288;max-fr=60\r\na=fmtp:97 apt=96\r\na=fmtp:98 max-fs=12288;max-fr=60\r\na=fmtp:99 apt=98\r\na=fmtp:107 apt=125\r\na=fmtp:109 apt=108\r\na=ice-pwd:ccdbeac850b3905697739809cb846472\r\na=ice-ufrag:996170e8\r\na=mid:0\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:125 nack\r\na=rtcp-fb:125 nack pli\r\na=rtcp-fb:125 ccm fir\r\na=rtcp-fb:125 goog-remb\r\na=rtcp-fb:108 nack\r\na=rtcp-fb:108 nack pli\r\na=rtcp-fb:108 ccm fir\r\na=rtcp-fb:108 goog-remb\r\na=rtcp-mux\r\na=rtcp-rsize\r\na=rtpmap:96 VP8/90000\r\na=rtpmap:97 rtx/90000\r\na=rtpmap:98 VP9/90000\r\na=rtpmap:99 rtx/90000\r\na=rtpmap:125 H264/90000\r\na=rtpmap:107 rtx/90000\r\na=rtpmap:108 H264/90000\r\na=rtpmap:109 rtx/90000\r\na=setup:active\r\na=ssrc:2287482086 cname:{cecf5855-ba53-4b93-85b7-a436bc51dd74}\r\n"},"type":"media","connectionId":"mc_EJKebEP1u8B","browser":"firefox"}}  module=peer source=socket
+DEBU[1481] Setting remote description {answer v=0
+o=mozilla...THIS_IS_SDPARTA-100.0 4041595644836098715 0 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 1D:2A:77:B6:33:77:6E:1F:0A:40:D8:95:38:6B:A8:B2:CD:D5:6B:06:17:81:5E:54:4B:88:2A:29:F7:8E:DC:25
+a=group:BUNDLE 0
+a=ice-options:trickle
+a=msid-semantic:WMS *
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109
+c=IN IP4 0.0.0.0
+a=recvonly
+a=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1
+a=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1
+a=fmtp:96 max-fs=12288;max-fr=60
+a=fmtp:97 apt=96
+a=fmtp:98 max-fs=12288;max-fr=60
+a=fmtp:99 apt=98
+a=fmtp:107 apt=125
+a=fmtp:109 apt=108
+a=ice-pwd:ccdbeac850b3905697739809cb846472
+a=ice-ufrag:996170e8
+a=mid:0
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 goog-remb
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtpmap:97 rtx/90000
+a=rtpmap:98 VP9/90000
+a=rtpmap:99 rtx/90000
+a=rtpmap:125 H264/90000
+a=rtpmap:107 rtx/90000
+a=rtpmap:108 H264/90000
+a=rtpmap:109 rtx/90000
+a=setup:active
+a=ssrc:2287482086 cname:{cecf5855-ba53-4b93-85b7-a436bc51dd74}
+ <nil>}  module=peer source=negotiator
+DEBU[1481] Set remoteDescription:ANSWER for:75d42782-6a3c-4e59-a5ae-bc29dd0abbcf  module=peer source=negotiator
+DEBU[1481] WS msg 1                                      module=peer source=socket
+INFO[1481] websocket message: {"type":"CANDIDATE","src":"75d42782-6a3c-4e59-a5ae-bc29dd0abbcf","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 fee86291-0245-4a1c-b38e-321372c81354.local 51063 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"996170e8"},"type":"media","connectionId":"mc_EJKebEP1u8B"}}  module=peer source=socket
+DEBU[1481] HandleCandidate: &{candidate:0 1 UDP 2122252543 fee86291-0245-4a1c-b38e-321372c81354.local 51063 typ host 0x1206320 0x132e4f0 0x1206328}  module=peer source=negotiator
+DEBU[1481] Added ICE candidate for:75d42782-6a3c-4e59-a5ae-bc29dd0abbcf  module=peer source=negotiator
+DEBU[1481] WS msg 1                                      module=peer source=socket
+INFO[1481] websocket message: {"type":"CANDIDATE","src":"75d42782-6a3c-4e59-a5ae-bc29dd0abbcf","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 fee86291-0245-4a1c-b38e-321372c81354.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"996170e8"},"type":"media","connectionId":"mc_EJKebEP1u8B"}}  module=peer source=socket
+DEBU[1481] HandleCandidate: &{candidate:3 1 TCP 2105524479 fee86291-0245-4a1c-b38e-321372c81354.local 9 typ host tcptype active 0x1206410 0x132e5de 0x1206418}  module=peer source=negotiator
+DEBU[1481] Added ICE candidate for:75d42782-6a3c-4e59-a5ae-bc29dd0abbcf  module=peer source=negotiator
+DEBU[1481] WS msg 1                                      module=peer source=socket
+INFO[1481] websocket message: {"type":"CANDIDATE","src":"75d42782-6a3c-4e59-a5ae-bc29dd0abbcf","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 51063 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"996170e8"},"type":"media","connectionId":"mc_EJKebEP1u8B"}}  module=peer source=socket
+DEBU[1481] HandleCandidate: &{candidate:1 1 UDP 1686052863 63.249.68.2 51063 typ srflx raddr 0.0.0.0 rport 0 0x1206508 0x132e700 0x1206510}  module=peer source=negotiator
+DEBU[1481] Added ICE candidate for:75d42782-6a3c-4e59-a5ae-bc29dd0abbcf  module=peer source=negotiator
+DEBU[1484] WS msg 1                                      module=peer source=socket
+INFO[1484] websocket message: {"type":"EXPIRE","src":"aef08370-073a-4896-814f-ed602b56d976","dst":"iROV-0"}  module=peer source=socket
+ERRO[1484] Error: Could not connect to peer aef08370-073a-4896-814f-ed602b56d976  module=peer source="peer:iROV-0"
+level=error msg=ROBOT PEER %s ERROR EVENT: %speer-unavailableCould not connect to peer aef08370-073a-4896-814f-ed602b56d976 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1486] ICECandidate gathering completed for peer=aef08370-073a-4896-814f-ed602b56d976 conn=mc_HW51sKbU75y  module=peer source=negotiator
+DEBU[1486] ICECandidate gathering completed for peer=8cefb778-25b2-4211-b08b-b7cf4d08a691 conn=mc_xZldZwbAUsC  module=peer source=negotiator
+DEBU[1486] iceConnectionState changed to disconnected on the connection with 8cefb778-25b2-4211-b08b-b7cf4d08a691  module=peer source=negotiator
+DEBU[1487] iceConnectionState is failed, closing connections to 78244cdf-16ff-49cc-a734-ca6da5f8bb5b  module=peer source=negotiator
+DEBU[1487] Cleaning up PeerConnection to 78244cdf-16ff-49cc-a734-ca6da5f8bb5b  module=peer source=negotiator
+DEBU[1487] <nil>                                         module=peer source=media
+DEBU[1489] ICECandidate gathering completed for peer=75d42782-6a3c-4e59-a5ae-bc29dd0abbcf conn=mc_EJKebEP1u8B  module=peer source=negotiator
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1504] iceConnectionState is failed, closing connections to aef08370-073a-4896-814f-ed602b56d976  module=peer source=negotiator
+DEBU[1504] Cleaning up PeerConnection to aef08370-073a-4896-814f-ed602b56d976  module=peer source=negotiator
+DEBU[1504] <nil>                                         module=peer source=media
+DEBU[1506] iceConnectionState changed to disconnected on the connection with 75d42782-6a3c-4e59-a5ae-bc29dd0abbcf  module=peer source=negotiator
+DEBU[1510] iceConnectionState is failed, closing connections to 8cefb778-25b2-4211-b08b-b7cf4d08a691  module=peer source=negotiator
+DEBU[1510] Cleaning up PeerConnection to 8cefb778-25b2-4211-b08b-b7cf4d08a691  module=peer source=negotiator
+DEBU[1510] <nil>                                         module=peer source=media
+DEBU[1530] iceConnectionState is failed, closing connections to 75d42782-6a3c-4e59-a5ae-bc29dd0abbcf  module=peer source=negotiator
+DEBU[1530] Cleaning up PeerConnection to 75d42782-6a3c-4e59-a5ae-bc29dd0abbcf  module=peer source=negotiator
+DEBU[1530] <nil>                                         module=peer source=media
+DEBU[1544] WS msg 1                                      module=peer source=socket
+INFO[1544] websocket message: {"type":"OFFER","src":"55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 3944329218302356158 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 AF:11:DE:B9:1D:D0:D0:83:C6:20:D9:3E:BC:2D:2A:BA:D6:9F:93:EF:C6:EC:DB:A1:F3:40:3E:57:AF:35:05:34\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:833891d268735d8d8ca1ebb0cdd2959b\r\na=ice-ufrag:436424ef\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_efr4xvgtrpi","browser":"firefox","label":"dc_efr4xvgtrpi","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1544] WS msg 1                                      module=peer source=socket
+INFO[1544] websocket message: {"type":"CANDIDATE","src":"55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 7b7465d9-b250-4734-978d-d032c8298b14.local 62248 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"436424ef"},"type":"data","connectionId":"dc_efr4xvgtrpi"}}  module=peer source=socket
+DEBU[1544] WS msg 1                                      module=peer source=socket
+INFO[1544] websocket message: {"type":"CANDIDATE","src":"55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 7b7465d9-b250-4734-978d-d032c8298b14.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"436424ef"},"type":"data","connectionId":"dc_efr4xvgtrpi"}}  module=peer source=socket
+DEBU[1544] WS msg 1                                      module=peer source=socket
+INFO[1544] websocket message: {"type":"CANDIDATE","src":"55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 62248 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"436424ef"},"type":"data","connectionId":"dc_efr4xvgtrpi"}}  module=peer source=socket
+level=info msg=VIDEO CALLING client peer: %s
+55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1544] Creating RTCPeerConnection                    module=peer source=negotiator
+DEBU[1544] Listening for ICE candidates.                 module=peer source=negotiator
+DEBU[1544] Listening for data channel                    module=peer source=negotiator
+DEBU[1544] Listening for remote stream                   module=peer source=negotiator
+DEBU[1544] &{PeerConnection-1649555286881681709 {{0 0} 0 0 0 0} { 0 0   } 0x100e5c0 {[{[stun:stun.l.google.com:19302]  <nil> 0} {[turn:0.peerjs.com:3478] peerjs peerjsp 0}] 0 1 2  [{0x11123d8 0x10ecdc0 certificate-1649555286902342004}] 0 0} <nil> <nil> <nil> <nil> 1 {1} {1} <nil> 0x10b0aa8 0x10b0aac 0   -1 [] <nil> {0x4a20f8} {<nil>} 0x4a1c70 0x4a1f34 {<nil>} 0x111a8a0 0x111a900 0x13ec6c0 0x106c000 0x11123c0 0x1326580 0x48acc4}  module=peer source=media
+DEBU[1544] Created offer                                 module=peer source=negotiator
+DEBU[1544] Set localDescription: v=0
+o=- 2970720225407286354 1649555286 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 CE:23:D1:7B:C1:57:B0:42:43:E9:1E:45:6C:11:BE:FA:F2:0B:E6:C9:50:21:E2:8C:47:25:6D:FB:B4:28:81:06
+a=group:BUNDLE 0
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 100 101 102 121 127 120 125 107 108 109 123 118 116
+c=IN IP4 0.0.0.0
+a=setup:actpass
+a=mid:0
+a=ice-ufrag:DXhasVppxQehwpcB
+a=ice-pwd:YMyJFkCRzhsseUyPIfobtqNJdjdsgCUs
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtpmap:97 rtx/90000
+a=fmtp:97 apt=96
+a=rtpmap:98 VP9/90000
+a=fmtp:98 profile-id=0
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtpmap:99 rtx/90000
+a=fmtp:99 apt=98
+a=rtpmap:100 VP9/90000
+a=fmtp:100 profile-id=1
+a=rtcp-fb:100 goog-remb
+a=rtcp-fb:100 ccm fir
+a=rtcp-fb:100 nack
+a=rtcp-fb:100 nack pli
+a=rtpmap:101 rtx/90000
+a=fmtp:101 apt=100
+a=rtpmap:102 H264/90000
+a=fmtp:102 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f
+a=rtcp-fb:102 goog-remb
+a=rtcp-fb:102 ccm fir
+a=rtcp-fb:102 nack
+a=rtcp-fb:102 nack pli
+a=rtpmap:121 rtx/90000
+a=fmtp:121 apt=102
+a=rtpmap:127 H264/90000
+a=fmtp:127 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f
+a=rtcp-fb:127 goog-remb
+a=rtcp-fb:127 ccm fir
+a=rtcp-fb:127 nack
+a=rtcp-fb:127 nack pli
+a=rtpmap:120 rtx/90000
+a=fmtp:120 apt=127
+a=rtpmap:125 H264/90000
+a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtpmap:107 rtx/90000
+a=fmtp:107 apt=125
+a=rtpmap:108 H264/90000
+a=fmtp:108 level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f
+a=rtcp-fb:108 goog-remb
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtpmap:109 rtx/90000
+a=fmtp:109 apt=108
+a=rtpmap:123 H264/90000
+a=fmtp:123 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640032
+a=rtcp-fb:123 goog-remb
+a=rtcp-fb:123 ccm fir
+a=rtcp-fb:123 nack
+a=rtcp-fb:123 nack pli
+a=rtpmap:118 rtx/90000
+a=fmtp:118 apt=123
+a=rtpmap:116 ulpfec/90000
+a=ssrc:1734357823 cname:rov-front-cam-stream
+a=ssrc:1734357823 msid:rov-front-cam-stream rov-front-cam
+a=ssrc:1734357823 mslabel:rov-front-cam-stream
+a=ssrc:1734357823 label:rov-front-cam
+a=msid:rov-front-cam-stream rov-front-cam
+a=sendrecv
+ for:55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5  module=peer source=negotiator
+DEBU[1544] Received ICE candidates for 55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5: candidate:1200985806 1 udp 2130706431 192.168.1.79 48100 typ host  module=peer source=negotiator
+DEBU[1544] Received ICE candidates for 55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5: candidate:757137109 1 udp 1694498815 63.249.68.2 46175 typ srflx raddr 0.0.0.0 rport 46175  module=peer source=negotiator
+DEBU[1544] WS msg 1                                      module=peer source=socket
+INFO[1544] websocket message: {"type":"ANSWER","src":"55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5","dst":"iROV-0","payload":{"sdp":{"type":"answer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 4865872843631858383 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 FC:25:A8:38:49:CD:09:D5:20:45:E0:73:6E:1D:AD:72:DF:32:9D:C3:EA:A0:36:36:49:E0:A5:86:A4:26:87:7C\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109\r\nc=IN IP4 0.0.0.0\r\na=recvonly\r\na=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1\r\na=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1\r\na=fmtp:96 max-fs=12288;max-fr=60\r\na=fmtp:97 apt=96\r\na=fmtp:98 max-fs=12288;max-fr=60\r\na=fmtp:99 apt=98\r\na=fmtp:107 apt=125\r\na=fmtp:109 apt=108\r\na=ice-pwd:de5d2be84e4af4ed927cce79d225e963\r\na=ice-ufrag:3e2d34f3\r\na=mid:0\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:125 nack\r\na=rtcp-fb:125 nack pli\r\na=rtcp-fb:125 ccm fir\r\na=rtcp-fb:125 goog-remb\r\na=rtcp-fb:108 nack\r\na=rtcp-fb:108 nack pli\r\na=rtcp-fb:108 ccm fir\r\na=rtcp-fb:108 goog-remb\r\na=rtcp-mux\r\na=rtcp-rsize\r\na=rtpmap:96 VP8/90000\r\na=rtpmap:97 rtx/90000\r\na=rtpmap:98 VP9/90000\r\na=rtpmap:99 rtx/90000\r\na=rtpmap:125 H264/90000\r\na=rtpmap:107 rtx/90000\r\na=rtpmap:108 H264/90000\r\na=rtpmap:109 rtx/90000\r\na=setup:active\r\na=ssrc:1118661601 cname:{5a9f7f91-42ce-4015-b236-c7848edd70e8}\r\n"},"type":"media","connectionId":"mc_7zmB52mMJyA","browser":"firefox"}}  module=peer source=socket
+DEBU[1544] Setting remote description {answer v=0
+o=mozilla...THIS_IS_SDPARTA-100.0 4865872843631858383 0 IN IP4 0.0.0.0
+s=-
+t=0 0
+a=fingerprint:sha-256 FC:25:A8:38:49:CD:09:D5:20:45:E0:73:6E:1D:AD:72:DF:32:9D:C3:EA:A0:36:36:49:E0:A5:86:A4:26:87:7C
+a=group:BUNDLE 0
+a=ice-options:trickle
+a=msid-semantic:WMS *
+m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 125 107 108 109
+c=IN IP4 0.0.0.0
+a=recvonly
+a=fmtp:125 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1
+a=fmtp:108 profile-level-id=42e01f;level-asymmetry-allowed=1
+a=fmtp:96 max-fs=12288;max-fr=60
+a=fmtp:97 apt=96
+a=fmtp:98 max-fs=12288;max-fr=60
+a=fmtp:99 apt=98
+a=fmtp:107 apt=125
+a=fmtp:109 apt=108
+a=ice-pwd:de5d2be84e4af4ed927cce79d225e963
+a=ice-ufrag:3e2d34f3
+a=mid:0
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 goog-remb
+a=rtcp-fb:98 nack
+a=rtcp-fb:98 nack pli
+a=rtcp-fb:98 ccm fir
+a=rtcp-fb:98 goog-remb
+a=rtcp-fb:125 nack
+a=rtcp-fb:125 nack pli
+a=rtcp-fb:125 ccm fir
+a=rtcp-fb:125 goog-remb
+a=rtcp-fb:108 nack
+a=rtcp-fb:108 nack pli
+a=rtcp-fb:108 ccm fir
+a=rtcp-fb:108 goog-remb
+a=rtcp-mux
+a=rtcp-rsize
+a=rtpmap:96 VP8/90000
+a=rtpmap:97 rtx/90000
+a=rtpmap:98 VP9/90000
+a=rtpmap:99 rtx/90000
+a=rtpmap:125 H264/90000
+a=rtpmap:107 rtx/90000
+a=rtpmap:108 H264/90000
+a=rtpmap:109 rtx/90000
+a=setup:active
+a=ssrc:1118661601 cname:{5a9f7f91-42ce-4015-b236-c7848edd70e8}
+ <nil>}  module=peer source=negotiator
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1544] Set remoteDescription:ANSWER for:55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5  module=peer source=negotiator
+DEBU[1544] WS msg 1                                      module=peer source=socket
+INFO[1544] websocket message: {"type":"CANDIDATE","src":"55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 f4db1882-7cde-480f-be23-751087b56159.local 64370 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"3e2d34f3"},"type":"media","connectionId":"mc_7zmB52mMJyA"}}  module=peer source=socket
+DEBU[1544] HandleCandidate: &{candidate:0 1 UDP 2122252543 f4db1882-7cde-480f-be23-751087b56159.local 64370 typ host 0x12073e8 0x12c8a20 0x12073f0}  module=peer source=negotiator
+DEBU[1544] Added ICE candidate for:55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5  module=peer source=negotiator
+DEBU[1544] WS msg 1                                      module=peer source=socket
+INFO[1544] websocket message: {"type":"CANDIDATE","src":"55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 f4db1882-7cde-480f-be23-751087b56159.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"3e2d34f3"},"type":"media","connectionId":"mc_7zmB52mMJyA"}}  module=peer source=socket
+DEBU[1544] HandleCandidate: &{candidate:3 1 TCP 2105524479 f4db1882-7cde-480f-be23-751087b56159.local 9 typ host tcptype active 0x12074d8 0x12c8afe 0x12074e0}  module=peer source=negotiator
+DEBU[1544] Added ICE candidate for:55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5  module=peer source=negotiator
+DEBU[1544] WS msg 1                                      module=peer source=socket
+INFO[1544] websocket message: {"type":"CANDIDATE","src":"55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 64370 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"3e2d34f3"},"type":"media","connectionId":"mc_7zmB52mMJyA"}}  module=peer source=socket
+DEBU[1544] HandleCandidate: &{candidate:1 1 UDP 1686052863 63.249.68.2 64370 typ srflx raddr 0.0.0.0 rport 0 0x118e540 0x1200b2e 0x118e548}  module=peer source=negotiator
+DEBU[1544] Added ICE candidate for:55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5  module=peer source=negotiator
+DEBU[1545] WS msg 1                                      module=peer source=socket
+INFO[1545] websocket message: {"type":"OFFER","src":"60bd61b2-9ba1-4c6b-9996-81f49f5a6c8a","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 3857396758026880369 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 69:DB:0D:B7:E2:09:D7:F1:70:86:9C:1C:3D:08:4B:3A:00:2C:01:BF:71:20:AD:CE:1E:8B:8B:D7:3E:D2:CC:64\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:d80265ad117015d2dc5dbddf89a78249\r\na=ice-ufrag:dfa67c92\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_lqsbvutqwlm","browser":"firefox","label":"dc_lqsbvutqwlm","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  60bd61b2-9ba1-4c6b-9996-81f49f5a6c8a peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1545] WS msg 1                                      module=peer source=socket
+INFO[1545] websocket message: {"type":"CANDIDATE","src":"60bd61b2-9ba1-4c6b-9996-81f49f5a6c8a","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 57e2b6d6-9a81-4e90-a873-931c60277f1d.local 60686 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"dfa67c92"},"type":"data","connectionId":"dc_lqsbvutqwlm"}}  module=peer source=socket
+DEBU[1545] WS msg 1                                      module=peer source=socket
+INFO[1545] websocket message: {"type":"CANDIDATE","src":"60bd61b2-9ba1-4c6b-9996-81f49f5a6c8a","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 57e2b6d6-9a81-4e90-a873-931c60277f1d.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"dfa67c92"},"type":"data","connectionId":"dc_lqsbvutqwlm"}}  module=peer source=socket
+DEBU[1545] WS msg 1                                      module=peer source=socket
+INFO[1545] websocket message: {"type":"CANDIDATE","src":"60bd61b2-9ba1-4c6b-9996-81f49f5a6c8a","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 60686 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"dfa67c92"},"type":"data","connectionId":"dc_lqsbvutqwlm"}}  module=peer source=socket
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1548] WS msg 1                                      module=peer source=socket
+INFO[1548] websocket message: {"type":"OFFER","src":"9cccb821-3a8d-4f7d-a5da-c0d4928b3274","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 7340285036446544604 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 16:FD:62:1B:09:16:34:4C:01:D0:C3:CB:6F:CB:50:C0:02:47:C0:53:C4:58:CB:9B:49:28:AE:98:C4:C6:3F:91\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:54eb79a7b6000b786450885ea67c751e\r\na=ice-ufrag:cae303c1\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_xl3nvd9b4f","browser":"firefox","label":"dc_xl3nvd9b4f","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  9cccb821-3a8d-4f7d-a5da-c0d4928b3274 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1548] WS msg 1                                      module=peer source=socket
+INFO[1548] websocket message: {"type":"CANDIDATE","src":"9cccb821-3a8d-4f7d-a5da-c0d4928b3274","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 7644afee-5343-460b-b2a7-198850e88587.local 64165 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"cae303c1"},"type":"data","connectionId":"dc_xl3nvd9b4f"}}  module=peer source=socket
+DEBU[1548] WS msg 1                                      module=peer source=socket
+INFO[1548] websocket message: {"type":"CANDIDATE","src":"9cccb821-3a8d-4f7d-a5da-c0d4928b3274","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 7644afee-5343-460b-b2a7-198850e88587.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"cae303c1"},"type":"data","connectionId":"dc_xl3nvd9b4f"}}  module=peer source=socket
+DEBU[1548] WS msg 1                                      module=peer source=socket
+INFO[1548] websocket message: {"type":"CANDIDATE","src":"9cccb821-3a8d-4f7d-a5da-c0d4928b3274","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 64165 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"cae303c1"},"type":"data","connectionId":"dc_xl3nvd9b4f"}}  module=peer source=socket
+DEBU[1552] ICECandidate gathering completed for peer=55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5 conn=mc_7zmB52mMJyA  module=peer source=negotiator
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1554] WS msg 1                                      module=peer source=socket
+INFO[1554] websocket message: {"type":"OFFER","src":"4f751a19-604f-4cd5-8797-b67a4a61e879","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 938274132972142540 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 26:D4:1F:22:9D:19:E2:61:E2:15:4F:D7:77:BF:83:7A:ED:DE:EB:A2:94:B3:62:55:B9:13:DF:3D:EC:4D:B1:11\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:f49823bb27d28220a1fd8812dd750976\r\na=ice-ufrag:a677ba01\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_832nafa2r9m","browser":"firefox","label":"dc_832nafa2r9m","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  4f751a19-604f-4cd5-8797-b67a4a61e879 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1554] WS msg 1                                      module=peer source=socket
+INFO[1554] websocket message: {"type":"CANDIDATE","src":"4f751a19-604f-4cd5-8797-b67a4a61e879","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 ca1b43f0-cd91-4dc1-9c97-ccedb2178490.local 50690 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"a677ba01"},"type":"data","connectionId":"dc_832nafa2r9m"}}  module=peer source=socket
+DEBU[1554] WS msg 1                                      module=peer source=socket
+INFO[1554] websocket message: {"type":"CANDIDATE","src":"4f751a19-604f-4cd5-8797-b67a4a61e879","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 ca1b43f0-cd91-4dc1-9c97-ccedb2178490.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"a677ba01"},"type":"data","connectionId":"dc_832nafa2r9m"}}  module=peer source=socket
+DEBU[1554] WS msg 1                                      module=peer source=socket
+INFO[1554] websocket message: {"type":"CANDIDATE","src":"4f751a19-604f-4cd5-8797-b67a4a61e879","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 50690 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"a677ba01"},"type":"data","connectionId":"dc_832nafa2r9m"}}  module=peer source=socket
+DEBU[1574] iceConnectionState is failed, closing connections to 55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5  module=peer source=negotiator
+DEBU[1574] Cleaning up PeerConnection to 55166ebc-db8f-4d81-bc0b-bd3a13c5b7d5  module=peer source=negotiator
+DEBU[1574] <nil>                                         module=peer source=media
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1597] WS msg 1                                      module=peer source=socket
+INFO[1597] websocket message: {"type":"OFFER","src":"83ee7497-b21b-451a-8c57-43d2cc8760bc","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 2222429675686113723 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 3C:55:34:CF:58:FE:BC:71:6E:8B:2D:68:B1:14:E6:0E:C8:6B:A3:77:0B:C5:E9:19:46:7D:C7:6C:1A:F1:04:D8\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:70fe965bb346ce971184c9652f3643b7\r\na=ice-ufrag:a0bc0fb6\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_l9a7ey1cnfr","browser":"firefox","label":"dc_l9a7ey1cnfr","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  83ee7497-b21b-451a-8c57-43d2cc8760bc peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1597] WS msg 1                                      module=peer source=socket
+INFO[1597] websocket message: {"type":"CANDIDATE","src":"83ee7497-b21b-451a-8c57-43d2cc8760bc","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 27dd5862-1104-4b7a-acc3-556c198ca909.local 62887 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"a0bc0fb6"},"type":"data","connectionId":"dc_l9a7ey1cnfr"}}  module=peer source=socket
+DEBU[1597] WS msg 1                                      module=peer source=socket
+INFO[1597] websocket message: {"type":"CANDIDATE","src":"83ee7497-b21b-451a-8c57-43d2cc8760bc","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 27dd5862-1104-4b7a-acc3-556c198ca909.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"a0bc0fb6"},"type":"data","connectionId":"dc_l9a7ey1cnfr"}}  module=peer source=socket
+DEBU[1597] WS msg 1                                      module=peer source=socket
+INFO[1597] websocket message: {"type":"CANDIDATE","src":"83ee7497-b21b-451a-8c57-43d2cc8760bc","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 62887 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"a0bc0fb6"},"type":"data","connectionId":"dc_l9a7ey1cnfr"}}  module=peer source=socket
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1647] WS msg 1                                      module=peer source=socket
+INFO[1647] websocket message: {"type":"OFFER","src":"3e569150-e37d-429c-9fb0-2c96a309ae16","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 8108258632138715571 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 C1:DF:C2:12:4E:49:C2:A7:DB:E8:31:0E:8B:E2:04:E3:FF:9A:E4:3B:03:CF:F9:62:1B:9C:8D:DD:0C:83:BF:D8\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:196d6046c4bdab0afd2f4c7480bfa95d\r\na=ice-ufrag:58015f8a\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_yczo4phlraj","browser":"firefox","label":"dc_yczo4phlraj","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  3e569150-e37d-429c-9fb0-2c96a309ae16 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1647] WS msg 1                                      module=peer source=socket
+INFO[1647] websocket message: {"type":"CANDIDATE","src":"3e569150-e37d-429c-9fb0-2c96a309ae16","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 5e60af7b-cfd5-44af-9ecf-3d422145bc8e.local 52115 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"58015f8a"},"type":"data","connectionId":"dc_yczo4phlraj"}}  module=peer source=socket
+DEBU[1647] WS msg 1                                      module=peer source=socket
+INFO[1647] websocket message: {"type":"CANDIDATE","src":"3e569150-e37d-429c-9fb0-2c96a309ae16","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 5e60af7b-cfd5-44af-9ecf-3d422145bc8e.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"58015f8a"},"type":"data","connectionId":"dc_yczo4phlraj"}}  module=peer source=socket
+DEBU[1647] WS msg 1                                      module=peer source=socket
+INFO[1647] websocket message: {"type":"CANDIDATE","src":"3e569150-e37d-429c-9fb0-2c96a309ae16","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 52115 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"58015f8a"},"type":"data","connectionId":"dc_yczo4phlraj"}}  module=peer source=socket
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1650] WS msg 1                                      module=peer source=socket
+INFO[1650] websocket message: {"type":"OFFER","src":"445164ad-271a-46a3-bfe7-542396533b1b","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 564661050103095730 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 49:48:4B:16:47:3C:A4:53:07:25:3F:7B:8C:E0:00:79:33:B9:FE:45:B1:03:CE:5C:B8:95:44:EE:41:DB:A2:B3\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:a4c9951ef308cba587e0b1995bc0e895\r\na=ice-ufrag:9d436bec\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_pbmtl4xwynr","browser":"firefox","label":"dc_pbmtl4xwynr","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  445164ad-271a-46a3-bfe7-542396533b1b peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1650] WS msg 1                                      module=peer source=socket
+INFO[1650] websocket message: {"type":"CANDIDATE","src":"445164ad-271a-46a3-bfe7-542396533b1b","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 71a899f3-6fa6-40ac-bc4f-50f20df2d1b0.local 63018 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"9d436bec"},"type":"data","connectionId":"dc_pbmtl4xwynr"}}  module=peer source=socket
+DEBU[1650] WS msg 1                                      module=peer source=socket
+INFO[1650] websocket message: {"type":"CANDIDATE","src":"445164ad-271a-46a3-bfe7-542396533b1b","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 71a899f3-6fa6-40ac-bc4f-50f20df2d1b0.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"9d436bec"},"type":"data","connectionId":"dc_pbmtl4xwynr"}}  module=peer source=socket
+DEBU[1650] WS msg 1                                      module=peer source=socket
+INFO[1650] websocket message: {"type":"CANDIDATE","src":"445164ad-271a-46a3-bfe7-542396533b1b","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 63018 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"9d436bec"},"type":"data","connectionId":"dc_pbmtl4xwynr"}}  module=peer source=socket
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1653] WS msg 1                                      module=peer source=socket
+INFO[1653] websocket message: {"type":"OFFER","src":"c25cabe5-60ba-4417-9dfd-98e81dfb50a7","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 8757452465107812703 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 CA:6E:83:CB:E7:EF:BC:EF:6B:3F:2A:C3:A1:D2:3D:E5:C7:D4:AA:C7:7E:D4:48:C6:AA:92:67:03:05:FA:5D:E2\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:c8d70357e756fc40c8b59c37158f1aad\r\na=ice-ufrag:e9e1db1c\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_7k5e0i5r1yi","browser":"firefox","label":"dc_7k5e0i5r1yi","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  c25cabe5-60ba-4417-9dfd-98e81dfb50a7 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1653] WS msg 1                                      module=peer source=socket
+INFO[1653] websocket message: {"type":"CANDIDATE","src":"c25cabe5-60ba-4417-9dfd-98e81dfb50a7","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 adc679c3-1805-4365-a3c7-5a9a102e4d62.local 64656 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"e9e1db1c"},"type":"data","connectionId":"dc_7k5e0i5r1yi"}}  module=peer source=socket
+DEBU[1653] WS msg 1                                      module=peer source=socket
+INFO[1653] websocket message: {"type":"CANDIDATE","src":"c25cabe5-60ba-4417-9dfd-98e81dfb50a7","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 adc679c3-1805-4365-a3c7-5a9a102e4d62.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"e9e1db1c"},"type":"data","connectionId":"dc_7k5e0i5r1yi"}}  module=peer source=socket
+DEBU[1653] WS msg 1                                      module=peer source=socket
+INFO[1653] websocket message: {"type":"CANDIDATE","src":"c25cabe5-60ba-4417-9dfd-98e81dfb50a7","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 64656 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"e9e1db1c"},"type":"data","connectionId":"dc_7k5e0i5r1yi"}}  module=peer source=socket
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1656] WS msg 1                                      module=peer source=socket
+INFO[1656] websocket message: {"type":"OFFER","src":"00f11dc5-cf98-4f2c-8f70-4eefce1d687e","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 7655340804695225764 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 9A:4B:91:AC:22:9E:EB:65:2C:99:15:C3:5D:50:D4:C4:01:45:E3:27:7B:A1:98:F6:9C:9E:CC:F9:DD:9D:D5:FB\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:4f24ab8900f13fdfb66ca908081307ef\r\na=ice-ufrag:8de4f333\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_l0whnx7i0e8","browser":"firefox","label":"dc_l0whnx7i0e8","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  00f11dc5-cf98-4f2c-8f70-4eefce1d687e peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1656] WS msg 1                                      module=peer source=socket
+INFO[1656] websocket message: {"type":"CANDIDATE","src":"00f11dc5-cf98-4f2c-8f70-4eefce1d687e","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 ccb74f42-f111-4f71-a0ef-26164c907e2f.local 51271 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"8de4f333"},"type":"data","connectionId":"dc_l0whnx7i0e8"}}  module=peer source=socket
+DEBU[1656] WS msg 1                                      module=peer source=socket
+INFO[1656] websocket message: {"type":"CANDIDATE","src":"00f11dc5-cf98-4f2c-8f70-4eefce1d687e","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 ccb74f42-f111-4f71-a0ef-26164c907e2f.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"8de4f333"},"type":"data","connectionId":"dc_l0whnx7i0e8"}}  module=peer source=socket
+DEBU[1656] WS msg 1                                      module=peer source=socket
+INFO[1656] websocket message: {"type":"CANDIDATE","src":"00f11dc5-cf98-4f2c-8f70-4eefce1d687e","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 51271 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"8de4f333"},"type":"data","connectionId":"dc_l0whnx7i0e8"}}  module=peer source=socket
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1659] WS msg 1                                      module=peer source=socket
+INFO[1659] websocket message: {"type":"OFFER","src":"cebd1cfe-dd5b-4566-a029-ed5a7cad77a0","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 3448538124830311694 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 E8:2C:D3:45:62:51:94:03:4C:3F:1C:ED:87:A5:A9:13:36:39:72:B5:9F:32:80:64:70:C9:A4:2C:48:E8:13:11\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:128da55e8af200451233361238bff224\r\na=ice-ufrag:f1f29d5e\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_5myv2xobic5","browser":"firefox","label":"dc_5myv2xobic5","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  cebd1cfe-dd5b-4566-a029-ed5a7cad77a0 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1659] WS msg 1                                      module=peer source=socket
+INFO[1659] websocket message: {"type":"CANDIDATE","src":"cebd1cfe-dd5b-4566-a029-ed5a7cad77a0","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 e4e474d7-e467-4da3-a8b2-c6c96ec486d1.local 57425 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"f1f29d5e"},"type":"data","connectionId":"dc_5myv2xobic5"}}  module=peer source=socket
+DEBU[1659] WS msg 1                                      module=peer source=socket
+INFO[1659] websocket message: {"type":"CANDIDATE","src":"cebd1cfe-dd5b-4566-a029-ed5a7cad77a0","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 e4e474d7-e467-4da3-a8b2-c6c96ec486d1.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"f1f29d5e"},"type":"data","connectionId":"dc_5myv2xobic5"}}  module=peer source=socket
+DEBU[1659] WS msg 1                                      module=peer source=socket
+INFO[1659] websocket message: {"type":"CANDIDATE","src":"cebd1cfe-dd5b-4566-a029-ed5a7cad77a0","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 57425 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"f1f29d5e"},"type":"data","connectionId":"dc_5myv2xobic5"}}  module=peer source=socket
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1678] WS msg 1                                      module=peer source=socket
+INFO[1678] websocket message: {"type":"OFFER","src":"e3fe8194-bf2c-4190-97af-4ff73a47b997","dst":"iROV-0","payload":{"sdp":{"type":"offer","sdp":"v=0\r\no=mozilla...THIS_IS_SDPARTA-100.0 7367409839126103578 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 9C:73:78:D7:5C:4E:3A:DC:68:E1:0D:02:14:85:4F:13:F6:D1:6B:D3:47:1A:0D:75:59:EC:E1:7A:FA:84:C7:39\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=sendrecv\r\na=ice-pwd:7d2493beff7013841edded8b83168fac\r\na=ice-ufrag:8ee553f3\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"},"type":"data","connectionId":"dc_f8se1z9kbr8","browser":"firefox","label":"dc_f8se1z9kbr8","reliable":true,"serialization":"none"}}  module=peer source=socket
+level=info msg=Peer connection established with  Peer ID:  e3fe8194-bf2c-4190-97af-4ff73a47b997 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1678] WS msg 1                                      module=peer source=socket
+INFO[1678] websocket message: {"type":"CANDIDATE","src":"e3fe8194-bf2c-4190-97af-4ff73a47b997","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:0 1 UDP 2122252543 54c3ba36-0dc1-4fec-81d4-bafe95ad3df3.local 60682 typ host","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"8ee553f3"},"type":"data","connectionId":"dc_f8se1z9kbr8"}}  module=peer source=socket
+DEBU[1678] WS msg 1                                      module=peer source=socket
+INFO[1678] websocket message: {"type":"CANDIDATE","src":"e3fe8194-bf2c-4190-97af-4ff73a47b997","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:3 1 TCP 2105524479 54c3ba36-0dc1-4fec-81d4-bafe95ad3df3.local 9 typ host tcptype active","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"8ee553f3"},"type":"data","connectionId":"dc_f8se1z9kbr8"}}  module=peer source=socket
+DEBU[1678] WS msg 1                                      module=peer source=socket
+INFO[1678] websocket message: {"type":"CANDIDATE","src":"e3fe8194-bf2c-4190-97af-4ff73a47b997","dst":"iROV-0","payload":{"candidate":{"candidate":"candidate:1 1 UDP 1686052863 63.249.68.2 60682 typ srflx raddr 0.0.0.0 rport 0","sdpMid":"0","sdpMLineIndex":0,"usernameFragment":"8ee553f3"},"type":"data","connectionId":"dc_f8se1z9kbr8"}}  module=peer source=socket
+level=info msg=CLIENT PEER DATACHANNEL CLOSE EVENT<nil> peer=iROV-0 peerServer=0.peerjs.com
+^Clevel=info msg=ctrl+c or other system interrupt received, exiting
+DEBU[1697] Destroy peer with ID:iROV-0                   module=peer source="peer:iROV-0"
+DEBU[1697] Disconnect peer with ID:iROV-0                module=peer source="peer:iROV-0"
+level=info msg=ROBOT PEER DISCONNECTED EVENTiROV-0 peer=iROV-0 peerServer=0.peerjs.com
+DEBU[1697] Cleaning up PeerConnection to 8c6f2a42-d557-402c-b783-e8197dc62498  module=peer source=negotiator
+DEBU[1697] <nil>                                         module=peer source=media
+level=info msg=Exiting handleOutgoingDatachannelMessages loop.
+level=info msg=ROBOT PEER CLOSE EVENT peer=iROV-0 peerServer=0.peerjs.com
+level=info msg=Closing down webrtc connection loop.
+level=info msg=All video frames parsed and sent
+level=info msg=Cleaning up unix socket server. uSocket=/tmp/go_robot.socket

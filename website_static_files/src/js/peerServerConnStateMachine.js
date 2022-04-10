@@ -1,11 +1,12 @@
-import { createMachine, assign, send, sendParent, spawn } from "xstate";
-import { pure } from "xstate/lib/actions";
+import { createMachine, spawn, actions } from "xstate";
 import Peer from "peerjs"
 // import * as consts from "./consts";
 
 import { generateStateChangeFunction } from "./util";
 import { showToastMessage, showLoadingUi } from "./ui"
 // showROVDisconnectedUi, showROVConnectingUi, showROVConnectedUi, setupConnectBtnClickHandler, showToastDialog, hideLoadingUi, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandler
+
+const { pure, stop, send, sendParent, assign } = actions;
 
 const FATAL_PEER_ERROR_TYPES = [
     "network", "unavailable-id", "invalid-id", "invalid-key", "browser-incompatible", "webrtc", "server-error", "ssl-unavailable", "socket-error", "socket-closed"
@@ -21,7 +22,7 @@ export const peerServerConnMachine = createMachine({
     },
     id: "peerServerConnection",
     initial: "Not_Connected_To_Peer_Server",
-    exit: ["stopPeerServerEventsHandler", "cleanupPeerServerConnection"],
+    exit: ["cleanupPeerServerConnection"], //"stopPeerServerEventsHandler",
     states: {
         Not_Connected_To_Peer_Server: {
             entry: ["setupPeerAndStartPeerServerEventsHandler"],
@@ -84,14 +85,14 @@ export const peerServerConnMachine = createMachine({
     }
 }, {
     actions: {
-        showPeerServerConnectedNotice: () => { showToastMessage("Connected to Peerjs Server!") },
-        showPeerServerDisconnectedNotice: () => { showToastMessage("Peerjs Server Disconnected") },
+        "showPeerServerConnectedNotice": () => { showToastMessage("Connected to Peerjs Server!") },
+        "showPeerServerDisconnectedNotice": () => { showToastMessage("Peerjs Server Disconnected") },
         // setupThisPeerWithPeerServer: assign({
         // }),
-        notifyParentOfPeerServerConnection: sendParent((context) => {
+        "notifyParentOfPeerServerConnection": sendParent((context) => {
             return { type: "PEER_SERVER_CONNECTION_ESTABLISHED", data: context.thisPeer }
         }),
-        handlePeerServerError: pure((context, event) => {
+        "handlePeerServerError": pure((context, event) => {
             const err = event.data;
             if (err.type == 'browser-incompatible') {
                 alert('Your web browser does not support some WebRTC features. Please use a newer or different browser.');
@@ -110,16 +111,18 @@ export const peerServerConnMachine = createMachine({
                 return send({ type: "PEER_SERVER_CONNECTION_CLOSED" })
             }
         }),
-        cleanupPeerServerConnection: assign({
-            thisPeer: (context) => {
-                if (context.thisPeer) {
-                    context.thisPeer.destroy()
-                }
-                return null;
-            }
-        }),
-        setupPeerAndStartPeerServerEventsHandler: assign((context) => {
-            const thisPeer = new Peer(null, context.peerServerConfig);
+        "cleanupPeerServerConnection": () => { console.log(pure) },
+        // assign({
+        //     thisPeer: (context) => {
+        //         console.log("cleanupPeerServerConnection: ", context.thisPeer)
+        //         if (context.thisPeer) {
+        //             context.thisPeer.destroy()
+        //         }
+        //         return null;
+        //     }
+        // }),
+        "setupPeerAndStartPeerServerEventsHandler": assign((context) => {
+            const thisPeer = window.thisPeerjsPeer = new Peer(null, context.peerServerConfig);
             return {
                 thisPeer: thisPeer,
                 peerServerEventsHandler: spawn((sendStateChange) => {
@@ -138,7 +141,9 @@ export const peerServerConnMachine = createMachine({
                 }, "peerServerEventsHandler")
             }
         }),
-        stopPeerServerEventsHandler: stop("peerServerEventsHandler"),
+        // "stopPeerServerEventsHandler": stop((context) => {
+        //     return context.peerServerEventsHandler
+        // }),
     },
     services: {
         handlePeerSeverEvents: (context) => {
@@ -162,3 +167,7 @@ export const peerServerConnMachine = createMachine({
 
     },
 });
+
+console.log(
+    "Peerjs Server Connection Machine: ", peerServerConnMachine.options.actions
+)

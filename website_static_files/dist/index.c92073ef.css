@@ -237,16 +237,25 @@ button:active {
 #connected_rov_display {
   bottom: 0;
 
+  overflow: hidden;
+
   padding: 6px 6px 6px 14px;
 
-  transition: transform 0.4s ease;
+  transition: max-height 0.4s ease;
 
   border-radius: 12px 12px 0 0;
   background: #ffffffdb;
 }
 
 #connected_rov_display.hidden {
-  transform: translate(-50%, 100%);
+  /* transform: translate(-50%, 80%); */
+  max-height: 0px;
+}
+
+#connected_rov_display.hidden:hover,
+#connected_rov_display.hidden:focus-within {
+  /* transform: translate(-50%, 0); */
+  max-height: 64px;
 }
 
 #connected_rov_display button {
@@ -379,59 +388,63 @@ button:active {
 }
 
 .dropdown-menu-list:focus-within,
-.dropdown-menu-list:hover {
-  visibility: visible;
-}
-
-.icon-btn:focus+.dropdown-menu-list,
+.dropdown-menu-list:hover,
 .icon-btn:hover+.dropdown-menu-list {
-  visibility: visible;
+  opacity: 1;
 }
 
-.dropdown-menu-list {
+menu.dropdown-menu-list {
   position: absolute;
   z-index: 10;
   top: 0;
   right: 60px;
 
-  visibility: hidden;
-  overflow: hidden;
-
-  min-width: 200px;
-  padding: 4px;
-
-  pointer-events: all;
-}
-
-.dropdown-menu-list ul {
   display: flex;
   overflow: hidden;
   flex-direction: column;
 
-  padding: 0;
+  min-width: 200px;
+  padding: 4px 6px;
 
   list-style-type: none;
 
+  pointer-events: all;
+
+  opacity: 0;
   border-radius: 8px;
+  background-color: #00000049;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
-.dropdown-menu-list li {
-  padding: 12px;
+button[role="menuitem"] {
+  width: 100%;
+  margin: 2px 0;
+  padding: 9px;
 
   cursor: pointer;
 
   color: black;
-  border-bottom: 2px solid grey;
-  background-color: rgb(255, 255, 255);
+  border: none;
+  border: 3px solid white;
+  border-radius: none;
+  background: white;
+  box-shadow: none;
 
   font-weight: bold;
 }
 
-.dropdown-menu-list li:hover {
+button[role="menuitem"]:hover,
+button[role="menuitem"]:focus {
   color: white;
-  border-bottom: 2px solid rgb(0, 153, 255);
-  background-color: rgb(0, 52, 87);
+  border-color: rgb(50, 50, 50);
+  background: -webkit-linear-gradient(135deg, #0c61d8, #661ca7);
+  background: linear-gradient(135deg, #0c61d8, #661ca7);
+}
+
+button[role="menuitem"]:active {
+  border-color: #000;
+  background: -webkit-linear-gradient(135deg, #0a55bd, #511685);
+  background: linear-gradient(135deg, #0a55bd, #511685);
 }
 
 /******* Video Stream + Fullscreen Layout *********/
@@ -628,7 +641,8 @@ button:active {
 
 .onscreen-gamepad {
   position: absolute;
-  bottom: -15px;
+  bottom: 0;
+  /* display: none;/ */
 
   height: 60vh;
   min-height: 9cm;
@@ -907,4 +921,165 @@ button:active {
 
   transform: translateY(-8.5px) rotate(90deg);
 }
+
+/********* Menus *********/
+
+.disclosure-nav {
+  display: flex;
+
+  margin: 0;
+  padding: 0;
+
+  list-style-type: none;
+
+  background-color: #eee;
+}
+
+.disclosure-nav ul {
+  position: absolute;
+  top: 100%;
+
+  display: block;
+
+  min-width: 200px;
+  margin: 0;
+  padding: 0;
+
+  list-style-type: none;
+
+  border: 1px solid #005a9c;
+  border-top-width: 5px;
+  border-radius: 0 0 4px 4px;
+  background-color: #eee;
+}
+
+.disclosure-nav li {
+  margin: 0;
+}
+
+.disclosure-nav>li {
+  position: relative;
+
+  display: flex;
+}
+
+.disclosure-nav ul a {
+  display: block;
+
+  margin: 0;
+  padding: 0.5em 1em;
+
+  text-decoration: underline;
+
+  color: #000;
+  border: 0;
+}
+
+.disclosure-nav ul a:hover,
+.disclosure-nav ul a:focus {
+  margin-bottom: 0;
+
+  text-decoration: none;
+
+  background-color: #ddd;
+}
+
+.disclosure-nav ul a:focus {
+  position: relative;
+
+  outline: 5px solid rgb(0 90 156 / 75%);
+}
+
+.disclosure-nav button,
+.disclosure-nav .main-link {
+  display: flex;
+  align-items: center;
+
+  padding: 1em;
+
+  border: 1px solid transparent;
+  border-right-color: #ccc;
+  background-color: transparent;
+}
+
+.disclosure-nav .main-link {
+  border-right-color: transparent;
+}
+
+.disclosure-nav button::after {
+  width: 0.5em;
+  height: 0.5em;
+  margin-left: 0.75em;
+
+  content: "";
+  transform: rotate(45deg);
+
+  border-right: 1px solid #000;
+  border-bottom: 1px solid #000;
+}
+
+.disclosure-nav .main-link+button::after {
+  margin-left: 0;
+}
+
+.disclosure-nav button:focus,
+.disclosure-nav .main-link:focus {
+  position: relative;
+
+  border-color: #005a9c;
+  outline: 5px solid rgb(0 90 156 / 75%);
+}
+
+.disclosure-nav button:hover,
+.disclosure-nav button[aria-expanded="true"] {
+  color: #fff;
+  background-color: #005a9c;
+}
+
+.disclosure-nav button:hover::after,
+.disclosure-nav button[aria-expanded="true"]::after {
+  border-color: #fff;
+}
+
+/* Styles for example page content section */
+
+.disclosure-page-content {
+  padding: 1em;
+
+  border: 1px solid #ccc;
+}
+
+.disclosure-page-content h3 {
+  margin-top: 0.5em;
+}
+
+.sample-header {
+  text-align: center;
+
+  color: white;
+  border: #005a9c solid 2px;
+  background: #005a9c;
+}
+
+.sample-header .title {
+  font-family: serif;
+  font-size: 2.5em;
+  font-weight: bold;
+}
+
+.sample-header .tagline {
+  font-style: italic;
+}
+
+.sample-footer {
+  padding-left: 1em;
+
+  color: white;
+  border: #005a9c solid 2px;
+  background: #005a9c;
+
+  font-family: serif;
+  font-style: italic;
+}
+
 /*# sourceMappingURL=index.c92073ef.css.map */

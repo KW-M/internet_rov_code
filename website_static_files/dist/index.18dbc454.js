@@ -539,6 +539,8 @@ var _actions = require("xstate/lib/actions");
 var _siteInit = require("./siteInit");
 var _peerConnStateMachineJs = require("./peerConnStateMachine.js");
 var _peerServerConnStateMachineJs = require("./peerServerConnStateMachine.js");
+var _constsJs = require("./consts.js");
+var _accesableDropdownMenuJs = require("./libraries/accesableDropdownMenu.js");
 // import { initGamepadSupport } from "./gamepad.js";
 // import { gamepadUi } from "./gamepad-ui.js";
 // import { gamepadEmulator } from "./gamepad-emulation.js";
@@ -552,12 +554,18 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
         peerServerConfig: {
         },
         rovIpAddr: "",
+        rovPeerIdEndNumber: 0,
+        attemptingNewRovPeerId: false,
         peerServerConnActor: null,
         peerConnActor: null,
         pingSenderActor: null
     },
     id: "main",
     initial: "Start",
+    invoke: {
+        src: "setupUiButtonHandlers",
+        id: "setupUiButtonHandlers"
+    },
     states: {
         Start: {
             invoke: {
@@ -577,10 +585,6 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
         Running: {
             entry: "startPeerServerConnMachine",
             exit: "stopPeerServerConnMachine",
-            invoke: {
-                src: "awaitDisconnectBtnPress",
-                id: "awaitDisconnectBtnPress"
-            },
             initial: "Not_Connected",
             states: {
                 Not_Connected: {
@@ -610,11 +614,24 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
                 }
             },
             on: {
-                DISCONNECT_BUTTON_PRESSED: {
+                ROV_CONNECTION_ESTABLISHED: {
+                    actions: "rovPeerConnectionEstablished",
+                    internal: true // DON'T cause the transition to trigger the exit and entry actions
+                },
+                CONNECT_TO_NEXT_ROV: {
+                    actions: "switchToNextRovPeerId",
+                    target: "Running",
+                    internal: false
+                },
+                RETRY_ROV_CONNECTION: {
+                    target: "Running",
+                    internal: false
+                },
+                DISCONNECT_FROM_ROV: {
                     target: "Awaiting_ROV_Connect_Button_Press"
                 },
                 PEER_NOT_YET_READY_ERROR: {
-                    target: "Awaiting_ROV_Connect_Button_Press"
+                    actions: "handlePeerNotYetReadyError"
                 },
                 PEER_SERVER_FATAL_ERROR: {
                     target: "Running",
@@ -647,37 +664,61 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
     }
 }, {
     actions: {
-        showDisconnectedUi: ()=>{
+        "showDisconnectedUi": ()=>{
             _uiJs.showROVDisconnectedUi();
         },
-        reloadWebsite: ()=>{
+        "reloadWebsite": ()=>{
             _uiJs.showReloadingWebsiteUi();
             setTimeout(()=>{
                 window.location.reload();
             }, 2000);
         },
-        setRovIpAddr: _xstate.assign({
+        "setRovIpAddr": _xstate.assign({
             rovIpAddr: (context, event)=>event.data.rovIpAddr
         }),
-        setPeerServerConfig: _xstate.assign({
+        "setPeerServerConfig": _xstate.assign({
             peerServerConfig: (context, event)=>event.data.peerServerConfig
         }),
-        startPeerServerConnMachine: _xstate.assign({
+        "switchToNextRovPeerId": _xstate.assign({
+            rovPeerIdEndNumber: (context)=>{
+                return context.rovPeerIdEndNumber + 1;
+            },
+            attemptingNewRovPeerId: true
+        }),
+        "rovPeerConnectionEstablished": _xstate.assign({
+            attemptingNewRovPeerId: false
+        }),
+        "handlePeerNotYetReadyError": _actions.pure((context)=>{
+            // this function is called whenever we fail to find or connect to a rov:
+            _uiJs.showToastMessage("Could not connect to " + _constsJs.ROV_PEERID_BASE + String(context.rovPeerIdEndNumber));
+            if (context.attemptingNewRovPeerId && context.rovPeerIdEndNumber != 0) {
+                // we've tried all the rov IDs and none of them are online
+                _uiJs.showToastMessage("Trying previous rov: " + _constsJs.ROV_PEERID_BASE + String(context.rovPeerIdEndNumber - 1));
+                return [
+                    _xstate.assign({
+                        rovPeerIdEndNumber: context.rovPeerIdEndNumber - 1
+                    }),
+                    _xstate.send("RETRY_ROV_CONNECTION")
+                ];
+            } else return _xstate.send("DISCONNECT_FROM_ROV");
+        }),
+        "startPeerServerConnMachine": _xstate.assign({
             peerServerConnActor: (context)=>_xstate.spawn(_peerServerConnStateMachineJs.peerServerConnMachine.withContext({
                     ..._peerServerConnStateMachineJs.peerServerConnMachine.context,
                     rovIpAddr: context.rovIpAddr,
                     peerServerConfig: context.peerServerConfig
                 }), "peerServerConnMachine")
         }),
-        startPeerConnMachine: _xstate.assign({
+        "startPeerConnMachine": _xstate.assign({
             peerServerConnActor: (context, event)=>{
                 return _xstate.spawn(_peerConnStateMachineJs.peerConnMachine.withContext({
                     ..._peerConnStateMachineJs.peerConnMachine.context,
-                    thisPeer: event.data
+                    thisPeer: event.data,
+                    rovPeerId: _constsJs.ROV_PEERID_BASE + String(context.rovPeerIdEndNumber)
                 }), "peerConnMachine");
             }
         }),
-        startPingMessageGenerator: _xstate.assign({
+        "startPingMessageGenerator": _xstate.assign({
             pingSenderActor: _xstate.spawn(()=>{
                 return (callback)=>{
                     const intervalId = setInterval(()=>{
@@ -696,13 +737,13 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
                 };
             }, "pingMessageGenerator")
         }),
-        stopPingMessageGenerator: _actions.stop("pingMessageGenerator"),
-        stopPeerServerConnMachine: _actions.stop("peerServerConnMachine"),
-        stopPeerConnMachine: _actions.stop("peerConnMachine"),
-        gotMessageFromRov: (context, event)=>{
+        "stopPingMessageGenerator": _actions.stop("pingMessageGenerator"),
+        "stopPeerServerConnMachine": _actions.stop("peerServerConnMachine"),
+        "stopPeerConnMachine": _actions.stop("peerConnMachine"),
+        "gotMessageFromRov": (context, event)=>{
             _messageHandler.handleRovMessage(event.data);
         },
-        sendMessageToRov: _xstate.send((context, event)=>{
+        "sendMessageToRov": _xstate.send((context, event)=>{
             return {
                 type: 'SEND_MESSAGE_TO_ROV',
                 data: event.data
@@ -712,7 +753,7 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
         })
     },
     services: {
-        awaitConnectBtnPress: (context, event)=>{
+        "awaitConnectBtnPress": (context, event)=>{
             return (sendStateChange)=>{
                 const err = event.data;
                 console.log(event);
@@ -725,12 +766,18 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
                 return cleanupFunc;
             };
         },
-        awaitDisconnectBtnPress: ()=>{
+        "setupUiButtonHandlers": ()=>{
             return (sendStateChange)=>{
-                const cleanupFunc = _uiJs.setupDisconnectBtnClickHandler(()=>{
-                    sendStateChange("DISCONNECT_BUTTON_PRESSED");
+                const disconnectBtnCleanupFunc = _uiJs.setupDisconnectBtnClickHandler(()=>{
+                    sendStateChange("DISCONNECT_FROM_ROV");
                 });
-                return cleanupFunc;
+                const nextRovBtnCleanupFunc = _uiJs.setupSwitchRovBtnClickHandler(()=>{
+                    sendStateChange("CONNECT_TO_NEXT_ROV");
+                });
+                return ()=>{
+                    disconnectBtnCleanupFunc();
+                    nextRovBtnCleanupFunc();
+                };
             };
         }
     },
@@ -741,10 +788,38 @@ window.mainRovMachineService = _xstate.interpret(mainMachine, {
     devTools: true
 });
 // window.mainRovMachineService.onChange(console.log)
-// window.mainRovMachineService.start();
+window.mainRovMachineService.start();
 window.onbeforeunload = ()=>{
-    window.mainRovMachineService.send("WEBSITE_CLOSE");
-} // function sendUpdateToROV(message) {
+    // window.mainRovMachineService.send("WEBSITE_CLOSE");
+    window.thisPeerjsPeer.destroy();
+};
+/* Initialize Disclosure Menus */ var menus = document.querySelectorAll('.disclosure-nav');
+var disclosureMenus = [];
+for(var i = 0; i < menus.length; i++){
+    disclosureMenus[i] = new _accesableDropdownMenuJs.DisclosureNav(menus[i]);
+    disclosureMenus[i].updateKeyControls(true);
+} // fake link behavior
+ // disclosureMenus.forEach((disclosureNav, i) => {
+ //     var links = menus[i].querySelectorAll('[href="#mythical-page-content"]');
+ //     var examplePageHeading = document.getElementById('mythical-page-heading');
+ //     for (var k = 0; k < links.length; k++) {
+ //         // The codepen export script updates the internal link href with a full URL
+ //         // we're just manually fixing that behavior here
+ //         links[k].href = '#mythical-page-content';
+ //         links[k].addEventListener('click', (event) => {
+ //             // change the heading text to fake a page change
+ //             var pageTitle = event.target.innerText;
+ //             examplePageHeading.innerText = pageTitle;
+ //             // handle aria-current
+ //             for (var n = 0; n < links.length; n++) {
+ //                 links[n].removeAttribute('aria-current');
+ //             }
+ //             event.target.setAttribute('aria-current', 'page');
+ //         });
+ //     }
+ // });
+ // }
+ // function sendUpdateToROV(message) {
  //     window.mainRovMachineService.send({ type: "SEND_MESSAGE_TO_ROV", data: message });
  // }
  // var lastTimeRecvdPong = 0;
@@ -823,9 +898,8 @@ window.onbeforeunload = ()=>{
  //         sendUpdateToROV(JSON.stringify(messageToRov));
  //     }
  // }
-;
 
-},{"@xstate/inspect":"39FuP","./gamepad.js":"2YxSr","./messageHandler":"at2SH","./util.js":"doATT","./ui.js":"efi6n","xstate":"2sk4t","xstate/lib/actions":"b9dCp","./siteInit":"8TXLV","./peerConnStateMachine.js":"hGSry","./peerServerConnStateMachine.js":"3YceA"}],"39FuP":[function(require,module,exports) {
+},{"@xstate/inspect":"39FuP","./gamepad.js":"2YxSr","./messageHandler":"at2SH","./util.js":"doATT","./ui.js":"efi6n","xstate":"2sk4t","xstate/lib/actions":"b9dCp","./siteInit":"8TXLV","./peerConnStateMachine.js":"hGSry","./peerServerConnStateMachine.js":"3YceA","./consts.js":"2J0f1","./libraries/accesableDropdownMenu.js":"dczPN"}],"39FuP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "createDevTools", ()=>_browserJs.createDevTools
@@ -8931,7 +9005,25 @@ parcelHelpers.export(exports, "updateDisplayedSensorValues", ()=>updateDisplayed
 parcelHelpers.export(exports, "setCompassHeading", ()=>setCompassHeading
 );
 parcelHelpers.export(exports, "setArtificialHorizonBackground", ()=>setArtificialHorizonBackground
-);
+) // FOR DEBUGGING COMPASS:
+ // document.addEventListener("DOMContentLoaded", function () {
+ //     if (window.DeviceOrientationEvent) {
+ //         window.addEventListener('deviceorientation', function (eventData) {
+ //             // gamma: Tilting the device from left to right. Tilting the device to the right will result in a positive value.
+ //             // var tiltLR = eventData.gamma;
+ //             // beta: Tilting the device from the front to the back. Tilting the device to the front will result in a positive value.
+ //             var tiltFB = eventData.beta;
+ //             // this.document.getElementById("connected_rov_display").innerHTML = "tiltLR: " + tiltLR + " tiltFB: " + (tiltFB - 90);
+ //             // alpha: The direction the compass of the device aims to in degrees.
+ //             var dir = eventData.alpha
+ //             setArtificialHorizonBackground(dir, -tiltFB);
+ //             // Call the function to use the data on the page.
+ //             setCompassHeading(dir);
+ //         }, false);
+ //     }
+ //     setArtificialHorizonBackground(0, 0);
+ // });
+;
 var _toastifyJs = require("toastify-js");
 var _toastifyJsDefault = parcelHelpers.interopDefault(_toastifyJs);
 function showToastMessage(message, durration, callback) {
@@ -8996,6 +9088,7 @@ function showROVDisconnectedUi() {
     connectBtn.style.display = 'block';
     disconnectBtn.style.display = 'none';
     connectedRovLabel.parentElement.parentElement.classList.add('hidden');
+    connectedRovLabel.innerText = 'None';
     hideLoadingUi();
 }
 function showROVConnectingUi() {
@@ -9078,7 +9171,7 @@ function updateDisplayedSensorValues(sensorValues) {
     pressureDisplay.innerText = sensorValues.pressure;
     tempDisplay.innerText = sensorValues.temp;
 }
-// https://codepen.io/fueru/pen/JjjoXez
+/***** COMPASS AND ORIENTATION RELATED UI *******/ // https://codepen.io/fueru/pen/JjjoXez
 var compassDisc = document.getElementById("compassDiscImg");
 const compassOffset = 135;
 function setCompassHeading(headingDeg) {
@@ -9092,22 +9185,6 @@ function setArtificialHorizonBackground(roll, pitch) {
     var vShift = Math.min(Math.max(pitch, -90), 90) / 90 * 100;
     gradientArtificialHorizonBackground.style.backgroundImage = `linear-gradient(${roll}deg, rgba(2,0,36,1) ${-100 + vShift}%, rgba(9,88,116,1) ${50 + vShift}%, rgba(10,109,140,1) ${50 + vShift}%, rgba(0,255,235,1) ${200 + vShift}%)`;
 }
-// FOR DEBUGGING COMPASS:
-document.addEventListener("DOMContentLoaded", function() {
-    if (window.DeviceOrientationEvent) window.addEventListener('deviceorientation', function(eventData) {
-        // gamma: Tilting the device from left to right. Tilting the device to the right will result in a positive value.
-        // var tiltLR = eventData.gamma;
-        // beta: Tilting the device from the front to the back. Tilting the device to the front will result in a positive value.
-        var tiltFB = eventData.beta;
-        // this.document.getElementById("connected_rov_display").innerHTML = "tiltLR: " + tiltLR + " tiltFB: " + (tiltFB - 90);
-        // alpha: The direction the compass of the device aims to in degrees.
-        var dir = eventData.alpha;
-        setArtificialHorizonBackground(dir, -tiltFB);
-        // Call the function to use the data on the page.
-        setCompassHeading(dir);
-    }, false);
-    setArtificialHorizonBackground(0, 0);
-});
 
 },{"toastify-js":"96k49","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"96k49":[function(require,module,exports) {
 /*!
@@ -10851,29 +10928,28 @@ parcelHelpers.export(exports, "peerConnMachine", ()=>peerConnMachine
 var _xstate = require("xstate");
 var _ui = require("./ui");
 var _util = require("./util");
-var _consts = require("./consts");
 var _actions = require("xstate/lib/actions");
 // FOR CONVERTING TEXT TO/FROM BINARY FOR SENDING OVER THE WEBRTC DATACHANNEL
 const messageEncoder = new TextEncoder(); // always utf-8
 const messageDecoder = new TextDecoder(); // always utf-8
-const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CWeAdAHLbED6O+RxkdAKtnQErYBuAxFwDyANQZCqVAKKY2ASQl0pAZTYBBAEIAZOcoASUgCKIU2WKTJ4TIAB6IAtACYADI4rOAnAEYAHI4AsAMxeAKyOgYEhADQgAJ6I-iH+FB4+AGwegWlJieE+AL75MagYjAQk5LjUtAx45SwQ7Jw8AsJiAApSUlzikjLyit3CXNbIZhaV1nYITj5eFFkh6ZkA7CHOac5egTHxCI5pyc5JzoErK44rQY4hhcVoWHXMlRRlzKwc3HwUhgCGxL9MAALX5MAA2P3+vwYIPBdEMpFghCeJEg-EManUmD0aj6WiUqk0On0RlG40suCmiACaQoVzSgRcgQ2S0cPl2iC8LjcGx8fhWPjCNwFdxAJUeTAqlDeqManxakIBwNBBAhfwBMJVYDB8MRyMlDXRmLU2Nx0nx8gAslIhABVNhk8wUqkIJYeBYeFbHLweG7+BnROIJK4Ufw+Vy+Ln+RxeAVpUXimUU14ohpNL68RWA2GqrOauFCVC4I1YnF4+G6TASaSyR0TKxIWzU-0UJY+VIeEIRNJef0chBctK0kIjrk+fxXFyHBMPJMvJMfZrfdXZrVqqH51V0QtgYvKKRUQx0a3KZRqADiUnYQm4ojrzsb0ycLcSK2ZXlOzI8nf7H-CCwFM4ey9RlHEcGdSlTedU0XDMs2VcE8wQrcd2Lc8hDYY8VDPS86AAMWES1bxEe9JkfBx-zZX00iuZxnH8RJjjSX9XECACfCA2NTjA8CijFWcoOlGC5SXTNLUgUhV0Qmh6FQ-hrUMOQ1AYMtzQJdRtF0AxjEbMYnTI0BplCHx3G-VxOx8FYaJCLxfxCDxnAoQ5vBjLxfECPwIIlepoINWCFXEiBJOQ7UKECyTN21Wo-IgfgRDkQwbToVQuCkNQiNStRDAATVIhtDMQQV3X8ByVl8VJtjfWygwHezHOcrk3Pczy+MTQSqgXES4PCqTVXkowlJUs0pAtORrTtB1dPJAymwQSITJow4XHsyzPTffsJ2SMMtgFVJ2xWT0vLnISYvTFpBFEOhOm6XoawGKglC4YY8spciBzSNwllZDZvWA5iapCKyKC5DxDhKs521cI72pTU75T4fgqz6WQjGvOgAHVhCoc9iJel1OzYn10jCdJHEyPwNu2UNo0BjyirbaGDReNRYAAa1IXAoCu0gwRqYhOHaUhCFZ-D0GwABbbdcDBDmwAzWALo6LoemxIR9yoPG3vs5JGXSf0PAYkIMkDPY3J1-wNgcsmri7RJCj43BsAgOBRgEpnKBk6L6n8vhNYKmZ0goSzAm-Pwu2CGMTcKtj0i5FwGP8LwaMZnyTu9rqFRXEL1w1bPdSRYS-dm0c6XJ7I-Hcq5fx9EJW3owGDrDIIrhT540-eDPlyhbOkJzKLUKLp9uScrIPtjUJGLmauu1bcIDlCA3vxWVupQ64Szq7pU+7BQeKK9UNaa2T9PB-Gr22KoJw6CLII5X5NOo3sSJN60LPYHqb9Py2anF8IPggyMMgQGJvmcCsOyM8k5JDJlyA69F4ytTdqnNecNRJhWfj3HqkUdSdV3ggBi7oBTtkuMEEq5wo61V9E5I2YQLZ+hjIEO+vl06PzQUFF+EIRCkGdpwZQxB0BgF+JLd+phP6vX9m5U4CwaFAK2HMHs-1TY9hMtsVYdMAigwKAgyC7tkHMPhk-Nh2dcHPjcBxJOBsOLAOZGAmqvYyYUHCPRH0XoXBEMYe3WUj9jFky2ofD8EQT7kLfO6MIaxBRhnWKA24WjvJtyqCzdmnNua83oPzbmwtRYSyljLAg8tcF8mHN4GibJ9obB2Gfd0golEhwCFsIc7ixFimml-J8wQTKvnfMfb85CPxB19E4k4oRsjL3tkAA */ _xstate.createMachine({
+const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CWeAdAHLbED6O+RxkdAKtnQErYBuAxFwDyANQZCqVAKKY2ASQl0pAZTYBBAEIAZOcoASUgCKIU2WKTJ4TIAB6IAtAEYArACYKAdgBsX194AcAAwejq7+AJyuADQgAJ6IjoEALBT+Po5JzgDMXuEe-q6uWQC+xTGoGIwEJOS41LQMeNUsEOycPALCYgAKUlJc4pIy8or9wlzWyGYWtdZ2CPYRKV7OkUX+jv5JXln+MfEImx6pWW5ZgYFnroE5peVoWE3MtRRVzKwc3HwUhgCGxL9MAALX5MAA2P3+vwYIPBdEMpFghCeJEg-EManUmD0aiGWiUqk0On0Rkm00suDmiCyHnc-n8qx2DOy2w8SX2iA8zkCFBp4XONM2WSSlzuIAqjyYNUob1RrU+HUhAOBoIIEL+AJhqrAYPhiORUpa6MxamxuOk+PkAFkpEIAKpsMnmClUhAeEIURz88KBNIRRKudlxRCrCjhVbh5JJRxs-wlMrih6yimvFEtNpfXhKwGwtXZrVwoSoXDGrE4vHw3SYCTSWROmZWJC2am0ijOEKB9uFVyhLIct3hfy8pKRZxbLLhFbhMUS5MvZMfdrfDU57XqqEFtV0ItgEvKKRUQx0G3KZRqADiUnYQm4onrLqb8ycPdSDK9eW2gRc-g8-a8FwoJItiSIp-x-NwvBnJM03nNNF0zbMVXBfMkK3HcS3PIQ2GPFQz0vOgADFhCtW8RHvWZHwcUJwlSEcvEcGMbmcdsGX7ZxHCyNs-DZL0LjCLJXCgyoYJlOD5SXLMrUgUhV2Qmh6HQ-gbUMOQ1AYcsLQJdRtF0AxjCbKZnQo0B5j8RwKECVxwjyQJJ1CLwkj7YNDi9dxHPDNZuX-bIhMlZpYMNeDFSkiAZNQnUKBCmTNx1RpAogfgRDkQxbToVQuCkNQSIytRDAATXIxsTMQGyKFcXJbMuLZgjjfsGMiQCJ1WQovMueN7mEw0AuaILvii2S1SUoxVPU80pEtOQbXtR0DPJYzmwQQVeXKoCMiyIV6LYmiPJ9bwQI8G5yt8udRPijMOkEUQ6F6fpBlrEYqCULhxkKylKIWEIhy8fJvF8crnCZftypopIOzSZJbJjJJSgTXBsAgOBJmgrrKHkuKevEzNXtdexViHHsvCCMcuTcEJ+3sdwLjjdiRSKTsMmhhNZxEuoF0xxUV3C9dNS5vUkTE7H3sJ5xPRcCcLg8XZQkcftaTc4Gf1CVxmJA46WdTM6FWXKEuZQ3NYvQwXioWUJjj8SJfCCZWBPYv8GqSaNEmyGNu3axNOv806MfO7XlX1sEjYWpxslouzGNOFjnH7XYaOauMewZcNlbVlHWbEn3JOkgaIrRw3ZqMoqg4YziIgFc45fDBi6pcFJwzHBzTYcyCmeRz2081iTIqz3X+pi3U2cD+YAc4sJ6NpDiIi2aJnPqlIHdyCJInOSGU7bjXva1zPQuziERFIBHOGUYh0DAX4AFtt2LQeEh7TiJ3ycJQfWopvDqnttqs910gE-JV+eL33jsz6t3f218TY0lSPyG45dCiV37NZEWENgig3yF+DIf9pTtw3hJMBTh3Sh3ouHZi+Qo7OX+hQFYHgfSDiCIkGMGCHymALm9Y29hwibAoc1dYmxti7HJqEEWj8BLrWyOGHYDsYbFCAA */ _xstate.createMachine({
     context: {
-        /* NOTE that the context is really set by the parent machine, not here */ rovPeerIdEndNumber: 0,
-        attemptingNewRovPeerId: false,
-        thisPeer: null,
+        /* NOTE that the context is really set by the parent machine, not here */ thisPeer: null,
+        rovPeerId: null,
         rovDataConnection: null
     },
+    exit: "stopPeerConnectionEventHandler",
     id: "peerConnection",
     initial: "Not_Connected_To_Rov",
-    exit: "stopPeerConnectionEventHandler",
     states: {
         Not_Connected_To_Rov: {
             entry: [
                 "showConnectingUi",
-                "connectToRovPeerAndStartPeerConnectionEventHandler"
+                "connectToRovPeerAndStartPeerConnectionEventHandler", 
             ],
             on: {
                 ROV_CONNECTION_ESTABLISHED: {
+                    actions: "rovPeerConnectionEstablished",
                     target: "Connected_To_Rov"
                 },
                 ROV_PEER_CONNECTION_ERROR: {
@@ -10884,9 +10960,6 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
         },
         Connected_To_Rov: {
             entry: "showRovConnectedUi",
-            invoke: {
-                src: "awaitSwitchRovBtnPress"
-            },
             type: "parallel",
             states: {
                 DataChannel: {
@@ -10985,11 +11058,6 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
             on: {
                 ROV_PEER_CONNECTION_ERROR: {
                     target: "Not_Connected_To_Rov"
-                },
-                CONNECT_TO_NEXT_ROBOT: {
-                    // target: "Asking_Pilot_to_Pick_From_Online_Rovs",
-                    actions: "switchToNextRovPeerId",
-                    target: "Not_Connected_To_Rov"
                 }
             }
         }
@@ -11029,12 +11097,7 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
                 return rovVideoStream;
             }
         }),
-        // setRovPeerIdEndNumber: assign({
-        //     rovPeerIdEndNumber: (context) => {
-        //         return context.rovPeerIdEndNumber + 1
-        //     },
-        //     attemptingNewRovPeerId: false,
-        // }),
+        rovPeerConnectionEstablished: _xstate.sendParent("ROV_CONNECTION_ESTABLISHED"),
         sendMessageToRov: (context, event)=>{
             const outgoingMessage = event.data;
             const rovDataConnection = context.rovDataConnection;
@@ -11061,9 +11124,8 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
             if (context.rovDataConnection) context.rovDataConnection.close();
         },
         connectToRovPeerAndStartPeerConnectionEventHandler: _xstate.assign((context)=>{
-            const rovPeerId = _consts.ROV_PEERID_BASE + String(context.rovPeerIdEndNumber);
-            console.log("Connecting to ROV:" + rovPeerId);
-            const rovDataConnection = context.thisPeer.connect(rovPeerId, {
+            console.log("Connecting to ROV:" + context.rovPeerId);
+            const rovDataConnection = context.thisPeer.connect(context.rovPeerId, {
                 reliable: true,
                 serialization: 'none'
             });
@@ -11087,22 +11149,24 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
     services: {
         awaitMediaCall: (context)=>{
             return (sendStateChange)=>{
-                _ui.showLoadingUi("Waiting for ROV livestream...");
-                const callHandler = _util.generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection)=>{
-                    _ui.showToastMessage('Got media call from peer: ' + rovMediaConnection.peer);
-                    rovMediaConnection.answer(null, {
-                    });
-                });
-                context.thisPeer.on('call', callHandler);
-                const timeoutId = setTimeout(()=>{
-                    sendStateChange({
-                        type: "MEDIA_CHANNEL_TIMEOUT"
-                    });
-                }, 16000);
-                return ()=>{
-                    clearTimeout(timeoutId);
-                    context.thisPeer.off('call', callHandler);
-                };
+            // showLoadingUi("Waiting for ROV Media Call...");
+            // const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
+            //     showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
+            //     rovMediaConnection.answer(null, {
+            //         // sdpTransform: function (sdp) {
+            //         //     console.log('answer sdp: ', sdp);
+            //         //     return sdp;
+            //         // }
+            //     });
+            // })
+            // context.thisPeer.on('call', callHandler);
+            // const timeoutId = setTimeout(() => {
+            //     sendStateChange({ type: "MEDIA_CHANNEL_TIMEOUT" });
+            // }, 16000);
+            // return () => {
+            //     clearTimeout(timeoutId);
+            //     context.thisPeer.off('call', callHandler);
+            // }
             };
         },
         awaitVideoStream: (context)=>{
@@ -11194,20 +11258,21 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
         }
     }
 });
+console.log("Peerjs rov Connection Machine: ", peerConnMachine.options);
 
-},{"xstate":"2sk4t","./ui":"efi6n","./util":"doATT","./consts":"2J0f1","xstate/lib/actions":"b9dCp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3YceA":[function(require,module,exports) {
+},{"xstate":"2sk4t","./ui":"efi6n","./util":"doATT","xstate/lib/actions":"b9dCp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3YceA":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "peerServerConnMachine", ()=>peerServerConnMachine
 );
 var _xstate = require("xstate");
-var _actions = require("xstate/lib/actions");
 var _peerjs = require("peerjs");
 var _peerjsDefault = parcelHelpers.interopDefault(_peerjs);
 // import * as consts from "./consts";
 var _util = require("./util");
 var _ui = require("./ui");
 // showROVDisconnectedUi, showROVConnectingUi, showROVConnectedUi, setupConnectBtnClickHandler, showToastDialog, hideLoadingUi, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandler
+const { pure , stop , send , sendParent , assign  } = _xstate.actions;
 const FATAL_PEER_ERROR_TYPES = [
     "network",
     "unavailable-id",
@@ -11230,7 +11295,6 @@ const peerServerConnMachine = _xstate.createMachine({
     id: "peerServerConnection",
     initial: "Not_Connected_To_Peer_Server",
     exit: [
-        "stopPeerServerEventsHandler",
         "cleanupPeerServerConnection"
     ],
     states: {
@@ -11295,57 +11359,63 @@ const peerServerConnMachine = _xstate.createMachine({
     }
 }, {
     actions: {
-        showPeerServerConnectedNotice: ()=>{
+        "showPeerServerConnectedNotice": ()=>{
             _ui.showToastMessage("Connected to Peerjs Server!");
         },
-        showPeerServerDisconnectedNotice: ()=>{
+        "showPeerServerDisconnectedNotice": ()=>{
             _ui.showToastMessage("Peerjs Server Disconnected");
         },
         // setupThisPeerWithPeerServer: assign({
         // }),
-        notifyParentOfPeerServerConnection: _xstate.sendParent((context)=>{
+        "notifyParentOfPeerServerConnection": sendParent((context)=>{
             return {
                 type: "PEER_SERVER_CONNECTION_ESTABLISHED",
                 data: context.thisPeer
             };
         }),
-        handlePeerServerError: _actions.pure((context, event)=>{
+        "handlePeerServerError": pure((context, event)=>{
             const err = event.data;
             if (err.type == 'browser-incompatible') {
                 alert('Your web browser does not support some WebRTC features. Please use a newer or different browser.');
-                return _xstate.sendParent({
+                return sendParent({
                     type: "WEBRTC_FATAL_ERROR"
                 });
             } else if (err.type == "webrtc") {
                 _ui.showToastMessage("WebRTC protocol error! Reloading website now...");
-                return _xstate.sendParent({
+                return sendParent({
                     type: "WEBRTC_FATAL_ERROR"
                 });
-            } else if (err.type == "peer-unavailable") return _xstate.sendParent({
+            } else if (err.type == "peer-unavailable") return sendParent({
                 type: "PEER_NOT_YET_READY_ERROR",
                 data: err
             });
             else if (FATAL_PEER_ERROR_TYPES.includes(err.type)) {
                 _ui.showToastMessage("Peerjs Server Fatal Error: " + err.type + " Restarting...");
-                return _xstate.sendParent({
+                return sendParent({
                     type: "PEER_SERVER_FATAL_ERROR"
                 });
             } else {
                 _ui.showToastMessage("Peerjs Server Error: " + err.type + " Restarting...");
                 console.dir("Peerjs Server Error: ", err);
-                return _xstate.send({
+                return send({
                     type: "PEER_SERVER_CONNECTION_CLOSED"
                 });
             }
         }),
-        cleanupPeerServerConnection: _xstate.assign({
-            thisPeer: (context)=>{
-                if (context.thisPeer) context.thisPeer.destroy();
-                return null;
-            }
-        }),
-        setupPeerAndStartPeerServerEventsHandler: _xstate.assign((context)=>{
-            const thisPeer = new _peerjsDefault.default(null, context.peerServerConfig);
+        "cleanupPeerServerConnection": ()=>{
+            console.log(pure);
+        },
+        // assign({
+        //     thisPeer: (context) => {
+        //         console.log("cleanupPeerServerConnection: ", context.thisPeer)
+        //         if (context.thisPeer) {
+        //             context.thisPeer.destroy()
+        //         }
+        //         return null;
+        //     }
+        // }),
+        "setupPeerAndStartPeerServerEventsHandler": assign((context)=>{
+            const thisPeer = window.thisPeerjsPeer = new _peerjsDefault.default(null, context.peerServerConfig);
             return {
                 thisPeer: thisPeer,
                 peerServerEventsHandler: _xstate.spawn((sendStateChange)=>{
@@ -11359,8 +11429,7 @@ const peerServerConnMachine = _xstate.createMachine({
                     };
                 }, "peerServerEventsHandler")
             };
-        }),
-        stopPeerServerEventsHandler: stop("peerServerEventsHandler")
+        })
     },
     services: {
         handlePeerSeverEvents: (context)=>{
@@ -11383,8 +11452,9 @@ const peerServerConnMachine = _xstate.createMachine({
         }
     }
 });
+console.log("Peerjs Server Connection Machine: ", peerServerConnMachine.options.actions);
 
-},{"xstate":"2sk4t","xstate/lib/actions":"b9dCp","peerjs":"jvZeO","./util":"doATT","./ui":"efi6n","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jvZeO":[function(require,module,exports) {
+},{"xstate":"2sk4t","peerjs":"jvZeO","./util":"doATT","./ui":"efi6n","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jvZeO":[function(require,module,exports) {
 parcelRequire = (function(e1, r1, t1, n1) {
     var i1, o = "function" == typeof parcelRequire && parcelRequire, u = "function" == typeof require && undefined;
     function f(t, n) {
@@ -16548,6 +16618,132 @@ parcelRequire = (function(e1, r1, t1, n1) {
 ], null) //# sourceMappingURL=/peerjs.min.js.map
 ;
 
-},{}]},["g9TDx","1SICI"], "1SICI", "parcelRequire8802")
+},{}],"dczPN":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "DisclosureNav", ()=>DisclosureNav
+);
+/*
+ *   This content is licensed according to the W3C Software License at
+ *   https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document
+ *
+ *   Supplemental JS for the disclosure menu keyboard behavior
+ */ 'use strict';
+class DisclosureNav {
+    constructor(domNode){
+        this.rootNode = domNode;
+        this.controlledNodes = [];
+        this.openIndex = null;
+        this.useArrowKeys = true;
+        this.topLevelNodes = [
+            ...this.rootNode.querySelectorAll('.main-link, button[aria-expanded][aria-controls]'), 
+        ];
+        this.topLevelNodes.forEach((node)=>{
+            // handle button + menu
+            if (node.tagName.toLowerCase() === 'button' && node.hasAttribute('aria-controls')) {
+                const menu = node.parentNode.querySelector('ul');
+                if (menu) {
+                    // save ref controlled menu
+                    this.controlledNodes.push(menu);
+                    // collapse menus
+                    node.setAttribute('aria-expanded', 'false');
+                    this.toggleMenu(menu, false);
+                    // attach event listeners
+                    menu.addEventListener('keydown', this.onMenuKeyDown.bind(this));
+                    node.addEventListener('click', this.onButtonClick.bind(this));
+                    node.addEventListener('keydown', this.onButtonKeyDown.bind(this));
+                }
+            } else {
+                this.controlledNodes.push(null);
+                node.addEventListener('keydown', this.onLinkKeyDown.bind(this));
+            }
+        });
+        this.rootNode.addEventListener('focusout', this.onBlur.bind(this));
+    }
+    controlFocusByKey(keyboardEvent, nodeList, currentIndex) {
+        switch(keyboardEvent.key){
+            case 'ArrowUp':
+            case 'ArrowLeft':
+                keyboardEvent.preventDefault();
+                if (currentIndex > -1) {
+                    var prevIndex = Math.max(0, currentIndex - 1);
+                    nodeList[prevIndex].focus();
+                }
+                break;
+            case 'ArrowDown':
+            case 'ArrowRight':
+                keyboardEvent.preventDefault();
+                if (currentIndex > -1) {
+                    var nextIndex = Math.min(nodeList.length - 1, currentIndex + 1);
+                    nodeList[nextIndex].focus();
+                }
+                break;
+            case 'Home':
+                keyboardEvent.preventDefault();
+                nodeList[0].focus();
+                break;
+            case 'End':
+                keyboardEvent.preventDefault();
+                nodeList[nodeList.length - 1].focus();
+                break;
+        }
+    }
+    // public function to close open menu
+    close() {
+        this.toggleExpand(this.openIndex, false);
+    }
+    onBlur(event) {
+        var menuContainsFocus = this.rootNode.contains(event.relatedTarget);
+        if (!menuContainsFocus && this.openIndex !== null) this.toggleExpand(this.openIndex, false);
+    }
+    onButtonClick(event) {
+        var button = event.target;
+        var buttonIndex = this.topLevelNodes.indexOf(button);
+        var buttonExpanded = button.getAttribute('aria-expanded') === 'true';
+        this.toggleExpand(buttonIndex, !buttonExpanded);
+    }
+    onButtonKeyDown(event) {
+        var targetButtonIndex = this.topLevelNodes.indexOf(document.activeElement);
+        // close on escape
+        if (event.key === 'Escape') this.toggleExpand(this.openIndex, false);
+        else if (this.useArrowKeys && this.openIndex === targetButtonIndex && event.key === 'ArrowDown') {
+            event.preventDefault();
+            this.controlledNodes[this.openIndex].querySelector('a').focus();
+        } else if (this.useArrowKeys) this.controlFocusByKey(event, this.topLevelNodes, targetButtonIndex);
+    }
+    onLinkKeyDown(event) {
+        var targetLinkIndex = this.topLevelNodes.indexOf(document.activeElement);
+        // handle arrow key navigation between top-level buttons, if set
+        if (this.useArrowKeys) this.controlFocusByKey(event, this.topLevelNodes, targetLinkIndex);
+    }
+    onMenuKeyDown(event) {
+        if (this.openIndex === null) return;
+        var menuLinks = Array.prototype.slice.call(this.controlledNodes[this.openIndex].querySelectorAll('a'));
+        var currentIndex = menuLinks.indexOf(document.activeElement);
+        // close on escape
+        if (event.key === 'Escape') {
+            this.topLevelNodes[this.openIndex].focus();
+            this.toggleExpand(this.openIndex, false);
+        } else if (this.useArrowKeys) this.controlFocusByKey(event, menuLinks, currentIndex);
+    }
+    toggleExpand(index, expanded) {
+        // close open menu, if applicable
+        if (this.openIndex !== index) this.toggleExpand(this.openIndex, false);
+        // handle menu at called index
+        if (this.topLevelNodes[index]) {
+            this.openIndex = expanded ? index : null;
+            this.topLevelNodes[index].setAttribute('aria-expanded', expanded);
+            this.toggleMenu(this.controlledNodes[index], expanded);
+        }
+    }
+    toggleMenu(domNode, show) {
+        if (domNode) domNode.style.display = show ? 'block' : 'none';
+    }
+    updateKeyControls(useArrowKeys) {
+        this.useArrowKeys = useArrowKeys;
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["g9TDx","1SICI"], "1SICI", "parcelRequire8802")
 
 //# sourceMappingURL=index.18dbc454.js.map

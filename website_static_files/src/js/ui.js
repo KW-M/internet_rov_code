@@ -70,6 +70,7 @@ export function showROVDisconnectedUi() {
     connectBtn.style.display = 'block';
     disconnectBtn.style.display = 'none';
     connectedRovLabel.parentElement.parentElement.classList.add('hidden')
+    connectedRovLabel.innerText = 'None';
     hideLoadingUi()
 }
 
@@ -173,6 +174,7 @@ export function updateDisplayedSensorValues(sensorValues) {
 }
 
 
+/***** COMPASS AND ORIENTATION RELATED UI *******/
 
 // https://codepen.io/fueru/pen/JjjoXez
 var compassDisc = document.getElementById("compassDiscImg");
@@ -191,24 +193,22 @@ export function setArtificialHorizonBackground(roll, pitch) {
 }
 
 // FOR DEBUGGING COMPASS:
-document.addEventListener("DOMContentLoaded", function () {
-    if (window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation', function (eventData) {
-            // gamma: Tilting the device from left to right. Tilting the device to the right will result in a positive value.
-            // var tiltLR = eventData.gamma;
+// document.addEventListener("DOMContentLoaded", function () {
+//     if (window.DeviceOrientationEvent) {
+//         window.addEventListener('deviceorientation', function (eventData) {
+//             // gamma: Tilting the device from left to right. Tilting the device to the right will result in a positive value.
+//             // var tiltLR = eventData.gamma;
 
-            // beta: Tilting the device from the front to the back. Tilting the device to the front will result in a positive value.
-            var tiltFB = eventData.beta;
-            // this.document.getElementById("connected_rov_display").innerHTML = "tiltLR: " + tiltLR + " tiltFB: " + (tiltFB - 90);
+//             // beta: Tilting the device from the front to the back. Tilting the device to the front will result in a positive value.
+//             var tiltFB = eventData.beta;
+//             // this.document.getElementById("connected_rov_display").innerHTML = "tiltLR: " + tiltLR + " tiltFB: " + (tiltFB - 90);
 
-            // alpha: The direction the compass of the device aims to in degrees.
-            var dir = eventData.alpha
-            setArtificialHorizonBackground(dir, -tiltFB);
-            // Call the function to use the data on the page.
-            setCompassHeading(dir);
-        }, false);
-    }
-    setArtificialHorizonBackground(0, 0);
-});
-
-
+//             // alpha: The direction the compass of the device aims to in degrees.
+//             var dir = eventData.alpha
+//             setArtificialHorizonBackground(dir, -tiltFB);
+//             // Call the function to use the data on the page.
+//             setCompassHeading(dir);
+//         }, false);
+//     }
+//     setArtificialHorizonBackground(0, 0);
+// });

@@ -1,7 +1,6 @@
 import { createMachine, assign, sendParent, spawn } from "xstate";
 import { showToastMessage, showROVConnectingUi, showROVConnectedUi, showLoadingUi, hideLoadingUi, setupSwitchRovBtnClickHandler, showLivestreamUi, hideLivestreamUi } from "./ui"
 import { generateStateChangeFunction } from "./util";
-import * as consts from "./consts";
 import { stop } from "xstate/lib/actions";
 
 // FOR CONVERTING TEXT TO/FROM BINARY FOR SENDING OVER THE WEBRTC DATACHANNEL
@@ -9,23 +8,26 @@ const messageEncoder = new TextEncoder(); // always utf-8
 const messageDecoder = new TextDecoder(); // always utf-8
 
 export const peerConnMachine =
-    /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CWeAdAHLbED6O+RxkdAKtnQErYBuAxFwDyANQZCqVAKKY2ASQl0pAZTYBBAEIAZOcoASUgCKIU2WKTJ4TIAB6IAtACYADI4rOAnAEYAHI4AsAMxeAKyOgYEhADQgAJ6I-iH+FB4+AGwegWlJieE+AL75MagYjAQk5LjUtAx45SwQ7Jw8AsJiAApSUlzikjLyit3CXNbIZhaV1nYITj5eFFkh6ZkA7CHOac5egTHxCI5pyc5JzoErK44rQY4hhcVoWHXMlRRlzKwc3HwUhgCGxL9MAALX5MAA2P3+vwYIPBdEMpFghCeJEg-EManUmD0aj6WiUqk0On0RlG40suCmiACaQoVzSgRcgQ2S0cPl2iC8LjcGx8fhWPjCNwFdxAJUeTAqlDeqManxakIBwNBBAhfwBMJVYDB8MRyMlDXRmLU2Nx0nx8gAslIhABVNhk8wUqkIJYeBYeFbHLweG7+BnROIJK4Ufw+Vy+Ln+RxeAVpUXimUU14ohpNL68RWA2GqrOauFCVC4I1YnF4+G6TASaSyR0TKxIWzU-0UJY+VIeEIRNJef0chBctK0kIjrk+fxXFyHBMPJMvJMfZrfdXZrVqqH51V0QtgYvKKRUQx0a3KZRqADiUnYQm4ojrzsb0ycLcSK2ZXlOzI8nf7H-CCwFM4ey9RlHEcGdSlTedU0XDMs2VcE8wQrcd2Lc8hDYY8VDPS86AAMWES1bxEe9JkfBx-zZX00iuZxnH8RJjjSX9XECACfCA2NTjA8CijFWcoOlGC5SXTNLUgUhV0Qmh6FQ-hrUMOQ1AYMtzQJdRtF0AxjEbMYnTI0BplCHx3G-VxOx8FYaJCLxfxCDxnAoQ5vBjLxfECPwIIlepoINWCFXEiBJOQ7UKECyTN21Wo-IgfgRDkQwbToVQuCkNQiNStRDAATVIhtDMQQV3X8ByVl8VJtjfWygwHezHOcrk3Pczy+MTQSqgXES4PCqTVXkowlJUs0pAtORrTtB1dPJAymwQSITJow4XHsyzPTffsJ2SMMtgFVJ2xWT0vLnISYvTFpBFEOhOm6XoawGKglC4YY8spciBzSNwllZDZvWA5iapCKyKC5DxDhKs521cI72pTU75T4fgqz6WQjGvOgAHVhCoc9iJel1OzYn10jCdJHEyPwNu2UNo0BjyirbaGDReNRYAAa1IXAoCu0gwRqYhOHaUhCFZ-D0GwABbbdcDBDmwAzWALo6LoemxIR9yoPG3vs5JGXSf0PAYkIMkDPY3J1-wNgcsmri7RJCj43BsAgOBRgEpnKBk6L6n8vhNYKmZ0goSzAm-Pwu2CGMTcKtj0i5FwGP8LwaMZnyTu9rqFRXEL1w1bPdSRYS-dm0c6XJ7I-Hcq5fx9EJW3owGDrDIIrhT540-eDPlyhbOkJzKLUKLp9uScrIPtjUJGLmauu1bcIDlCA3vxWVupQ64Szq7pU+7BQeKK9UNaa2T9PB-Gr22KoJw6CLII5X5NOo3sSJN60LPYHqb9Py2anF8IPggyMMgQGJvmcCsOyM8k5JDJlyA69F4ytTdqnNecNRJhWfj3HqkUdSdV3ggBi7oBTtkuMEEq5wo61V9E5I2YQLZ+hjIEO+vl06PzQUFF+EIRCkGdpwZQxB0BgF+JLd+phP6vX9m5U4CwaFAK2HMHs-1TY9hMtsVYdMAigwKAgyC7tkHMPhk-Nh2dcHPjcBxJOBsOLAOZGAmqvYyYUHCPRH0XoXBEMYe3WUj9jFky2ofD8EQT7kLfO6MIaxBRhnWKA24WjvJtyqCzdmnNua83oPzbmwtRYSyljLAg8tcF8mHN4GibJ9obB2Gfd0golEhwCFsIc7ixFimml-J8wQTKvnfMfb85CPxB19E4k4oRsjL3tkAA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CWeAdAHLbED6O+RxkdAKtnQErYBuAxFwDyANQZCqVAKKY2ASQl0pAZTYBBAEIAZOcoASUgCKIU2WKTJ4TIAB6IAtAEYArACYKAdgBsX194AcAAwejq7+AJyuADQgAJ6IjoEALBT+Po5JzgDMXuEe-q6uWQC+xTGoGIwEJOS41LQMeNUsEOycPALCYgAKUlJc4pIy8or9wlzWyGYWtdZ2CPYRKV7OkUX+jv5JXln+MfEImx6pWW5ZgYFnroE5peVoWE3MtRRVzKwc3HwUhgCGxL9MAALX5MAA2P3+vwYIPBdEMpFghCeJEg-EManUmD0aiGWiUqk0On0Rkm00suDmiCyHnc-n8qx2DOy2w8SX2iA8zkCFBp4XONM2WSSlzuIAqjyYNUob1RrU+HUhAOBoIIEL+AJhqrAYPhiORUpa6MxamxuOk+PkAFkpEIAKpsMnmClUhAeEIURz88KBNIRRKudlxRCrCjhVbh5JJRxs-wlMrih6yimvFEtNpfXhKwGwtXZrVwoSoXDGrE4vHw3SYCTSWROmZWJC2am0ijOEKB9uFVyhLIct3hfy8pKRZxbLLhFbhMUS5MvZMfdrfDU57XqqEFtV0ItgEvKKRUQx0G3KZRqADiUnYQm4onrLqb8ycPdSDK9eW2gRc-g8-a8FwoJItiSIp-x-NwvBnJM03nNNF0zbMVXBfMkK3HcS3PIQ2GPFQz0vOgADFhCtW8RHvWZHwcUJwlSEcvEcGMbmcdsGX7ZxHCyNs-DZL0LjCLJXCgyoYJlOD5SXLMrUgUhV2Qmh6HQ-gbUMOQ1AYcsLQJdRtF0AxjCbKZnQo0B5j8RwKECVxwjyQJJ1CLwkj7YNDi9dxHPDNZuX-bIhMlZpYMNeDFSkiAZNQnUKBCmTNx1RpAogfgRDkQxbToVQuCkNQSIytRDAATXIxsTMQGyKFcXJbMuLZgjjfsGMiQCJ1WQovMueN7mEw0AuaILvii2S1SUoxVPU80pEtOQbXtR0DPJYzmwQQVeXKoCMiyIV6LYmiPJ9bwQI8G5yt8udRPijMOkEUQ6F6fpBlrEYqCULhxkKylKIWEIhy8fJvF8crnCZftypopIOzSZJbJjJJSgTXBsAgOBJmgrrKHkuKevEzNXtdexViHHsvCCMcuTcEJ+3sdwLjjdiRSKTsMmhhNZxEuoF0xxUV3C9dNS5vUkTE7H3sJ5xPRcCcLg8XZQkcftaTc4Gf1CVxmJA46WdTM6FWXKEuZQ3NYvQwXioWUJjj8SJfCCZWBPYv8GqSaNEmyGNu3axNOv806MfO7XlX1sEjYWpxslouzGNOFjnH7XYaOauMewZcNlbVlHWbEn3JOkgaIrRw3ZqMoqg4YziIgFc45fDBi6pcFJwzHBzTYcyCmeRz2081iTIqz3X+pi3U2cD+YAc4sJ6NpDiIi2aJnPqlIHdyCJInOSGU7bjXva1zPQuziERFIBHOGUYh0DAX4AFtt2LQeEh7TiJ3ycJQfWopvDqnttqs910gE-JV+eL33jsz6t3f218TY0lSPyG45dCiV37NZEWENgig3yF+DIf9pTtw3hJMBTh3Sh3ouHZi+Qo7OX+hQFYHgfSDiCIkGMGCHymALm9Y29hwibAoc1dYmxti7HJqEEWj8BLrWyOGHYDsYbFCAA */
     createMachine({
         context: {
             /* NOTE that the context is really set by the parent machine, not here */
-            rovPeerIdEndNumber: 0,
-            attemptingNewRovPeerId: false,
             thisPeer: null,
+            rovPeerId: null,
             rovDataConnection: null,
         },
+        exit: "stopPeerConnectionEventHandler",
         id: "peerConnection",
         initial: "Not_Connected_To_Rov",
-        exit: "stopPeerConnectionEventHandler",
         states: {
             Not_Connected_To_Rov: {
-                entry: ["showConnectingUi", "connectToRovPeerAndStartPeerConnectionEventHandler"],
+                entry: [
+                    "showConnectingUi",
+                    "connectToRovPeerAndStartPeerConnectionEventHandler",
+                ],
                 on: {
                     ROV_CONNECTION_ESTABLISHED: {
+                        actions: "rovPeerConnectionEstablished",
                         target: "Connected_To_Rov",
                     },
                     ROV_PEER_CONNECTION_ERROR: {
@@ -36,9 +38,6 @@ export const peerConnMachine =
             },
             Connected_To_Rov: {
                 entry: "showRovConnectedUi",
-                invoke: {
-                    src: "awaitSwitchRovBtnPress",
-                },
                 type: "parallel",
                 states: {
                     DataChannel: {
@@ -132,25 +131,8 @@ export const peerConnMachine =
                     ROV_PEER_CONNECTION_ERROR: {
                         target: "Not_Connected_To_Rov",
                     },
-                    CONNECT_TO_NEXT_ROBOT: {
-                        // target: "Asking_Pilot_to_Pick_From_Online_Rovs",
-                        actions: "switchToNextRovPeerId",
-                        target: "Not_Connected_To_Rov",
-                    },
                 },
             },
-            // Asking_Pilot_to_Pick_From_Online_Rovs: {
-            //     invoke: {
-            //         src: "chooseROVPopup",
-            //         id: "chooseROVPopup",
-            //     },
-            //     on: {
-            //         ROV_PEER_CHOSEN: {
-            //             actions: "setRovPeerIdEndNumber",
-            //             target: "Not_Connected_To_Rov",
-            //         },
-            //     },
-            // },
         },
     }, {
         actions: {
@@ -177,12 +159,7 @@ export const peerConnMachine =
                     return rovVideoStream
                 },
             }),
-            // setRovPeerIdEndNumber: assign({
-            //     rovPeerIdEndNumber: (context) => {
-            //         return context.rovPeerIdEndNumber + 1
-            //     },
-            //     attemptingNewRovPeerId: false,
-            // }),
+            rovPeerConnectionEstablished: sendParent("ROV_CONNECTION_ESTABLISHED"),
             sendMessageToRov: (context, event) => {
                 const outgoingMessage = event.data
                 const rovDataConnection = context.rovDataConnection
@@ -213,9 +190,8 @@ export const peerConnMachine =
                 }
             },
             connectToRovPeerAndStartPeerConnectionEventHandler: assign((context) => {
-                const rovPeerId = consts.ROV_PEERID_BASE + String(context.rovPeerIdEndNumber)
-                console.log("Connecting to ROV:" + rovPeerId);
-                const rovDataConnection = context.thisPeer.connect(rovPeerId, {
+                console.log("Connecting to ROV:" + context.rovPeerId);
+                const rovDataConnection = context.thisPeer.connect(context.rovPeerId, {
                     reliable: true,
                     serialization: 'none',
                 });
@@ -239,25 +215,25 @@ export const peerConnMachine =
 
             awaitMediaCall: (context) => {
                 return (sendStateChange) => {
-                    showLoadingUi("Waiting for ROV livestream...");
-                    const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
-                        showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
-                        rovMediaConnection.answer(null, {
-                            // sdpTransform: function (sdp) {
-                            //     console.log('answer sdp: ', sdp);
-                            //     return sdp;
-                            // }
-                        });
-                    })
-                    context.thisPeer.on('call', callHandler);
+                    // showLoadingUi("Waiting for ROV Media Call...");
+                    // const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
+                    //     showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
+                    //     rovMediaConnection.answer(null, {
+                    //         // sdpTransform: function (sdp) {
+                    //         //     console.log('answer sdp: ', sdp);
+                    //         //     return sdp;
+                    //         // }
+                    //     });
+                    // })
+                    // context.thisPeer.on('call', callHandler);
 
-                    const timeoutId = setTimeout(() => {
-                        sendStateChange({ type: "MEDIA_CHANNEL_TIMEOUT" });
-                    }, 16000);
-                    return () => {
-                        clearTimeout(timeoutId);
-                        context.thisPeer.off('call', callHandler);
-                    }
+                    // const timeoutId = setTimeout(() => {
+                    //     sendStateChange({ type: "MEDIA_CHANNEL_TIMEOUT" });
+                    // }, 16000);
+                    // return () => {
+                    //     clearTimeout(timeoutId);
+                    //     context.thisPeer.off('call', callHandler);
+                    // }
                 };
             },
             awaitVideoStream: (context) => {
@@ -368,3 +344,7 @@ export const peerConnMachine =
             // },
         },
     });
+
+console.log(
+    "Peerjs rov Connection Machine: ", peerConnMachine.options
+)

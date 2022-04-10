@@ -222,7 +222,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 		var clientPeerId string = clientPeerDataConnection.GetPeerID()
 
 		log := robotConnLog.WithField("peer", robotPeer.ID)
-		log.Println("Peer connection established with  Peer ID: ", clientPeerDataConnection.GetPeerID())
+		log.Info("Peer is connecting tor rov... peer id: ", clientPeerDataConnection.GetPeerID())
 
 		clientPeerDataConnection.On("open", func(interface{}) {
 			// add this newly open peer connection to the map of active connections
@@ -233,13 +233,15 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Connected", "")
 			}
 
-			log.Info("VIDEO CALLING client peer: %s\n", clientPeerId)
-			_, err = robotPeer.Call(clientPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
-			if err != nil {
-				log.Error("Error video calling client peer: ", clientPeerId)
-				clientPeerDataConnection.Close()
-				return
-			}
+			log.Debug("Peer connection established with Peer ID: ", clientPeerDataConnection.GetPeerID())
+
+			// log.Info("VIDEO CALLING client peer: %s\n", clientPeerId)
+			// _, err = robotPeer.Call(clientPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
+			// if err != nil {
+			// 	log.Error("Error video calling client peer: ", clientPeerId)
+			// 	clientPeerDataConnection.Close()
+			// 	return
+			// }
 
 			// handle incoming messages from this client peer
 			clientPeerDataConnection.On("data", func(msgBytes interface{}) {

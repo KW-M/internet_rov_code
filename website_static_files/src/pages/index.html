@@ -25,23 +25,47 @@
 
     <div class="bottom-center hidden" id="connected_rov_display">
         <span>Connected to </span>
-        <button id="connected_rov_indicator_btn"><span id="connected_rov_label"></span><img
+        <button id="connected_rov_indicator_btn"><span id="connected_rov_label">None</span><img
                 src="../images/icons/Switch_Rov.svg"></button>
         |
         <span>Role:</span>
         <button id="take_control_btn"> <span id="role_display_text">Spectator</span> Drive</button>
     </div>
 
-    <div class="top-right-corner">
+    <nav class="top-right-corner" aria-label="Main menu">
         <button class="fullscreen-btn icon-btn transparent-btn" onclick="toggleFullscreen(event)"></button>
-        <button class="power-menu-btn icon-btn top-btn"></button>
-        <div class="power-menu dropdown-menu-list" tabindex="0">
-            <ul tabindex="0">
-                <li onclick="shutdownROV()" tabindex="0">Shutdown ROV</li>
-                <li onclick="rebootROV()" tabindex="0">Reboot ROV</li>
-                <li id='disconnect_btn' style="display: none;">Disconnect</li>
-            </ul>
-        </div>
+        <button class="power-menu-btn icon-btn top-btn" tabindex="0"></button>
+
+        <menu role="menu" class="power-menu dropdown-menu-list">
+            <button onclick="shutdownROV()" role="menuitem">Shutdown ROV</button>
+            <button onclick="rebootROV()" role="menuitem">Reboot ROV</button>
+            <button id='disconnect_btn' style="display: none;" role="menuitem">Disconnect</button>
+        </menu>
+        <!-- <ul id="exTest" class="disclosure-nav">
+            <li>
+                <button type="button" aria-expanded="true" aria-controls="power_menu"
+                    class="power-menu-btn icon-btn top-btn"></button>
+                <ul id="power_menu" class="dropdown-menu-list">
+                    <li onclick="shutdownROV()" role="menuitem" tabindex="0">Shutdown ROV</li>
+                    <li onclick="rebootROV()" role="menuitem">Reboot ROV</li>
+                    <li id='disconnect_btn' style="display: none;" role="menuitem">Disconnect</li>
+                    <li>
+                        <a href="#mythical-page-content">Overview</a>
+                    </li>
+                    <li>
+                        <a href="#mythical-page-content">Administration</a>
+                    </li>
+                    <li>
+                        <a href="#mythical-page-content">Facts</a>
+                    </li>
+                    <li>
+                        <a href="#mythical-page-content">Campus Tours</a>
+                    </li>
+                </ul>
+            </li>
+        </ul> -->
+
+
         <!-- <button class="gamepad-menu-btn icon-btn middle-btn"></button>
         <div class="dropdown-menu-list">
             <ul>
@@ -74,7 +98,10 @@
                 <li onclick="disableWifi()" tabindex="0">Disable ROV Wifi</li>
                 </ul>
         </div>-->
-    </div>
+    </nav>
+
+
+
     <div id="fullscreen_focus_mode_container" onclick="closeFullscreen(event)">
         <table class="top-left-corner">
             <tr>
@@ -102,7 +129,8 @@
     <div id="gamepad-container">
         <!-- Gamepad Connected/Disconned Feedback -->
         <p id="gamepad-connect-notice">Connect a gamepad & press any button</p>
-        <p id="too-many-gamepads-notice" style="display: none;">Multiple gamepads connected, only one will be used</p>
+        <p id="too-many-gamepads-notice" style="display: none;">Multiple gamepads connected, only one will be used
+        </p>
 
         <!-- Gamepad Help Tooltip Stuff -->
         <div id="gamepad-help-tooltip" class="popper-tooltip" role="tooltip">
@@ -124,8 +152,8 @@
                             d="M113,141.637c-6,29.375 -13.537,33.424 -35.28,43.583c-35.355,16.519 -33.138,57.105 -56.59,45.51c-14.36,-7.1 -21.13,-19.23 -21.13,-38.4c0,-24.92 11.42,-65.99 32.4,-119.1c9.93,-25.18 27.69,-34.56 44.64,-34.56c7.93,0 15.69,2.05 22.4,5.5c14.564,7.511 19.239,69.665 13.56,97.467Z" />
                     </g>
                     <g id="stick_button_left" style="pointer-events: none;" transform="matrix(1,0,0,1,-14.73,1.25)">
-                        <g id="stick_button_left_highlight" class="gamepad-btn-highlight" style="pointer-events: none;"
-                            transform="matrix(0.622551,0,0,0.622551,61.2384,139.288)">
+                        <g id="stick_button_left_highlight" class="gamepad-btn-highlight" tabindex="0"
+                            style="pointer-events: none;" transform="matrix(0.622551,0,0,0.622551,61.2384,139.288)">
                             <circle cx="55.5" cy="55.5" r="55.5" style="fill:#419bf3;" />
                         </g>
                         <g id="l_stick_right_direction_highlight" class="gamepad-arrow-highlight"
@@ -337,7 +365,8 @@
                             style="fill:#fff;stroke:#000;stroke-width:1.35px;" />
                     </g>
                     <g id="button_1" transform="matrix(1,0,0,1,0,-7.35)">
-                        <g id="button_1_highlight" class="gamepad-btn-highlight" transform="matrix(1,0,0,1,0,7.35)">
+                        <g id="button_1_highlight" class="gamepad-btn-highlight" tabindex="0"
+                            transform="matrix(1,0,0,1,0,7.35)">
                             <path
                                 d="M206.127,106.592c1.715,-0.623 3.566,-0.963 5.496,-0.963c1.93,0 3.781,0.34 5.496,0.963l9.655,9.656c0.623,1.715 0.963,3.566 0.963,5.496c0,8.894 -7.22,16.114 -16.114,16.114c-8.894,0 -16.115,-7.22 -16.115,-16.114c0,-1.93 0.34,-3.781 0.963,-5.496l9.656,-9.656Z"
                                 style="fill:#419bf3;" />
@@ -354,7 +383,8 @@
                             style="fill:none;stroke:#000;stroke-width:1.52px;stroke-linecap:round;stroke-linejoin:round;" />
                     </g>
                     <g id="button_2" transform="matrix(1,0,0,1,0,-7.35)">
-                        <g id="button_2_highlight" class="gamepad-btn-highlight" transform="matrix(1,0,0,1,0,7.35)">
+                        <g id="button_2_highlight" class="gamepad-btn-highlight" tabindex="0"
+                            transform="matrix(1,0,0,1,0,7.35)">
                             <path
                                 d="M226.981,85.738c1.715,-0.623 3.566,-0.963 5.496,-0.963c8.894,0 16.114,7.221 16.114,16.115c0,8.894 -7.22,16.114 -16.114,16.114c-2.186,0 -4.271,-0.436 -6.173,-1.226l-8.715,-8.715c-0.79,-1.902 -1.227,-3.987 -1.227,-6.173c0,-1.93 0.34,-3.781 0.963,-5.496l9.656,-9.656Z"
                                 style="fill:#419bf3;" />
@@ -369,7 +399,8 @@
                             style="fill:none;stroke:#000;stroke-width:1.52px;" />
                     </g>
                     <g id="button_3" transform="matrix(1,0,0,1,0,-7.35)">
-                        <g id="button_3_highlight" class="gamepad-btn-highlight" transform="matrix(1,0,0,1,0,7.35)">
+                        <g id="button_3_highlight" class="gamepad-btn-highlight" tabindex="0"
+                            transform="matrix(1,0,0,1,0,7.35)">
                             <path
                                 d="M196.942,115.778c-1.902,0.79 -3.987,1.226 -6.173,1.226c-8.894,0 -16.115,-7.22 -16.115,-16.114c0,-8.894 7.221,-16.115 16.115,-16.115c1.93,0 3.781,0.34 5.495,0.963l9.656,9.656c0.623,1.715 0.963,3.566 0.963,5.496c0,2.186 -0.436,4.271 -1.226,6.173l-8.715,8.715Z"
                                 style="fill:#419bf3;" />
@@ -385,7 +416,8 @@
                             style="fill:none;stroke:#000;stroke-width:1.52px;" />
                     </g>
                     <g id="button_4" transform="matrix(1,0,0,1,0,-7.35)">
-                        <g id="button_4_highlight" class="gamepad-btn-highlight" transform="matrix(1,0,0,1,0,7.35)">
+                        <g id="button_4_highlight" class="gamepad-btn-highlight" tabindex="0"
+                            transform="matrix(1,0,0,1,0,7.35)">
                             <path
                                 d="M196.735,86.209c-0.79,-1.902 -1.227,-3.987 -1.227,-6.173c0,-8.894 7.221,-16.115 16.115,-16.115c8.894,0 16.114,7.221 16.114,16.115c0,2.186 -0.436,4.271 -1.226,6.173l-8.715,8.715c-1.902,0.79 -3.987,1.226 -6.173,1.226c-2.186,0 -4.271,-0.436 -6.173,-1.226l-8.715,-8.715Z"
                                 style="fill:#419bf3;" />

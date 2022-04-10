@@ -9,7 +9,7 @@ const peerServerConn = new PeerServerConnection()
 const rovPeerConn = new RovWebrtcConn()
 rovPeerConn.peerServerConn = peerServerConn
 peerServerConn.serverConectionOpenCallback = function (realPeerId) {
-    // if (RovWebrtcConn.open) RovWebrtcConn.cleanupROVConnections()
+    // if (rovPeerConn.open) rovPeerConn.cleanupROVConnections()
     rovPeerConn.reliablyConnectToROV()
 }
 

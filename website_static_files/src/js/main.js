@@ -15,7 +15,7 @@ import { GamepadController } from "./gamepad.js";
 
 import { handleRovMessage } from "./messageHandler";
 import { getURLQueryStringVariable } from "./util.js";
-import { setupConnectBtnClickHandler, setupDisconnectBtnClickHandler, showReloadingWebsiteUi, showROVDisconnectedUi, showToastDialog } from "./ui.js";
+import { setupConnectBtnClickHandler, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandler, showReloadingWebsiteUi, showROVDisconnectedUi, showToastDialog, showToastMessage } from "./ui.js";
 
 // import { initGamepadSupport } from "./gamepad.js";
 // import { gamepadUi } from "./gamepad-ui.js";
@@ -29,10 +29,12 @@ if (getURLQueryStringVariable("debug-mode")) {
 }
 
 import { createMachine, assign, send, interpret, spawn } from "xstate";
-import { stop } from "xstate/lib/actions";
+import { pure, stop } from "xstate/lib/actions";
 import { siteInitMachine } from "./siteInit";
 import { peerConnMachine } from "./peerConnStateMachine.js";
 import { peerServerConnMachine } from "./peerServerConnStateMachine.js";
+import { ROV_PEERID_BASE } from "./consts.js";
+import { DisclosureNav } from "./libraries/accesableDropdownMenu.js";
 
 new GamepadController();
 
@@ -42,12 +44,18 @@ const mainMachine =
         context: {
             peerServerConfig: {},
             rovIpAddr: "",
+            rovPeerIdEndNumber: 0,
+            attemptingNewRovPeerId: false,
             peerServerConnActor: null,
             peerConnActor: null,
             pingSenderActor: null,
         },
         id: "main",
         initial: "Start",
+        invoke: {
+            src: "setupUiButtonHandlers",
+            id: "setupUiButtonHandlers",
+        },
         states: {
             Start: {
                 invoke: {
@@ -64,10 +72,6 @@ const mainMachine =
             Running: {
                 entry: "startPeerServerConnMachine",
                 exit: "stopPeerServerConnMachine",
-                invoke: {
-                    src: "awaitDisconnectBtnPress",
-                    id: "awaitDisconnectBtnPress",
-                },
                 initial: "Not_Connected",
                 states: {
                     Not_Connected: {
@@ -91,15 +95,28 @@ const mainMachine =
                     },
                 },
                 on: {
-                    DISCONNECT_BUTTON_PRESSED: {
+                    ROV_CONNECTION_ESTABLISHED: {
+                        actions: "rovPeerConnectionEstablished",
+                        internal: true // DON'T cause the transition to trigger the exit and entry actions
+                    },
+                    CONNECT_TO_NEXT_ROV: {
+                        actions: "switchToNextRovPeerId",
+                        target: "Running", // retry
+                        internal: false, // cause the transition to trigger the exit and entry actions
+                    },
+                    RETRY_ROV_CONNECTION: {
+                        target: "Running", // retry
+                        internal: false, // cause the transition to trigger the exit and entry actions
+                    },
+                    DISCONNECT_FROM_ROV: {
                         target: "Awaiting_ROV_Connect_Button_Press",
                     },
                     PEER_NOT_YET_READY_ERROR: {
-                        target: "Awaiting_ROV_Connect_Button_Press",
+                        actions: "handlePeerNotYetReadyError", // will either go to the Running with the previous rov ID or go to Awaiting_ROV_Connect_Button_Press if the very first rov or the last connected rov is offline
                     },
                     PEER_SERVER_FATAL_ERROR: {
                         target: "Running", // retry
-                        internal: false,
+                        internal: false, // cause the transition to trigger the exit and entry actions
                     },
                     WEBRTC_FATAL_ERROR: {
                         actions: "reloadWebsite",
@@ -128,33 +145,63 @@ const mainMachine =
         },
     }, {
         actions: {
-            showDisconnectedUi: () => { showROVDisconnectedUi() },
-            reloadWebsite: () => {
+            "showDisconnectedUi": () => {
+                showROVDisconnectedUi()
+            },
+            "reloadWebsite": () => {
                 showReloadingWebsiteUi()
                 setTimeout(() => { window.location.reload() }, 2000)
             },
-            setRovIpAddr: assign({
+            "setRovIpAddr": assign({
                 rovIpAddr: (context, event) => event.data.rovIpAddr
             }),
-            setPeerServerConfig: assign({
+            "setPeerServerConfig": assign({
                 peerServerConfig: (context, event) => event.data.peerServerConfig
             }),
-            startPeerServerConnMachine: assign({
-                peerServerConnActor: (context) => spawn(peerServerConnMachine.withContext({
-                    ...peerServerConnMachine.context, // spread syntax to fill in the rest of the context specified in the child machine (otherwise xstate removes the rest: https://github.com/statelyai/xstate/issues/993)
-                    rovIpAddr: context.rovIpAddr,
-                    peerServerConfig: context.peerServerConfig,
-                }), "peerServerConnMachine"),
+            "switchToNextRovPeerId": assign({
+                rovPeerIdEndNumber: (context) => {
+                    return context.rovPeerIdEndNumber + 1
+                },
+                attemptingNewRovPeerId: true,
             }),
-            startPeerConnMachine: assign({
+            "rovPeerConnectionEstablished": assign({
+                attemptingNewRovPeerId: false,
+            }),
+            "handlePeerNotYetReadyError": pure((context) => {
+                // this function is called whenever we fail to find or connect to a rov:
+                showToastMessage("Could not connect to " + ROV_PEERID_BASE + String(context.rovPeerIdEndNumber))
+                if (context.attemptingNewRovPeerId && context.rovPeerIdEndNumber != 0) {
+                    // we've tried all the rov IDs and none of them are online
+                    showToastMessage("Trying previous rov: " + ROV_PEERID_BASE + String(context.rovPeerIdEndNumber - 1))
+                    return [assign({
+                        rovPeerIdEndNumber: context.rovPeerIdEndNumber - 1,
+                    }), send("RETRY_ROV_CONNECTION")]
+                } else {
+                    return send("DISCONNECT_FROM_ROV")
+                }
+            }), // will either go to the Running with the previous rov ID or go to Awaiting_ROV_Connect_Button_Press if the very first rov or the last connected rov is offline
+            "startPeerServerConnMachine": assign({
+                peerServerConnActor: (context) => spawn(peerServerConnMachine
+                    .withContext({
+                        ...peerServerConnMachine.context, // spread syntax to fill in the rest of the context specified in the child machine (otherwise xstate removes the rest: https://github.com/statelyai/xstate/issues/993)
+                        rovIpAddr: context.rovIpAddr,
+                        peerServerConfig: context.peerServerConfig,
+                    })
+                    , "peerServerConnMachine"),
+            }),
+            "startPeerConnMachine": assign({
                 peerServerConnActor: (context, event) => {
-                    return spawn(peerConnMachine.withContext({
-                        ...peerConnMachine.context, // spread syntax to fill in the rest of the context specified in the child machine (otherwise xstate removes the rest: https://github.com/statelyai/xstate/issues/993)
-                        thisPeer: event.data,
-                    }), "peerConnMachine")
+                    return spawn(peerConnMachine
+                        .withContext({
+                            ...peerConnMachine.context, // spread syntax to fill in the rest of the context specified in the child machine (otherwise xstate removes the rest: https://github.com/statelyai/xstate/issues/993)
+                            thisPeer: event.data,
+                            rovPeerId: ROV_PEERID_BASE + String(context.rovPeerIdEndNumber),
+                        })
+                        // .withConfig(peerConnMachine.config)
+                        , "peerConnMachine")
                 },
             }),
-            startPingMessageGenerator: assign({
+            "startPingMessageGenerator": assign({
                 pingSenderActor: spawn(() => {
                     return (callback) => {
                         const intervalId = setInterval(() => {
@@ -164,18 +211,18 @@ const mainMachine =
                     }
                 }, "pingMessageGenerator"),
             }),
-            stopPingMessageGenerator: stop("pingMessageGenerator"),
-            stopPeerServerConnMachine: stop("peerServerConnMachine"),
-            stopPeerConnMachine: stop("peerConnMachine"),
-            gotMessageFromRov: (context, event) => {
+            "stopPingMessageGenerator": stop("pingMessageGenerator"),
+            "stopPeerServerConnMachine": stop("peerServerConnMachine"),
+            "stopPeerConnMachine": stop("peerConnMachine"),
+            "gotMessageFromRov": (context, event) => {
                 handleRovMessage(event.data)
             },
-            sendMessageToRov: send((context, event) => {
+            "sendMessageToRov": send((context, event) => {
                 return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
             }, { to: "peerConnMachine" }),
         },
         services: {
-            awaitConnectBtnPress: (context, event) => {
+            "awaitConnectBtnPress": (context, event) => {
                 return (sendStateChange) => {
                     const err = event.data
                     console.log(event)
@@ -190,12 +237,18 @@ const mainMachine =
                     return cleanupFunc;
                 };
             },
-            awaitDisconnectBtnPress: () => {
+            "setupUiButtonHandlers": () => {
                 return (sendStateChange) => {
-                    const cleanupFunc = setupDisconnectBtnClickHandler(() => {
-                        sendStateChange("DISCONNECT_BUTTON_PRESSED");
+                    const disconnectBtnCleanupFunc = setupDisconnectBtnClickHandler(() => {
+                        sendStateChange("DISCONNECT_FROM_ROV");
                     })
-                    return cleanupFunc;
+                    const nextRovBtnCleanupFunc = setupSwitchRovBtnClickHandler(() => {
+                        sendStateChange("CONNECT_TO_NEXT_ROV");
+                    })
+                    return () => {
+                        disconnectBtnCleanupFunc();
+                        nextRovBtnCleanupFunc();
+                    };
                 };
             },
         },
@@ -205,11 +258,48 @@ const mainMachine =
 
 window.mainRovMachineService = interpret(mainMachine, { devTools: true })
 // window.mainRovMachineService.onChange(console.log)
-// window.mainRovMachineService.start();
+window.mainRovMachineService.start();
 
 window.onbeforeunload = () => {
-    window.mainRovMachineService.send("WEBSITE_CLOSE");
+    // window.mainRovMachineService.send("WEBSITE_CLOSE");
+    window.thisPeerjsPeer.destroy();
 }
+
+
+/* Initialize Disclosure Menus */
+
+var menus = document.querySelectorAll('.disclosure-nav');
+var disclosureMenus = [];
+
+for (var i = 0; i < menus.length; i++) {
+    disclosureMenus[i] = new DisclosureNav(menus[i]);
+    disclosureMenus[i].updateKeyControls(true);
+}
+
+        // fake link behavior
+        // disclosureMenus.forEach((disclosureNav, i) => {
+        //     var links = menus[i].querySelectorAll('[href="#mythical-page-content"]');
+        //     var examplePageHeading = document.getElementById('mythical-page-heading');
+        //     for (var k = 0; k < links.length; k++) {
+        //         // The codepen export script updates the internal link href with a full URL
+        //         // we're just manually fixing that behavior here
+        //         links[k].href = '#mythical-page-content';
+
+        //         links[k].addEventListener('click', (event) => {
+        //             // change the heading text to fake a page change
+        //             var pageTitle = event.target.innerText;
+        //             examplePageHeading.innerText = pageTitle;
+
+        //             // handle aria-current
+        //             for (var n = 0; n < links.length; n++) {
+        //                 links[n].removeAttribute('aria-current');
+        //             }
+        //             event.target.setAttribute('aria-current', 'page');
+        //         });
+        //     }
+        // });
+    // }
+
 
 // function sendUpdateToROV(message) {
 //     window.mainRovMachineService.send({ type: "SEND_MESSAGE_TO_ROV", data: message });
@@ -301,4 +391,3 @@ window.onbeforeunload = () => {
 //         sendUpdateToROV(JSON.stringify(messageToRov));
 //     }
 // }
-
