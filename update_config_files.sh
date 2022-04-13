@@ -82,10 +82,12 @@ sudo systemctl daemon-reload
 
 # echo "Restarting pigpiod.service..."
 # sudo systemctl restart pigpiod
-echo "restarting rov_go_code.service..."
-sudo systemctl restart rov_go_code.service
-echo "restarting rov_python_code.service..."
-sudo systemctl restart rov_python_code.service
+# echo "restarting rov_go_code.service..."
+systemctl stop rov_go_code.service
+systemctl stop rov_python_code.service
+# sudo systemctl restart rov_go_code.service
+# echo "restarting rov_python_code.service..."
+# sudo systemctl restart rov_python_code.service
 # echo "restarting uv4l_raspicam.service..."
 # sudo systemctl restart uv4l_raspicam.service	# sudo service uv4l_raspicam restart
 # echo "restarting ngrok.service..."
@@ -94,12 +96,12 @@ sudo systemctl restart rov_python_code.service
 # sudo systemctl restart bluetooth.service
 # echo "restarting rov_bluetooth_terminal.service..."
 # sudo systemctl restart rov_bluetooth_terminal.service
-echo "restarting add_fixed_ip.service..."
-sudo systemctl restart add_fixed_ip.service
-echo "restarting nginx.service..."
-sudo systemctl restart nginx.service
-echo "restarting rov_uwsgi_server.service..."
-sudo systemctl restart rov_uwsgi_server.service
+# echo "restarting add_fixed_ip.service..."
+# sudo systemctl restart add_fixed_ip.service
+# echo "restarting nginx.service..."
+# sudo systemctl restart nginx.service
+# echo "restarting rov_uwsgi_server.service..."
+# sudo systemctl restart rov_uwsgi_server.service
 
 # The above lines restart systemd "services" running when this rasberry pi boots.
 # for more about these files: https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files
