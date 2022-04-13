@@ -243,18 +243,18 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 
 			// send a metadata message down the unix socket that a new peer has connected
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Connected", "")
+				// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Connected", "")
 			}
 
-			time.AfterFunc(time.Second*16, func() {
-				log.Info("VIDEO CALLING client peer: %s\n", clientPeerId)
-				_, err = robotPeer.Call(clientPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
-				if err != nil {
-					log.Error("Error video calling client peer: ", clientPeerId)
-					clientPeerDataConnection.Close()
-					return
-				}
-			})
+			// time.AfterFunc(time.Second*16, func() {
+			// 	log.Info("VIDEO CALLING client peer: %s\n", clientPeerId)
+			// 	_, err = robotPeer.Call(clientPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
+			// 	if err != nil {
+			// 		log.Error("Error video calling client peer: ", clientPeerId)
+			// 		clientPeerDataConnection.Close()
+			// 		return
+			// 	}
+			// })
 
 			// handle incoming messages from this client peer
 			clientPeerDataConnection.On("data", func(msgBytes interface{}) {
@@ -277,7 +277,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 
 			// send a metadata message down the unix socket that this peer connection has been closed
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Closed", "")
+				// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Closed", "")
 			}
 		})
 
@@ -286,7 +286,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 
 			// send a metadata message down the unix socket that this peer has disconnected
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Disconnected", "")
+				// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Disconnected", "")
 			}
 		})
 
@@ -294,7 +294,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 			errMessage := message.(error).Error()
 			log.Error("CLIENT PEER DATACHANNEL ERROR EVENT: %s\n", errMessage)
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Error", errMessage)
+				// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Error", errMessage)
 			}
 		})
 
