@@ -42,15 +42,15 @@ class RovWebrtcConn {
         });
         this.rovDataConnection.on('open', () => {
             console.info("ROV Data Channel is open!")
-            setTimeout(() => {
-                window.location.reload()
-            }, 5000);
+            // setTimeout(() => {
+
+            // }, 2);
 
 
             setInterval(() => {
                 if (this.rovDataConnection != null && this.rovDataConnection.open) {
                     console.info("Sending ping to ROV...")
-                    this.rovDataConnection.send(messageEncoder.encode("👩🏻‍✈️pilot-" + Date.now()));
+                    this.rovDataConnection.send(messageEncoder.encode("👩🏻‍✈️ pilot-" + Date.now()));
                 } else {
                     console.warn("ROV Data Channel is NOT open!")
                 }
@@ -58,8 +58,9 @@ class RovWebrtcConn {
 
             // Receive messages
             this.rovDataConnection.on('data', (data) => {
-                data = decoder.decode(data);
+                data = messageDecoder.decode(data);
                 console.log("Got DC Mesg: ", data);
+                // window.location.reload()
                 document.body.appendChild(document.createTextNode(String(data)));
             });
 

@@ -36,7 +36,7 @@ class PeerServerConnection {
             console.log("peerServerCatch", this)
             if (error) console.error("ERROR Caught in connectToPeerServer(): ", error)
             console.info("Reconnecting to peer server...")
-            return this.reliablyConnectToPeerjsServer()
+            return this.reliablyConnectToPeerServer()
         }).then((passThrough) => {
             // the then() callback will either be called if:
             // -- closeupConnection() aka resolve() was called in connectToRov,
