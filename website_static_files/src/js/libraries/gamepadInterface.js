@@ -13,6 +13,7 @@ export class GamepadInterface {
         this.gamepadAxisChangeCallback = null;
         this.extraGamepadMappings = [];
 
+        navigator.gamepadInputEmulation = "gamepad"; // Microsoft edge fix
         window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
         navigator.getGamepads = navigator.getGamepads || navigator.webkitGetGamepads || navigator.mozGetGamepads || navigator.msGetGamepads;
 

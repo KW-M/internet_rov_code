@@ -81,6 +81,29 @@ body {
   text-align: center;
 }
 
+.bottom-right-corner {
+  position: fixed;
+  z-index: 4;
+  right: 0;
+  bottom: 0;
+
+  display: block;
+}
+
+#client_peer_id_label {
+  z-index: 100;
+
+  padding: 2px 12px;
+
+  pointer-events: none;
+
+  color: rgb(149, 22, 181);
+
+  font-size: small;
+  font-style: italic;
+}
+
+
 table.top-left-corner td {
   padding: 4px 7px;
 }
@@ -164,6 +187,7 @@ button:active {
   padding: 6px 6px 6px 14px;
 
   transition: max-height 0.4s ease;
+  white-space: nowrap;
 
   border-radius: 12px 12px 0 0;
   background: #ffffffdb;
