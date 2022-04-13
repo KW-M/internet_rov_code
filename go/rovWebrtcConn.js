@@ -1,7 +1,7 @@
 
 class RovWebrtcConn {
     peerServerConn = null;
-    rovPeerIdBase = "SSROV_";
+    rovPeerIdBase = "iROV-";
     rovPeerIdEndNumber = 0; // the full rov peerid is the rovPeerIdBase with this number tacked on the end
     rovDataConnection = null;
     rovVideoConnection = null;
