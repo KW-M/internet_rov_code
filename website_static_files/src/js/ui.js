@@ -145,8 +145,13 @@ export function hideLivestreamUi() {
     livestreamContainer.style.display = 'none';
 }
 
-var roleDisplayText = document.getElementById('role_display_text');
-var takeControlButton = document.getElementById('take_control_btn');
+const clientPeerIdLabel = document.getElementById("client_peer_id_label")
+export function setClientPeerIdDisplay(clientPeerId) {
+    clientPeerIdLabel.innerText = clientPeerId
+}
+
+const roleDisplayText = document.getElementById('role_display_text');
+const takeControlButton = document.getElementById('take_control_btn');
 export function updateRoleDisplay(isPilot) {
     roleDisplayText.innerText = isPilot ? "Pilot" : "Spectator";
     if (isPilot) {

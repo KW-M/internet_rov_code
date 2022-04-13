@@ -1,10 +1,10 @@
 import { createMachine, spawn, actions } from "xstate";
-import Peer from "peerjs"
+import Peer from "peerjs/dist/peerjs"
 import { v4 as uuidV4 } from "uuid"
 // import * as consts from "./consts";
 
 import { generateStateChangeFunction } from "./util";
-import { showToastMessage, showLoadingUi } from "./ui"
+import { showToastMessage, showLoadingUi, setClientPeerIdDisplay } from "./ui"
 // showROVDisconnectedUi, showROVConnectingUi, showROVConnectedUi, setupConnectBtnClickHandler, showToastDialog, hideLoadingUi, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandler
 
 import { pure, stop, send, sendParent, assign } from "xstate/lib/actions";
@@ -130,6 +130,7 @@ export const peerServerConnMachine = createMachine({
                 ourPeerId = "iROV_Pilot_" + uuidV4().slice(0, 8);
                 localStorage.setItem('thisClientPeerId', ourPeerId); // save for future runs
             }
+            setClientPeerIdDisplay(ourPeerId);
             const thisPeer = window.thisPeerjsPeer = new Peer(ourPeerId, context.peerServerConfig);
             return {
                 thisPeer: thisPeer,
