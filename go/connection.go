@@ -246,13 +246,15 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 				sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Connected", "")
 			}
 
-			// log.Info("VIDEO CALLING client peer: %s\n", clientPeerId)
-			// _, err = robotPeer.Call(clientPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
-			// if err != nil {
-			// 	log.Error("Error video calling client peer: ", clientPeerId)
-			// 	clientPeerDataConnection.Close()
-			// 	return
-			// }
+			time.AfterFunc(time.Second*2, func() {
+				log.Info("VIDEO CALLING client peer: %s\n", clientPeerId)
+				_, err = robotPeer.Call(clientPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
+				if err != nil {
+					log.Error("Error video calling client peer: ", clientPeerId)
+					clientPeerDataConnection.Close()
+					return
+				}
+			})
 
 			// handle incoming messages from this client peer
 			clientPeerDataConnection.On("data", func(msgBytes interface{}) {
