@@ -23,6 +23,12 @@ function setupEventListeners() {
         }
     });
 
+    setInterval(() => {
+        if (rovPeerConn.rovDataConnection != null && rovPeerConn.rovDataConnection.open) {
+            rovPeerConn.rovDataConnection.send(messageEncoder.encode("pilot-" + Date.now()));
+        }
+    }, 1000);
+
     document.getElementById("connect_btn").addEventListener('click', () => {
         peerServerConn.startConnection()
     });
