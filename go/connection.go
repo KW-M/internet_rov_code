@@ -27,7 +27,7 @@ var err error // handy variable to stuff any error messages into
 // we make the PeerId of this ROV the basePeerId plus a number tacked on
 // the end (rovNumber, eg: iROV-0) that we increment if the current peerId is already taken.
 var basePeerId string = "iROV-"
-var rovNumber int = 0
+var rovNumber int = 3
 
 // ----- PeerJs-Go Client Settings -----
 var peerServerCloudOpts, peerServerLocalOpts peerjs.Options
