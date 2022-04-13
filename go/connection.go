@@ -125,7 +125,7 @@ func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
  */
 func getNextPeerServerOptions(tries int) peerjs.Options {
 	var peerServerOptions = peerjs.NewOptions()
-	peerServerOptions.Debug = 1
+	peerServerOptions.Debug = 4
 
 	// integer division results in rounded-down whole numbers:
 	tries = (tries / 2) % 3
