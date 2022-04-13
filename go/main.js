@@ -29,9 +29,9 @@ function setupEventListeners() {
         }
     }, 1000);
 
-    document.getElementById("connect_btn").addEventListener('click', () => {
-        peerServerConn.startConnection()
-    });
+    // document.getElementById("connect_btn").addEventListener('click', () => {
+    peerServerConn.startConnection()
+    // });
 
     window.onbeforeunload = () => {
         rovPeerConn.cleanupROVConnections();

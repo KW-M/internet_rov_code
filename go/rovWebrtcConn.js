@@ -71,12 +71,14 @@ class RovWebrtcConn {
             }, 1000)
         });
         this.rovDataConnection.on('error', (err) => {
-            console.info('ROV DataConnection Error: ', err);
+            console.error('ROV DataConnection Error: ', err);
             console.dir(err)
             reconnectCatch()
         });
         peerServerConn.peer.on('error', (err) => {
-            if (err.type == "peer-unavailable" && PeerServerConnection.peer.open) reconnectCatch() //loop back and try again
+            console.error('PeerServer Error: ', err);
+            console.dir(err, peerServerConn.peer)
+            if (err.type == "peer-unavailable" && peerServerConn.peer && peerServerConn.peer.open) reconnectCatch() //loop back and try again
             else closeupConnectionThen(err)
         })
         this.rovDataConnection.on('disconnected', () => {

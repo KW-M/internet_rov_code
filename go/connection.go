@@ -80,7 +80,7 @@ func startLocalPeerJsServer(done chan bool) {
 
 func setupConnections(quitSignal chan bool) {
 	makePeerJsOptions()
-	go startLocalPeerJsServer(quitSignal)
+	// go startLocalPeerJsServer(quitSignal)
 	time.Sleep(time.Second * 1) // wait a bit for the local peerJs server to start up
 
 	cloudQuitSignal := make(chan string)

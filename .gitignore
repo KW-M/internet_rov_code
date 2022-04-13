@@ -1,6 +1,8 @@
 
 node_modules
 
+peerjs-webrtc-libcamera
+
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
