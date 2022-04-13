@@ -211,9 +211,8 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 					return
 				case <-time.After(time.Second * 2):
 					message := time.Now().Format(time.RFC850)
-					rovLog.Println("Sending Message to Pilot: ", message)
 					for peerId, dataChannel := range activeDataConnectionsToThisPeer {
-						rovLog.Println("Sending to PeerId: ", peerId)
+						rovLog.Println("🤖 Sending \"", message, "\" to PeerId: ", peerId)
 						dataChannel.Send([]byte(message), false)
 					}
 				}
