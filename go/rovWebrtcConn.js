@@ -42,9 +42,20 @@ class RovWebrtcConn {
         });
         this.rovDataConnection.on('open', () => {
             console.info("ROV Data Channel is open!")
-            setTimeout(() => {
-                window.location.reload()
-            }, 5000);
+            // setTimeout(() => {
+            //     window.location.reload()
+            // }, 5000);
+
+
+            setInterval(() => {
+                if (this.rovDataConnection != null && this.rovDataConnection.open) {
+                    console.info("Sending ping to ROV...")
+                    this.rovDataConnection.send(messageEncoder.encode("pilot-" + Date.now()));
+                } else {
+                    console.warn("ROV Data Channel is NOT open!")
+                }
+            }, 1000);
+
             // Receive messages
             this.rovDataConnection.on('data', (data) => {
                 data = decoder.decode(data);

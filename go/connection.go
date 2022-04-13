@@ -175,10 +175,10 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 				activeDataConnectionsToThisPeer[pilotPeerId] = pilotDataConnection // add this connection to the map of active connections
 
 				pilotDataConnection.On("data", func(msgBytes interface{}) {
-					log.Printf("Received: %#v: %s\n", msgBytes, msgBytes)
-					var msgString string = string(msgBytes.([]byte))
-					var socketString string = pilotPeerId + "::" + msgString
-					uSockSendMsgChannel <- socketString
+					log.Printf("Received: %s\n", msgBytes)
+					// var msgString string = string(msgBytes.([]byte))
+					// var socketString string = pilotPeerId + "::" + msgString
+					// uSockSendMsgChannel <- socketString
 				})
 
 				// fmt.Printf("VIDEO CALLING Peer (a Pilot or Spectator) with ID: %s\n", pilotPeerId)
@@ -209,11 +209,12 @@ func setupWebrtcConnection(exitFunction chan bool, peerServerOptions peerjs.Opti
 				case <-stopRelayingMsgs:
 					rovLog.Println("StopSendingMsgs")
 					return
-				case msgFromROV := <-recievedMessageWriteChannel:
-					rovLog.Println("Sending Message to Pilot: ", msgFromROV)
+				case <-time.After(time.Second * 2):
+					message := time.Now().Format(time.RFC850)
+					rovLog.Println("Sending Message to Pilot: ", message)
 					for peerId, dataChannel := range activeDataConnectionsToThisPeer {
 						rovLog.Println("Sending to PeerId: ", peerId)
-						dataChannel.Send([]byte(msgFromROV), false)
+						dataChannel.Send([]byte(message), false)
 					}
 				}
 			}

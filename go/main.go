@@ -41,17 +41,17 @@ func main() {
 	// sock := CreateUnixSocket(quitProgram, uSockMsgRecivedChannel, uSockSendMsgChannel, "/tmp/go.socket")
 	// defer sock.CleanupSocket()
 	// DEBUG FOR ECHOING BACK ALL MESSAGES
-	go func() {
-		for {
-			select {
-			case <-quitProgram:
-				return
-			case msg := <-uSockSendMsgChannel:
-				// log.Println("Received message from unix socket: ", msg)
-				uSockMsgRecivedChannel <- "Msg from rov: " + msg
-			}
-		}
-	}()
+	// go func() {
+	// 	for {
+	// 		select {
+	// 		case <-quitProgram:
+	// 			return
+	// 		case msg := <-uSockSendMsgChannel:
+	// 			// log.Println("Received message from unix socket: ", msg)
+	// 			uSockMsgRecivedChannel <- "Msg from rov: " + msg
+	// 		}
+	// 	}
+	// }()
 
 	// Setup the video stream and start the camera running
 	initVideoTrack()
