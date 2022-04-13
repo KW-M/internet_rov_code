@@ -95,9 +95,11 @@ class PeerServerConnection {
                     console.info("ROV is not yet online")
                 } else if (err.type == "webrtc") {
                     console.info("Webrtc browser error, reloading page...")
-                    setTimeout(() => {
-                        window.location.reload()
-                    }, 300)
+                    console.error(err)
+                    console.dir(err)
+                    // setTimeout(() => {
+                    //     window.location.reload()
+                    // }, 300)
                 } else {
                     console.info('Peer server connection error: ', err);
                     console.dir(err)

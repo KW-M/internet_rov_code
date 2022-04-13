@@ -44,7 +44,7 @@ class RovWebrtcConn {
             console.info("ROV Data Channel is open!")
             setTimeout(() => {
                 window.location.reload()
-            }, 3000);
+            }, 5000);
             // Receive messages
             this.rovDataConnection.on('data', (data) => {
                 data = decoder.decode(data);

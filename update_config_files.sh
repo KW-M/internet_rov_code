@@ -83,8 +83,8 @@ sudo systemctl daemon-reload
 # echo "Restarting pigpiod.service..."
 # sudo systemctl restart pigpiod
 # echo "restarting rov_go_code.service..."
-systemctl stop rov_go_code.service
-systemctl stop rov_python_code.service
+sudo systemctl stop rov_go_code.service
+sudo systemctl stop rov_python_code.service
 # sudo systemctl restart rov_go_code.service
 # echo "restarting rov_python_code.service..."
 # sudo systemctl restart rov_python_code.service
