@@ -229,76 +229,76 @@ func startPeerServerConnectionLoop(programShouldQuitSignal *UnblockSignal) {
  * This function DOES NOT block, BUT the passed robotPeer parameter MUST NOT GO OUT OF SCOPE, or the event listeners will be garbage collected and (maybe) closed.
  */
 func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerOpts peerjs.Options, robotConnLog *log.Entry) {
-	// robotPeer.On("connection", func(data interface{}) {
-	// 	clientPeerDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
-	// 	var clientPeerId string = clientPeerDataConnection.GetPeerID()
+	robotPeer.On("connection", func(data interface{}) {
+		clientPeerDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
+		var clientPeerId string = clientPeerDataConnection.GetPeerID()
 
-	// 	log := robotConnLog.WithField("peer", robotPeer.ID)
-	// 	log.Info("Peer is connecting to rov... peer id: ", clientPeerDataConnection.GetPeerID())
+		log := robotConnLog.WithField("peer", robotPeer.ID)
+		log.Info("Peer is connecting to rov... peer id: ", clientPeerDataConnection.GetPeerID())
 
-	// 	clientPeerDataConnection.On("open", func(interface{}) {
-	// 		log.Info("Peer connection established with Peer ID: ", clientPeerDataConnection.GetPeerID())
-	// 		// add this newly open peer connection to the map of active connections
-	// 		activeDataConnectionsToThisRobot[clientPeerId+"::"+peerServerOpts.Host] = clientPeerDataConnection
+		clientPeerDataConnection.On("open", func(interface{}) {
+			log.Info("Peer connection established with Peer ID: ", clientPeerDataConnection.GetPeerID())
+			// add this newly open peer connection to the map of active connections
+			activeDataConnectionsToThisRobot[clientPeerId+"::"+peerServerOpts.Host] = clientPeerDataConnection
 
-	// 		// send a metadata message down the unix socket that a new peer has connected
-	// 		if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-	// 			// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Connected", "")
-	// 		}
+			// send a metadata message down the unix socket that a new peer has connected
+			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
+				// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Connected", "")
+			}
 
-	// 		// time.AfterFunc(time.Second*16, func() {
-	// 		// 	log.Info("VIDEO CALLING client peer: %s\n", clientPeerId)
-	// 		// 	_, err = robotPeer.Call(clientPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
-	// 		// 	if err != nil {
-	// 		// 		log.Error("Error video calling client peer: ", clientPeerId)
-	// 		// 		clientPeerDataConnection.Close()
-	// 		// 		return
-	// 		// 	}
-	// 		// })
+			// time.AfterFunc(time.Second*16, func() {
+			// 	log.Info("VIDEO CALLING client peer: %s\n", clientPeerId)
+			// 	_, err = robotPeer.Call(clientPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
+			// 	if err != nil {
+			// 		log.Error("Error video calling client peer: ", clientPeerId)
+			// 		clientPeerDataConnection.Close()
+			// 		return
+			// 	}
+			// })
 
-	// 		// handle incoming messages from this client peer
-	// 		clientPeerDataConnection.On("data", func(msgBytes interface{}) {
-	// 			var msgString string = string(msgBytes.([]byte))
-	// 			log.Printf("clientDataConnection 👩🏻‍✈️ GOT MESSAGE: %s", msgString)
-	// 			// var msgForSocket string = msgString
-	// 			// if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-	// 			// 	var metadata string = generateToUnixSocketMetadataMessage(clientPeerId, "", "")
-	// 			// 	msgForSocket = metadata + UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR + msgForSocket
-	// 			// }
-	// 			//// send a message down the unix socket with the message from the client peer
-	// 			// sendMessagesToUnixSocketChan <- msgForSocket
-	// 		})
-	// 		<-time.After(time.Second * 17)
-	// 	})
+			// handle incoming messages from this client peer
+			clientPeerDataConnection.On("data", func(msgBytes interface{}) {
+				var msgString string = string(msgBytes.([]byte))
+				log.Printf("clientDataConnection 👩🏻‍✈️ GOT MESSAGE: %s", msgString)
+				// var msgForSocket string = msgString
+				// if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
+				// 	var metadata string = generateToUnixSocketMetadataMessage(clientPeerId, "", "")
+				// 	msgForSocket = metadata + UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR + msgForSocket
+				// }
+				//// send a message down the unix socket with the message from the client peer
+				// sendMessagesToUnixSocketChan <- msgForSocket
+			})
+			<-time.After(time.Second * 17)
+		})
 
-	// 	clientPeerDataConnection.On("close", func(message interface{}) {
-	// 		log.Info("CLIENT PEER DATACHANNEL CLOSE EVENT", message)
-	// 		delete(activeDataConnectionsToThisRobot, clientPeerId+"::"+peerServerOpts.Host) // remove this connection from the map of active connections
+		clientPeerDataConnection.On("close", func(message interface{}) {
+			log.Info("CLIENT PEER DATACHANNEL CLOSE EVENT", message)
+			delete(activeDataConnectionsToThisRobot, clientPeerId+"::"+peerServerOpts.Host) // remove this connection from the map of active connections
 
-	// 		// send a metadata message down the unix socket that this peer connection has been closed
-	// 		if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-	// 			// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Closed", "")
-	// 		}
-	// 	})
+			// send a metadata message down the unix socket that this peer connection has been closed
+			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
+				// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Closed", "")
+			}
+		})
 
-	// 	clientPeerDataConnection.On("disconnected", func(message interface{}) {
-	// 		log.Info("CLIENT PEER DATACHANNEL DISCONNECTED EVENT", message)
+		clientPeerDataConnection.On("disconnected", func(message interface{}) {
+			log.Info("CLIENT PEER DATACHANNEL DISCONNECTED EVENT", message)
 
-	// 		// send a metadata message down the unix socket that this peer has disconnected
-	// 		if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-	// 			// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Disconnected", "")
-	// 		}
-	// 	})
+			// send a metadata message down the unix socket that this peer has disconnected
+			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
+				// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Disconnected", "")
+			}
+		})
 
-	// 	clientPeerDataConnection.On("error", func(message interface{}) {
-	// 		errMessage := message.(error).Error()
-	// 		log.Error("CLIENT PEER DATACHANNEL ERROR EVENT: %s\n", errMessage)
-	// 		if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-	// 			// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Error", errMessage)
-	// 		}
-	// 	})
+		clientPeerDataConnection.On("error", func(message interface{}) {
+			errMessage := message.(error).Error()
+			log.Error("CLIENT PEER DATACHANNEL ERROR EVENT: %s\n", errMessage)
+			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
+				// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Error", errMessage)
+			}
+		})
 
-	// })
+	})
 }
 
 /* setupRobotPeer (blocking goroutine)
@@ -337,51 +337,35 @@ func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *U
 			exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
 		} else {
 			log.Info("Robot Peer Established!")
-			// peerConnectionOpenHandler(*robotPeer, robotPeerId, peerServerOptions, robotConnLog)
-
-			///--------------
-			robotPeer.On("connection", func(data interface{}) {
-				clientPeerDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
-				log.Info("Peer is connecting to rov... peer id: ", clientPeerDataConnection.GetPeerID())
-
-				clientPeerDataConnection.On("open", func(interface{}) {
-					// handle incoming messages from this client peer
-					clientPeerDataConnection.On("data", func(msgBytes interface{}) {
-						var msgString string = string(msgBytes.([]byte))
-						log.Printf("clientDataConnection 👩🏻‍✈️ GOT MESSAGE: %s", msgString)
-					})
-				})
-
-			})
-			//-------------------
+			peerConnectionOpenHandler(*robotPeer, robotPeerId, peerServerOptions, robotConnLog)
 		}
 	})
 
-	// robotPeer.On("close", func(interface{}) {
-	// 	robotConnLog.Info("ROBOT PEER CLOSE EVENT")
-	// 	exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
-	// })
+	robotPeer.On("close", func(interface{}) {
+		robotConnLog.Info("ROBOT PEER CLOSE EVENT")
+		exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
+	})
 
-	// robotPeer.On("disconnected", func(message interface{}) {
-	// 	robotConnLog.Info("ROBOT PEER DISCONNECTED EVENT", message)
-	// 	if !exitFuncSignal.HasTriggered {
-	// 		log.Debug("Reconnecting...")
-	// 		err = robotPeer.Reconnect()
-	// 		if err != nil {
-	// 			robotConnLog.Error("ERROR RECONNECTING TO DISCONNECTED PEER SERVER: ", err)
-	// 			exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
-	// 		}
-	// 	}
-	// })
+	robotPeer.On("disconnected", func(message interface{}) {
+		robotConnLog.Info("ROBOT PEER DISCONNECTED EVENT", message)
+		if !exitFuncSignal.HasTriggered {
+			log.Debug("Reconnecting...")
+			err = robotPeer.Reconnect()
+			if err != nil {
+				robotConnLog.Error("ERROR RECONNECTING TO DISCONNECTED PEER SERVER: ", err)
+				exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over
+			}
+		}
+	})
 
-	// robotPeer.On("error", func(err interface{}) {
-	// 	errorMessage := err.(*peerjs.PeerError).Error()
-	// 	errorType := err.(*peerjs.PeerError).Type
-	// 	robotConnLog.Error("ROBOT PEER %s ERROR EVENT: %s", errorType, errorMessage)
-	// 	if contains(FATAL_PEER_ERROR_TYPES, errorType) {
-	// 		exitFuncSignal.TriggerWithError(err.(*peerjs.PeerError)) // signal to this goroutine to exit and let the setupConnections loop take over
-	// 	}
-	// })
+	robotPeer.On("error", func(err interface{}) {
+		errorMessage := err.(*peerjs.PeerError).Error()
+		errorType := err.(*peerjs.PeerError).Type
+		robotConnLog.Error("ROBOT PEER %s ERROR EVENT: %s", errorType, errorMessage)
+		if contains(FATAL_PEER_ERROR_TYPES, errorType) {
+			exitFuncSignal.TriggerWithError(err.(*peerjs.PeerError)) // signal to this goroutine to exit and let the setupConnections loop take over
+		}
+	})
 
 	// ---------------------------------------------------------------------------------------------------------------------
 	// block and wait for the exitFuncSignal or programShouldQuitSignal to be triggerd before exiting this function
