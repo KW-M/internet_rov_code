@@ -268,7 +268,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 				//// send a message down the unix socket with the message from the client peer
 				// sendMessagesToUnixSocketChan <- msgForSocket
 			})
-			// <-time.After(time.Second * 17)
+			<-time.After(time.Second * 17)
 		})
 
 		// clientPeerDataConnection.On("close", func(message interface{}) {
