@@ -632,7 +632,7 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
                     internal: false
                 },
                 WEBRTC_FATAL_ERROR: {
-                    actions: "reloadWebsite",
+                    // actions: "reloadWebsite",
                     target: "Done"
                 },
                 WEBSITE_CLOSE: {
@@ -8541,6 +8541,7 @@ class GamepadInterface {
         this.gamepadButtonChangeCallback = null;
         this.gamepadAxisChangeCallback = null;
         this.extraGamepadMappings = [];
+        navigator.gamepadInputEmulation = "gamepad"; // Microsoft edge fix
         window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
         navigator.getGamepads = navigator.getGamepads || navigator.webkitGetGamepads || navigator.mozGetGamepads || navigator.msGetGamepads;
         if (this.gamepadApiSupported()) this.tickLoop();
@@ -8660,7 +8661,8 @@ const sendRovMessage = (message)=>{
     return (callback, onReceive)=>{
         console.log("handleROVMessage: ", message);
     };
-};
+} // not used^
+;
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"doATT":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -10786,7 +10788,10 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
             }
         },
         Connected_To_Rov: {
-            entry: "showRovConnectedUi",
+            entry: [
+                "showRovConnectedUi",
+                "debugReload"
+            ],
             type: "parallel",
             states: {
                 DataChannel: {
@@ -10893,6 +10898,19 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
         showConnectingUi: _ui.showROVConnectingUi,
         showRovConnectedUi: (context, event)=>{
             _ui.showROVConnectedUi(event.data ? event.data.peer : null);
+        },
+        debugReload: ()=>{
+            var reloadCount = localStorage.getItem("reloadCount") || 0;
+            console.log("reloadCount: ", reloadCount, reloadCount == -1);
+            if (reloadCount == -1 || reloadCount > 8) setTimeout(()=>{
+                localStorage.setItem("reloadCount", 0);
+                window.location.reload();
+            }, 10000);
+            else {
+                reloadCount++;
+                localStorage.setItem("reloadCount", reloadCount);
+                window.location.reload();
+            }
         },
         showMediaChannelConnectedNotice: ()=>{
             _ui.showToastMessage("ROV Media Channel Connected!");
@@ -11216,6 +11234,7 @@ const peerServerConnMachine = _xstate.createMachine({
                 });
             } else if (err.type == "webrtc") {
                 _ui.showToastMessage("WebRTC protocol error! Reloading website now...");
+                localStorage.setItem("reloadCount", -1); //for debug
                 return _actions.sendParent({
                     type: "WEBRTC_FATAL_ERROR"
                 });
@@ -11227,8 +11246,7 @@ const peerServerConnMachine = _xstate.createMachine({
                 localStorage.removeItem('thisClientPeerId') // discard our saved peer id so we will use a fresh one
                 ;
                 return _actions.sendParent({
-                    type: "PEER_SERVER_FATAL_ERROR",
-                    data: err
+                    type: "PEER_SERVER_FATAL_ERROR"
                 });
             } else if (FATAL_PEER_ERROR_TYPES.includes(err.type)) {
                 _ui.showToastMessage("Peerjs Server Fatal Error: " + err.type + " Restarting...");

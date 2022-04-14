@@ -1,5 +1,5 @@
 import { createMachine, assign, spawn } from "xstate";
-import { showToastMessage, showROVConnectingUi, showROVConnectedUi, showLoadingUi, hideLoadingUi, setupSwitchRovBtnClickHandler, showLivestreamUi, hideLivestreamUi } from "./ui"
+import { showToastMessage, showROVConnectingUi, showROVConnectedUi, hideLoadingUi, setupSwitchRovBtnClickHandler, showLivestreamUi, hideLivestreamUi } from "./ui"
 import { generateStateChangeFunction } from "./util";
 
 import { pure, stop, send, sendParent } from "xstate/lib/actions";
@@ -142,13 +142,14 @@ export const peerConnMachine =
             showRovConnectedUi: (context, event) => { showROVConnectedUi(event.data ? event.data.peer : null) },
             debugReload: () => {
                 var reloadCount = localStorage.getItem("reloadCount") || 0;
+                console.log("reloadCount: ", reloadCount, reloadCount == -1);
                 if (reloadCount == -1 || reloadCount > 8) {
-                    localStorage.setItem("reloadCount", 0);
-                    setTimeout(window.location.reload(), 10000);
+
+                    setTimeout(() => { localStorage.setItem("reloadCount", 0); window.location.reload() }, 10000);
                 } else {
                     reloadCount++;
                     localStorage.setItem("reloadCount", reloadCount);
-                    setTimeout(window.location.reload(), 1000 * Math.random());
+                    window.location.reload()
                 }
             },
             showMediaChannelConnectedNotice: () => { showToastMessage("ROV Media Channel Connected!") },
