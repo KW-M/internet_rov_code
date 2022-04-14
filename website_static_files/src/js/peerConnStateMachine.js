@@ -39,7 +39,7 @@ export const peerConnMachine =
                 },
             },
             Connected_To_Rov: {
-                entry: "showRovConnectedUi",
+                entry: ["showRovConnectedUi", "debugReload"],
                 type: "parallel",
                 states: {
                     DataChannel: {
@@ -140,6 +140,17 @@ export const peerConnMachine =
         actions: {
             showConnectingUi: showROVConnectingUi,
             showRovConnectedUi: (context, event) => { showROVConnectedUi(event.data ? event.data.peer : null) },
+            debugReload: () => {
+                var reloadCount = localStorage.getItem("reloadCount") || 0;
+                if (reloadCount == -1 || reloadCount > 8) {
+                    localStorage.setItem("reloadCount", 0);
+                    setTimeout(window.location.reload(), 10000);
+                } else {
+                    reloadCount++;
+                    localStorage.setItem("reloadCount", reloadCount);
+                    setTimeout(window.location.reload(), 1000 * Math.random());
+                }
+            },
             showMediaChannelConnectedNotice: () => { showToastMessage("ROV Media Channel Connected!") },
             showGotVideoStreamNotice: () => { showToastMessage("Got ROV Video Stream!"); hideLoadingUi(); showLivestreamUi() },
             hideLivestreamUi: () => { hideLivestreamUi() },

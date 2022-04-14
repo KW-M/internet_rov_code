@@ -331,15 +331,31 @@ func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *U
 		return err /// return and let the setupConnections loop take over
 	}
 
-	// robotPeer.On("open", func(peerId interface{}) {
-	// 	var peerID string = peerId.(string) // typecast to string
-	// 	if peerID != robotPeerId {
-	// 		exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
-	// 	} else {
-	// 		robotConnLog.Info("Robot Peer Established!")
-	// 		peerConnectionOpenHandler(*robotPeer, robotPeerId, peerServerOptions, robotConnLog)
-	// 	}
-	// })
+	robotPeer.On("open", func(peerId interface{}) {
+		var peerID string = peerId.(string) // typecast to string
+		if peerID != robotPeerId {
+			exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
+		} else {
+			log.Info("Robot Peer Established!")
+			// peerConnectionOpenHandler(*robotPeer, robotPeerId, peerServerOptions, robotConnLog)
+
+			///--------------
+			robotPeer.On("connection", func(data interface{}) {
+				clientPeerDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
+				log.Info("Peer is connecting to rov... peer id: ", clientPeerDataConnection.GetPeerID())
+
+				clientPeerDataConnection.On("open", func(interface{}) {
+					// handle incoming messages from this client peer
+					clientPeerDataConnection.On("data", func(msgBytes interface{}) {
+						var msgString string = string(msgBytes.([]byte))
+						log.Printf("clientDataConnection 👩🏻‍✈️ GOT MESSAGE: %s", msgString)
+					})
+				})
+
+			})
+			//-------------------
+		}
+	})
 
 	// robotPeer.On("close", func(interface{}) {
 	// 	robotConnLog.Info("ROBOT PEER CLOSE EVENT")

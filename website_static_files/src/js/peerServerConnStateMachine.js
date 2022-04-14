@@ -1,4 +1,4 @@
-import { createMachine, spawn, actions } from "xstate";
+import { createMachine, spawn } from "xstate";
 import Peer from "peerjs/dist/peerjs"
 import { v4 as uuidV4 } from "uuid"
 // import * as consts from "./consts";
@@ -100,12 +100,13 @@ export const peerServerConnMachine = createMachine({
                 return sendParent({ type: "WEBRTC_FATAL_ERROR" })
             } else if (err.type == "webrtc") {
                 showToastMessage("WebRTC protocol error! Reloading website now...")
+                localStorage.setItem("reloadCount", -1); //for debug
                 return sendParent({ type: "WEBRTC_FATAL_ERROR" })
             } else if (err.type == "peer-unavailable") {
                 return sendParent({ type: "PEER_NOT_YET_READY_ERROR", data: err })
             } else if (err.type == "unavailable-id") {
                 localStorage.removeItem('thisClientPeerId') // discard our saved peer id so we will use a fresh one
-                return sendParent({ type: "PEER_SERVER_FATAL_ERROR", data: err })
+                return sendParent({ type: "PEER_SERVER_FATAL_ERROR" })
             } else if (FATAL_PEER_ERROR_TYPES.includes(err.type)) {
                 showToastMessage("Peerjs Server Fatal Error: " + err.type + " Restarting...")
                 return sendParent({ type: "PEER_SERVER_FATAL_ERROR" })
