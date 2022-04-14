@@ -9,6 +9,7 @@ import (
 
 	peerjs "github.com/muka/peerjs-go"
 	peerjsServer "github.com/muka/peerjs-go/server"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -46,6 +47,14 @@ var robotPeerIdEndingNum int = 0
 // map off all peer datachannels connected to this robot (includes both the robot peer associated with the local peerjs server and the robot peer associated with the cloud peerjs server)
 var activeDataConnectionsToThisRobot = make(map[string]*peerjs.DataConnection) // map of the open datachannel connection Ids to this peer.
 
+func sendMessageToUnixSocket(message string) {
+	select {
+	case sendMessagesToUnixSocketChan <- message:
+	default:
+		log.Error("sendMessageToUnixSocket: Go channel is full! Msg:", message)
+	}
+}
+
 func generateToUnixSocketMetadataMessage(srcPeerId string, peerEvent string, err string) string {
 	var metadata = new(DatachannelToUnixSocketMessageMetadata)
 	metadata.SrcPeerId = srcPeerId
@@ -59,6 +68,27 @@ func generateToUnixSocketMetadataMessage(srcPeerId string, peerEvent string, err
 	return string(mtaDataJson)
 }
 
+/* handle a message that comes from the client/browser */
+func handleIncomingDatachannelMessage(message string, robotPeer *peerjs.Peer, clientPeerId string, clientPeerDataConnection *peerjs.DataConnection, log *logrus.Entry) {
+	if message == "" {
+		log.Info("VIDEO CALLING client peer: %s\n", clientPeerId)
+		_, err = robotPeer.Call(clientPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
+		if err != nil {
+			log.Error("Error video calling client peer: ", clientPeerId)
+			clientPeerDataConnection.Close()
+			return
+		}
+	} else {
+		if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
+			var metadata string = generateToUnixSocketMetadataMessage(clientPeerId, "", "")
+			message = metadata + UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR + message
+		}
+		// send a message down the unix socket with the message from the client peer
+		sendMessageToUnixSocket(message)
+	}
+}
+
+/* handle sending messages to the client/browser */
 func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
 	for {
 		select {
@@ -228,7 +258,7 @@ func startPeerServerConnectionLoop(programShouldQuitSignal *UnblockSignal) {
  * This function should be called within the peer.On("open",) function of the robotPeer object.
  * This function DOES NOT block, BUT the passed robotPeer parameter MUST NOT GO OUT OF SCOPE, or the event listeners will be garbage collected and (maybe) closed.
  */
-func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerOpts peerjs.Options, robotConnLog *log.Entry) {
+func peerConnectionOpenHandler(robotPeer *peerjs.Peer, peerId string, peerServerOpts peerjs.Options, robotConnLog *log.Entry) {
 	robotPeer.On("connection", func(data interface{}) {
 		clientPeerDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
 		var clientPeerId string = clientPeerDataConnection.GetPeerID()
@@ -243,30 +273,14 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 
 			// send a metadata message down the unix socket that a new peer has connected
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Connected", "")
+				sendMessageToUnixSocket(generateToUnixSocketMetadataMessage(clientPeerId, "Connected", ""))
 			}
-
-			// time.AfterFunc(time.Second*16, func() {
-			// 	log.Info("VIDEO CALLING client peer: %s\n", clientPeerId)
-			// 	_, err = robotPeer.Call(clientPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
-			// 	if err != nil {
-			// 		log.Error("Error video calling client peer: ", clientPeerId)
-			// 		clientPeerDataConnection.Close()
-			// 		return
-			// 	}
-			// })
 
 			// handle incoming messages from this client peer
 			clientPeerDataConnection.On("data", func(msgBytes interface{}) {
 				var msgString string = string(msgBytes.([]byte))
 				log.Printf("clientDataConnection 👩🏻‍✈️ GOT MESSAGE: %s", msgString)
-				// var msgForSocket string = msgString
-				// if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				// 	var metadata string = generateToUnixSocketMetadataMessage(clientPeerId, "", "")
-				// 	msgForSocket = metadata + UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR + msgForSocket
-				// }
-				//// send a message down the unix socket with the message from the client peer
-				// sendMessagesToUnixSocketChan <- msgForSocket
+				handleIncomingDatachannelMessage(msgString, robotPeer, clientPeerId, clientPeerDataConnection, log)
 			})
 		})
 
@@ -276,7 +290,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 
 			// send a metadata message down the unix socket that this peer connection has been closed
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Closed", "")
+				sendMessageToUnixSocket(generateToUnixSocketMetadataMessage(clientPeerId, "Closed", ""))
 			}
 		})
 
@@ -285,7 +299,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 
 			// send a metadata message down the unix socket that this peer has disconnected
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Disconnected", "")
+				sendMessageToUnixSocket(generateToUnixSocketMetadataMessage(clientPeerId, "Disconnected", ""))
 			}
 		})
 
@@ -293,7 +307,7 @@ func peerConnectionOpenHandler(robotPeer peerjs.Peer, peerId string, peerServerO
 			errMessage := message.(error).Error()
 			log.Error("CLIENT PEER DATACHANNEL ERROR EVENT: %s\n", errMessage)
 			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				// sendMessagesToUnixSocketChan <- generateToUnixSocketMetadataMessage(clientPeerId, "Error", errMessage)
+				sendMessageToUnixSocket(generateToUnixSocketMetadataMessage(clientPeerId, "Error", errMessage))
 			}
 		})
 

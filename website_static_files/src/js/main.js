@@ -119,7 +119,7 @@ const mainMachine =
                         internal: false, // cause the transition to trigger the exit and entry actions
                     },
                     WEBRTC_FATAL_ERROR: {
-                        // actions: "reloadWebsite",
+                        actions: "reloadWebsite",
                         target: "Done",
                     },
                     WEBSITE_CLOSE: {
