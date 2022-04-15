@@ -1,3 +1,5 @@
+# secrets stuff (paswords, etc)
+/secret_config.json
 
 # npm & parcel
 .parcel-cache

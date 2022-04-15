@@ -2,7 +2,6 @@ from array import array
 import asyncio
 from cmath import nan
 import logging
-from types import MethodType
 import ms5803py
 
 from utilities import *

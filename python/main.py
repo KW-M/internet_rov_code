@@ -8,58 +8,60 @@
 import time
 import json
 import logging
-
 import asyncio
 
 # import our python files from the same directory
-# import logging_formatter
+from config_reader import read_config_file, get_log_level
+from command_api import start_aiohttp_api_server
 from unix_socket import Unix_Socket
 from motion_controller import Motion_Controller
 # from sensor_log import Sensor_Log
 from sensors import Sensor_Controller
 from mesage_handler import socket_incoming_message_handler_loop, socket_update_message_sender_loop
 from utilities import *
+# import logging_formatter
 
-############################
+config = read_config_file()
+
 ##### Setup Variables #####
-unix_socket = Unix_Socket(socket_path="/tmp/go_robot.socket")
+############################
+
+unix_socket = Unix_Socket(socket_path=config["socket-path"])
 sensors = Sensor_Controller()
 # sensor_log = Sensor_Log(sensors.all_sensors)
 motion_ctrl = Motion_Controller()
 
+###### Setup Logging #######
 ############################
-###### setup logging #######
 
-# assuming loglevel is bound to the string value obtained from the
-# command line argument. Convert to upper case to allow the user to
-# specify --log=DEBUG or --log=debug
-
-logging.basicConfig(level=logging.DEBUG)
+# set the loglevel is from command line argument or config file. Use either --log-level=DEBUG or --log-level=debug
+logging.basicConfig(level=get_log_level(config['log-level']))
 log = logging.getLogger(__name__)
 
 
-######################################
 ######## Main Program Loop ###########
 ######################################
 async def main():
-    # setup the asyncio loop to run each of these functions aka "tasks" aka "coroutines" concurently
+    # setup the asyncio loop to run each of these async functions aka "tasks" aka "coroutines" concurently
     await asyncio.gather(
-        sensors.sensor_setup_loop(), motion_ctrl.motor_setup_loop(),
-        unix_socket.socket_relay_setup_loop(),
-        socket_incoming_message_handler_loop(unix_socket, motion_ctrl),
-        socket_update_message_sender_loop(unix_socket, sensors=sensors))
+        # sensors.sensor_setup_loop(), motion_ctrl.motor_setup_loop(),
+        # unix_socket.socket_relay_setup_loop(),
+        # socket_incoming_message_handler_loop(unix_socket, motion_ctrl),
+        # socket_update_message_sender_loop(unix_socket, sensors=sensors),
+        start_aiohttp_api_server())
 
 
+##### run the main program loop, and exit quietly if ctrl-c is pressed  #####
 try:
     asyncio.run(main())
 except KeyboardInterrupt:
     pass
 finally:
-    # cleanup
+    # cleanup that will always run no matter what
     sensors.cleanup()
     motion_ctrl.cleanup_gpio()
     unix_socket.cleanup()
-
+    pass
 
 # while True:
 

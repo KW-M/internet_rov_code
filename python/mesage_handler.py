@@ -2,12 +2,13 @@ import json
 import logging
 import asyncio
 
+##### CONSTANTS ######
+MESSAGE_METADATA_SEPARATOR = '|"|'
+
 ############################
 ###### setup logging #######
-log = logging.getLogger(__name__)
 
-## CONSTANTS ##
-MESSAGE_METADATA_SEPARATOR = '|"|'
+log = logging.getLogger(__name__)
 
 
 async def socket_incoming_message_handler_loop(unix_socket, motion_ctrl):

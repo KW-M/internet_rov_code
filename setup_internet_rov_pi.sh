@@ -9,10 +9,12 @@ FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 FOLDER_CONTAINING_THIS_SCRIPT="$(pwd)"
 
+# ----- RPi Model Details ------------------------------------------------------
 # from https://raspberrypi.stackexchange.com/questions/100076/what-revisions-does-cat-proc-cpuinfo-return-on-the-new-pi-4-1-2-4gb
 # PI_CPU_MODEL=$(cat /proc/cpuinfo | grep 'Hardware' | awk '{print $3}')
 PI_CPU_ARCHITECTURE=$(arch)
 
+# ----- terminal text colors ----------------------------------------------------
 Green="\033[1;32m"  # Green color code for console text
 Cyan="\033[1;36m"   # Cyan color code for console text
 Color_Off="\033[0m" # Text color Reset code for console text
@@ -305,18 +307,21 @@ echo -e "$Green enabling pigpiod.service ... $Color_Off"
 sudo systemctl enable pigpiod.service
 echo -e "$Green enabling rov_python_code.service ... $Color_Off"
 sudo systemctl enable rov_python_code.service # enable the new rov_python_code service
-echo -e "$Green enabling rov_bluetooth_terminal.service ... $Color_Off"
-sudo systemctl enable rov_bluetooth_terminal.service # enable the new rfcomm service
-echo -e "$Green enabling ngrok.service ... $Color_Off"
-sudo systemctl enable ngrok.service # enable the new ngrok service
-echo -e "$Green enabling uv4l_raspicam.service ... $Color_Off"
-sudo systemctl enable uv4l_raspicam.service
+echo -e "$Green enabling rov_go_code.service ... $Color_Off"
+sudo systemctl enable rov_go_code.service # enable the new rov_python_code service
 echo -e "$Green enabling nginx.service ... $Color_Off"
 sudo systemctl enable nginx.service
-echo -e "$Green enabling rov_uwsgi_server.service ... $Color_Off"
-sudo systemctl enable rov_uwsgi_server.service
 echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
 sudo systemctl enable add_fixed_ip.service
+# echo -e "$Green enabling rov_bluetooth_terminal.service ... $Color_Off"
+# sudo systemctl enable rov_bluetooth_terminal.service # enable the new rfcomm service
+# echo -e "$Green enabling ngrok.service ... $Color_Off"
+# sudo systemctl enable ngrok.service # enable the new ngrok service
+# echo -e "$Green enabling uv4l_raspicam.service ... $Color_Off"
+# sudo systemctl enable uv4l_raspicam.service
+# echo -e "$Green enabling rov_uwsgi_server.service ... $Color_Off"
+# sudo systemctl enable rov_uwsgi_server.service
+
 
 # --------------------------------------------------------------------------
 # ----- Python Library Setup -------------------------------------------------------
@@ -325,27 +330,30 @@ sudo systemctl enable add_fixed_ip.service
 echo -e "$Cyan Installing python3 pip $Color_Off"
 sudo apt install -y python3-pip
 
-# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
-echo -e "$Cyan Downloading Adafruit circuit python $Color_Off"
-sudo python3 -m pip install --upgrade setuptools
-sudo python3 -m pip install --upgrade adafruit-python-shell
+echo -e "$Cyan Installing python packages $Color_Off"
+sudo python3 -m pip install -r ./python/requirements.txt
 
-# from: https://learn.adafruit.com/adafruit-dc-and-stepper-motor-hat-for-raspberry-pi/installing-software
-echo -e "$Cyan Downloading Adafruit motor controller python libraries... $Color_Off"
-sudo python3 -m pip install --upgrade adafruit-circuitpython-motorkit
+# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+# echo -e "$Cyan Downloading Adafruit circuit python $Color_Off"
+# sudo python3 -m pip install --upgrade setuptools
+# sudo python3 -m pip install --upgrade adafruit-python-shell
+
+# # from: https://learn.adafruit.com/adafruit-dc-and-stepper-motor-hat-for-raspberry-pi/installing-software
+# echo -e "$Cyan Downloading Adafruit motor controller python libraries... $Color_Off"
+# sudo python3 -m pip install --upgrade adafruit-circuitpython-motorkit
 
 # from: https://github.com/NickCrews/ms5803py
-echo -e "$Cyan Downloading pressure sensor python libraries... $Color_Off"
-sudo python3 -m pip install --upgrade ms5803py
+# echo -e "$Cyan Downloading pressure sensor python libraries... $Color_Off"
+# sudo python3 -m pip install --upgrade ms5803py
 
 # From: https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html
-echo -e "$Cyan Installing uWSGI python3 library (tiny server handler) and python c bindings for it $Color_Off"
-sudo apt install -y build-essential python-dev
-sudo python3 -m pip install --upgrade uwsgi
+# echo -e "$Cyan Installing uWSGI python3 library (tiny server handler) and python c bindings for it $Color_Off"
+# sudo apt install -y build-essential python-dev
+# sudo python3 -m pip install --upgrade uwsgi
 
 # ----------------------------------------------------------------------------------------------------------------------
 # from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
-cd ~/ # go to home directory
-echo -e "$Cyan Installing Adafruit circuit python (May ask to reboot, say yes) $Color_Off"
-wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
-sudo python3 raspi-blinka.py
+# cd ~/ # go to home directory
+# echo -e "$Cyan Installing Adafruit circuit python (May ask to reboot, say yes) $Color_Off"
+# wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
+# sudo python3 raspi-blinka.py
