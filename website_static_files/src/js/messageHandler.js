@@ -12,7 +12,7 @@ export class MessageHandler {
     static sendMessageCallback = () => { };
 
     constructor(sendMessageCallback) {
-        this.sendMessageCallback = sendMessageCallback;
+        MessageHandler.sendMessageCallback = sendMessageCallback;
     }
 
     // sendRovMessage: Send a message to the rov peer and setup reply callbacks based on a message cid if reply(ies) are expected.
@@ -26,7 +26,7 @@ export class MessageHandler {
         if (replyCallback) MessageHandler.replyContinuityCallbacks[cid].callback = replyCallback;
 
         // send the message to the rov
-        this.sendMessageCallback(messageString);
+        MessageHandler.sendMessageCallback(messageString);
     }
 
     handlePasswordChallenge(msg_cid) {
@@ -136,7 +136,7 @@ export class RovActions {
 
     static startPingMessageSenderLoop() {
         const intervalId = setInterval(() => {
-            MessageHandler.sendRovMessage({ "ping": Date.now() });
+            MessageHandler.sendRovMessage({ "action": "ping", "val": Date.now() });
         }, 2000)
         return () => { clearInterval(intervalId) } // return a cleanup function
     }

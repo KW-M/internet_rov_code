@@ -39,7 +39,7 @@ export const peerConnMachine =
                 },
             },
             Connected_To_Rov: {
-                entry: ["showRovConnectedUi", "debugReload"],
+                entry: ["showRovConnectedUi"], //"debugReload"
                 type: "parallel",
                 states: {
                     DataChannel: {
@@ -275,7 +275,7 @@ export const peerConnMachine =
                         sendStateChange({ type: "GOT_MESSAGE_FROM_ROV", data: message });
                     }; rovDataConnection.on('data', dataMsgRecivedHandler)
 
-                    sendStateChange({ type: "SEND_MESSAGE_TO_ROV", data: JSON.stringify({ action: "BEGIN_LIVESTREAM" }) });
+                    sendStateChange({ type: "SEND_MESSAGE_TO_ROV", data: JSON.stringify({ action: "begin_livestream" }) });
 
                     // cleanup event listeners when the state is exited
                     return () => {

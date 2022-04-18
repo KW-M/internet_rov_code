@@ -204,7 +204,7 @@ const mainMachine =
             }),
             "startPingMessageGenerator": assign({
                 pingSenderActor: () => {
-                    return spawn(RovActions.pingMessageSenderLoop, "pingMessageGenerator")
+                    return spawn(RovActions.startPingMessageSenderLoop, "pingMessageGenerator")
                 }
             }),
             "stopPingMessageGenerator": stop("pingMessageGenerator"),
@@ -263,7 +263,8 @@ window.onbeforeunload = () => {
 
 /* init rov message handler */
 new MessageHandler((messageStrForRov) => {
-    window.mainRovMachineService.send("SEND_MESSAGE_TO_ROV", messageStrForRov);
+    console.log("sending_message_to_rov " + messageStrForRov)
+    window.mainRovMachineService.send({ type: "SEND_MESSAGE_TO_ROV", data: messageStrForRov });
 });
 window.rovActions = RovActions;
 

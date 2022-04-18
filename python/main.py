@@ -45,10 +45,10 @@ log = logging.getLogger(__name__)
 async def main():
     # setup the asyncio loop to run each of these async functions aka "tasks" aka "coroutines" concurently
     await asyncio.gather(
-        sensors.sensor_setup_loop(),
-        motion_ctrl.motor_setup_loop(),
+        # sensors.sensor_setup_loop(),
+        # motion_ctrl.motor_setup_loop(),
         unix_socket.socket_relay_setup_loop(),
-        message_handler.socket_incoming_message_handler_loop(),
+        # message_handler.socket_incoming_message_handler_loop(),
         # message_handler.socket_update_message_sender_loop(),
         # start_aiohttp_api_server()
     )
@@ -61,8 +61,8 @@ except KeyboardInterrupt:
     pass
 finally:
     # cleanup that will always run no matter what
-    sensors.cleanup()
-    motion_ctrl.cleanup_gpio()
+    # sensors.cleanup()
+    # motion_ctrl.cleanup_gpio()
     unix_socket.cleanup()
     pass
 

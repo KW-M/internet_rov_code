@@ -715,7 +715,7 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
         }),
         "startPingMessageGenerator": _xstate.assign({
             pingSenderActor: ()=>{
-                return _xstate.spawn(_messageHandler.RovActions.pingMessageSenderLoop, "pingMessageGenerator");
+                return _xstate.spawn(_messageHandler.RovActions.startPingMessageSenderLoop, "pingMessageGenerator");
             }
         }),
         "stopPingMessageGenerator": _actions.stop("pingMessageGenerator"),
@@ -778,7 +778,11 @@ window.onbeforeunload = ()=>{
     window.thisPeerjsPeer.destroy();
 };
 /* init rov message handler */ new _messageHandler.MessageHandler((messageStrForRov)=>{
-    window.mainRovMachineService.send("SEND_MESSAGE_TO_ROV", messageStrForRov);
+    console.log("sending_message_to_rov " + messageStrForRov);
+    window.mainRovMachineService.send({
+        type: "SEND_MESSAGE_TO_ROV",
+        data: messageStrForRov
+    });
 });
 window.rovActions = _messageHandler.RovActions;
 /* init gamepad support */ new _gamepadJs.GamepadController(); /* Initialize Disclosure Menus */  // var menus = document.querySelectorAll('.disclosure-nav');
@@ -8660,7 +8664,7 @@ class MessageHandler {
     // This callback should be set in the constructor below.
     static sendMessageCallback = ()=>{};
     constructor(sendMessageCallback){
-        this.sendMessageCallback = sendMessageCallback;
+        MessageHandler.sendMessageCallback = sendMessageCallback;
     }
     // sendRovMessage: Send a message to the rov peer and setup reply callbacks based on a message cid if reply(ies) are expected.
     static sendRovMessage = (msgObject, replyCallback)=>{
@@ -8673,7 +8677,7 @@ class MessageHandler {
         };
         if (replyCallback) MessageHandler.replyContinuityCallbacks[cid].callback = replyCallback;
         // send the message to the rov
-        this.sendMessageCallback(messageString);
+        MessageHandler.sendMessageCallback(messageString);
     };
     handlePasswordChallenge(msg_cid) {
         _ui.showPasswordPrompt("Please enter the piloting password", (password)=>{
@@ -8744,7 +8748,8 @@ class RovActions {
     static startPingMessageSenderLoop() {
         const intervalId = setInterval(()=>{
             MessageHandler.sendRovMessage({
-                "ping": Date.now()
+                "action": "ping",
+                "val": Date.now()
             });
         }, 2000);
         return ()=>{
@@ -11204,8 +11209,7 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
         },
         Connected_To_Rov: {
             entry: [
-                "showRovConnectedUi",
-                "debugReload"
+                "showRovConnectedUi"
             ],
             type: "parallel",
             states: {
@@ -11461,7 +11465,7 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
                 sendStateChange({
                     type: "SEND_MESSAGE_TO_ROV",
                     data: JSON.stringify({
-                        action: "BEGIN_LIVESTREAM"
+                        action: "begin_livestream"
                     })
                 });
                 // cleanup event listeners when the state is exited
