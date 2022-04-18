@@ -173,7 +173,7 @@ func CreateUnixSocketRelay(closeSocketSignal *UnblockSignal, messagesFromSocket 
 			default:
 				sock.exitSocketLoopsSignal = newUnblockSignal()
 				sock.startSocketServer(unixSocketPath)
-				time.Sleep(time.Second) // wait a second before trying to reconnect
+				time.Sleep(time.Second * 10) // wait a second before trying to reconnect
 			}
 		}
 	}()
