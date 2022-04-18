@@ -183,6 +183,9 @@ class MessageHandler:
                 reply_msg_data['status'] = 'error'
                 reply_msg_data['val'] = 'No action specified'
 
+            elif action == "begin_livestream":
+                reply_metadata["Action"] = "begin_livestream"
+
             elif action == "ping":
                 reply_msg_data['status'] = 'pong'
                 reply_msg_data[
