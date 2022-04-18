@@ -17,7 +17,7 @@ var ADD_METADATA_TO_UNIX_SOCKET_MESSAGES = true
 
 func parseProgramCmdlineFlags() {
 	// Parse the command line parameters passed to program in the shell eg "-a" in "ls -a"
-	flag.StringVar(&videoShellCommand, "video-shell-cmd", "cat -", "Shell command that will send a h264 video stream to stdout, Default is \"cat -\"")
+	// flag.StringVar(&videoShellCommand, "video-shell-cmd", "cat -", "Shell command that will send a h264 video stream to stdout, Default is \"cat -\"")
 	// flag.StringVar(&peerServerListenPort, "peerserver-listen-port", "8181", "Port number for the go peerjs server to listen on. Default is 8181")
 	// flag.BoolVar(&ADD_METADATA_TO_UNIX_SOCKET_MESSAGES, "add-metadata-to-messages", true, "If true, when a datachannel message is recived, metataa like the sender's peer id will be prepended to all message, followed by the delimeter before being sent to the unix socket. Default is false")
 	flag.Parse()
@@ -52,18 +52,18 @@ func main() {
 	defer sock.cleanupSocketServer()
 
 	// DEBUG FOR SOCKET MESSAGES
-	// go func() {
-	// 	for {
-	// 		select {
-	// 		case <-quitProgram:
-	// 			return
-	// 		case <-time.After(time.Second * 1):
-	// 			sock.socketWriteChannel <- "{\"ping\":3}"
-	// 		case msg := <- sock.socketReadChannel:
-	// 			log.Debug("Got message from socket: ", msg)
-	// 		}
-	// 	}
-	// }()
+	go func() {
+		for {
+			select {
+			case <-programShouldQuitSignal.GetSignal():
+				return
+			case <-time.After(time.Second * 1):
+				sendMessagesToUnixSocketChan <- "{\"ping\":3}"
+			case msg := <-messagesFromUnixSocketChan:
+				log.Debug("Got message from socket: ", msg)
+			}
+		}
+	}()
 
 	// DEBUG FOR ECHOING BACK ALL MESSAGES & BYPASSING SOCKET
 	// go func() {
@@ -80,11 +80,11 @@ func main() {
 	// }()
 
 	// Setup the video stream and start the camera running
-	initVideoTrack()
-	go pipeVideoToStream(programShouldQuitSignal)
+	// initVideoTrack()
+	// go pipeVideoToStream(programShouldQuitSignal)
 
-	// Setup the peerjs client to accept webrtc connections
-	go startPeerServerConnectionLoop(programShouldQuitSignal)
+	// // Setup the peerjs client to accept webrtc connections
+	// go startPeerServerConnectionLoop(programShouldQuitSignal)
 
 	// Wait for a signal to stop the program
 	systemExitCalled := make(chan os.Signal, 1)                                                     // Create a channel to listen for an interrupt signal from the OS.
