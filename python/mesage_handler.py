@@ -93,11 +93,11 @@ class MessageHandler:
             # True: pilot has changed, srcPeerId: who sent this message
             return (True, src_peer_id)
         else:
-            # False: pilot has not changed, srcPeerId: who sent this message
+            # False: pilot has not changed, srcPeerId: who sent this message or None if there was a problem
             return (False, src_peer_id)
 
     def check_if_peer_is_authenticated(self, peer_id):
-        if (peer_id in self.authenticated_peerids):
+        if (peer_id is not None and peer_id in self.authenticated_peerids):
 
             last_action_time = time.time() if self.authenticated_peerids[
                 peer_id] == True else self.authenticated_peerids[peer_id]
@@ -151,6 +151,8 @@ class MessageHandler:
             message = await self.unix_socket.messages_from_socket_queue.get()
             print("Received message: " + message)
             metadata, msg_dict = self.parse_socket_message(message)
+            if (metadata is None or msg_dict is None):
+                continue
 
             # variables to be set based on the recived metadata
             pilot_has_changed, src_peer_id = self.handle_messsage_metadata(
