@@ -148,7 +148,7 @@ class MessageHandler:
         while True:
 
             # get the next message from the socket
-            message = await self.messages_from_socket_queue.get()
+            message = await self.unix_socket.messages_from_socket_queue.get()
             metadata, msg_dict = self.parse_socket_message(message)
 
             # variables to be set based on the recived metadata
