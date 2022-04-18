@@ -163,9 +163,8 @@ class MessageHandler:
             if pilot_has_changed:
                 reply_msg_data['status'] = 'pilotHasChanged'
                 reply_msg_data['val'] = self.current_pilot_peerid
-                await self.send_msg(
-                    reply_msg_data, reply_metadata,
-                    [])  # send to all connected peers (empty list)
+                # send to all connected peers (empty list at end)
+                await self.send_msg(reply_msg_data, reply_metadata, [])
 
             # send any further reply messages to the same peer that sent this message:
             if src_peer_id:
@@ -197,7 +196,7 @@ class MessageHandler:
                     reply_msg_data['val'] = self.current_pilot_peerid
                     reply_metadata['TargetPeerIds'] = [
                     ]  # send to all connected peers
-                    self.send_msg(reply_msg_data, reply_metadata)
+                    await self.send_msg(reply_msg_data, reply_metadata)
                     continue  # skip the cid copy action below
 
                 elif action in [
@@ -254,8 +253,9 @@ class MessageHandler:
             if len(reply_msg_data) > 0 or len(reply_metadata) > 0:
                 msgContinuityId = msg_dict.get('cid', None)
                 reply_msg_data['cid'] = msgContinuityId
-                self.send_msg(reply_msg_data, reply_metadata,
-                              src_peer_id)  # send only to the src_peer_id
+                await self.send_msg(
+                    reply_msg_data, reply_metadata, src_peer_id
+                )  # send only back to the original peer (src_peer_id at end)
 
     async def socket_update_message_sender_loop(self):
         while True:
@@ -267,7 +267,7 @@ class MessageHandler:
             sensorUpdates = self.sensor_ctrl.get_sensor_update_dict()
             reply_msg_data.update(sensorUpdates)
 
-            # send to all connected peers (empty list)
-            self.send_msg(reply_msg_data, reply_metadata, [])
+            # send to all connected peers (empty list at end)
+            await self.send_msg(reply_msg_data, reply_metadata, [])
 
             await asyncio.sleep(1)
