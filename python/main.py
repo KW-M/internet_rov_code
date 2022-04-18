@@ -26,7 +26,7 @@ config = read_config_file()
 ##### Setup Variables #####
 ############################
 
-unix_socket = Unix_Socket(socket_path=config["socket-path"])
+unix_socket = Unix_Socket(socket_path=config["unix-socket-path"])
 sensors = Sensor_Controller()
 # sensor_log = Sensor_Log(sensors.all_sensors)
 motion_ctrl = Motion_Controller()
