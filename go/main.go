@@ -11,8 +11,8 @@ import (
 )
 
 // command line flag placeholder variables
-var videoShellCommand = ""
-var peerServerListenPort = ""
+// var videoShellCommand = ""
+// var peerServerListenPort = ""
 var ADD_METADATA_TO_UNIX_SOCKET_MESSAGES = true
 
 func parseProgramCmdlineFlags() {
@@ -52,18 +52,18 @@ func main() {
 	defer sock.cleanupSocketServer()
 
 	// DEBUG FOR SOCKET MESSAGES
-	go func() {
-		for {
-			select {
-			case <-programShouldQuitSignal.GetSignal():
-				return
-			case <-time.After(time.Second * 1):
-				sendMessagesToUnixSocketChan <- "{\"ping\":3}"
-			case msg := <-messagesFromUnixSocketChan:
-				log.Debug("Got message from socket: ", msg)
-			}
-		}
-	}()
+	// go func() {
+	// 	for {
+	// 		select {
+	// 		case <-programShouldQuitSignal.GetSignal():
+	// 			return
+	// 		case <-time.After(time.Second * 1):
+	// 			sendMessagesToUnixSocketChan <- "{\"ping\":3}"
+	// 		case msg := <-messagesFromUnixSocketChan:
+	// 			log.Debug("Got message from socket: ", msg)
+	// 		}
+	// 	}
+	// }()
 
 	// DEBUG FOR ECHOING BACK ALL MESSAGES & BYPASSING SOCKET
 	// go func() {
@@ -80,11 +80,11 @@ func main() {
 	// }()
 
 	// Setup the video stream and start the camera running
-	// initVideoTrack()
-	// go pipeVideoToStream(programShouldQuitSignal)
+	initVideoTrack()
+	go pipeVideoToStream(programShouldQuitSignal)
 
-	// // Setup the peerjs client to accept webrtc connections
-	// go startPeerServerConnectionLoop(programShouldQuitSignal)
+	// Setup the peerjs client to accept webrtc connections
+	go startPeerServerConnectionLoop(programShouldQuitSignal)
 
 	// Wait for a signal to stop the program
 	systemExitCalled := make(chan os.Signal, 1)                                                     // Create a channel to listen for an interrupt signal from the OS.

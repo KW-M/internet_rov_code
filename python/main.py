@@ -48,7 +48,7 @@ async def main():
         # sensors.sensor_setup_loop(),
         # motion_ctrl.motor_setup_loop(),
         unix_socket.socket_relay_setup_loop(),
-        # message_handler.socket_incoming_message_handler_loop(),
+        message_handler.socket_incoming_message_handler_loop(),
         # message_handler.socket_update_message_sender_loop(),
         # start_aiohttp_api_server()
     )
