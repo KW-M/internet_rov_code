@@ -43,7 +43,7 @@ class MessageHandler:
             log.error(
                 "Could not find message metadata separator in socket message: "
                 + message)
-            return None
+            return (None, None)
 
         try:
             message_metadata = json.loads(
@@ -57,10 +57,10 @@ class MessageHandler:
             log.warning(
                 'Received unix socket message with invalid JSON format: ' +
                 message)
-            return None
+            return (None, None)
         except Exception as error:
             log.error(error, exc_info=True)
-            return None
+            return (None, None)
 
     def handle_messsage_metadata(self, metadata):
 
