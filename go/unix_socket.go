@@ -28,7 +28,7 @@ type UnixSocketRelay struct {
 
 /* ReadUnixSocketAsync (blocking goroutine)
  * will push all recved messages as a string onto the messagesFromSocket channel */
- func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
+func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
 	buf := make([]byte, sock.readBufferSize)
 	for {
 		select {
@@ -54,17 +54,17 @@ type UnixSocketRelay struct {
 	}
 }
 
-
 /* WriteUnixSocketAsync (blocking goroutine)
  * will wait for messages on the messagesToSocket channel and send them to the socket in utf-8 encoded bytes */
 func (sock *UnixSocketRelay) WriteUnixSocketAsync() {
 	for {
-		// sock.debugLog.Debug("Writing sock Loop...")
+		sock.debugLog.Debug("Writing sock Loop...")
 		select {
 		case <-sock.exitSocketLoopsSignal.GetSignal():
 			sock.debugLog.Info("Exiting writing unix socket loop...")
 			return
 		case msg, chanIsOpen := <-sock.messagesToSocket:
+			log.Print("Writing to socket: ", msg, chanIsOpen)
 			if chanIsOpen && msg != "" {
 				sock.socketConnection.SetWriteDeadline(time.Now().Add(time.Second * 10))
 				_, err := sock.socketConnection.Write([]byte(msg))
