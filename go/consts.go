@@ -20,7 +20,7 @@ type DatachannelToUnixSocketMessageMetadata struct {
 	SrcPeerId string `json:"SrcPeerId"`
 	// Whenever a peer connects or disconnects this will be "connect" or "disconnect" with the connected or disconnected peer set in SrcPeerId
 	PeerEvent string `json:"PeerEvent"`
-	// Err is the error message if there was an error with the previous action command recived on the unix socket.
+	// Err is the error message if there was an error with the previous metadata action command recived on the unix socket.
 	Err string `json:"Err"`
 }
 

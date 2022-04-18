@@ -17,7 +17,7 @@ from unix_socket import Unix_Socket
 from motion_controller import Motion_Controller
 # from sensor_log import Sensor_Log
 from sensors import Sensor_Controller
-from mesage_handler import socket_incoming_message_handler_loop, socket_update_message_sender_loop
+from mesage_handler import MessageHandler
 from utilities import *
 # import logging_formatter
 
@@ -30,6 +30,7 @@ unix_socket = Unix_Socket(socket_path=config["socket-path"])
 sensors = Sensor_Controller()
 # sensor_log = Sensor_Log(sensors.all_sensors)
 motion_ctrl = Motion_Controller()
+message_handler = MessageHandler(unix_socket, motion_ctrl, sensors, config)
 
 ###### Setup Logging #######
 ############################
@@ -44,10 +45,10 @@ log = logging.getLogger(__name__)
 async def main():
     # setup the asyncio loop to run each of these async functions aka "tasks" aka "coroutines" concurently
     await asyncio.gather(
-        # sensors.sensor_setup_loop(), motion_ctrl.motor_setup_loop(),
-        # unix_socket.socket_relay_setup_loop(),
-        # socket_incoming_message_handler_loop(unix_socket, motion_ctrl),
-        # socket_update_message_sender_loop(unix_socket, sensors=sensors),
+        sensors.sensor_setup_loop(), motion_ctrl.motor_setup_loop(),
+        unix_socket.socket_relay_setup_loop(),
+        message_handler.socket_incoming_message_handler_loop(),
+        message_handler.socket_update_message_sender_loop(),
         start_aiohttp_api_server())
 
 

@@ -535,15 +535,16 @@ var _siteInit = require("./siteInit");
 var _peerConnStateMachineJs = require("./peerConnStateMachine.js");
 var _peerServerConnStateMachineJs = require("./peerServerConnStateMachine.js");
 var _constsJs = require("./consts.js");
-var _accesableDropdownMenuJs = require("./libraries/accesableDropdownMenu.js");
-// import { initGamepadSupport } from "./gamepad.js";
-// import { gamepadUi } from "./gamepad-ui.js";
-// import { gamepadEmulator } from "./gamepad-emulation.js";
 // show an inspector if the query string is present
 if (_utilJs.getURLQueryStringVariable("debug-mode")) _inspect.inspect({
     iframe: false
 });
-new _gamepadJs.GamepadController();
+// import { DisclosureNav } from "./libraries/accesableDropdownMenu.js";
+// // showChoiceDialog("Pick A food", ["peanuts", "cashews", "rum"], console.log)
+// let a = showScrollableTextPopup("ROV Status")
+// setInterval(() => {
+//     a(Date.now() + " djflksdjf dslkfjsdsdjflksdjflkfjsd" + " \n");
+// }, 100);
 const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QAmAGwBmbAEYAHMoAMAdg0BWbQBYVATkNyANCACeibQq0y9U1XLVqpclQF8P5tFmwMAV0xMLChsADlefDoAYRFMMABjfEhSAAUaGgY6XCyANSzYgHlw8JoYqgoSuhpcKmYAIQAZClwACRpWMT4BIRExSQRlQw1sdzkZRTk9ZTkRxT1zKwRHUbk5jVU9bXk1Q00vHwwcQODQ7DSwMCIc64A3a9j4pJSIchpw1joAWVrcZgA4vQqEVGEU8t1+IJhKIkBJEFN5NgpBpDG49HJtMo9GosUtEHptthXFN3DoZHtjIcQL4TkEQpgwpdHrh7o84sEXqkAUUqD8-oD6AAxBhFb5giFwnrQ-pwwaKRRuMYyZRSQzKDQUuSbRT4hCE7TEqSkxTkymGam0-z00KkVitGIlMoVOgNACqVBB4ToaSYuFyXSlUL6sNAgykyLUKqmalmemMmJserVemwqqkGbUihkunsUktx2tZ0Z6Uy2VyDAK2SFzHqTRqDFFDEhvRhA0QGlNRtVeh06k7ez1Mi02FRRhzKM7GYLflODKgpAA6jQGgwqDE6DW6w2my2ZaH4QhswZsMOMVIszttLrLIhpooxp2HFJtuo1BMZ3Tiwvlw1KLRYiaIpcj3EN2yPGQc2RXsDEggwUxkZMkW0QwVVjFVILkY05E-bBmAAdwwIRGQlJ5OWSV0AnwfARB9Ig4FgUhHVKco+XdT1ql9P5OlAts5TvHRsH0dZjUJEwnz1bZDDTbQXH0YZUOUTxqUwXgIDgMQrQIYh8F42Uw2kB9VRQ2ZDBsJT0T1XRR1mWZTW1KNZGxXC53OSJog5BJkkgPSD0GaMjQMLERMUNRtmTdQ0xxU0KXUbNjG0FybUZC4rhuVkiAeG5PK5CBfPAxV9mwNFcTMzQTCw5NO2RRRjAw1wUNRHDvBpQtXMZfL+IQHNRlcILZiw0LwtvBBrzGLDtRkScUL63CCKI0JSJyiiGiomjMDohjOoMhAAFodiEjNtA0TRjvsfZEJGmYZFHSlZijHYXGao4-FYEQwG2w8VEgoTNXVZQVW2RQkxGtVlFHDQ3E0ewsNxexP0+wZdsi7QjpOnRNXjKM9V241TwmJqs1cCY9i8LwgA */ _xstate.createMachine({
     context: {
         peerServerConfig: {},
@@ -632,7 +633,7 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
                     internal: false
                 },
                 WEBRTC_FATAL_ERROR: {
-                    // actions: "reloadWebsite",
+                    actions: "reloadWebsite",
                     target: "Done"
                 },
                 WEBSITE_CLOSE: {
@@ -714,21 +715,7 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
         }),
         "startPingMessageGenerator": _xstate.assign({
             pingSenderActor: ()=>{
-                return _xstate.spawn((callback)=>{
-                    const intervalId = setInterval(()=>{
-                        callback({
-                            type: "SEND_MESSAGE_TO_ROV",
-                            data: JSON.stringify({
-                                "ping": Date.now()
-                            })
-                        }, {
-                            to: "peerConnMachine"
-                        });
-                    }, 2000);
-                    return ()=>{
-                        clearInterval(intervalId);
-                    };
-                }, "pingMessageGenerator");
+                return _xstate.spawn(_messageHandler.RovActions.pingMessageSenderLoop, "pingMessageGenerator");
             }
         }),
         "stopPingMessageGenerator": _actions.stop("pingMessageGenerator"),
@@ -752,7 +739,11 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
                 const err = event.data;
                 console.log(event);
                 var toastMsg = null;
-                if (err && err.type == "peer-unavailable") toastMsg = _uiJs.showToastDialog("ROV is not yet online!", 12000, false);
+                if (err && err.type == "peer-unavailable") toastMsg = _uiJs.showToastDialog([
+                    _uiJs.createTitle("ROV is not yet online!")
+                ], {
+                    duration: 12000
+                });
                 const cleanupFunc = _uiJs.setupConnectBtnClickHandler(()=>{
                     if (toastMsg) toastMsg.hideToast();
                     sendStateChange("CONNECT_BUTTON_PRESSED");
@@ -786,12 +777,17 @@ window.onbeforeunload = ()=>{
     // window.mainRovMachineService.send("WEBSITE_CLOSE");
     window.thisPeerjsPeer.destroy();
 };
-/* Initialize Disclosure Menus */ var menus = document.querySelectorAll('.disclosure-nav');
-var disclosureMenus = [];
-for(var i = 0; i < menus.length; i++){
-    disclosureMenus[i] = new _accesableDropdownMenuJs.DisclosureNav(menus[i]);
-    disclosureMenus[i].updateKeyControls(true);
-} // fake link behavior
+/* init rov message handler */ new _messageHandler.MessageHandler((messageStrForRov)=>{
+    window.mainRovMachineService.send("SEND_MESSAGE_TO_ROV", messageStrForRov);
+});
+window.rovActions = _messageHandler.RovActions;
+/* init gamepad support */ new _gamepadJs.GamepadController(); /* Initialize Disclosure Menus */  // var menus = document.querySelectorAll('.disclosure-nav');
+ // var disclosureMenus = [];
+ // for (var i = 0; i < menus.length; i++) {
+ //     disclosureMenus[i] = new DisclosureNav(menus[i]);
+ //     disclosureMenus[i].updateKeyControls(true);
+ // }
+ // fake link behavior
  // disclosureMenus.forEach((disclosureNav, i) => {
  //     var links = menus[i].querySelectorAll('[href="#mythical-page-content"]');
  //     var examplePageHeading = document.getElementById('mythical-page-heading');
@@ -892,7 +888,7 @@ for(var i = 0; i < menus.length; i++){
  //     }
  // }
 
-},{"@xstate/inspect":"39FuP","./gamepad.js":"2YxSr","./messageHandler":"at2SH","./util.js":"doATT","./ui.js":"efi6n","xstate":"2sk4t","xstate/lib/actions":"b9dCp","./siteInit":"8TXLV","./peerConnStateMachine.js":"hGSry","./peerServerConnStateMachine.js":"3YceA","./consts.js":"2J0f1","./libraries/accesableDropdownMenu.js":"dczPN"}],"39FuP":[function(require,module,exports) {
+},{"@xstate/inspect":"39FuP","./gamepad.js":"2YxSr","./messageHandler":"at2SH","./util.js":"doATT","./ui.js":"efi6n","xstate":"2sk4t","xstate/lib/actions":"b9dCp","./siteInit":"8TXLV","./peerConnStateMachine.js":"hGSry","./peerServerConnStateMachine.js":"3YceA","./consts.js":"2J0f1"}],"39FuP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "createDevTools", ()=>_browserJs.createDevTools
@@ -8650,176 +8646,230 @@ class GamepadInterface {
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"at2SH":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "handleRovMessage", ()=>handleRovMessage
+parcelHelpers.export(exports, "MessageHandler", ()=>MessageHandler
 );
-parcelHelpers.export(exports, "sendRovMessage", ()=>sendRovMessage
+parcelHelpers.export(exports, "RovActions", ()=>RovActions
 );
-const handleRovMessage = (message)=>{
-    console.log("Got ROV Message:", message);
-};
-const sendRovMessage = (message)=>{
-    return (callback, onReceive)=>{
-        console.log("handleROVMessage: ", message);
-    };
-} // not used^
-;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"doATT":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "clamp", ()=>clamp
-);
-/* generateStateChangeFunction is a function generator for an xstate machine that will return a function that will run a callback and send the named state transition with the data or event from the calling transition */ parcelHelpers.export(exports, "generateStateChangeFunction", ()=>generateStateChangeFunction
-);
-parcelHelpers.export(exports, "calculateDesiredMotion", ()=>calculateDesiredMotion
-);
-/*
-* Gets just the passed name parameter from the query string the curent url:
-* Example: if the url is: https://example.com/abc?some-variable-name=somevalue&someotherthing=someothervalue
-* then getURLQueryStringVariable("some-variable-name") will return "somevalue"
-*/ parcelHelpers.export(exports, "getURLQueryStringVariable", ()=>getURLQueryStringVariable
-);
-parcelHelpers.export(exports, "isInternetAvailable", ()=>isInternetAvailable
-);
-parcelHelpers.export(exports, "toggleFullscreen", ()=>toggleFullscreen
-);
-// Downloads the given link, with an optional filename for the download
-parcelHelpers.export(exports, "download", ()=>download
-);
-function clamp(number, max, min) {
-    return Math.max(Math.min(number, max), min);
-}
-function generateStateChangeFunction(sendStateChange, stateTransition, data, additionalCallback) {
-    const func = function(evt) {
-        if (additionalCallback) additionalCallback(evt);
-        sendStateChange({
-            type: stateTransition,
-            data: data || evt
-        });
-    };
-    return func;
-}
-function calculateDesiredMotion(axes) {
-    var turn = axes[0].toFixed(3);
-    var forward = -1 * axes[1].toFixed(3);
-    var strafe = axes[2].toFixed(3);
-    var vertical = -1 * axes[3].toFixed(3);
-    return {
-        thrustVector: [
-            strafe,
-            forward,
-            vertical
-        ],
-        turnRate: turn
-    };
-}
-function getURLQueryStringVariable(variable) {
-    var query = window.location.search.substring(1);
-    var vars = query.split('&');
-    for(var i = 0; i < vars.length; i++){
-        var pair = vars[i].split('=');
-        if (decodeURIComponent(pair[0]) == variable) return decodeURIComponent(pair[1]);
+var _ui = require("./ui");
+var _uuid = require("uuid");
+class MessageHandler {
+    // replyContinuityCallbacks: keep track of functions to run when we get a reply to a message we sent with some "cid" aka continuityId
+    // object format: (key is the cid of the sent message): { '1234': { callback: function() {}, original_msg: "{action:'move'}" }, etc... }
+    static replyContinuityCallbacks = {};
+    // sendMessageCallback: Function that will send the message to the rov peer.
+    // This callback should be set in the constructor below.
+    static sendMessageCallback = ()=>{};
+    constructor(sendMessageCallback){
+        this.sendMessageCallback = sendMessageCallback;
     }
-// console.log('Query variable %s not found', variable);
-}
-function isInternetAvailable(urlToCheck) {
-    return new Promise((resolve)=>{
-        console.info("checkingUrl", urlToCheck);
-        try {
-            fetch(urlToCheck).then(()=>{
-                resolve(true);
-            }).catch((e)=>{
-                console.warn("Internet Offline, starting switch to local mode", e);
-                resolve(false);
-            });
-        // setTimeout(() => {
-        //     resolve(false)
-        // }, 10000)
-        } catch (e) {
-            console.warn("Error Checking internet, starting switch to local mode", e);
-            resolve(false);
-        }
-    });
-}
-window.closeFullscreen = ()=>{
-    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-    if (fullscreenElement) {
-        const removeFullscreenUi = ()=>{
-            fullscreenElement.classList.remove('fullscreen-open');
+    // sendRovMessage: Send a message to the rov peer and setup reply callbacks based on a message cid if reply(ies) are expected.
+    static sendRovMessage = (msgObject, replyCallback)=>{
+        const messageString = JSON.stringify(msgObject);
+        console.log("Sending message: " + messageString);
+        // setup the reply callback
+        let cid = msgObject["cid"] = msgObject["cid"] || _uuid.v4().substring(0, 8); // generate a random cid if none is provided
+        if (!MessageHandler.replyContinuityCallbacks[cid]) MessageHandler.replyContinuityCallbacks[cid] = {
+            original_msg: msgObject
         };
-        if (document.exitFullscreen) document.exitFullscreen().then(removeFullscreenUi);
-        else if (document.msExitFullscreen) document.msExitFullscreen().then(removeFullscreenUi);
-        else if (document.mozCancelFullScreen) document.mozCancelFullScreen().then(removeFullscreenUi);
-        else if (document.webkitExitFullscreen) document.webkitExitFullscreen().then(removeFullscreenUi);
-    }
-};
-/* When the toggleFullscreen() export function is executed, open the passed element in fullscreen.
-Note that we must include prefixes for different browsers, as they don't support the requestFullscreen method yet */ window.toggleFullscreen = (e, elem)=>{
-    elem = elem || document.documentElement;
-    if (e && e.initialTarget) e.initialTarget.classList.toggle('fullscreen-open');
-    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-    const addFullscreenUi = ()=>{
-        elem.classList.add('fullscreen-open');
+        if (replyCallback) MessageHandler.replyContinuityCallbacks[cid].callback = replyCallback;
+        // send the message to the rov
+        this.sendMessageCallback(messageString);
     };
-    const removeFullscreenUi = ()=>{
-        fullscreenElement.classList.remove('fullscreen-open');
-        if (elem !== fullscreenElement) {
-            if (elem.requestFullscreen) elem.requestFullscreen().then(addFullscreenUi);
-            else if (elem.msRequestFullscreen) elem.msRequestFullscreen().then(addFullscreenUi);
-            else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen().then(addFullscreenUi);
-            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT).then(addFullscreenUi);
-        }
-    };
-    if (fullscreenElement) {
-        if (document.exitFullscreen) document.exitFullscreen().then(removeFullscreenUi);
-        else if (document.msExitFullscreen) document.msExitFullscreen().then(removeFullscreenUi);
-        else if (document.mozCancelFullScreen) document.mozCancelFullScreen().then(removeFullscreenUi);
-        else if (document.webkitExitFullscreen) document.webkitExitFullscreen().then(removeFullscreenUi);
-    } else {
-        if (elem.requestFullscreen) elem.requestFullscreen().then(addFullscreenUi);
-        else if (elem.msRequestFullscreen) elem.msRequestFullscreen().then(addFullscreenUi);
-        else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen().then(addFullscreenUi);
-        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT).then(addFullscreenUi);
-    }
-};
-function toggleFullscreen(event, elem) {
-    elem = elem || document.documentElement;
-    var fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-    if (!fullscreenElement || elem !== fullscreenElement) {
-        const requestFullscreenFunc = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.mozRequestFullScreen || elem.msRequestFullscreen;
-        console.log(requestFullscreenFunc);
-        requestFullscreenFunc(Element.ALLOW_KEYBOARD_INPUT);
-    } else {
-        const exitFullscreenFunc = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
-        exitFullscreenFunc().then(()=>{
-            fullscreenElement.classList.remove('fullscreen-open');
+    handlePasswordChallenge(msg_cid) {
+        _ui.showPasswordPrompt("Please enter the piloting password", (password)=>{
+            if (password) {
+                const msg_data = {
+                    "cid": msg_cid,
+                    "action": "password-response",
+                    "val": password
+                };
+                MessageHandler.sendRovMessage(msg_data, null);
+            } else // remove the reply callback if the user cancels the password prompt (empty password)
+            delete MessageHandler.replyContinuityCallbacks[msg_cid];
         });
     }
+    handleReplyMsgRecived(msg_data, msg_cid) {
+        const msg_status = msg_data["status"];
+        const msg_value = msg_data["value"];
+        const replyContinuityCallback = MessageHandler.replyContinuityCallbacks[msg_cid].callback;
+        if (msg_status == "error") console.error("Rov Action Error: " + msg_value);
+        else if (msg_status == "ok") {
+            if (replyContinuityCallback) replyContinuityCallback(msg_data);
+            else _ui.showToastMessage(MessageHandler.replyContinuityCallbacks[msg_cid].originalMsgData.action + ": OK");
+        } else if (msg_status == "password-requried") this.handlePasswordChallenge(msg_cid);
+        else if (msg_status == "password-invalid") {
+            _ui.showToastDialog("Invalid password");
+            this.handlePasswordChallenge(msg_cid);
+        } else if (msg_status == "password-accepted") {
+            _ui.showToastDialog("Password accepted");
+            const originalMsgData = MessageHandler.replyContinuityCallbacks[msg_cid].original_msg;
+            MessageHandler.MessagesendRovMessage(originalMsgData);
+        } else if (replyContinuityCallback) replyContinuityCallback(msg_data);
+    }
+    handlePilotChange(newPilotId) {
+        _ui.showToastMessage("ROV Pilot has changed to " + newPilotId);
+    }
+    handleBroadcastMsgRecived(msg_data) {
+        const msg_status = msg_data["status"];
+        const msg_value = msg_data["val"];
+        if (msg_status == "error") console.error("Rov Error: " + msg_value);
+        else if (msg_status == "pilotHasChanged") this.handlePilotChange(msg_value);
+    }
+    handleRecivedMessage(messageString) {
+        console.log("Recived message: " + messageString);
+        const msg_data = JSON.parse(messageString);
+        const msg_cid = msg_data["cid"];
+        if (msg_cid && msg_cid in MessageHandler.replyContinuityCallbacks) // --- this IS a reply to a message we sent ---
+        this.handleReplyMsgRecived(msg_data, msg_cid);
+        else // --- this is NOT a reply to a message we sent ---
+        this.handleBroadcastMsgRecived(msg_data);
+    }
 }
-function download(url, filename) {
-    const a = document.createElement('a') // Create <a> hyperlink element
-    ;
-    a.href = url // Set the hyperlink URL
-    ;
-    a.download = filename || "" // if left blank the browser will guess the filename for the downloaded file
-    ;
-    document.body.appendChild(a) // Append the hyperlink to the document body
-    ;
-    a.click() // Click the hyperlink
-    ;
-    document.body.removeChild(a) // Remove the hyperlink from the document body
-    ;
+class RovActions {
+    // ==== Helpers =====
+    static sendActionAndWaitForDone(action, callback) {
+        let responseMessage = "";
+        MessageHandler.sendRovMessage({
+            "action": action
+        }, (response)=>{
+            const responseText = response["val"] || "";
+            responseMessage += responseText + "\n";
+            const status = response["status"];
+            if (status && callback) {
+                if (status == "done") callback(responseMessage);
+                else if (status == "error") callback("Error: " + responseMessage);
+            }
+        });
+    }
+    static startPingMessageSenderLoop() {
+        const intervalId = setInterval(()=>{
+            MessageHandler.sendRovMessage({
+                "ping": Date.now()
+            });
+        }, 2000);
+        return ()=>{
+            clearInterval(intervalId);
+        } // return a cleanup function
+        ;
+    }
+    // ======= Actions ========
+    static moveRov(thrustVector, turnRate) {
+        MessageHandler.sendRovMessage({
+            "action": "move",
+            "val": {
+                thrustVector: thrustVector,
+                turnRate: turnRate
+            }
+        }, null);
+    }
+    static toggleLights() {
+        MessageHandler.sendRovMessage({
+            "action": "toggle_lights"
+        }, null);
+    }
+    static shutdownRov = ()=>{
+        if (confirm("Are you sure you want to shutdown the ROV? - The ROV will be on a different ngrok url when rebooted.")) {
+            _ui.showToastMessage("Sending Shutdown Request...");
+            RovActions.sendActionAndWaitForDone({
+                "action": "shutdown_rov"
+            }, (doneMsg)=>{
+                _ui.showToastMessage("Please wait 20 seconds before unplugging");
+                _ui.showToastMessage("ROV:" + doneMsg);
+            });
+        }
+    };
+    static rebootRov = ()=>{
+        if (confirm("Are you sure you want to reboot the ROV? - The ROV will be on a different ngrok url when rebooted.")) {
+            _ui.showToastMessage("Sending Reboot Request...");
+            RovActions.sendActionAndWaitForDone({
+                "action": "reboot_rov"
+            }, (doneMsg)=>{
+                _ui.showToastMessage("Press Connect again in ~30 seconds");
+                _ui.showToastMessage("ROV:" + doneMsg);
+            });
+        }
+    };
+    static restartRovServices = ()=>{
+        if (confirm("Are you sure you want to restart services? - The ROV will stop responding for about minute and then you will need to re-connect")) {
+            const addTextToPopup = _ui.showScrollableTextPopup("Restarting ROV Services...");
+            addTextToPopup("Sending Service Restart Request (Please Wait)...");
+            MessageHandler.sendRovMessage({
+                "action": "restart_rov_services"
+            }, (response)=>{
+                if (response['val']) addTextToPopup(response['val']);
+                if (response['error']) addTextToPopup("\nError:\n" + response['error']);
+            });
+        }
+    };
+    static getRovStatusReport = ()=>{
+        const addTextToPopup = _ui.showScrollableTextPopup("ROV Status Report...");
+        addTextToPopup("Sending Status Request (Please Wait)...");
+        MessageHandler.sendRovMessage({
+            "action": "rov_status_report_report"
+        }, (response)=>{
+            if (response['val']) addTextToPopup(response['val']);
+            if (response['error']) addTextToPopup("\nError:\n" + response['error']);
+        });
+    };
+    static rePullRovGithubCode = ()=>{
+        alert("Make sure to choose 'Restart ROV Services' from this menu after the pull completes.");
+        const addTextToPopup = _ui.showScrollableTextPopup("Pulling Updated Code...");
+        addTextToPopup("Sending Code Pull Request (Please Wait)...");
+        MessageHandler.sendRovMessage({
+            "action": "pull_rov_github_code"
+        }, (response)=>{
+            if (response['val']) addTextToPopup(response['val']);
+            if (response['error']) addTextToPopup("\nError:\n" + response['error']);
+            else if (response['done']) {
+                addTextToPopup("\n\nDone.");
+                addTextToPopup("Please run 'Restart ROV Services' from the same menu in ~30 seconds to fully apply any code changes.");
+            }
+        });
+    };
+    static enableRovWifi = ()=>{
+        _ui.showToastMessage("Sending Enable Wifi Command...");
+        RovActions.sendActionAndWaitForDone({
+            "action": "enable_wifi"
+        }, (doneMsg)=>{
+            _ui.showToastMessage("Wifi Enabled! " + doneMsg);
+        });
+    };
+    static disableRovWifi = ()=>{
+        if (confirm("Are you sure you want to disable rov wifi? If the ROV is connected via wifi, don't do this!")) {
+            _ui.showToastMessage("Sending Disable Wifi Command...");
+            RovActions.sendActionAndWaitForDone({
+                "action": "disable_wifi"
+            }, (doneMsg)=>{
+                _ui.showToastMessage("Wifi Disabled! " + doneMsg);
+            });
+        }
+    };
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"efi6n":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./ui":"efi6n","uuid":"j4KJi"}],"efi6n":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 // -------------------------------------------------------------
 // ------ UI Stuff ---------------------------------------------
 // -------------------------------------------------------------
+// ----- Simple Element Generators -----
+parcelHelpers.export(exports, "createButtons", ()=>createButtons
+);
+parcelHelpers.export(exports, "createTitle", ()=>createTitle
+);
+parcelHelpers.export(exports, "showBackdrop", ()=>showBackdrop
+);
+parcelHelpers.export(exports, "hideBackdrop", ()=>hideBackdrop
+);
+// -----  Toast Notifications -----
 parcelHelpers.export(exports, "showToastMessage", ()=>showToastMessage
 );
+// -----  Toastify Based Dialogs -----
 parcelHelpers.export(exports, "showToastDialog", ()=>showToastDialog
+);
+parcelHelpers.export(exports, "showPasswordPrompt", ()=>showPasswordPrompt
+);
+parcelHelpers.export(exports, "showScrollableTextPopup", ()=>showScrollableTextPopup
 );
 parcelHelpers.export(exports, "showChoiceDialog", ()=>showChoiceDialog
 );
@@ -8870,7 +8920,7 @@ parcelHelpers.export(exports, "setArtificialHorizonBackground", ()=>setArtificia
  //             // var tiltLR = eventData.gamma;
  //             // beta: Tilting the device from the front to the back. Tilting the device to the front will result in a positive value.
  //             var tiltFB = eventData.beta;
- //             // this.document.getElementById("connected_rov_display").innerHTML = "tiltLR: " + tiltLR + " tiltFB: " + (tiltFB - 90);
+ //             // this.document.getElementById("rov_connection_display").innerHTML = "tiltLR: " + tiltLR + " tiltFB: " + (tiltFB - 90);
  //             // alpha: The direction the compass of the device aims to in degrees.
  //             var dir = eventData.alpha
  //             setArtificialHorizonBackground(dir, -tiltFB);
@@ -8883,6 +8933,37 @@ parcelHelpers.export(exports, "setArtificialHorizonBackground", ()=>setArtificia
 ;
 var _toastifyJs = require("toastify-js");
 var _toastifyJsDefault = parcelHelpers.interopDefault(_toastifyJs);
+var _utils = require("xstate/lib/utils");
+function createButtons(btnNames, callback) {
+    return btnNames.map((btnName)=>{
+        const btn = document.createElement("button");
+        btn.innerHTML = btnName;
+        btn.dataset.name = btnName;
+        btn.addEventListener("click", ()=>callback(btnName)
+        );
+        return btn;
+    });
+}
+function createTitle(titleName) {
+    const msg = document.createElement("h4");
+    msg.innerText = titleName;
+    return msg;
+}
+// -----  White Backdrop -----
+const backdrop = document.getElementById("backdrop");
+let backdropClickCallback = null;
+function showBackdrop(callback) {
+    backdrop.classList.remove("hidden");
+    backdropClickCallback = function() {
+        if (callback) callback(null);
+        hideBackdrop();
+    };
+    backdrop.addEventListener("click", backdropClickCallback);
+}
+function hideBackdrop() {
+    backdrop.classList.add("hidden");
+    backdrop.removeEventListener("click", backdropClickCallback);
+}
 function showToastMessage(message, durration, callback) {
     return _toastifyJsDefault.default({
         text: message,
@@ -8898,45 +8979,109 @@ function showToastMessage(message, durration, callback) {
         onClick: callback
     }).showToast();
 }
-function showToastDialog(message, durration, btnName, callback) {
-    const toastContent = document.createElement("div");
-    toastContent.innerHTML = message;
-    if (btnName) {
-        const btn = document.createElement("button");
-        btn.innerHTML = btnName;
-        btn.addEventListener("click", callback);
-        toastContent.appendChild(btn);
-    }
-    return _toastifyJsDefault.default({
-        node: toastContent,
-        duration: durration || 15000,
-        close: btnName != false,
+function showToastDialog(htmlElements, options, exraClassNames) {
+    const toast = _toastifyJsDefault.default(Object.assign({
+        text: " ",
+        duration: 15000,
+        close: false,
         className: "dialog-toast",
         gravity: "top",
         position: "center",
         stopOnFocus: true
-    }).showToast();
-}
-function showChoiceDialog(message, buttons, callback) {
-    const toastContent = document.createElement("div");
-    toastContent.innerHTML = message;
-    buttons.forEach((button)=>{
-        const btn = document.createElement("button");
-        btn.innerHTML = button.name;
-        btn.addEventListener("click", ()=>{
-            callback(button.value);
-        });
-        toastContent.appendChild(btn);
+    }, options)).showToast();
+    htmlElements.forEach((e)=>{
+        console.log(e);
+        toast.toastElement.appendChild(e);
     });
-    return _toastifyJsDefault.default({
-        node: toastContent,
-        duration: 0,
-        close: true,
-        className: "dialog-toast",
-        gravity: "top",
-        position: "center",
-        stopOnFocus: true
-    }).showToast();
+    if (exraClassNames && _utils.isArray(exraClassNames)) exraClassNames.forEach((name)=>{
+        toast.toastElement.classList.add(name);
+    });
+    return toast;
+}
+function showPasswordPrompt(message, callback) {
+    let toast = null;
+    const title = createTitle(message);
+    const input = document.createElement("input");
+    input.type = "password";
+    input.placeholder = "Password";
+    const btns = createButtons([
+        "Ok",
+        "Cancel"
+    ], (chosenButton)=>{
+        hideBackdrop();
+        toast.hideToast();
+        if (callback && chosenButton == "Ok") callback(input.value);
+        else if (callback) callback(null);
+    });
+    toast = showToastDialog([
+        title,
+        input
+    ].concat(btns), {
+        gravity: "bottom",
+        duration: -1
+    }, [
+        "password-prompt"
+    ]);
+    showBackdrop(()=>{
+        toast.hideToast();
+        hideBackdrop();
+        if (callback) callback(null);
+    });
+    return toast;
+}
+function showScrollableTextPopup(title, callback) {
+    let toast = null;
+    const titleElm = createTitle(title);
+    const content = document.createElement("pre");
+    const closeFunc = ()=>{
+        toast.hideToast();
+        hideBackdrop();
+        if (callback) callback(null);
+    };
+    const btns = createButtons([
+        "Close"
+    ], closeFunc);
+    toast = showToastDialog([
+        titleElm,
+        content
+    ].concat(btns), {
+        gravity: "bottom",
+        duration: -1
+    }, [
+        "scrollable-text-popup"
+    ]);
+    showBackdrop(closeFunc);
+    return (textLine)=>{
+        content.appendChild(document.createTextNode(textLine));
+        // keep scrolling down as new content is added (unless the user has scrolled up / is no longer at the bottom)
+        if (content.scrollTop + content.clientHeight + 100 > content.scrollHeight) content.scrollTop = content.scrollHeight;
+    };
+}
+function showChoiceDialog(title, buttons, callback) {
+    let toast = null;
+    const titleElm = createTitle(title);
+    const closeFunc = ()=>{
+        hideBackdrop();
+        toast.hideToast();
+    };
+    const btns = createButtons([
+        ...buttons,
+        "Cancel"
+    ], (chosenButton)=>{
+        console.log("here");
+        closeFunc();
+        callback(chosenButton);
+    });
+    toast = showToastDialog([
+        titleElm
+    ].concat(btns), {
+        gravity: "bottom",
+        duration: -1
+    }, [
+        "choice-popup"
+    ]);
+    showBackdrop(closeFunc);
+    return toast;
 }
 const connectBtn = document.getElementById('connect_btn');
 const disconnectBtn = document.getElementById('disconnect_btn');
@@ -8978,11 +9123,14 @@ function setupDisconnectBtnClickHandler(callback) {
         connectBtn.removeEventListener('click', callback);
     };
 }
-const connectedRovButton = document.getElementById('connected_rov_indicator_btn');
-function setupSwitchRovBtnClickHandler(callback) {
-    connectedRovButton.addEventListener('click', callback);
+const switchToPrevRovBtn = document.getElementById('switch_to_prev_rov_btn');
+const switchToNextRovBtn = document.getElementById('switch_to_next_rov_btn');
+function setupSwitchRovBtnClickHandler(prevRovCallback, nextRovCallback) {
+    switchToPrevRovBtn.addEventListener('click', prevRovCallback);
+    switchToNextRovBtn.addEventListener('click', nextRovCallback);
     return ()=>{
-        connectedRovButton.removeEventListener('click', callback);
+        switchToPrevRovBtn.removeEventListener('click', prevRovCallback);
+        switchToNextRovBtn.removeEventListener('click', nextRovCallback);
     };
 }
 function showScanIpBtn() {
@@ -9047,7 +9195,7 @@ function setArtificialHorizonBackground(roll, pitch) {
     gradientArtificialHorizonBackground.style.backgroundImage = `linear-gradient(${roll}deg, rgba(2,0,36,1) ${-100 + vShift}%, rgba(9,88,116,1) ${50 + vShift}%, rgba(10,109,140,1) ${50 + vShift}%, rgba(0,255,235,1) ${200 + vShift}%)`;
 }
 
-},{"toastify-js":"96k49","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"96k49":[function(require,module,exports) {
+},{"toastify-js":"96k49","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","xstate/lib/utils":"8RFz3"}],"96k49":[function(require,module,exports) {
 /*!
  * Toastify js 1.11.2
  * https://github.com/apvarun/toastify-js
@@ -9331,620 +9479,7 @@ function setArtificialHorizonBackground(roll, pitch) {
     return Toastify;
 });
 
-},{}],"b9dCp":[function(require,module,exports) {
-'use strict';
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-var _tslib = require('./_virtual/_tslib.js');
-var types = require('./types.js');
-var actionTypes = require('./actionTypes.js');
-var utils = require('./utils.js');
-var environment = require('./environment.js');
-var initEvent = /*#__PURE__*/ utils.toSCXMLEvent({
-    type: actionTypes.init
-});
-function getActionFunction(actionType, actionFunctionMap) {
-    return actionFunctionMap ? actionFunctionMap[actionType] || undefined : undefined;
-}
-function toActionObject(action, actionFunctionMap) {
-    var actionObject;
-    if (utils.isString(action) || typeof action === 'number') {
-        var exec = getActionFunction(action, actionFunctionMap);
-        if (utils.isFunction(exec)) actionObject = {
-            type: action,
-            exec: exec
-        };
-        else if (exec) actionObject = exec;
-        else actionObject = {
-            type: action,
-            exec: undefined
-        };
-    } else if (utils.isFunction(action)) actionObject = {
-        // Convert action to string if unnamed
-        type: action.name || action.toString(),
-        exec: action
-    };
-    else {
-        var exec = getActionFunction(action.type, actionFunctionMap);
-        if (utils.isFunction(exec)) actionObject = _tslib.__assign(_tslib.__assign({}, action), {
-            exec: exec
-        });
-        else if (exec) {
-            var actionType = exec.type || action.type;
-            actionObject = _tslib.__assign(_tslib.__assign(_tslib.__assign({}, exec), action), {
-                type: actionType
-            });
-        } else actionObject = action;
-    }
-    return actionObject;
-}
-var toActionObjects = function(action, actionFunctionMap) {
-    if (!action) return [];
-    var actions = utils.isArray(action) ? action : [
-        action
-    ];
-    return actions.map(function(subAction) {
-        return toActionObject(subAction, actionFunctionMap);
-    });
-};
-function toActivityDefinition(action) {
-    var actionObject = toActionObject(action);
-    return _tslib.__assign(_tslib.__assign({
-        id: utils.isString(action) ? action : actionObject.id
-    }, actionObject), {
-        type: actionObject.type
-    });
-}
-/**
- * Raises an event. This places the event in the internal event queue, so that
- * the event is immediately consumed by the machine in the current step.
- *
- * @param eventType The event to raise.
- */ function raise(event) {
-    if (!utils.isString(event)) return send(event, {
-        to: types.SpecialTargets.Internal
-    });
-    return {
-        type: actionTypes.raise,
-        event: event
-    };
-}
-function resolveRaise(action) {
-    return {
-        type: actionTypes.raise,
-        _event: utils.toSCXMLEvent(action.event)
-    };
-}
-/**
- * Sends an event. This returns an action that will be read by an interpreter to
- * send the event in the next step, after the current step is finished executing.
- *
- * @param event The event to send.
- * @param options Options to pass into the send event:
- *  - `id` - The unique send event identifier (used with `cancel()`).
- *  - `delay` - The number of milliseconds to delay the sending of the event.
- *  - `to` - The target of this event (by default, the machine the event was sent from).
- */ function send(event, options) {
-    return {
-        to: options ? options.to : undefined,
-        type: actionTypes.send,
-        event: utils.isFunction(event) ? event : utils.toEventObject(event),
-        delay: options ? options.delay : undefined,
-        id: options && options.id !== undefined ? options.id : utils.isFunction(event) ? event.name : utils.getEventType(event)
-    };
-}
-function resolveSend(action, ctx, _event, delaysMap) {
-    var meta = {
-        _event: _event
-    }; // TODO: helper function for resolving Expr
-    var resolvedEvent = utils.toSCXMLEvent(utils.isFunction(action.event) ? action.event(ctx, _event.data, meta) : action.event);
-    var resolvedDelay;
-    if (utils.isString(action.delay)) {
-        var configDelay = delaysMap && delaysMap[action.delay];
-        resolvedDelay = utils.isFunction(configDelay) ? configDelay(ctx, _event.data, meta) : configDelay;
-    } else resolvedDelay = utils.isFunction(action.delay) ? action.delay(ctx, _event.data, meta) : action.delay;
-    var resolvedTarget = utils.isFunction(action.to) ? action.to(ctx, _event.data, meta) : action.to;
-    return _tslib.__assign(_tslib.__assign({}, action), {
-        to: resolvedTarget,
-        _event: resolvedEvent,
-        event: resolvedEvent.data,
-        delay: resolvedDelay
-    });
-}
-/**
- * Sends an event to this machine's parent.
- *
- * @param event The event to send to the parent machine.
- * @param options Options to pass into the send event.
- */ function sendParent(event, options) {
-    return send(event, _tslib.__assign(_tslib.__assign({}, options), {
-        to: types.SpecialTargets.Parent
-    }));
-}
-/**
- * Sends an event to an actor.
- *
- * @param actor The `ActorRef` to send the event to.
- * @param event The event to send, or an expression that evaluates to the event to send
- * @param options Send action options
- * @returns An XState send action object
- */ function sendTo(actor, event, options) {
-    return send(event, _tslib.__assign(_tslib.__assign({}, options), {
-        to: actor
-    }));
-}
-/**
- * Sends an update event to this machine's parent.
- */ function sendUpdate() {
-    return sendParent(actionTypes.update);
-}
-/**
- * Sends an event back to the sender of the original event.
- *
- * @param event The event to send back to the sender
- * @param options Options to pass into the send event
- */ function respond(event, options) {
-    return send(event, _tslib.__assign(_tslib.__assign({}, options), {
-        to: function(_, __, _a) {
-            var _event = _a._event;
-            return _event.origin; // TODO: handle when _event.origin is undefined
-        }
-    }));
-}
-var defaultLogExpr = function(context, event) {
-    return {
-        context: context,
-        event: event
-    };
-};
-/**
- *
- * @param expr The expression function to evaluate which will be logged.
- *  Takes in 2 arguments:
- *  - `ctx` - the current state context
- *  - `event` - the event that caused this action to be executed.
- * @param label The label to give to the logged expression.
- */ function log(expr, label) {
-    if (expr === void 0) expr = defaultLogExpr;
-    return {
-        type: actionTypes.log,
-        label: label,
-        expr: expr
-    };
-}
-var resolveLog = function(action, ctx, _event) {
-    return _tslib.__assign(_tslib.__assign({}, action), {
-        value: utils.isString(action.expr) ? action.expr : action.expr(ctx, _event.data, {
-            _event: _event
-        })
-    });
-};
-/**
- * Cancels an in-flight `send(...)` action. A canceled sent action will not
- * be executed, nor will its event be sent, unless it has already been sent
- * (e.g., if `cancel(...)` is called after the `send(...)` action's `delay`).
- *
- * @param sendId The `id` of the `send(...)` action to cancel.
- */ var cancel = function(sendId) {
-    return {
-        type: actionTypes.cancel,
-        sendId: sendId
-    };
-};
-/**
- * Starts an activity.
- *
- * @param activity The activity to start.
- */ function start(activity) {
-    var activityDef = toActivityDefinition(activity);
-    return {
-        type: types.ActionTypes.Start,
-        activity: activityDef,
-        exec: undefined
-    };
-}
-/**
- * Stops an activity.
- *
- * @param actorRef The activity to stop.
- */ function stop(actorRef) {
-    var activity = utils.isFunction(actorRef) ? actorRef : toActivityDefinition(actorRef);
-    return {
-        type: types.ActionTypes.Stop,
-        activity: activity,
-        exec: undefined
-    };
-}
-function resolveStop(action, context, _event) {
-    var actorRefOrString = utils.isFunction(action.activity) ? action.activity(context, _event.data) : action.activity;
-    var resolvedActorRef = typeof actorRefOrString === 'string' ? {
-        id: actorRefOrString
-    } : actorRefOrString;
-    var actionObject = {
-        type: types.ActionTypes.Stop,
-        activity: resolvedActorRef
-    };
-    return actionObject;
-}
-/**
- * Updates the current context of the machine.
- *
- * @param assignment An object that represents the partial context to update.
- */ var assign = function(assignment) {
-    return {
-        type: actionTypes.assign,
-        assignment: assignment
-    };
-};
-function isActionObject(action) {
-    return typeof action === 'object' && 'type' in action;
-}
-/**
- * Returns an event type that represents an implicit event that
- * is sent after the specified `delay`.
- *
- * @param delayRef The delay in milliseconds
- * @param id The state node ID where this event is handled
- */ function after(delayRef, id) {
-    var idSuffix = id ? "#".concat(id) : '';
-    return "".concat(types.ActionTypes.After, "(").concat(delayRef, ")").concat(idSuffix);
-}
-/**
- * Returns an event that represents that a final state node
- * has been reached in the parent state node.
- *
- * @param id The final state node's parent state node `id`
- * @param data The data to pass into the event
- */ function done(id, data) {
-    var type = "".concat(types.ActionTypes.DoneState, ".").concat(id);
-    var eventObject = {
-        type: type,
-        data: data
-    };
-    eventObject.toString = function() {
-        return type;
-    };
-    return eventObject;
-}
-/**
- * Returns an event that represents that an invoked service has terminated.
- *
- * An invoked service is terminated when it has reached a top-level final state node,
- * but not when it is canceled.
- *
- * @param id The final state node ID
- * @param data The data to pass into the event
- */ function doneInvoke(id, data) {
-    var type = "".concat(types.ActionTypes.DoneInvoke, ".").concat(id);
-    var eventObject = {
-        type: type,
-        data: data
-    };
-    eventObject.toString = function() {
-        return type;
-    };
-    return eventObject;
-}
-function error(id, data) {
-    var type = "".concat(types.ActionTypes.ErrorPlatform, ".").concat(id);
-    var eventObject = {
-        type: type,
-        data: data
-    };
-    eventObject.toString = function() {
-        return type;
-    };
-    return eventObject;
-}
-function pure(getActions) {
-    return {
-        type: types.ActionTypes.Pure,
-        get: getActions
-    };
-}
-/**
- * Forwards (sends) an event to a specified service.
- *
- * @param target The target service to forward the event to.
- * @param options Options to pass into the send action creator.
- */ function forwardTo(target, options) {
-    return send(function(_, event) {
-        return event;
-    }, _tslib.__assign(_tslib.__assign({}, options), {
-        to: target
-    }));
-}
-/**
- * Escalates an error by sending it as an event to this machine's parent.
- *
- * @param errorData The error data to send, or the expression function that
- * takes in the `context`, `event`, and `meta`, and returns the error data to send.
- * @param options Options to pass into the send action creator.
- */ function escalate(errorData, options) {
-    return sendParent(function(context, event, meta) {
-        return {
-            type: actionTypes.error,
-            data: utils.isFunction(errorData) ? errorData(context, event, meta) : errorData
-        };
-    }, _tslib.__assign(_tslib.__assign({}, options), {
-        to: types.SpecialTargets.Parent
-    }));
-}
-function choose(conds) {
-    return {
-        type: types.ActionTypes.Choose,
-        conds: conds
-    };
-}
-function resolveActions(machine, currentState, currentContext, _event, actions, preserveActionOrder) {
-    if (preserveActionOrder === void 0) preserveActionOrder = false;
-    var _a1 = _tslib.__read(preserveActionOrder ? [
-        [],
-        actions
-    ] : utils.partition(actions, function(action) {
-        return action.type === actionTypes.assign;
-    }), 2), assignActions = _a1[0], otherActions = _a1[1];
-    var updatedContext = assignActions.length ? utils.updateContext(currentContext, _event, assignActions, currentState) : currentContext;
-    var preservedContexts = preserveActionOrder ? [
-        currentContext
-    ] : undefined;
-    var resolvedActions = utils.flatten(otherActions.map(function(actionObject) {
-        var _a;
-        switch(actionObject.type){
-            case actionTypes.raise:
-                return resolveRaise(actionObject);
-            case actionTypes.send:
-                var sendAction = resolveSend(actionObject, updatedContext, _event, machine.options.delays); // TODO: fix ActionTypes.Init
-                if (!environment.IS_PRODUCTION) // warn after resolving as we can create better contextual message here
-                utils.warn(!utils.isString(actionObject.delay) || typeof sendAction.delay === 'number', "No delay reference for delay expression '".concat(actionObject.delay, "' was found on machine '").concat(machine.id, "'"));
-                return sendAction;
-            case actionTypes.log:
-                return resolveLog(actionObject, updatedContext, _event);
-            case actionTypes.choose:
-                var chooseAction = actionObject;
-                var matchedActions = (_a = chooseAction.conds.find(function(condition) {
-                    var guard = utils.toGuard(condition.cond, machine.options.guards);
-                    return !guard || utils.evaluateGuard(machine, guard, updatedContext, _event, currentState);
-                })) === null || _a === void 0 ? void 0 : _a.actions;
-                if (!matchedActions) return [];
-                var _b = _tslib.__read(resolveActions(machine, currentState, updatedContext, _event, toActionObjects(utils.toArray(matchedActions), machine.options.actions), preserveActionOrder), 2), resolvedActionsFromChoose = _b[0], resolvedContextFromChoose = _b[1];
-                updatedContext = resolvedContextFromChoose;
-                preservedContexts === null || preservedContexts === void 0 || preservedContexts.push(updatedContext);
-                return resolvedActionsFromChoose;
-            case actionTypes.pure:
-                var matchedActions = actionObject.get(updatedContext, _event.data);
-                if (!matchedActions) return [];
-                var _c = _tslib.__read(resolveActions(machine, currentState, updatedContext, _event, toActionObjects(utils.toArray(matchedActions), machine.options.actions), preserveActionOrder), 2), resolvedActionsFromPure = _c[0], resolvedContext = _c[1];
-                updatedContext = resolvedContext;
-                preservedContexts === null || preservedContexts === void 0 || preservedContexts.push(updatedContext);
-                return resolvedActionsFromPure;
-            case actionTypes.stop:
-                return resolveStop(actionObject, updatedContext, _event);
-            case actionTypes.assign:
-                updatedContext = utils.updateContext(updatedContext, _event, [
-                    actionObject
-                ], currentState);
-                preservedContexts === null || preservedContexts === void 0 || preservedContexts.push(updatedContext);
-                break;
-            default:
-                var resolvedActionObject = toActionObject(actionObject, machine.options.actions);
-                var exec_1 = resolvedActionObject.exec;
-                if (exec_1 && preservedContexts) {
-                    var contextIndex_1 = preservedContexts.length - 1;
-                    resolvedActionObject = _tslib.__assign(_tslib.__assign({}, resolvedActionObject), {
-                        exec: function(_ctx) {
-                            var args = [];
-                            for(var _i = 1; _i < arguments.length; _i++)args[_i - 1] = arguments[_i];
-                            exec_1.apply(void 0, _tslib.__spreadArray([
-                                preservedContexts[contextIndex_1]
-                            ], _tslib.__read(args), false));
-                        }
-                    });
-                }
-                return resolvedActionObject;
-        }
-    }).filter(function(a) {
-        return !!a;
-    }));
-    return [
-        resolvedActions,
-        updatedContext
-    ];
-}
-exports.actionTypes = actionTypes;
-exports.after = after;
-exports.assign = assign;
-exports.cancel = cancel;
-exports.choose = choose;
-exports.done = done;
-exports.doneInvoke = doneInvoke;
-exports.error = error;
-exports.escalate = escalate;
-exports.forwardTo = forwardTo;
-exports.getActionFunction = getActionFunction;
-exports.initEvent = initEvent;
-exports.isActionObject = isActionObject;
-exports.log = log;
-exports.pure = pure;
-exports.raise = raise;
-exports.resolveActions = resolveActions;
-exports.resolveLog = resolveLog;
-exports.resolveRaise = resolveRaise;
-exports.resolveSend = resolveSend;
-exports.resolveStop = resolveStop;
-exports.respond = respond;
-exports.send = send;
-exports.sendParent = sendParent;
-exports.sendTo = sendTo;
-exports.sendUpdate = sendUpdate;
-exports.start = start;
-exports.stop = stop;
-exports.toActionObject = toActionObject;
-exports.toActionObjects = toActionObjects;
-exports.toActivityDefinition = toActivityDefinition;
-
-},{"./_virtual/_tslib.js":"3Bp7b","./types.js":"84cIp","./actionTypes.js":"kEepo","./utils.js":"8RFz3","./environment.js":"7oZy5"}],"3Bp7b":[function(require,module,exports) {
-'use strict';
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-/*! *****************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */ exports.__assign = function() {
-    exports.__assign = Object.assign || function __assign(t) {
-        for(var s, i = 1, n = arguments.length; i < n; i++){
-            s = arguments[i];
-            for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-    return exports.__assign.apply(this, arguments);
-};
-function __rest(s, e) {
-    var t = {};
-    for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function") {
-        for(var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++)if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
-    }
-    return t;
-}
-function __values(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function() {
-            if (o && i >= o.length) o = void 0;
-            return {
-                value: o && o[i++],
-                done: !o
-            };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-}
-function __read(o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while((n === void 0 || n-- > 0) && !(r = i.next()).done)ar.push(r.value);
-    } catch (error) {
-        e = {
-            error: error
-        };
-    } finally{
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        } finally{
-            if (e) throw e.error;
-        }
-    }
-    return ar;
-}
-function __spreadArray(to, from, pack) {
-    if (pack || arguments.length === 2) {
-        for(var i = 0, l = from.length, ar; i < l; i++)if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-}
-exports.__read = __read;
-exports.__rest = __rest;
-exports.__spreadArray = __spreadArray;
-exports.__values = __values;
-
-},{}],"84cIp":[function(require,module,exports) {
-'use strict';
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-exports.ActionTypes = void 0;
-(function(ActionTypes) {
-    ActionTypes["Start"] = "xstate.start";
-    ActionTypes["Stop"] = "xstate.stop";
-    ActionTypes["Raise"] = "xstate.raise";
-    ActionTypes["Send"] = "xstate.send";
-    ActionTypes["Cancel"] = "xstate.cancel";
-    ActionTypes["NullEvent"] = "";
-    ActionTypes["Assign"] = "xstate.assign";
-    ActionTypes["After"] = "xstate.after";
-    ActionTypes["DoneState"] = "done.state";
-    ActionTypes["DoneInvoke"] = "done.invoke";
-    ActionTypes["Log"] = "xstate.log";
-    ActionTypes["Init"] = "xstate.init";
-    ActionTypes["Invoke"] = "xstate.invoke";
-    ActionTypes["ErrorExecution"] = "error.execution";
-    ActionTypes["ErrorCommunication"] = "error.communication";
-    ActionTypes["ErrorPlatform"] = "error.platform";
-    ActionTypes["ErrorCustom"] = "xstate.error";
-    ActionTypes["Update"] = "xstate.update";
-    ActionTypes["Pure"] = "xstate.pure";
-    ActionTypes["Choose"] = "xstate.choose";
-})(exports.ActionTypes || (exports.ActionTypes = {}));
-exports.SpecialTargets = void 0;
-(function(SpecialTargets) {
-    SpecialTargets["Parent"] = "#_parent";
-    SpecialTargets["Internal"] = "#_internal";
-})(exports.SpecialTargets || (exports.SpecialTargets = {}));
-
-},{}],"kEepo":[function(require,module,exports) {
-'use strict';
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-var types = require('./types.js');
-var start = types.ActionTypes.Start;
-var stop = types.ActionTypes.Stop;
-var raise = types.ActionTypes.Raise;
-var send = types.ActionTypes.Send;
-var cancel = types.ActionTypes.Cancel;
-var nullEvent = types.ActionTypes.NullEvent;
-var assign = types.ActionTypes.Assign;
-var after = types.ActionTypes.After;
-var doneState = types.ActionTypes.DoneState;
-var log = types.ActionTypes.Log;
-var init = types.ActionTypes.Init;
-var invoke = types.ActionTypes.Invoke;
-var errorExecution = types.ActionTypes.ErrorExecution;
-var errorPlatform = types.ActionTypes.ErrorPlatform;
-var error = types.ActionTypes.ErrorCustom;
-var update = types.ActionTypes.Update;
-var choose = types.ActionTypes.Choose;
-var pure = types.ActionTypes.Pure;
-exports.after = after;
-exports.assign = assign;
-exports.cancel = cancel;
-exports.choose = choose;
-exports.doneState = doneState;
-exports.error = error;
-exports.errorExecution = errorExecution;
-exports.errorPlatform = errorPlatform;
-exports.init = init;
-exports.invoke = invoke;
-exports.log = log;
-exports.nullEvent = nullEvent;
-exports.pure = pure;
-exports.raise = raise;
-exports.send = send;
-exports.start = start;
-exports.stop = stop;
-exports.update = update;
-
-},{"./types.js":"84cIp"}],"8RFz3":[function(require,module,exports) {
+},{}],"8RFz3":[function(require,module,exports) {
 'use strict';
 Object.defineProperty(exports, '__esModule', {
     value: true
@@ -10466,7 +10001,90 @@ exports.updateContext = updateContext;
 exports.updateHistoryStates = updateHistoryStates;
 exports.updateHistoryValue = updateHistoryValue;
 
-},{"./_virtual/_tslib.js":"3Bp7b","./constants.js":"1Q9J9","./environment.js":"7oZy5"}],"1Q9J9":[function(require,module,exports) {
+},{"./_virtual/_tslib.js":"3Bp7b","./constants.js":"1Q9J9","./environment.js":"7oZy5"}],"3Bp7b":[function(require,module,exports) {
+'use strict';
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */ exports.__assign = function() {
+    exports.__assign = Object.assign || function __assign(t) {
+        for(var s, i = 1, n = arguments.length; i < n; i++){
+            s = arguments[i];
+            for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return exports.__assign.apply(this, arguments);
+};
+function __rest(s, e) {
+    var t = {};
+    for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function") {
+        for(var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++)if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
+    }
+    return t;
+}
+function __values(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function() {
+            if (o && i >= o.length) o = void 0;
+            return {
+                value: o && o[i++],
+                done: !o
+            };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+}
+function __read(o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while((n === void 0 || n-- > 0) && !(r = i.next()).done)ar.push(r.value);
+    } catch (error) {
+        e = {
+            error: error
+        };
+    } finally{
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        } finally{
+            if (e) throw e.error;
+        }
+    }
+    return ar;
+}
+function __spreadArray(to, from, pack) {
+    if (pack || arguments.length === 2) {
+        for(var i = 0, l = from.length, ar; i < l; i++)if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+}
+exports.__read = __read;
+exports.__rest = __rest;
+exports.__spreadArray = __spreadArray;
+exports.__values = __values;
+
+},{}],"1Q9J9":[function(require,module,exports) {
 'use strict';
 Object.defineProperty(exports, '__esModule', {
     value: true
@@ -10488,7 +10106,804 @@ Object.defineProperty(exports, '__esModule', {
 var IS_PRODUCTION = false;
 exports.IS_PRODUCTION = IS_PRODUCTION;
 
-},{}],"8TXLV":[function(require,module,exports) {
+},{}],"j4KJi":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "v1", ()=>_v1JsDefault.default
+);
+parcelHelpers.export(exports, "v3", ()=>_v3JsDefault.default
+);
+parcelHelpers.export(exports, "v4", ()=>_v4JsDefault.default
+);
+parcelHelpers.export(exports, "v5", ()=>_v5JsDefault.default
+);
+parcelHelpers.export(exports, "NIL", ()=>_nilJsDefault.default
+);
+parcelHelpers.export(exports, "version", ()=>_versionJsDefault.default
+);
+parcelHelpers.export(exports, "validate", ()=>_validateJsDefault.default
+);
+parcelHelpers.export(exports, "stringify", ()=>_stringifyJsDefault.default
+);
+parcelHelpers.export(exports, "parse", ()=>_parseJsDefault.default
+);
+var _v1Js = require("./v1.js");
+var _v1JsDefault = parcelHelpers.interopDefault(_v1Js);
+var _v3Js = require("./v3.js");
+var _v3JsDefault = parcelHelpers.interopDefault(_v3Js);
+var _v4Js = require("./v4.js");
+var _v4JsDefault = parcelHelpers.interopDefault(_v4Js);
+var _v5Js = require("./v5.js");
+var _v5JsDefault = parcelHelpers.interopDefault(_v5Js);
+var _nilJs = require("./nil.js");
+var _nilJsDefault = parcelHelpers.interopDefault(_nilJs);
+var _versionJs = require("./version.js");
+var _versionJsDefault = parcelHelpers.interopDefault(_versionJs);
+var _validateJs = require("./validate.js");
+var _validateJsDefault = parcelHelpers.interopDefault(_validateJs);
+var _stringifyJs = require("./stringify.js");
+var _stringifyJsDefault = parcelHelpers.interopDefault(_stringifyJs);
+var _parseJs = require("./parse.js");
+var _parseJsDefault = parcelHelpers.interopDefault(_parseJs);
+
+},{"./v1.js":false,"./v3.js":false,"./v4.js":"8zJtu","./v5.js":false,"./nil.js":false,"./version.js":false,"./validate.js":"eHPgI","./stringify.js":"5Y9F1","./parse.js":false,"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8zJtu":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _rngJs = require("./rng.js");
+var _rngJsDefault = parcelHelpers.interopDefault(_rngJs);
+var _stringifyJs = require("./stringify.js");
+var _stringifyJsDefault = parcelHelpers.interopDefault(_stringifyJs);
+function v4(options, buf, offset) {
+    options = options || {};
+    var rnds = options.random || (options.rng || _rngJsDefault.default)(); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+    rnds[6] = rnds[6] & 15 | 64;
+    rnds[8] = rnds[8] & 63 | 128; // Copy bytes to buffer, if provided
+    if (buf) {
+        offset = offset || 0;
+        for(var i = 0; i < 16; ++i)buf[offset + i] = rnds[i];
+        return buf;
+    }
+    return _stringifyJsDefault.default(rnds);
+}
+exports.default = v4;
+
+},{"./rng.js":"2psyE","./stringify.js":"5Y9F1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2psyE":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+// Unique ID creation requires a high quality random # generator. In the browser we therefore
+// require the crypto API and do not support built-in fallback to lower quality random number
+// generators (like Math.random()).
+var getRandomValues;
+var rnds8 = new Uint8Array(16);
+function rng() {
+    // lazy load so that environments that need to polyfill have a chance to do so
+    if (!getRandomValues) {
+        // getRandomValues needs to be invoked in a context where "this" is a Crypto implementation. Also,
+        // find the complete implementation of crypto (msCrypto) on IE11.
+        getRandomValues = typeof crypto !== 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto !== 'undefined' && typeof msCrypto.getRandomValues === 'function' && msCrypto.getRandomValues.bind(msCrypto);
+        if (!getRandomValues) throw new Error('crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported');
+    }
+    return getRandomValues(rnds8);
+}
+exports.default = rng;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5Y9F1":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _validateJs = require("./validate.js");
+var _validateJsDefault = parcelHelpers.interopDefault(_validateJs);
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */ var byteToHex = [];
+for(var i = 0; i < 256; ++i)byteToHex.push((i + 256).toString(16).substr(1));
+function stringify(arr) {
+    var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+    // Note: Be careful editing this code!  It's been tuned for performance
+    // and works in ways you may not expect. See https://github.com/uuidjs/uuid/pull/434
+    var uuid = (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + '-' + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + '-' + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + '-' + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + '-' + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase(); // Consistency check for valid UUID.  If this throws, it's likely due to one
+    // of the following:
+    // - One or more input array values don't map to a hex octet (leading to
+    // "undefined" in the uuid)
+    // - Invalid input values for the RFC `version` or `variant` fields
+    if (!_validateJsDefault.default(uuid)) throw TypeError('Stringified UUID is invalid');
+    return uuid;
+}
+exports.default = stringify;
+
+},{"./validate.js":"eHPgI","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"eHPgI":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _regexJs = require("./regex.js");
+var _regexJsDefault = parcelHelpers.interopDefault(_regexJs);
+function validate(uuid) {
+    return typeof uuid === 'string' && _regexJsDefault.default.test(uuid);
+}
+exports.default = validate;
+
+},{"./regex.js":"bUa5g","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bUa5g":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+exports.default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"doATT":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "clamp", ()=>clamp
+);
+/* generateStateChangeFunction is a function generator for an xstate machine that will return a function that will run a callback and send the named state transition with the data or event from the calling transition */ parcelHelpers.export(exports, "generateStateChangeFunction", ()=>generateStateChangeFunction
+);
+parcelHelpers.export(exports, "calculateDesiredMotion", ()=>calculateDesiredMotion
+);
+/*
+* Gets just the passed name parameter from the query string the curent url:
+* Example: if the url is: https://example.com/abc?some-variable-name=somevalue&someotherthing=someothervalue
+* then getURLQueryStringVariable("some-variable-name") will return "somevalue"
+*/ parcelHelpers.export(exports, "getURLQueryStringVariable", ()=>getURLQueryStringVariable
+);
+parcelHelpers.export(exports, "isInternetAvailable", ()=>isInternetAvailable
+);
+parcelHelpers.export(exports, "toggleFullscreen", ()=>toggleFullscreen
+);
+// Downloads the given link, with an optional filename for the download
+parcelHelpers.export(exports, "download", ()=>download
+);
+function clamp(number, max, min) {
+    return Math.max(Math.min(number, max), min);
+}
+function generateStateChangeFunction(sendStateChange, stateTransition, data, additionalCallback) {
+    const func = function(evt) {
+        if (additionalCallback) additionalCallback(evt);
+        sendStateChange({
+            type: stateTransition,
+            data: data || evt
+        });
+    };
+    return func;
+}
+function calculateDesiredMotion(axes) {
+    var turn = axes[0].toFixed(3);
+    var forward = -1 * axes[1].toFixed(3);
+    var strafe = axes[2].toFixed(3);
+    var vertical = -1 * axes[3].toFixed(3);
+    return {
+        thrustVector: [
+            strafe,
+            forward,
+            vertical
+        ],
+        turnRate: turn
+    };
+}
+function getURLQueryStringVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split('&');
+    for(var i = 0; i < vars.length; i++){
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == variable) return decodeURIComponent(pair[1]);
+    }
+// console.log('Query variable %s not found', variable);
+}
+function isInternetAvailable(urlToCheck) {
+    return new Promise((resolve)=>{
+        console.info("checkingUrl", urlToCheck);
+        try {
+            fetch(urlToCheck).then(()=>{
+                resolve(true);
+            }).catch((e)=>{
+                console.warn("Internet Offline, starting switch to local mode", e);
+                resolve(false);
+            });
+        // setTimeout(() => {
+        //     resolve(false)
+        // }, 10000)
+        } catch (e) {
+            console.warn("Error Checking internet, starting switch to local mode", e);
+            resolve(false);
+        }
+    });
+}
+window.closeFullscreen = ()=>{
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    if (fullscreenElement) {
+        const removeFullscreenUi = ()=>{
+            fullscreenElement.classList.remove('fullscreen-open');
+        };
+        if (document.exitFullscreen) document.exitFullscreen().then(removeFullscreenUi);
+        else if (document.msExitFullscreen) document.msExitFullscreen().then(removeFullscreenUi);
+        else if (document.mozCancelFullScreen) document.mozCancelFullScreen().then(removeFullscreenUi);
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen().then(removeFullscreenUi);
+    }
+};
+/* When the toggleFullscreen() export function is executed, open the passed element in fullscreen.
+Note that we must include prefixes for different browsers, as they don't support the requestFullscreen method yet */ window.toggleFullscreen = (e, elem)=>{
+    elem = elem || document.documentElement;
+    if (e && e.initialTarget) e.initialTarget.classList.toggle('fullscreen-open');
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    const addFullscreenUi = ()=>{
+        elem.classList.add('fullscreen-open');
+    };
+    const removeFullscreenUi = ()=>{
+        fullscreenElement.classList.remove('fullscreen-open');
+        if (elem !== fullscreenElement) {
+            if (elem.requestFullscreen) elem.requestFullscreen().then(addFullscreenUi);
+            else if (elem.msRequestFullscreen) elem.msRequestFullscreen().then(addFullscreenUi);
+            else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen().then(addFullscreenUi);
+            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT).then(addFullscreenUi);
+        }
+    };
+    if (fullscreenElement) {
+        if (document.exitFullscreen) document.exitFullscreen().then(removeFullscreenUi);
+        else if (document.msExitFullscreen) document.msExitFullscreen().then(removeFullscreenUi);
+        else if (document.mozCancelFullScreen) document.mozCancelFullScreen().then(removeFullscreenUi);
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen().then(removeFullscreenUi);
+    } else {
+        if (elem.requestFullscreen) elem.requestFullscreen().then(addFullscreenUi);
+        else if (elem.msRequestFullscreen) elem.msRequestFullscreen().then(addFullscreenUi);
+        else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen().then(addFullscreenUi);
+        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT).then(addFullscreenUi);
+    }
+};
+function toggleFullscreen(event, elem) {
+    elem = elem || document.documentElement;
+    var fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    if (!fullscreenElement || elem !== fullscreenElement) {
+        const requestFullscreenFunc = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.mozRequestFullScreen || elem.msRequestFullscreen;
+        console.log(requestFullscreenFunc);
+        requestFullscreenFunc(Element.ALLOW_KEYBOARD_INPUT);
+    } else {
+        const exitFullscreenFunc = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exitFullscreenFunc().then(()=>{
+            fullscreenElement.classList.remove('fullscreen-open');
+        });
+    }
+}
+function download(url, filename) {
+    const a = document.createElement('a') // Create <a> hyperlink element
+    ;
+    a.href = url // Set the hyperlink URL
+    ;
+    a.download = filename || "" // if left blank the browser will guess the filename for the downloaded file
+    ;
+    document.body.appendChild(a) // Append the hyperlink to the document body
+    ;
+    a.click() // Click the hyperlink
+    ;
+    document.body.removeChild(a) // Remove the hyperlink from the document body
+    ;
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"b9dCp":[function(require,module,exports) {
+'use strict';
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+var _tslib = require('./_virtual/_tslib.js');
+var types = require('./types.js');
+var actionTypes = require('./actionTypes.js');
+var utils = require('./utils.js');
+var environment = require('./environment.js');
+var initEvent = /*#__PURE__*/ utils.toSCXMLEvent({
+    type: actionTypes.init
+});
+function getActionFunction(actionType, actionFunctionMap) {
+    return actionFunctionMap ? actionFunctionMap[actionType] || undefined : undefined;
+}
+function toActionObject(action, actionFunctionMap) {
+    var actionObject;
+    if (utils.isString(action) || typeof action === 'number') {
+        var exec = getActionFunction(action, actionFunctionMap);
+        if (utils.isFunction(exec)) actionObject = {
+            type: action,
+            exec: exec
+        };
+        else if (exec) actionObject = exec;
+        else actionObject = {
+            type: action,
+            exec: undefined
+        };
+    } else if (utils.isFunction(action)) actionObject = {
+        // Convert action to string if unnamed
+        type: action.name || action.toString(),
+        exec: action
+    };
+    else {
+        var exec = getActionFunction(action.type, actionFunctionMap);
+        if (utils.isFunction(exec)) actionObject = _tslib.__assign(_tslib.__assign({}, action), {
+            exec: exec
+        });
+        else if (exec) {
+            var actionType = exec.type || action.type;
+            actionObject = _tslib.__assign(_tslib.__assign(_tslib.__assign({}, exec), action), {
+                type: actionType
+            });
+        } else actionObject = action;
+    }
+    return actionObject;
+}
+var toActionObjects = function(action, actionFunctionMap) {
+    if (!action) return [];
+    var actions = utils.isArray(action) ? action : [
+        action
+    ];
+    return actions.map(function(subAction) {
+        return toActionObject(subAction, actionFunctionMap);
+    });
+};
+function toActivityDefinition(action) {
+    var actionObject = toActionObject(action);
+    return _tslib.__assign(_tslib.__assign({
+        id: utils.isString(action) ? action : actionObject.id
+    }, actionObject), {
+        type: actionObject.type
+    });
+}
+/**
+ * Raises an event. This places the event in the internal event queue, so that
+ * the event is immediately consumed by the machine in the current step.
+ *
+ * @param eventType The event to raise.
+ */ function raise(event) {
+    if (!utils.isString(event)) return send(event, {
+        to: types.SpecialTargets.Internal
+    });
+    return {
+        type: actionTypes.raise,
+        event: event
+    };
+}
+function resolveRaise(action) {
+    return {
+        type: actionTypes.raise,
+        _event: utils.toSCXMLEvent(action.event)
+    };
+}
+/**
+ * Sends an event. This returns an action that will be read by an interpreter to
+ * send the event in the next step, after the current step is finished executing.
+ *
+ * @param event The event to send.
+ * @param options Options to pass into the send event:
+ *  - `id` - The unique send event identifier (used with `cancel()`).
+ *  - `delay` - The number of milliseconds to delay the sending of the event.
+ *  - `to` - The target of this event (by default, the machine the event was sent from).
+ */ function send(event, options) {
+    return {
+        to: options ? options.to : undefined,
+        type: actionTypes.send,
+        event: utils.isFunction(event) ? event : utils.toEventObject(event),
+        delay: options ? options.delay : undefined,
+        id: options && options.id !== undefined ? options.id : utils.isFunction(event) ? event.name : utils.getEventType(event)
+    };
+}
+function resolveSend(action, ctx, _event, delaysMap) {
+    var meta = {
+        _event: _event
+    }; // TODO: helper function for resolving Expr
+    var resolvedEvent = utils.toSCXMLEvent(utils.isFunction(action.event) ? action.event(ctx, _event.data, meta) : action.event);
+    var resolvedDelay;
+    if (utils.isString(action.delay)) {
+        var configDelay = delaysMap && delaysMap[action.delay];
+        resolvedDelay = utils.isFunction(configDelay) ? configDelay(ctx, _event.data, meta) : configDelay;
+    } else resolvedDelay = utils.isFunction(action.delay) ? action.delay(ctx, _event.data, meta) : action.delay;
+    var resolvedTarget = utils.isFunction(action.to) ? action.to(ctx, _event.data, meta) : action.to;
+    return _tslib.__assign(_tslib.__assign({}, action), {
+        to: resolvedTarget,
+        _event: resolvedEvent,
+        event: resolvedEvent.data,
+        delay: resolvedDelay
+    });
+}
+/**
+ * Sends an event to this machine's parent.
+ *
+ * @param event The event to send to the parent machine.
+ * @param options Options to pass into the send event.
+ */ function sendParent(event, options) {
+    return send(event, _tslib.__assign(_tslib.__assign({}, options), {
+        to: types.SpecialTargets.Parent
+    }));
+}
+/**
+ * Sends an event to an actor.
+ *
+ * @param actor The `ActorRef` to send the event to.
+ * @param event The event to send, or an expression that evaluates to the event to send
+ * @param options Send action options
+ * @returns An XState send action object
+ */ function sendTo(actor, event, options) {
+    return send(event, _tslib.__assign(_tslib.__assign({}, options), {
+        to: actor
+    }));
+}
+/**
+ * Sends an update event to this machine's parent.
+ */ function sendUpdate() {
+    return sendParent(actionTypes.update);
+}
+/**
+ * Sends an event back to the sender of the original event.
+ *
+ * @param event The event to send back to the sender
+ * @param options Options to pass into the send event
+ */ function respond(event, options) {
+    return send(event, _tslib.__assign(_tslib.__assign({}, options), {
+        to: function(_, __, _a) {
+            var _event = _a._event;
+            return _event.origin; // TODO: handle when _event.origin is undefined
+        }
+    }));
+}
+var defaultLogExpr = function(context, event) {
+    return {
+        context: context,
+        event: event
+    };
+};
+/**
+ *
+ * @param expr The expression function to evaluate which will be logged.
+ *  Takes in 2 arguments:
+ *  - `ctx` - the current state context
+ *  - `event` - the event that caused this action to be executed.
+ * @param label The label to give to the logged expression.
+ */ function log(expr, label) {
+    if (expr === void 0) expr = defaultLogExpr;
+    return {
+        type: actionTypes.log,
+        label: label,
+        expr: expr
+    };
+}
+var resolveLog = function(action, ctx, _event) {
+    return _tslib.__assign(_tslib.__assign({}, action), {
+        value: utils.isString(action.expr) ? action.expr : action.expr(ctx, _event.data, {
+            _event: _event
+        })
+    });
+};
+/**
+ * Cancels an in-flight `send(...)` action. A canceled sent action will not
+ * be executed, nor will its event be sent, unless it has already been sent
+ * (e.g., if `cancel(...)` is called after the `send(...)` action's `delay`).
+ *
+ * @param sendId The `id` of the `send(...)` action to cancel.
+ */ var cancel = function(sendId) {
+    return {
+        type: actionTypes.cancel,
+        sendId: sendId
+    };
+};
+/**
+ * Starts an activity.
+ *
+ * @param activity The activity to start.
+ */ function start(activity) {
+    var activityDef = toActivityDefinition(activity);
+    return {
+        type: types.ActionTypes.Start,
+        activity: activityDef,
+        exec: undefined
+    };
+}
+/**
+ * Stops an activity.
+ *
+ * @param actorRef The activity to stop.
+ */ function stop(actorRef) {
+    var activity = utils.isFunction(actorRef) ? actorRef : toActivityDefinition(actorRef);
+    return {
+        type: types.ActionTypes.Stop,
+        activity: activity,
+        exec: undefined
+    };
+}
+function resolveStop(action, context, _event) {
+    var actorRefOrString = utils.isFunction(action.activity) ? action.activity(context, _event.data) : action.activity;
+    var resolvedActorRef = typeof actorRefOrString === 'string' ? {
+        id: actorRefOrString
+    } : actorRefOrString;
+    var actionObject = {
+        type: types.ActionTypes.Stop,
+        activity: resolvedActorRef
+    };
+    return actionObject;
+}
+/**
+ * Updates the current context of the machine.
+ *
+ * @param assignment An object that represents the partial context to update.
+ */ var assign = function(assignment) {
+    return {
+        type: actionTypes.assign,
+        assignment: assignment
+    };
+};
+function isActionObject(action) {
+    return typeof action === 'object' && 'type' in action;
+}
+/**
+ * Returns an event type that represents an implicit event that
+ * is sent after the specified `delay`.
+ *
+ * @param delayRef The delay in milliseconds
+ * @param id The state node ID where this event is handled
+ */ function after(delayRef, id) {
+    var idSuffix = id ? "#".concat(id) : '';
+    return "".concat(types.ActionTypes.After, "(").concat(delayRef, ")").concat(idSuffix);
+}
+/**
+ * Returns an event that represents that a final state node
+ * has been reached in the parent state node.
+ *
+ * @param id The final state node's parent state node `id`
+ * @param data The data to pass into the event
+ */ function done(id, data) {
+    var type = "".concat(types.ActionTypes.DoneState, ".").concat(id);
+    var eventObject = {
+        type: type,
+        data: data
+    };
+    eventObject.toString = function() {
+        return type;
+    };
+    return eventObject;
+}
+/**
+ * Returns an event that represents that an invoked service has terminated.
+ *
+ * An invoked service is terminated when it has reached a top-level final state node,
+ * but not when it is canceled.
+ *
+ * @param id The final state node ID
+ * @param data The data to pass into the event
+ */ function doneInvoke(id, data) {
+    var type = "".concat(types.ActionTypes.DoneInvoke, ".").concat(id);
+    var eventObject = {
+        type: type,
+        data: data
+    };
+    eventObject.toString = function() {
+        return type;
+    };
+    return eventObject;
+}
+function error(id, data) {
+    var type = "".concat(types.ActionTypes.ErrorPlatform, ".").concat(id);
+    var eventObject = {
+        type: type,
+        data: data
+    };
+    eventObject.toString = function() {
+        return type;
+    };
+    return eventObject;
+}
+function pure(getActions) {
+    return {
+        type: types.ActionTypes.Pure,
+        get: getActions
+    };
+}
+/**
+ * Forwards (sends) an event to a specified service.
+ *
+ * @param target The target service to forward the event to.
+ * @param options Options to pass into the send action creator.
+ */ function forwardTo(target, options) {
+    return send(function(_, event) {
+        return event;
+    }, _tslib.__assign(_tslib.__assign({}, options), {
+        to: target
+    }));
+}
+/**
+ * Escalates an error by sending it as an event to this machine's parent.
+ *
+ * @param errorData The error data to send, or the expression function that
+ * takes in the `context`, `event`, and `meta`, and returns the error data to send.
+ * @param options Options to pass into the send action creator.
+ */ function escalate(errorData, options) {
+    return sendParent(function(context, event, meta) {
+        return {
+            type: actionTypes.error,
+            data: utils.isFunction(errorData) ? errorData(context, event, meta) : errorData
+        };
+    }, _tslib.__assign(_tslib.__assign({}, options), {
+        to: types.SpecialTargets.Parent
+    }));
+}
+function choose(conds) {
+    return {
+        type: types.ActionTypes.Choose,
+        conds: conds
+    };
+}
+function resolveActions(machine, currentState, currentContext, _event, actions, preserveActionOrder) {
+    if (preserveActionOrder === void 0) preserveActionOrder = false;
+    var _a1 = _tslib.__read(preserveActionOrder ? [
+        [],
+        actions
+    ] : utils.partition(actions, function(action) {
+        return action.type === actionTypes.assign;
+    }), 2), assignActions = _a1[0], otherActions = _a1[1];
+    var updatedContext = assignActions.length ? utils.updateContext(currentContext, _event, assignActions, currentState) : currentContext;
+    var preservedContexts = preserveActionOrder ? [
+        currentContext
+    ] : undefined;
+    var resolvedActions = utils.flatten(otherActions.map(function(actionObject) {
+        var _a;
+        switch(actionObject.type){
+            case actionTypes.raise:
+                return resolveRaise(actionObject);
+            case actionTypes.send:
+                var sendAction = resolveSend(actionObject, updatedContext, _event, machine.options.delays); // TODO: fix ActionTypes.Init
+                if (!environment.IS_PRODUCTION) // warn after resolving as we can create better contextual message here
+                utils.warn(!utils.isString(actionObject.delay) || typeof sendAction.delay === 'number', "No delay reference for delay expression '".concat(actionObject.delay, "' was found on machine '").concat(machine.id, "'"));
+                return sendAction;
+            case actionTypes.log:
+                return resolveLog(actionObject, updatedContext, _event);
+            case actionTypes.choose:
+                var chooseAction = actionObject;
+                var matchedActions = (_a = chooseAction.conds.find(function(condition) {
+                    var guard = utils.toGuard(condition.cond, machine.options.guards);
+                    return !guard || utils.evaluateGuard(machine, guard, updatedContext, _event, currentState);
+                })) === null || _a === void 0 ? void 0 : _a.actions;
+                if (!matchedActions) return [];
+                var _b = _tslib.__read(resolveActions(machine, currentState, updatedContext, _event, toActionObjects(utils.toArray(matchedActions), machine.options.actions), preserveActionOrder), 2), resolvedActionsFromChoose = _b[0], resolvedContextFromChoose = _b[1];
+                updatedContext = resolvedContextFromChoose;
+                preservedContexts === null || preservedContexts === void 0 || preservedContexts.push(updatedContext);
+                return resolvedActionsFromChoose;
+            case actionTypes.pure:
+                var matchedActions = actionObject.get(updatedContext, _event.data);
+                if (!matchedActions) return [];
+                var _c = _tslib.__read(resolveActions(machine, currentState, updatedContext, _event, toActionObjects(utils.toArray(matchedActions), machine.options.actions), preserveActionOrder), 2), resolvedActionsFromPure = _c[0], resolvedContext = _c[1];
+                updatedContext = resolvedContext;
+                preservedContexts === null || preservedContexts === void 0 || preservedContexts.push(updatedContext);
+                return resolvedActionsFromPure;
+            case actionTypes.stop:
+                return resolveStop(actionObject, updatedContext, _event);
+            case actionTypes.assign:
+                updatedContext = utils.updateContext(updatedContext, _event, [
+                    actionObject
+                ], currentState);
+                preservedContexts === null || preservedContexts === void 0 || preservedContexts.push(updatedContext);
+                break;
+            default:
+                var resolvedActionObject = toActionObject(actionObject, machine.options.actions);
+                var exec_1 = resolvedActionObject.exec;
+                if (exec_1 && preservedContexts) {
+                    var contextIndex_1 = preservedContexts.length - 1;
+                    resolvedActionObject = _tslib.__assign(_tslib.__assign({}, resolvedActionObject), {
+                        exec: function(_ctx) {
+                            var args = [];
+                            for(var _i = 1; _i < arguments.length; _i++)args[_i - 1] = arguments[_i];
+                            exec_1.apply(void 0, _tslib.__spreadArray([
+                                preservedContexts[contextIndex_1]
+                            ], _tslib.__read(args), false));
+                        }
+                    });
+                }
+                return resolvedActionObject;
+        }
+    }).filter(function(a) {
+        return !!a;
+    }));
+    return [
+        resolvedActions,
+        updatedContext
+    ];
+}
+exports.actionTypes = actionTypes;
+exports.after = after;
+exports.assign = assign;
+exports.cancel = cancel;
+exports.choose = choose;
+exports.done = done;
+exports.doneInvoke = doneInvoke;
+exports.error = error;
+exports.escalate = escalate;
+exports.forwardTo = forwardTo;
+exports.getActionFunction = getActionFunction;
+exports.initEvent = initEvent;
+exports.isActionObject = isActionObject;
+exports.log = log;
+exports.pure = pure;
+exports.raise = raise;
+exports.resolveActions = resolveActions;
+exports.resolveLog = resolveLog;
+exports.resolveRaise = resolveRaise;
+exports.resolveSend = resolveSend;
+exports.resolveStop = resolveStop;
+exports.respond = respond;
+exports.send = send;
+exports.sendParent = sendParent;
+exports.sendTo = sendTo;
+exports.sendUpdate = sendUpdate;
+exports.start = start;
+exports.stop = stop;
+exports.toActionObject = toActionObject;
+exports.toActionObjects = toActionObjects;
+exports.toActivityDefinition = toActivityDefinition;
+
+},{"./_virtual/_tslib.js":"3Bp7b","./types.js":"84cIp","./actionTypes.js":"kEepo","./utils.js":"8RFz3","./environment.js":"7oZy5"}],"84cIp":[function(require,module,exports) {
+'use strict';
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+exports.ActionTypes = void 0;
+(function(ActionTypes) {
+    ActionTypes["Start"] = "xstate.start";
+    ActionTypes["Stop"] = "xstate.stop";
+    ActionTypes["Raise"] = "xstate.raise";
+    ActionTypes["Send"] = "xstate.send";
+    ActionTypes["Cancel"] = "xstate.cancel";
+    ActionTypes["NullEvent"] = "";
+    ActionTypes["Assign"] = "xstate.assign";
+    ActionTypes["After"] = "xstate.after";
+    ActionTypes["DoneState"] = "done.state";
+    ActionTypes["DoneInvoke"] = "done.invoke";
+    ActionTypes["Log"] = "xstate.log";
+    ActionTypes["Init"] = "xstate.init";
+    ActionTypes["Invoke"] = "xstate.invoke";
+    ActionTypes["ErrorExecution"] = "error.execution";
+    ActionTypes["ErrorCommunication"] = "error.communication";
+    ActionTypes["ErrorPlatform"] = "error.platform";
+    ActionTypes["ErrorCustom"] = "xstate.error";
+    ActionTypes["Update"] = "xstate.update";
+    ActionTypes["Pure"] = "xstate.pure";
+    ActionTypes["Choose"] = "xstate.choose";
+})(exports.ActionTypes || (exports.ActionTypes = {}));
+exports.SpecialTargets = void 0;
+(function(SpecialTargets) {
+    SpecialTargets["Parent"] = "#_parent";
+    SpecialTargets["Internal"] = "#_internal";
+})(exports.SpecialTargets || (exports.SpecialTargets = {}));
+
+},{}],"kEepo":[function(require,module,exports) {
+'use strict';
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+var types = require('./types.js');
+var start = types.ActionTypes.Start;
+var stop = types.ActionTypes.Stop;
+var raise = types.ActionTypes.Raise;
+var send = types.ActionTypes.Send;
+var cancel = types.ActionTypes.Cancel;
+var nullEvent = types.ActionTypes.NullEvent;
+var assign = types.ActionTypes.Assign;
+var after = types.ActionTypes.After;
+var doneState = types.ActionTypes.DoneState;
+var log = types.ActionTypes.Log;
+var init = types.ActionTypes.Init;
+var invoke = types.ActionTypes.Invoke;
+var errorExecution = types.ActionTypes.ErrorExecution;
+var errorPlatform = types.ActionTypes.ErrorPlatform;
+var error = types.ActionTypes.ErrorCustom;
+var update = types.ActionTypes.Update;
+var choose = types.ActionTypes.Choose;
+var pure = types.ActionTypes.Pure;
+exports.after = after;
+exports.assign = assign;
+exports.cancel = cancel;
+exports.choose = choose;
+exports.doneState = doneState;
+exports.error = error;
+exports.errorExecution = errorExecution;
+exports.errorPlatform = errorPlatform;
+exports.init = init;
+exports.invoke = invoke;
+exports.log = log;
+exports.nullEvent = nullEvent;
+exports.pure = pure;
+exports.raise = raise;
+exports.send = send;
+exports.start = start;
+exports.stop = stop;
+exports.update = update;
+
+},{"./types.js":"84cIp"}],"8TXLV":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "siteInitMachine", ()=>siteInitMachine
@@ -11102,6 +11517,8 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
         awaitSwitchRovBtnPress: ()=>{
             return (sendStateChange)=>{
                 const cleanupFunc = _ui.setupSwitchRovBtnClickHandler(()=>{
+                    sendStateChange("CONNECT_TO_PREV_ROBOT");
+                }, ()=>{
                     sendStateChange("CONNECT_TO_NEXT_ROBOT");
                 });
                 return cleanupFunc;
@@ -11123,7 +11540,6 @@ var _uuid = require("uuid");
 // import * as consts from "./consts";
 var _util = require("./util");
 var _ui = require("./ui");
-// showROVDisconnectedUi, showROVConnectingUi, showROVConnectedUi, setupConnectBtnClickHandler, showToastDialog, hideLoadingUi, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandler
 var _actions = require("xstate/lib/actions");
 const FATAL_PEER_ERROR_TYPES = [
     "network",
@@ -19296,252 +19712,6 @@ Prints log messages depending on the debug level passed in. Defaults to 0.
 ], null) //# sourceMappingURL=/peerjs.js.map
 ;
 
-},{}],"j4KJi":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "v1", ()=>_v1JsDefault.default
-);
-parcelHelpers.export(exports, "v3", ()=>_v3JsDefault.default
-);
-parcelHelpers.export(exports, "v4", ()=>_v4JsDefault.default
-);
-parcelHelpers.export(exports, "v5", ()=>_v5JsDefault.default
-);
-parcelHelpers.export(exports, "NIL", ()=>_nilJsDefault.default
-);
-parcelHelpers.export(exports, "version", ()=>_versionJsDefault.default
-);
-parcelHelpers.export(exports, "validate", ()=>_validateJsDefault.default
-);
-parcelHelpers.export(exports, "stringify", ()=>_stringifyJsDefault.default
-);
-parcelHelpers.export(exports, "parse", ()=>_parseJsDefault.default
-);
-var _v1Js = require("./v1.js");
-var _v1JsDefault = parcelHelpers.interopDefault(_v1Js);
-var _v3Js = require("./v3.js");
-var _v3JsDefault = parcelHelpers.interopDefault(_v3Js);
-var _v4Js = require("./v4.js");
-var _v4JsDefault = parcelHelpers.interopDefault(_v4Js);
-var _v5Js = require("./v5.js");
-var _v5JsDefault = parcelHelpers.interopDefault(_v5Js);
-var _nilJs = require("./nil.js");
-var _nilJsDefault = parcelHelpers.interopDefault(_nilJs);
-var _versionJs = require("./version.js");
-var _versionJsDefault = parcelHelpers.interopDefault(_versionJs);
-var _validateJs = require("./validate.js");
-var _validateJsDefault = parcelHelpers.interopDefault(_validateJs);
-var _stringifyJs = require("./stringify.js");
-var _stringifyJsDefault = parcelHelpers.interopDefault(_stringifyJs);
-var _parseJs = require("./parse.js");
-var _parseJsDefault = parcelHelpers.interopDefault(_parseJs);
-
-},{"./v1.js":false,"./v3.js":false,"./v4.js":"8zJtu","./v5.js":false,"./nil.js":false,"./version.js":false,"./validate.js":"eHPgI","./stringify.js":"5Y9F1","./parse.js":false,"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8zJtu":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _rngJs = require("./rng.js");
-var _rngJsDefault = parcelHelpers.interopDefault(_rngJs);
-var _stringifyJs = require("./stringify.js");
-var _stringifyJsDefault = parcelHelpers.interopDefault(_stringifyJs);
-function v4(options, buf, offset) {
-    options = options || {};
-    var rnds = options.random || (options.rng || _rngJsDefault.default)(); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
-    rnds[6] = rnds[6] & 15 | 64;
-    rnds[8] = rnds[8] & 63 | 128; // Copy bytes to buffer, if provided
-    if (buf) {
-        offset = offset || 0;
-        for(var i = 0; i < 16; ++i)buf[offset + i] = rnds[i];
-        return buf;
-    }
-    return _stringifyJsDefault.default(rnds);
-}
-exports.default = v4;
-
-},{"./rng.js":"2psyE","./stringify.js":"5Y9F1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2psyE":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-// Unique ID creation requires a high quality random # generator. In the browser we therefore
-// require the crypto API and do not support built-in fallback to lower quality random number
-// generators (like Math.random()).
-var getRandomValues;
-var rnds8 = new Uint8Array(16);
-function rng() {
-    // lazy load so that environments that need to polyfill have a chance to do so
-    if (!getRandomValues) {
-        // getRandomValues needs to be invoked in a context where "this" is a Crypto implementation. Also,
-        // find the complete implementation of crypto (msCrypto) on IE11.
-        getRandomValues = typeof crypto !== 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto !== 'undefined' && typeof msCrypto.getRandomValues === 'function' && msCrypto.getRandomValues.bind(msCrypto);
-        if (!getRandomValues) throw new Error('crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported');
-    }
-    return getRandomValues(rnds8);
-}
-exports.default = rng;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5Y9F1":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _validateJs = require("./validate.js");
-var _validateJsDefault = parcelHelpers.interopDefault(_validateJs);
-/**
- * Convert array of 16 byte values to UUID string format of the form:
- * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
- */ var byteToHex = [];
-for(var i = 0; i < 256; ++i)byteToHex.push((i + 256).toString(16).substr(1));
-function stringify(arr) {
-    var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-    // Note: Be careful editing this code!  It's been tuned for performance
-    // and works in ways you may not expect. See https://github.com/uuidjs/uuid/pull/434
-    var uuid = (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + '-' + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + '-' + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + '-' + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + '-' + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase(); // Consistency check for valid UUID.  If this throws, it's likely due to one
-    // of the following:
-    // - One or more input array values don't map to a hex octet (leading to
-    // "undefined" in the uuid)
-    // - Invalid input values for the RFC `version` or `variant` fields
-    if (!_validateJsDefault.default(uuid)) throw TypeError('Stringified UUID is invalid');
-    return uuid;
-}
-exports.default = stringify;
-
-},{"./validate.js":"eHPgI","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"eHPgI":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _regexJs = require("./regex.js");
-var _regexJsDefault = parcelHelpers.interopDefault(_regexJs);
-function validate(uuid) {
-    return typeof uuid === 'string' && _regexJsDefault.default.test(uuid);
-}
-exports.default = validate;
-
-},{"./regex.js":"bUa5g","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bUa5g":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-exports.default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dczPN":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "DisclosureNav", ()=>DisclosureNav
-);
-/*
- *   This content is licensed according to the W3C Software License at
- *   https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document
- *
- *   Supplemental JS for the disclosure menu keyboard behavior
- */ 'use strict';
-class DisclosureNav {
-    constructor(domNode){
-        this.rootNode = domNode;
-        this.controlledNodes = [];
-        this.openIndex = null;
-        this.useArrowKeys = true;
-        this.topLevelNodes = [
-            ...this.rootNode.querySelectorAll('.main-link, button[aria-expanded][aria-controls]'), 
-        ];
-        this.topLevelNodes.forEach((node)=>{
-            // handle button + menu
-            if (node.tagName.toLowerCase() === 'button' && node.hasAttribute('aria-controls')) {
-                const menu = node.parentNode.querySelector('ul');
-                if (menu) {
-                    // save ref controlled menu
-                    this.controlledNodes.push(menu);
-                    // collapse menus
-                    node.setAttribute('aria-expanded', 'false');
-                    this.toggleMenu(menu, false);
-                    // attach event listeners
-                    menu.addEventListener('keydown', this.onMenuKeyDown.bind(this));
-                    node.addEventListener('click', this.onButtonClick.bind(this));
-                    node.addEventListener('keydown', this.onButtonKeyDown.bind(this));
-                }
-            } else {
-                this.controlledNodes.push(null);
-                node.addEventListener('keydown', this.onLinkKeyDown.bind(this));
-            }
-        });
-        this.rootNode.addEventListener('focusout', this.onBlur.bind(this));
-    }
-    controlFocusByKey(keyboardEvent, nodeList, currentIndex) {
-        switch(keyboardEvent.key){
-            case 'ArrowUp':
-            case 'ArrowLeft':
-                keyboardEvent.preventDefault();
-                if (currentIndex > -1) {
-                    var prevIndex = Math.max(0, currentIndex - 1);
-                    nodeList[prevIndex].focus();
-                }
-                break;
-            case 'ArrowDown':
-            case 'ArrowRight':
-                keyboardEvent.preventDefault();
-                if (currentIndex > -1) {
-                    var nextIndex = Math.min(nodeList.length - 1, currentIndex + 1);
-                    nodeList[nextIndex].focus();
-                }
-                break;
-            case 'Home':
-                keyboardEvent.preventDefault();
-                nodeList[0].focus();
-                break;
-            case 'End':
-                keyboardEvent.preventDefault();
-                nodeList[nodeList.length - 1].focus();
-                break;
-        }
-    }
-    // public function to close open menu
-    close() {
-        this.toggleExpand(this.openIndex, false);
-    }
-    onBlur(event) {
-        var menuContainsFocus = this.rootNode.contains(event.relatedTarget);
-        if (!menuContainsFocus && this.openIndex !== null) this.toggleExpand(this.openIndex, false);
-    }
-    onButtonClick(event) {
-        var button = event.target;
-        var buttonIndex = this.topLevelNodes.indexOf(button);
-        var buttonExpanded = button.getAttribute('aria-expanded') === 'true';
-        this.toggleExpand(buttonIndex, !buttonExpanded);
-    }
-    onButtonKeyDown(event) {
-        var targetButtonIndex = this.topLevelNodes.indexOf(document.activeElement);
-        // close on escape
-        if (event.key === 'Escape') this.toggleExpand(this.openIndex, false);
-        else if (this.useArrowKeys && this.openIndex === targetButtonIndex && event.key === 'ArrowDown') {
-            event.preventDefault();
-            this.controlledNodes[this.openIndex].querySelector('a').focus();
-        } else if (this.useArrowKeys) this.controlFocusByKey(event, this.topLevelNodes, targetButtonIndex);
-    }
-    onLinkKeyDown(event) {
-        var targetLinkIndex = this.topLevelNodes.indexOf(document.activeElement);
-        // handle arrow key navigation between top-level buttons, if set
-        if (this.useArrowKeys) this.controlFocusByKey(event, this.topLevelNodes, targetLinkIndex);
-    }
-    onMenuKeyDown(event) {
-        if (this.openIndex === null) return;
-        var menuLinks = Array.prototype.slice.call(this.controlledNodes[this.openIndex].querySelectorAll('a'));
-        var currentIndex = menuLinks.indexOf(document.activeElement);
-        // close on escape
-        if (event.key === 'Escape') {
-            this.topLevelNodes[this.openIndex].focus();
-            this.toggleExpand(this.openIndex, false);
-        } else if (this.useArrowKeys) this.controlFocusByKey(event, menuLinks, currentIndex);
-    }
-    toggleExpand(index, expanded) {
-        // close open menu, if applicable
-        if (this.openIndex !== index) this.toggleExpand(this.openIndex, false);
-        // handle menu at called index
-        if (this.topLevelNodes[index]) {
-            this.openIndex = expanded ? index : null;
-            this.topLevelNodes[index].setAttribute('aria-expanded', expanded);
-            this.toggleMenu(this.controlledNodes[index], expanded);
-        }
-    }
-    toggleMenu(domNode, show) {
-        if (domNode) domNode.style.display = show ? 'block' : 'none';
-    }
-    updateKeyControls(useArrowKeys) {
-        this.useArrowKeys = useArrowKeys;
-    }
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["g9TDx","1SICI"], "1SICI", "parcelRequire8802")
+},{}]},["g9TDx","1SICI"], "1SICI", "parcelRequire8802")
 
 //# sourceMappingURL=index.18dbc454.js.map

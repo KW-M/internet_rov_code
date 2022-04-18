@@ -5,9 +5,7 @@ import { v4 as uuidV4 } from "uuid"
 
 import { generateStateChangeFunction } from "./util";
 import { showToastMessage, showLoadingUi, setClientPeerIdDisplay } from "./ui"
-// showROVDisconnectedUi, showROVConnectingUi, showROVConnectedUi, setupConnectBtnClickHandler, showToastDialog, hideLoadingUi, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandler
-
-import { pure, stop, send, sendParent, assign } from "xstate/lib/actions";
+import { pure, send, sendParent, assign } from "xstate/lib/actions";
 
 const FATAL_PEER_ERROR_TYPES = [
     "network", "unavailable-id", "invalid-id", "invalid-key", "browser-incompatible", "webrtc", "server-error", "ssl-unavailable", "socket-error", "socket-closed"

@@ -105,12 +105,12 @@ fi
 sudo sed -i 's|/#dtoverlay=vc4-fkms-v3d|/dtoverlay=vc4-fkms-v3d|g' /boot/config.txt
 
 # ----------------------------------------------------------------------------------------------------------------------
-if grep "rov_status_message.sh" ~/.profile; then
-	echo -e "$Green rov_status_message already set to run every time a terminal/cmd prompt is opened in ~/.profile $Color_Off"
+if grep "rov_status_report.sh" ~/.profile; then
+	echo -e "$Green rov_status_report already set to run every time a terminal/cmd prompt is opened in ~/.profile $Color_Off"
 else
-	echo -e "$Cyan Adding command to run rov_status_message.sh whenever a terminal is oppened by adding it to the .profile file $Color_Off"
+	echo -e "$Cyan Adding command to run rov_status_report.sh whenever a terminal is oppened by adding it to the .profile file $Color_Off"
 	# the .profile file is the file that gets run to setup the default terminal/command shell whenever you open a terminal or ssh session
-	echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_message.sh" >> ~/.profile
+	echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_report.sh" >> ~/.profile
 fi
 # ----------------------------------------------------------------------------------------------------------------------
 # ----- Bluetooth Serial Setup -----------------------------------------------------------------------------------------

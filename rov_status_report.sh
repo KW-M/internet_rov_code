@@ -129,9 +129,3 @@ $(tput sgr0)"
 echo "========================="
 echo "";
 # /bin/bash /home/pi/internet_rov_code/show_system_warnings.sh
-
-
-
-
-
-

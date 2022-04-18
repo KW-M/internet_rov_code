@@ -50,66 +50,73 @@ async def readBashCommandOutputAsync(bashCommand):
 
 def handleActionCommand(action):
 
-    if action == '/api/disable_wifi':
+    if action == 'disable_wifi':
         return readBashCommandOutputAsync("rfkill block wlan")
 
-    elif action == '/api/enable_wifi':
+    elif action == 'enable_wifi':
         return readBashCommandOutputAsync("sudo rfkill unblock wlan")
 
-    elif action == '/api/status':
+    elif action == 'rov_status_report':
         return readBashCommandOutputAsync(
-            "/home/pi/internet_rov_code/rov_status_message.sh")
+            "/home/pi/internet_rov_code/rov_status_report.sh")
 
-    elif action == '/api/restart_services':
+    elif action == 'restart_rov_services':
         return readBashCommandOutputAsync(
             "/home/pi/internet_rov_code/update_config_files.sh")
 
-    elif action == '/api/pull_github_code':
+    elif action == 'pull_rov_github_code':
         return readBashCommandOutputAsync(
             "GIT_HTTP_CONNECT_TIMEOUT=4 cd /home/pi/internet_rov_code/; git add .; git stash; git pull"
         )
 
-    elif action == '/api/rov_logs':
+    elif action == 'rov_logs':
         return readBashCommandOutputAsync(
             "journalctl --unit=rov_python_code --unit=rov_go_code --unit=add_fixed_ip --unit=nginx --no-pager --follow -n 500"
         )
 
-    elif action == '/api/shutdown':
+    elif action == 'shutdown_rov':
         runBashCommand(
             "sleep 4; sudo poweroff"
-        )  # sleep 4 seconds to give time for the response to be sent
+        )  # sleep 4 seconds to give time for the response message to be sent
         return "Shutting Down..."
 
-    elif action == '/api/reboot':
+    elif action == 'reboot_rov':
         runBashCommand(
             "sleep 4; sudo reboot"
-        )  # sleep 4 to give time for the shutdown message to be sent
+        )  # sleep 4 seconds to give time for the response message to be sent
         return "Rebooting..."
 
-    # elifif action == '/api/start_netdata':
+    # elifif action == 'start_netdata':
     #     return  "sudo systemctl start netdata"
 
-    # elif action == '/api/stop_netdata':
+    # elif action == 'stop_netdata':
     #     return "sudo systemctl stop netdata"
 
     else:
         return None
 
 
-async def generate_webrtc_format_response(cid, action):
+async def generate_webrtc_format_response(
+    cid,
+    action,
+):
 
     action_result = handleActionCommand(action)
 
     if action_result is None:
-        yield json.dumps({"cid": cid, "err": "Unknown action: " + action})
+        yield {
+            "cid": cid,
+            "status": "error",
+            "val": "Unknown action: " + action
+        }
 
     elif type(action_result) is str:
-        yield json.dumps({"cid": cid, "msg": action_result, "done": True})
+        yield {"cid": cid, "val": action_result, "status": "done"}
 
     elif type(action_result) is AsyncGeneratorType:
         async for line in action_result:
-            yield json.dumps({"cid": cid, "msg": line})
-        yield json.dumps({"cid": cid, "done": True})
+            yield {"cid": cid, "val": line}
+        yield {"cid": cid, "status": "done"}
 
 
 async def generate_aiohttp_response(request):

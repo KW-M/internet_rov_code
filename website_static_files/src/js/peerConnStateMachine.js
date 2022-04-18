@@ -339,6 +339,8 @@ export const peerConnMachine =
             awaitSwitchRovBtnPress: () => {
                 return (sendStateChange) => {
                     const cleanupFunc = setupSwitchRovBtnClickHandler(() => {
+                        sendStateChange("CONNECT_TO_PREV_ROBOT");
+                    }, () => {
                         sendStateChange("CONNECT_TO_NEXT_ROBOT");
                     })
                     return cleanupFunc;

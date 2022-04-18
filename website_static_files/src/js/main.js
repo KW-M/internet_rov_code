@@ -13,13 +13,9 @@ import { inspect } from "@xstate/inspect";
 // import {} from "./gamepad-ui.js";
 import { GamepadController } from "./gamepad.js";
 
-import { handleRovMessage } from "./messageHandler";
+import { handleRovMessage, MessageHandler, RovActions } from "./messageHandler";
 import { getURLQueryStringVariable } from "./util.js";
-import { setupConnectBtnClickHandler, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandler, showReloadingWebsiteUi, showROVDisconnectedUi, showToastDialog, showToastMessage } from "./ui.js";
-
-// import { initGamepadSupport } from "./gamepad.js";
-// import { gamepadUi } from "./gamepad-ui.js";
-// import { gamepadEmulator } from "./gamepad-emulation.js";
+import { createTitle, setupConnectBtnClickHandler, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandler, showReloadingWebsiteUi, showROVDisconnectedUi, showToastDialog, showToastMessage } from "./ui.js";
 
 // show an inspector if the query string is present
 if (getURLQueryStringVariable("debug-mode")) {
@@ -34,9 +30,14 @@ import { siteInitMachine } from "./siteInit";
 import { peerConnMachine } from "./peerConnStateMachine.js";
 import { peerServerConnMachine } from "./peerServerConnStateMachine.js";
 import { ROV_PEERID_BASE } from "./consts.js";
-import { DisclosureNav } from "./libraries/accesableDropdownMenu.js";
+// import { DisclosureNav } from "./libraries/accesableDropdownMenu.js";
 
-new GamepadController();
+
+// // showChoiceDialog("Pick A food", ["peanuts", "cashews", "rum"], console.log)
+// let a = showScrollableTextPopup("ROV Status")
+// setInterval(() => {
+//     a(Date.now() + " djflksdjf dslkfjsdsdjflksdjflkfjsd" + " \n");
+// }, 100);
 
 const mainMachine =
     /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QAmAGwBmbAEYAHMoAMAdg0BWbQBYVATkNyANCACeibQq0y9U1XLVqpclQF8P5tFmwMAV0xMLChsADlefDoAYRFMMABjfEhSAAUaGgY6XCyANSzYgHlw8JoYqgoSuhpcKmYAIQAZClwACRpWMT4BIRExSQRlQw1sdzkZRTk9ZTkRxT1zKwRHUbk5jVU9bXk1Q00vHwwcQODQ7DSwMCIc64A3a9j4pJSIchpw1joAWVrcZgA4vQqEVGEU8t1+IJhKIkBJEFN5NgpBpDG49HJtMo9GosUtEHptthXFN3DoZHtjIcQL4TkEQpgwpdHrh7o84sEXqkAUUqD8-oD6AAxBhFb5giFwnrQ-pwwaKRRuMYyZRSQzKDQUuSbRT4hCE7TEqSkxTkymGam0-z00KkVitGIlMoVOgNACqVBB4ToaSYuFyXSlUL6sNAgykyLUKqmalmemMmJserVemwqqkGbUihkunsUktx2tZ0Z6Uy2VyDAK2SFzHqTRqDFFDEhvRhA0QGlNRtVeh06k7ez1Mi02FRRhzKM7GYLflODKgpAA6jQGgwqDE6DW6w2my2ZaH4QhswZsMOMVIszttLrLIhpooxp2HFJtuo1BMZ3Tiwvlw1KLRYiaIpcj3EN2yPGQc2RXsDEggwUxkZMkW0QwVVjFVILkY05E-bBmAAdwwIRGQlJ5OWSV0AnwfARB9Ig4FgUhHVKco+XdT1ql9P5OlAts5TvHRsH0dZjUJEwnz1bZDDTbQXH0YZUOUTxqUwXgIDgMQrQIYh8F42Uw2kB9VRQ2ZDBsJT0T1XRR1mWZTW1KNZGxXC53OSJog5BJkkgPSD0GaMjQMLERMUNRtmTdQ0xxU0KXUbNjG0FybUZC4rhuVkiAeG5PK5CBfPAxV9mwNFcTMzQTCw5NO2RRRjAw1wUNRHDvBpQtXMZfL+IQHNRlcILZiw0LwtvBBrzGLDtRkScUL63CCKI0JSJyiiGiomjMDohjOoMhAAFodiEjNtA0TRjvsfZEJGmYZFHSlZijHYXGao4-FYEQwG2w8VEgoTNXVZQVW2RQkxGtVlFHDQ3E0ewsNxexP0+wZdsi7QjpOnRNXjKM9V241TwmJqs1cCY9i8LwgA */
@@ -203,12 +204,7 @@ const mainMachine =
             }),
             "startPingMessageGenerator": assign({
                 pingSenderActor: () => {
-                    return spawn((callback) => {
-                        const intervalId = setInterval(() => {
-                            callback({ type: "SEND_MESSAGE_TO_ROV", data: JSON.stringify({ "ping": Date.now() }) }, { to: "peerConnMachine" });
-                        }, 2000)
-                        return () => { clearInterval(intervalId) }
-                    }, "pingMessageGenerator")
+                    return spawn(RovActions.pingMessageSenderLoop, "pingMessageGenerator")
                 }
             }),
             "stopPingMessageGenerator": stop("pingMessageGenerator"),
@@ -218,7 +214,6 @@ const mainMachine =
                 handleRovMessage(event.data)
             },
             "sendMessageToRov": send((context, event) => {
-
                 return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
             }, { to: "peerConnMachine" }),
         },
@@ -229,7 +224,7 @@ const mainMachine =
                     console.log(event)
                     var toastMsg = null
                     if (err && err.type == "peer-unavailable") {
-                        toastMsg = showToastDialog("ROV is not yet online!", 12000, false)
+                        toastMsg = showToastDialog([createTitle("ROV is not yet online!")], { duration: 12000 })
                     }
                     const cleanupFunc = setupConnectBtnClickHandler(() => {
                         if (toastMsg) toastMsg.hideToast()
@@ -266,16 +261,25 @@ window.onbeforeunload = () => {
     window.thisPeerjsPeer.destroy();
 }
 
+/* init rov message handler */
+new MessageHandler((messageStrForRov) => {
+    window.mainRovMachineService.send("SEND_MESSAGE_TO_ROV", messageStrForRov);
+});
+window.rovActions = RovActions;
+
+/* init gamepad support */
+new GamepadController();
+
 
 /* Initialize Disclosure Menus */
 
-var menus = document.querySelectorAll('.disclosure-nav');
-var disclosureMenus = [];
+// var menus = document.querySelectorAll('.disclosure-nav');
+// var disclosureMenus = [];
 
-for (var i = 0; i < menus.length; i++) {
-    disclosureMenus[i] = new DisclosureNav(menus[i]);
-    disclosureMenus[i].updateKeyControls(true);
-}
+// for (var i = 0; i < menus.length; i++) {
+//     disclosureMenus[i] = new DisclosureNav(menus[i]);
+//     disclosureMenus[i].updateKeyControls(true);
+// }
 
         // fake link behavior
         // disclosureMenus.forEach((disclosureNav, i) => {

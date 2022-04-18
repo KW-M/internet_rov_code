@@ -1,8 +1,47 @@
 import Toastify from 'toastify-js'
+import { isArray } from 'xstate/lib/utils';
 
 // -------------------------------------------------------------
 // ------ UI Stuff ---------------------------------------------
 // -------------------------------------------------------------
+
+// ----- Simple Element Generators -----
+
+export function createButtons(btnNames, callback) {
+    return btnNames.map((btnName) => {
+        const btn = document.createElement("button")
+        btn.innerHTML = btnName;
+        btn.dataset.name = btnName;
+        btn.addEventListener("click", () => callback(btnName));
+        return btn
+    })
+}
+
+export function createTitle(titleName) {
+    const msg = document.createElement("h4")
+    msg.innerText = titleName
+    return msg
+}
+
+// -----  White Backdrop -----
+
+const backdrop = document.getElementById("backdrop")
+let backdropClickCallback = null
+export function showBackdrop(callback) {
+    backdrop.classList.remove("hidden")
+    backdropClickCallback = function () {
+        if (callback) callback(null)
+        hideBackdrop()
+    }
+    backdrop.addEventListener("click", backdropClickCallback)
+}
+
+export function hideBackdrop() {
+    backdrop.classList.add("hidden")
+    backdrop.removeEventListener("click", backdropClickCallback)
+}
+
+// -----  Toast Notifications -----
 
 export function showToastMessage(message, durration, callback) {
     return Toastify({
@@ -20,47 +59,85 @@ export function showToastMessage(message, durration, callback) {
     }).showToast();
 }
 
-export function showToastDialog(message, durration, btnName, callback) {
-    const toastContent = document.createElement("div")
-    toastContent.innerHTML = message
-    if (btnName) {
-        const btn = document.createElement("button")
-        btn.innerHTML = btnName;
-        btn.addEventListener("click", callback);
-        toastContent.appendChild(btn)
-    }
-    return Toastify({
-        node: toastContent,
-        duration: durration || 15000,
-        close: btnName != false,
+// -----  Toastify Based Dialogs -----
+
+export function showToastDialog(htmlElements, options, exraClassNames) {
+    const toast = Toastify(Object.assign({
+        text: " ",
+        duration: 15000,
+        close: false,
         className: "dialog-toast",
         gravity: "top", // `top` or `bottom`
         position: "center", // `left`, `center` or `right`
         stopOnFocus: true, // Prevents dismissing of toast on hover
-    }).showToast();
+    }, options)).showToast();
+
+    htmlElements.forEach((e) => {
+        console.log(e)
+        toast.toastElement.appendChild(e)
+    })
+    if (exraClassNames && isArray(exraClassNames)) exraClassNames.forEach((name) => { toast.toastElement.classList.add(name) })
+    return toast;
 }
 
-export function showChoiceDialog(message, buttons, callback) {
-    const toastContent = document.createElement("div")
-    toastContent.innerHTML = message
-    buttons.forEach(button => {
-        const btn = document.createElement("button")
-        btn.innerHTML = button.name;
-        btn.addEventListener("click", () => {
-
-            callback(button.value)
-        })
-        toastContent.appendChild(btn)
+export function showPasswordPrompt(message, callback) {
+    let toast = null
+    const title = createTitle(message)
+    const input = document.createElement("input")
+    input.type = "password"
+    input.placeholder = "Password"
+    const btns = createButtons(["Ok", "Cancel"], (chosenButton) => {
+        hideBackdrop()
+        toast.hideToast()
+        if (callback && chosenButton == "Ok") callback(input.value)
+        else if (callback) callback(null)
     })
-    return Toastify({
-        node: toastContent,
-        duration: 0,
-        close: true,
-        className: "dialog-toast",
-        gravity: "top", // `top` or `bottom`
-        position: "center", // `left`, `center` or `right`
-        stopOnFocus: true, // Prevents dismissing of toast on hover
-    }).showToast();
+    toast = showToastDialog([title, input].concat(btns), { gravity: "bottom", duration: -1 }, ["password-prompt"])
+    showBackdrop(() => {
+        toast.hideToast()
+        hideBackdrop()
+        if (callback) callback(null)
+    })
+    return toast
+}
+
+export function showScrollableTextPopup(title, callback) {
+    let toast = null
+    const titleElm = createTitle(title)
+    const content = document.createElement("pre")
+    const closeFunc = () => {
+        toast.hideToast()
+        hideBackdrop()
+        if (callback) callback(null)
+    }
+    const btns = createButtons(["Close"], closeFunc)
+    toast = showToastDialog([titleElm, content].concat(btns), { gravity: "bottom", duration: -1 }, ["scrollable-text-popup"])
+    showBackdrop(closeFunc)
+    return (textLine) => {
+        content.appendChild(document.createTextNode(textLine))
+        // keep scrolling down as new content is added (unless the user has scrolled up / is no longer at the bottom)
+        if (content.scrollTop + content.clientHeight + 100 > content.scrollHeight) {
+            content.scrollTop = content.scrollHeight
+        }
+    }
+}
+
+
+export function showChoiceDialog(title, buttons, callback) {
+    let toast = null
+    const titleElm = createTitle(title)
+    const closeFunc = () => {
+        hideBackdrop()
+        toast.hideToast()
+    }
+    const btns = createButtons([...buttons, "Cancel"], (chosenButton) => {
+        console.log("here")
+        closeFunc()
+        callback(chosenButton);
+    })
+    toast = showToastDialog([titleElm].concat(btns), { gravity: "bottom", duration: -1 }, ["choice-popup"]);
+    showBackdrop(closeFunc)
+    return toast
 }
 
 const connectBtn = document.getElementById('connect_btn');
@@ -109,11 +186,15 @@ export function setupDisconnectBtnClickHandler(callback) {
     }
 }
 
-const connectedRovButton = document.getElementById('connected_rov_indicator_btn');
-export function setupSwitchRovBtnClickHandler(callback) {
-    connectedRovButton.addEventListener('click', callback);
+
+const switchToPrevRovBtn = document.getElementById('switch_to_prev_rov_btn');
+const switchToNextRovBtn = document.getElementById('switch_to_next_rov_btn');
+export function setupSwitchRovBtnClickHandler(prevRovCallback, nextRovCallback) {
+    switchToPrevRovBtn.addEventListener('click', prevRovCallback);
+    switchToNextRovBtn.addEventListener('click', nextRovCallback);
     return () => { // cleanup function
-        connectedRovButton.removeEventListener('click', callback);
+        switchToPrevRovBtn.removeEventListener('click', prevRovCallback);
+        switchToNextRovBtn.removeEventListener('click', nextRovCallback);
     }
 }
 
@@ -206,7 +287,7 @@ export function setArtificialHorizonBackground(roll, pitch) {
 
 //             // beta: Tilting the device from the front to the back. Tilting the device to the front will result in a positive value.
 //             var tiltFB = eventData.beta;
-//             // this.document.getElementById("connected_rov_display").innerHTML = "tiltLR: " + tiltLR + " tiltFB: " + (tiltFB - 90);
+//             // this.document.getElementById("rov_connection_display").innerHTML = "tiltLR: " + tiltLR + " tiltFB: " + (tiltFB - 90);
 
 //             // alpha: The direction the compass of the device aims to in degrees.
 //             var dir = eventData.alpha

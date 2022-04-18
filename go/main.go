@@ -18,8 +18,8 @@ var ADD_METADATA_TO_UNIX_SOCKET_MESSAGES = true
 func parseProgramCmdlineFlags() {
 	// Parse the command line parameters passed to program in the shell eg "-a" in "ls -a"
 	flag.StringVar(&videoShellCommand, "video-shell-cmd", "cat -", "Shell command that will send a h264 video stream to stdout, Default is \"cat -\"")
-	flag.StringVar(&peerServerListenPort, "peerserver-listen-port", "8181", "Port number for the go peerjs server to listen on. Default is 8181")
-	flag.BoolVar(&ADD_METADATA_TO_UNIX_SOCKET_MESSAGES, "add-metadata-to-messages", true, "If true, when a datachannel message is recived, metataa like the sender's peer id will be prepended to all message, followed by the delimeter before being sent to the unix socket. Default is false")
+	// flag.StringVar(&peerServerListenPort, "peerserver-listen-port", "8181", "Port number for the go peerjs server to listen on. Default is 8181")
+	// flag.BoolVar(&ADD_METADATA_TO_UNIX_SOCKET_MESSAGES, "add-metadata-to-messages", true, "If true, when a datachannel message is recived, metataa like the sender's peer id will be prepended to all message, followed by the delimeter before being sent to the unix socket. Default is false")
 	flag.Parse()
 }
 

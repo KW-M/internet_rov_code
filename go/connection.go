@@ -13,6 +13,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+/* This file contains all the code to connect through peerjs to the peerjs server, listen for conection attempts and
+handle sending/reciving webrtc messages
+a few notes about the peerjs-go library:
+- never block a peerjs event callback, while they are go routines, they end up blocking the whole peerjs library.
+- It can be very easy to accidentally block a peerjs event callback, by doing something like: for { select {} } or <-time.after() without involving a new gorouitine
+*/
+
 // 2022/03/14 19:20:02 UNIX SOCKET got message: {"pong": 1200}
 // DEBU[0680] WS msg -1                                     module=peer source=socket
 // DEBU[0680] websocket closed: websocket: close 1006 (abnormal closure): unexpected EOF  module=peer source=socket
@@ -350,7 +357,7 @@ func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *U
 			exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
 		} else {
 			log.Info("Robot Peer Established!")
-			peerConnectionOpenHandler(*robotPeer, robotPeerId, peerServerOptions, robotConnLog)
+			peerConnectionOpenHandler(robotPeer, robotPeerId, peerServerOptions, robotConnLog)
 		}
 	})
 
