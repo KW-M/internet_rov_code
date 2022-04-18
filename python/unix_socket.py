@@ -30,28 +30,25 @@ class Unix_Socket:
         while True:
             try:
                 encodedMessage = self.sock.recv(self.MAX_MESSAGE_SIZE)
-
-                if not encodedMessage == '' and not encodedMessage == b'' and not encodedMessage == None:
-                    message = str(encodedMessage, 'utf-8')
-                    log.debug("Received message: " + message)
-                    # await self.messages_from_socket_queue.put(message)
-                else:
-                    log.debug("Received empty message, returning: " +
-                              encodedMessage)
+                if encodedMessage == '' or encodedMessage == b'' or encodedMessage == None:
                     return
+                message = str(encodedMessage, 'utf-8')
+                log.debug("Received message: " + message)
+                await self.messages_from_socket_queue.put(message)
+
                 await asyncio.sleep(0.05)
                 continue
             except socket.timeout as e:
                 log.debug("Read Socket timeout")
                 await asyncio.sleep(1)
-            # except BrokenPipeError as e:
-            #     return
-            # except ConnectionResetError as e:
-            #     return
-            # except asyncio.CancelledError as e:
-            #     return
-            # except KeyboardInterrupt as e:
-            #     return
+            except BrokenPipeError as e:
+                return
+            except ConnectionResetError as e:
+                return
+            except asyncio.CancelledError as e:
+                return
+            except KeyboardInterrupt as e:
+                return
             except Exception as e:
                 log.error('read_socket_messages(): Error', exc_info=e)
                 return
@@ -75,14 +72,14 @@ class Unix_Socket:
             except socket.timeout as e:
                 log.debug("Write Socket timeout")
                 await asyncio.sleep(1)
-            # except BrokenPipeError as e:
-            #     return
-            # except ConnectionResetError as e:
-            #     return
-            # except asyncio.CancelledError as e:
-            #     return
-            # except KeyboardInterrupt as e:
-            #     return
+            except BrokenPipeError as e:
+                return
+            except ConnectionResetError as e:
+                return
+            except asyncio.CancelledError as e:
+                return
+            except KeyboardInterrupt as e:
+                return
             except Exception as e:
                 log.error('send_socket_messages(): Error', exc_info=e)
                 return
