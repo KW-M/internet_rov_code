@@ -30,21 +30,22 @@ type UnixSocketRelay struct {
  * will push all recved messages as a string onto the messagesFromSocket channel */
 func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
 	buf := make([]byte, sock.readBufferSize)
+L:
 	for {
+		sock.debugLog.Debug("Reading sock Loop...")
 		select {
 		case <-sock.exitSocketLoopsSignal.GetSignal():
-			sock.debugLog.Info("Exiting reading unix socket loop...")
-			return
+			break L
 		default:
 			conn := sock.socketConnection
 			conn.SetReadDeadline(time.Now().Add(time.Second * 10))
 			numBytes, err := conn.Read(buf)
 			if sock.exitSocketLoopsSignal.HasTriggered {
-				return
+				break L
 			} else if err != nil {
 				sock.debugLog.Warn("Connection read error:", err)
 				sock.exitSocketLoopsSignal.Trigger()
-				return
+				break L
 			}
 
 			// extract the string message (as a slice of bytes) from the buffer
@@ -52,17 +53,18 @@ func (sock *UnixSocketRelay) ReadUnixSocketAsync() {
 			sock.messagesFromSocket <- message
 		}
 	}
+	sock.debugLog.Info("Exiting reading unix socket loop...")
 }
 
 /* WriteUnixSocketAsync (blocking goroutine)
  * will wait for messages on the messagesToSocket channel and send them to the socket in utf-8 encoded bytes */
 func (sock *UnixSocketRelay) WriteUnixSocketAsync() {
+L:
 	for {
 		sock.debugLog.Debug("Writing sock Loop...")
 		select {
 		case <-sock.exitSocketLoopsSignal.GetSignal():
-			sock.debugLog.Info("Exiting writing unix socket loop...")
-			return
+			break L
 		case msg, chanIsOpen := <-sock.messagesToSocket:
 			log.Print("Writing to socket: ", msg, chanIsOpen)
 			if chanIsOpen && msg != "" {
@@ -71,11 +73,12 @@ func (sock *UnixSocketRelay) WriteUnixSocketAsync() {
 				if err != nil {
 					sock.debugLog.Warn("Connection write error: ", err)
 					sock.exitSocketLoopsSignal.Trigger()
-					return
+					break L
 				}
 			}
 		}
 	}
+	sock.debugLog.Info("Exiting writing unix socket loop...")
 }
 
 /* cleanupSocketServer

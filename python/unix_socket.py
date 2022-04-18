@@ -34,14 +34,15 @@ class Unix_Socket:
                     message = str(encodedMessage, 'utf-8')
                     log.debug("Received message: " + message)
                     # await self.messages_from_socket_queue.put(message)
+                await asyncio.sleep(0.05)
                 continue
             except socket.timeout as e:
                 log.debug("Read Socket timeout")
                 await asyncio.sleep(1)
-            except BrokenPipeError as e:
-                return
-            except ConnectionResetError as e:
-                return
+            # except BrokenPipeError as e:
+            #     return
+            # except ConnectionResetError as e:
+            #     return
             except asyncio.CancelledError as e:
                 return
             except KeyboardInterrupt as e:
@@ -64,14 +65,15 @@ class Unix_Socket:
                 messageBytes = self.current_outgoing_message.encode('utf-8')
                 self.sock.sendall(messageBytes)
                 self.current_outgoing_message = None
+                await asyncio.sleep(0.05)
                 continue
             except socket.timeout as e:
                 log.debug("Write Socket timeout")
                 await asyncio.sleep(1)
-            except BrokenPipeError as e:
-                return
-            except ConnectionResetError as e:
-                return
+            # except BrokenPipeError as e:
+            #     return
+            # except ConnectionResetError as e:
+            #     return
             except asyncio.CancelledError as e:
                 return
             except KeyboardInterrupt as e:
