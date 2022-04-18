@@ -42,6 +42,8 @@ class Unix_Socket:
                 return
             except asyncio.CancelledError as e:
                 return
+            except KeyboardInterrupt as e:
+                return
             except Exception as e:
                 log.error('read_socket_messages(): Error', exc_info=e)
                 return
@@ -68,6 +70,8 @@ class Unix_Socket:
             except ConnectionResetError as e:
                 return
             except asyncio.CancelledError as e:
+                return
+            except KeyboardInterrupt as e:
                 return
             except Exception as e:
                 log.error('send_socket_messages(): Error', exc_info=e)
@@ -110,6 +114,10 @@ class Unix_Socket:
             # if there was some other socket error, close the socket and return false:
             except socket.error as e:
                 log.error('Socket Error', exc_info=e)
+
+            except KeyboardInterrupt as e:
+                self.cleanup()
+                return
 
             # if there was some other error, close the socket and return false:
             except Exception as e:
