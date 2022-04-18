@@ -32,9 +32,11 @@ class Unix_Socket:
                 encodedMessage = self.sock.recv(self.MAX_MESSAGE_SIZE)
                 if encodedMessage:
                     message = str(encodedMessage, 'utf-8')
-                    await self.messages_from_socket_queue.put(message)
+                    log.debug("Received message: " + message)
+                    # await self.messages_from_socket_queue.put(message)
                 continue
             except socket.timeout as e:
+                log.debug("Read Socket timeout")
                 await asyncio.sleep(1)
             except BrokenPipeError as e:
                 return
@@ -64,6 +66,7 @@ class Unix_Socket:
                 self.current_outgoing_message = None
                 continue
             except socket.timeout as e:
+                log.debug("Write Socket timeout")
                 await asyncio.sleep(1)
             except BrokenPipeError as e:
                 return
@@ -117,6 +120,8 @@ class Unix_Socket:
 
             except KeyboardInterrupt as e:
                 self.cleanup()
+                read_task.cancel()
+                write_task.cancel()
                 return
 
             # if there was some other error, close the socket and return false:
