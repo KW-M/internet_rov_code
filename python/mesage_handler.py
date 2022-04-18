@@ -149,6 +149,7 @@ class MessageHandler:
 
             # get the next message from the socket
             message = await self.unix_socket.messages_from_socket_queue.get()
+            print("Received message: " + message)
             metadata, msg_dict = self.parse_socket_message(message)
 
             # variables to be set based on the recived metadata
@@ -250,7 +251,7 @@ class MessageHandler:
             else:
                 reply_msg_data['status'] = 'password-required'
 
-            if len(reply_msg_data) > 0 or len(reply_metadata) > 0:
+            if len(reply_msg_data) > 0:  #or len(reply_metadata) > 0:
                 msgContinuityId = msg_dict.get('cid', None)
                 reply_msg_data['cid'] = msgContinuityId
                 await self.send_msg(
