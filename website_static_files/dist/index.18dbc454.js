@@ -591,8 +591,7 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
                 },
                 Peer_Server_Connected: {
                     entry: [
-                        "startPeerConnMachine",
-                        "startPingMessageGenerator"
+                        "startPeerConnMachine"
                     ],
                     exit: [
                         "stopPeerConnMachine",
@@ -722,7 +721,7 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
         "stopPeerServerConnMachine": _actions.stop("peerServerConnMachine"),
         "stopPeerConnMachine": _actions.stop("peerConnMachine"),
         "gotMessageFromRov": (context, event)=>{
-            _messageHandler.handleRovMessage(event.data);
+            _messageHandler.MessageHandler.handleRecivedMessage(event.data);
         },
         "sendMessageToRov": _xstate.send((context, event)=>{
             return {
@@ -778,7 +777,6 @@ window.onbeforeunload = ()=>{
     window.thisPeerjsPeer.destroy();
 };
 /* init rov message handler */ new _messageHandler.MessageHandler((messageStrForRov)=>{
-    console.log("sending_message_to_rov " + messageStrForRov);
     window.mainRovMachineService.send({
         type: "SEND_MESSAGE_TO_ROV",
         data: messageStrForRov
@@ -8668,18 +8666,18 @@ class MessageHandler {
     }
     // sendRovMessage: Send a message to the rov peer and setup reply callbacks based on a message cid if reply(ies) are expected.
     static sendRovMessage = (msgObject, replyCallback)=>{
-        const messageString = JSON.stringify(msgObject);
-        console.log("Sending message: " + messageString);
         // setup the reply callback
-        let cid = msgObject["cid"] = msgObject["cid"] || _uuid.v4().substring(0, 8); // generate a random cid if none is provided
+        let cid = msgObject["cid"];
+        if (!cid) cid = msgObject["cid"] = _uuid.v4().substring(0, 8); // generate a random cid if none is provided
         if (!MessageHandler.replyContinuityCallbacks[cid]) MessageHandler.replyContinuityCallbacks[cid] = {
             original_msg: msgObject
         };
         if (replyCallback) MessageHandler.replyContinuityCallbacks[cid].callback = replyCallback;
         // send the message to the rov
+        const messageString = JSON.stringify(msgObject);
         MessageHandler.sendMessageCallback(messageString);
     };
-    handlePasswordChallenge(msg_cid) {
+    static handlePasswordChallenge(msg_cid) {
         _ui.showPasswordPrompt("Please enter the piloting password", (password)=>{
             if (password) {
                 const msg_data = {
@@ -8692,7 +8690,7 @@ class MessageHandler {
             delete MessageHandler.replyContinuityCallbacks[msg_cid];
         });
     }
-    handleReplyMsgRecived(msg_data, msg_cid) {
+    static handleReplyMsgRecived(msg_data, msg_cid) {
         const msg_status = msg_data["status"];
         const msg_value = msg_data["value"];
         const replyContinuityCallback = MessageHandler.replyContinuityCallbacks[msg_cid].callback;
@@ -8700,33 +8698,33 @@ class MessageHandler {
         else if (msg_status == "ok") {
             if (replyContinuityCallback) replyContinuityCallback(msg_data);
             else _ui.showToastMessage(MessageHandler.replyContinuityCallbacks[msg_cid].originalMsgData.action + ": OK");
-        } else if (msg_status == "password-requried") this.handlePasswordChallenge(msg_cid);
+        } else if (msg_status == "password-requried") MessageHandler.handlePasswordChallenge(msg_cid);
         else if (msg_status == "password-invalid") {
             _ui.showToastDialog("Invalid password");
-            this.handlePasswordChallenge(msg_cid);
+            MessageHandler.handlePasswordChallenge(msg_cid);
         } else if (msg_status == "password-accepted") {
             _ui.showToastDialog("Password accepted");
             const originalMsgData = MessageHandler.replyContinuityCallbacks[msg_cid].original_msg;
             MessageHandler.MessagesendRovMessage(originalMsgData);
         } else if (replyContinuityCallback) replyContinuityCallback(msg_data);
     }
-    handlePilotChange(newPilotId) {
+    static handlePilotChange(newPilotId) {
         _ui.showToastMessage("ROV Pilot has changed to " + newPilotId);
     }
-    handleBroadcastMsgRecived(msg_data) {
+    static handleBroadcastMsgRecived(msg_data) {
         const msg_status = msg_data["status"];
         const msg_value = msg_data["val"];
         if (msg_status == "error") console.error("Rov Error: " + msg_value);
-        else if (msg_status == "pilotHasChanged") this.handlePilotChange(msg_value);
+        else if (msg_status == "pilotHasChanged") MessageHandler.handlePilotChange(msg_value);
     }
-    handleRecivedMessage(messageString) {
+    static handleRecivedMessage(messageString) {
         console.log("Recived message: " + messageString);
         const msg_data = JSON.parse(messageString);
         const msg_cid = msg_data["cid"];
         if (msg_cid && msg_cid in MessageHandler.replyContinuityCallbacks) // --- this IS a reply to a message we sent ---
-        this.handleReplyMsgRecived(msg_data, msg_cid);
+        MessageHandler.handleReplyMsgRecived(msg_data, msg_cid);
         else // --- this is NOT a reply to a message we sent ---
-        this.handleBroadcastMsgRecived(msg_data);
+        MessageHandler.handleBroadcastMsgRecived(msg_data);
     }
 }
 class RovActions {
@@ -11178,6 +11176,7 @@ var _xstate = require("xstate");
 var _ui = require("./ui");
 var _util = require("./util");
 var _actions = require("xstate/lib/actions");
+var _messageHandler = require("./messageHandler");
 // FOR CONVERTING TEXT TO/FROM BINARY FOR SENDING OVER THE WEBRTC DATACHANNEL
 const messageEncoder = new TextEncoder(); // always utf-8
 const messageDecoder = new TextDecoder(); // always utf-8
@@ -11462,11 +11461,8 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
                     });
                 };
                 rovDataConnection.on('data', dataMsgRecivedHandler);
-                sendStateChange({
-                    type: "SEND_MESSAGE_TO_ROV",
-                    data: JSON.stringify({
-                        action: "begin_livestream"
-                    })
+                _messageHandler.MessageHandler.sendRovMessage({
+                    action: "begin_livestream"
                 });
                 // cleanup event listeners when the state is exited
                 return ()=>{
@@ -11532,7 +11528,7 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
 });
 console.log("Peerjs rov Connection Machine: ", peerConnMachine.options);
 
-},{"xstate":"2sk4t","./ui":"efi6n","./util":"doATT","xstate/lib/actions":"b9dCp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3YceA":[function(require,module,exports) {
+},{"xstate":"2sk4t","./ui":"efi6n","./util":"doATT","xstate/lib/actions":"b9dCp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./messageHandler":"at2SH"}],"3YceA":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "peerServerConnMachine", ()=>peerServerConnMachine

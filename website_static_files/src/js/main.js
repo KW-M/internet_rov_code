@@ -13,7 +13,7 @@ import { inspect } from "@xstate/inspect";
 // import {} from "./gamepad-ui.js";
 import { GamepadController } from "./gamepad.js";
 
-import { handleRovMessage, MessageHandler, RovActions } from "./messageHandler";
+import { MessageHandler, RovActions } from "./messageHandler";
 import { getURLQueryStringVariable } from "./util.js";
 import { createTitle, setupConnectBtnClickHandler, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandler, showReloadingWebsiteUi, showROVDisconnectedUi, showToastDialog, showToastMessage } from "./ui.js";
 
@@ -83,7 +83,7 @@ const mainMachine =
                         },
                     },
                     Peer_Server_Connected: {
-                        entry: ["startPeerConnMachine", "startPingMessageGenerator"],
+                        entry: ["startPeerConnMachine"],//, "startPingMessageGenerator"],
                         exit: ["stopPeerConnMachine", "stopPingMessageGenerator"],
                         on: {
                             SEND_MESSAGE_TO_ROV: {
@@ -211,7 +211,7 @@ const mainMachine =
             "stopPeerServerConnMachine": stop("peerServerConnMachine"),
             "stopPeerConnMachine": stop("peerConnMachine"),
             "gotMessageFromRov": (context, event) => {
-                handleRovMessage(event.data)
+                MessageHandler.handleRecivedMessage(event.data)
             },
             "sendMessageToRov": send((context, event) => {
                 return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
@@ -263,7 +263,6 @@ window.onbeforeunload = () => {
 
 /* init rov message handler */
 new MessageHandler((messageStrForRov) => {
-    console.log("sending_message_to_rov " + messageStrForRov)
     window.mainRovMachineService.send({ type: "SEND_MESSAGE_TO_ROV", data: messageStrForRov });
 });
 window.rovActions = RovActions;

@@ -3,6 +3,7 @@ import { showToastMessage, showROVConnectingUi, showROVConnectedUi, hideLoadingU
 import { generateStateChangeFunction } from "./util";
 
 import { pure, stop, send, sendParent } from "xstate/lib/actions";
+import { MessageHandler } from "./messageHandler";
 
 
 // FOR CONVERTING TEXT TO/FROM BINARY FOR SENDING OVER THE WEBRTC DATACHANNEL
@@ -275,7 +276,7 @@ export const peerConnMachine =
                         sendStateChange({ type: "GOT_MESSAGE_FROM_ROV", data: message });
                     }; rovDataConnection.on('data', dataMsgRecivedHandler)
 
-                    sendStateChange({ type: "SEND_MESSAGE_TO_ROV", data: JSON.stringify({ action: "begin_livestream" }) });
+                    MessageHandler.sendRovMessage({ action: "begin_livestream" })
 
                     // cleanup event listeners when the state is exited
                     return () => {

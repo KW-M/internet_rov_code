@@ -169,6 +169,9 @@ class MessageHandler:
                 # send to all connected peers (empty list at end)
                 await self.send_msg(reply_msg_data, reply_metadata, [])
 
+            if (len(msg_dict) is 0):
+                continue
+
             # send any further reply messages to the same peer that sent this message:
             if src_peer_id:
                 reply_metadata['TargetPeerIds'] = [src_peer_id]
