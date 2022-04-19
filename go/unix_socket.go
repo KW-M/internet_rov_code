@@ -42,7 +42,11 @@ L:
 			numBytes, err := conn.Read(buf)
 			if sock.exitSocketLoopsSignal.HasTriggered {
 				break L
+			} else if err, ok := err.(net.Error); ok && err.Timeout() {
+				sock.debugLog.Debug("Socket Read timeout...")
+				continue
 			} else if err != nil {
+				// && errors.As(err, net)
 				sock.debugLog.Warn("Connection read error:", err)
 				sock.exitSocketLoopsSignal.Trigger()
 				break L
