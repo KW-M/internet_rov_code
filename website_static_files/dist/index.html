@@ -65,7 +65,7 @@
         <button class="debug-menu-btn icon-btn bottom-btn"></button>
         <menu class="dropdown-menu-list light-bg">
             <button onclick="rovActions.getRovStatusReport()" role="menuitem">System Status</button>
-            <button href="/uwsgi/rov_logs" role="menuitem">ROV Logs</button>
+            <button onclick="rovActions.getRovLogs()" role="menuitem">ROV Logs</button>
             <button onclick="window.open('./404.html')" role="menuitem">Local Debug Links</button>
             <button onclick="rovActions.rePullRovGithubCode()" role="menuitem" class="alt-colors">Pull ROV Code from
                 Github</button>

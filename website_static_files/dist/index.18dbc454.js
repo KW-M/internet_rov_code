@@ -8695,7 +8695,7 @@ class MessageHandler {
         const msg_value = msg_data["val"];
         const replyContinuityCallback = MessageHandler.replyContinuityCallbacks[msg_cid].callback;
         if (msg_status == "error") console.error("Rov Action Error: " + msg_value);
-        else if (msg_status == "ok") {
+        else if (msg_status == "done") {
             if (replyContinuityCallback) replyContinuityCallback(msg_data);
             else _ui.showToastMessage(MessageHandler.replyContinuityCallbacks[msg_cid].originalMsgData.action + ": OK");
         } else if (msg_status == "password-required") MessageHandler.handlePasswordChallenge(msg_cid);
@@ -8794,7 +8794,7 @@ class RovActions {
     };
     static restartRovServices = ()=>{
         if (confirm("Are you sure you want to restart services? - The ROV will stop responding for about minute and then you will need to re-connect")) {
-            const addTextToPopup = _ui.showScrollableTextPopup("Restarting ROV Services...");
+            const addTextToPopup = _ui.showScrollableTextPopup("Restarting ROV Services...\n");
             addTextToPopup("Sending Service Restart Request (Please Wait)...");
             MessageHandler.sendRovMessage({
                 "action": "restart_rov_services"
@@ -8806,9 +8806,19 @@ class RovActions {
     };
     static getRovStatusReport = ()=>{
         const addTextToPopup = _ui.showScrollableTextPopup("ROV Status Report...");
-        addTextToPopup("Sending Status Request (Please Wait)...");
+        addTextToPopup("Sending Status Request (Please Wait)...\n");
         MessageHandler.sendRovMessage({
             "action": "rov_status_report"
+        }, (response)=>{
+            if (response['val']) addTextToPopup(response['val']);
+            if (response['error']) addTextToPopup("\nError:\n" + response['error']);
+        });
+    };
+    static getRovLogs = ()=>{
+        const addTextToPopup = _ui.showScrollableTextPopup("ROV Logs...");
+        addTextToPopup("Sending Logs Request (Please Wait)...\n");
+        MessageHandler.sendRovMessage({
+            "action": "rov_logs"
         }, (response)=>{
             if (response['val']) addTextToPopup(response['val']);
             if (response['error']) addTextToPopup("\nError:\n" + response['error']);
@@ -8817,7 +8827,7 @@ class RovActions {
     static rePullRovGithubCode = ()=>{
         alert("Make sure to choose 'Restart ROV Services' from this menu after the pull completes.");
         const addTextToPopup = _ui.showScrollableTextPopup("Pulling Updated Code...");
-        addTextToPopup("Sending Code Pull Request (Please Wait)...");
+        addTextToPopup("Sending Code Pull Request (Please Wait)...\n");
         MessageHandler.sendRovMessage({
             "action": "pull_rov_github_code"
         }, (response)=>{
