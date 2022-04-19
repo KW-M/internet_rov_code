@@ -287,7 +287,7 @@ class MessageHandler:
             print("Received message: " + message)
 
             metadata, msg_dict = self.parse_socket_message(message)
-            src_peer_id = self.handle_messsage_metadata(metadata)
+            src_peer_id = await self.handle_messsage_metadata(metadata)
 
             if (metadata is None or msg_dict is None or len(msg_dict) is 0):
                 continue
