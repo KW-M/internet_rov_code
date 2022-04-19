@@ -115,7 +115,7 @@ async def generate_webrtc_format_response(
 
     elif type(action_result) is AsyncGeneratorType:
         async for line in action_result:
-            yield {"cid": cid, "val": line}
+            yield {"cid": cid, "val": line + "\n"}
         yield {"cid": cid, "status": "done"}
 
 

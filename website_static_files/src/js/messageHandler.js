@@ -49,7 +49,7 @@ export class MessageHandler {
 
     static handleReplyMsgRecived(msg_data, msg_cid) {
         const msg_status = msg_data["status"];
-        const msg_value = msg_data["value"];
+        const msg_value = msg_data["val"];
         const replyContinuityCallback = MessageHandler.replyContinuityCallbacks[msg_cid].callback
 
 
