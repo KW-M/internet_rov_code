@@ -48,7 +48,7 @@ async def readBashCommandOutputAsync(bashCommand):
 #     return generateJson(statusCode, outputMessage)
 
 
-def handleActionCommand(action):
+async def handleActionCommand(action):
 
     if action == 'disable_wifi':
         return readBashCommandOutputAsync("rfkill block wlan")
@@ -75,13 +75,13 @@ def handleActionCommand(action):
         )
 
     elif action == 'shutdown_rov':
-        runBashCommand(
+        await runBashCommand(
             "sleep 4; sudo poweroff"
         )  # sleep 4 seconds to give time for the response message to be sent
         return "Shutting Down..."
 
     elif action == 'reboot_rov':
-        runBashCommand(
+        await runBashCommand(
             "sleep 4; sudo reboot"
         )  # sleep 4 seconds to give time for the response message to be sent
         return "Rebooting..."
@@ -101,7 +101,7 @@ async def generate_webrtc_format_response(
     action,
 ):
 
-    action_result = handleActionCommand(action)
+    action_result = await handleActionCommand(action)
 
     if action_result is None:
         yield {
@@ -121,7 +121,7 @@ async def generate_webrtc_format_response(
 
 async def generate_aiohttp_response(request):
 
-    action_result = handleActionCommand(request.path)
+    action_result = await handleActionCommand(request.path)
 
     # https://github.com/aio-libs/aiohttp/issues/3952
     response = web.StreamResponse()

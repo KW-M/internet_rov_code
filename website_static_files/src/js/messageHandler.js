@@ -178,8 +178,8 @@ export class RovActions {
 
     static restartRovServices = () => {
         if (confirm("Are you sure you want to restart services? - The ROV will stop responding for about minute and then you will need to re-connect")) {
-            const addTextToPopup = showScrollableTextPopup("Restarting ROV Services...\n")
-            addTextToPopup("Sending Service Restart Request (Please Wait)...")
+            const addTextToPopup = showScrollableTextPopup("Restarting ROV Services...")
+            addTextToPopup("Sending Service Restart Request (Please Wait)...\n")
             MessageHandler.sendRovMessage({ "action": "restart_rov_services" }, (response) => {
                 if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
                 else if (response['val']) addTextToPopup(response['val'])
