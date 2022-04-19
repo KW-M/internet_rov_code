@@ -8682,7 +8682,7 @@ class MessageHandler {
             if (password) {
                 const msg_data = {
                     "cid": msg_cid,
-                    "action": "password-response",
+                    "action": "password_attempt",
                     "val": password
                 };
                 MessageHandler.sendRovMessage(msg_data, null);
@@ -8698,7 +8698,7 @@ class MessageHandler {
         else if (msg_status == "ok") {
             if (replyContinuityCallback) replyContinuityCallback(msg_data);
             else _ui.showToastMessage(MessageHandler.replyContinuityCallbacks[msg_cid].originalMsgData.action + ": OK");
-        } else if (msg_status == "password-requried") MessageHandler.handlePasswordChallenge(msg_cid);
+        } else if (msg_status == "password-required") MessageHandler.handlePasswordChallenge(msg_cid);
         else if (msg_status == "password-invalid") {
             _ui.showToastDialog("Invalid password");
             MessageHandler.handlePasswordChallenge(msg_cid);
@@ -8808,7 +8808,7 @@ class RovActions {
         const addTextToPopup = _ui.showScrollableTextPopup("ROV Status Report...");
         addTextToPopup("Sending Status Request (Please Wait)...");
         MessageHandler.sendRovMessage({
-            "action": "rov_status_report_report"
+            "action": "rov_status_report"
         }, (response)=>{
             if (response['val']) addTextToPopup(response['val']);
             if (response['error']) addTextToPopup("\nError:\n" + response['error']);

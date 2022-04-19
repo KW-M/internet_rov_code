@@ -36,7 +36,7 @@ export class MessageHandler {
             if (password) {
                 const msg_data = {
                     "cid": msg_cid,
-                    "action": "password-response",
+                    "action": "password_attempt",
                     "val": password
                 };
                 MessageHandler.sendRovMessage(msg_data, null);
@@ -52,6 +52,7 @@ export class MessageHandler {
         const msg_value = msg_data["value"];
         const replyContinuityCallback = MessageHandler.replyContinuityCallbacks[msg_cid].callback
 
+
         if (msg_status == "error") {
             console.error("Rov Action Error: " + msg_value);
 
@@ -59,7 +60,7 @@ export class MessageHandler {
             if (replyContinuityCallback) replyContinuityCallback(msg_data);
             else showToastMessage(MessageHandler.replyContinuityCallbacks[msg_cid].originalMsgData.action + ": OK");
 
-        } else if (msg_status == "password-requried") {
+        } else if (msg_status == "password-required") {
             MessageHandler.handlePasswordChallenge(msg_cid);
 
         } else if (msg_status == "password-invalid") {
@@ -187,7 +188,7 @@ export class RovActions {
     static getRovStatusReport = () => {
         const addTextToPopup = showScrollableTextPopup("ROV Status Report...")
         addTextToPopup("Sending Status Request (Please Wait)...")
-        MessageHandler.sendRovMessage({ "action": "rov_status_report_report" }, (response) => {
+        MessageHandler.sendRovMessage({ "action": "rov_status_report" }, (response) => {
             if (response['val']) addTextToPopup(response['val'])
             if (response['error']) addTextToPopup("\nError:\n" + response['error']);
         })

@@ -19,9 +19,9 @@ type DatachannelToUnixSocketMessageMetadata struct {
 	// PeerId is the peerjs ID of the sender browser peer.
 	SrcPeerId string `json:"SrcPeerId"`
 	// Whenever a peer connects or disconnects this will be "connect" or "disconnect" with the connected or disconnected peer set in SrcPeerId
-	PeerEvent string `json:"PeerEvent"`
+	PeerEvent string `json:"PeerEvent,omitEmpty"`
 	// Err is the error message if there was an error with the previous metadata action command recived on the unix socket.
-	Err string `json:"Err"`
+	Err string `json:"Err,omitEmpty"`
 }
 
 // this metadata is what is expected to be prepended (as JSON followed by the unixSocketRelayMetadataSeparator string) to messages recived from the unix socket (when the prepend-metadata command line flag is true)
