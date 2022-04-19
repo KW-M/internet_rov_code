@@ -29,9 +29,11 @@ class Unix_Socket:
         """
         while True:
             try:
+
                 encodedMessage = self.sock.recv(self.MAX_MESSAGE_SIZE)
                 if encodedMessage == '' or encodedMessage == b'' or encodedMessage == None:
-                    return
+                    return  # < exit loop & cleanup connection: https://stackoverflow.com/questions/27946786/how-to-detect-when-a-client-disconnects-from-a-uds-unix-domain-socket
+
                 message = str(encodedMessage, 'utf-8')
                 log.debug("Received message: " + message)
                 await self.messages_from_socket_queue.put(message)

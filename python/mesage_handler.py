@@ -62,7 +62,7 @@ class MessageHandler:
             log.error(error, exc_info=True)
             return (None, None)
 
-    def handle_messsage_metadata(self, metadata):
+    async def handle_messsage_metadata(self, metadata):
 
         pilot_has_changed = False
         src_peer_id = None
@@ -90,11 +90,14 @@ class MessageHandler:
                 pilot_has_changed = True
 
         if pilot_has_changed:
-            # True: pilot has changed, srcPeerId: who sent this message
-            return (True, src_peer_id)
-        else:
-            # False: pilot has not changed, srcPeerId: who sent this message or None if there was a problem
-            return (False, src_peer_id)
+            # Let all connected peers know that the designated pilot peer has changed: (empty list at end = send to all connected peers)
+            await self.send_msg(
+                {
+                    "status": 'pilot-changed',
+                    'val': self.current_pilot_peerid
+                }, {}, [])
+
+        return src_peer_id
 
     def check_if_peer_is_authenticated(self, peer_id):
         if (peer_id is not None and peer_id in self.authenticated_peerids):
@@ -122,7 +125,9 @@ class MessageHandler:
 
     async def send_msg(self, msg_dict, msg_metadata, recipient_peer_ids):
         """
-        takes a message dictionary and metadata_dict and sends the message to the unix socket
+        send a message to a list of peers (via the unix socket -> golang relay).
+        msg_dict:a dict containing the message data to be sent to the peer and
+        msg_metadata and sends the message to the unix socket
         """
 
         if self.unix_socket.socket_open:
@@ -138,6 +143,136 @@ class MessageHandler:
             await self.unix_socket.messages_to_send_to_socket_queue.put(
                 reply_message)
 
+    async def handle_normal_actions(self, src_peer_id, action, actionValue,
+                                    msg_cid):
+
+        if action == "ping":
+            # send back the same timestamp from the ping with the status "pong"
+            await self.send_msg(
+                {
+                    'status': 'pong',
+                    'val': actionValue,
+                    'cid': msg_cid
+                }, {}, [src_peer_id])
+
+        elif action == "password_attempt":
+            # send back the result of the password attempt
+            challenge_result = self.password_challenge(actionValue,
+                                                       src_peer_id)
+            await self.send_msg({'status': challenge_result}, {},
+                                [src_peer_id])
+
+        elif action in [
+                "rov_status_report"
+                "restart_rov_services",
+                "pull_rov_github_code",
+        ]:
+            # all of these actions call shell commands and can be found in command_api.py
+            msgGenerator = generate_webrtc_format_response(msg_cid, action)
+            async for msg_data in msgGenerator:
+                await self.send_msg(msg_data, {}, [src_peer_id])
+
+        # -- golang relay commands:
+        elif action == "begin_livestream":
+            # send the *golang* code (note the action is in reply_metadata) the begin_livestream command
+            await self.send_msg({}, {"Action": "begin_livestream"},
+                                [src_peer_id])
+
+    async def handle_authenticated_actions(self, src_peer_id, action,
+                                           actionValue, msg_cid):
+
+        # handle actions that require an authenticated peer (one who as previously entered thec correct password):
+        sending_peer_is_authenticated = self.check_if_peer_is_authenticated(
+            src_peer_id)
+
+        if (not sending_peer_is_authenticated):
+            # if the sender is not authenticated, send back the password-required message
+            await self.send_msg({
+                'status': 'password-required',
+                'cid': msg_cid
+            }, {}, [src_peer_id])
+
+        elif action == "take_control":
+            # if the authenticated peer is trying to take control of the ROV, set their peer id to be the designated pilot peer id "curent_pilot_peerid"
+            self.current_pilot_peerid = src_peer_id
+            # Let all connected peers know that the designated pilot has changed (empty list at end = send to all connected peers)
+            await self.send_msg(
+                {
+                    'status': 'pilot-changed',
+                    'val': src_peer_id,
+                    'cid': msg_cid
+                }, {}, [])
+
+        elif action == 'take_photo':
+            print("TODO: take_photo")
+            await self.send_msg({
+                'status': 'done',
+                'cid': msg_cid
+            }, {}, [src_peer_id])  # send reply to just the sender
+
+        elif action == 'start_video_rec':
+            print("TODO: start_video_rec")
+            await self.send_msg({
+                'status': 'done',
+                'cid': msg_cid
+            }, {}, [src_peer_id])  # send reply to just the sender
+
+        elif action == 'stop_video_rec':
+            print("TODO: stop_video_rec")
+            await self.send_msg({
+                'status': 'done',
+                'cid': msg_cid
+            }, {}, [src_peer_id])  # send reply to just the sender
+
+        elif action in [
+                "shutdown_rov",
+                "reboot_rov",
+                "enable_wifi",
+                "disable_wifi",
+        ]:
+            # all of these actions call shell commands and can be found in command_api.py
+            msgGenerator = generate_webrtc_format_response(msg_cid, action)
+            async for msg_data in msgGenerator:
+                await self.send_msg(msg_data, {}, [src_peer_id])
+
+    async def handle_pilot_only_actions(self, src_peer_id, action,
+                                        action_value, msg_cid):
+        """
+        Handle actions that only the designated rov pilot can do.
+        The pilot must also be an authenticated peer (one who as previously entered the correct password):
+        """
+
+        sending_peer_is_authenticated = self.check_if_peer_is_authenticated(
+            src_peer_id)
+        sending_peer_is_pilot = (src_peer_id == self.current_pilot_peerid)
+
+        if (not sending_peer_is_authenticated):
+            # if the sender is not authenticated, send back the password-required message
+            await self.send_msg({
+                'status': 'password-required',
+                'cid': msg_cid
+            }, {}, [src_peer_id])
+
+        elif (not sending_peer_is_pilot):
+            # if the sender is not the pilot, send back the not a pilot error message
+            error_msg = 'You must be the ROV pilot before using the ' + action + ' action'
+            await self.send_msg(
+                {
+                    'status': 'error',
+                    'val': error_msg,
+                    'cid': msg_cid
+                }, {}, []
+            )  # send to all connected peers (empty list at end = send to all connected peers)
+
+        elif action == "move":
+            self.motion_ctrl.set_rov_motion(
+                thrust_vector=action_value['thrustVector'],
+                turn_rate=action_value['turnRate'])
+
+        elif action == "toggle_lights":
+            print("TODO: Toggle lights")
+            pass
+
     async def socket_incoming_message_handler_loop(self):
         """
         Waits for new messages to be recieved on the socket and then does whatever action the message contains.
@@ -150,133 +285,68 @@ class MessageHandler:
             # get the next message from the socket
             message = await self.unix_socket.messages_from_socket_queue.get()
             print("Received message: " + message)
+
             metadata, msg_dict = self.parse_socket_message(message)
-            if (metadata is None or msg_dict is None):
+            src_peer_id = self.handle_messsage_metadata(metadata)
+
+            if (metadata is None or msg_dict is None or len(msg_dict) is 0):
                 continue
 
-            # variables to be set based on the recived metadata
-            pilot_has_changed, src_peer_id = self.handle_messsage_metadata(
-                metadata)
-
-            # create empty dicts to hold the reply message data:
-            reply_msg_data = {}
-            reply_metadata = {}
-
-            # let all peers know if the designated pilot peer has changed:
-            if pilot_has_changed:
-                reply_msg_data['status'] = 'pilotHasChanged'
-                reply_msg_data['val'] = self.current_pilot_peerid
-                # send to all connected peers (empty list at end)
-                await self.send_msg(reply_msg_data, reply_metadata, [])
-
-            if (len(msg_dict) is 0):
-                continue
-
-            # send any further reply messages to the same peer that sent this message:
-            if src_peer_id:
-                reply_metadata['TargetPeerIds'] = [src_peer_id]
-
-            # do the action
+            # extract relevant message params
             action = msg_dict.get('action', None)
-            actionValue = msg_dict.get('val', None)
-            if action == None:
-                reply_msg_data['status'] = 'error'
-                reply_msg_data['val'] = 'No action specified'
+            action_value = msg_dict.get('val', None)
+            msg_cid = msg_dict.get('cid', None)
 
-            elif action == "begin_livestream":
-                reply_metadata["Action"] = "begin_livestream"
+            print("src_peerid: " + src_peer_id, "action: " + action,
+                  "action_value: " + str(action_value),
+                  "msg_cid: " + str(msg_cid))
 
-            elif action == "ping":
-                reply_msg_data['status'] = 'pong'
-                reply_msg_data[
-                    'val'] = actionValue  # send back the same ping timestamp
+            # These actions can be done by any peer
+            if action in ["ping", "begin_livestream", "password_attempt"]:
+                await self.handle_normal_actions(src_peer_id, action,
+                                                 action_value, msg_cid)
 
-            elif action == "password":
-                challenge_response = self.password_challenge(
-                    actionValue, src_peer_id)
-                reply_msg_data['status'] = challenge_response
+            # All following actions require the peer that sent the message to be authenticated (have correctly done password challenge before)
+            elif action in [
+                    "take_control",
+                    "take_photo",
+                    "start_video_rec",
+                    "stop_video_rec",
+                    "shutdown_rov",
+                    "reboot_rov",
+                    "enable_wifi",
+                    "disable_wifi",
+            ]:
+                await self.handle_authenticated_actions(
+                    src_peer_id, action, action_value, msg_cid)
 
-            # all below actions requires the peer that sent the message to be authenticated (have correctly done password challenge before)
-            elif self.check_if_peer_is_authenticated(src_peer_id):
+            # These actions require the peer that sent the message to be the designated pilot and be authenticated (have correctly done password challenge before)
+            elif action in ["move", "toggle_lights"]:
+                await self.handle_pilot_only_actions(src_peer_id, action,
+                                                     action_value, msg_cid)
 
-                if action == "take_control":
-                    self.current_pilot_peerid = src_peer_id
-                    reply_msg_data['status'] = 'pilot-has-changed'
-                    reply_msg_data['val'] = self.current_pilot_peerid
-                    reply_metadata['TargetPeerIds'] = [
-                    ]  # send to all connected peers
-                    await self.send_msg(reply_msg_data, reply_metadata)
-                    continue  # skip the cid copy action below
-
-                elif action in [
-                        "shutdown_rov",
-                        "reboot_rov",
-                        "rov_status_report"
-                        "restart_rov_services",
-                        "pull_rov_github_code",
-                        "enable_wifi",
-                        "disable_wifi",
-                ]:
-                    # all of these actions call shell commands and can be found in command_api.py
-                    msgGenerator = generate_webrtc_format_response(
-                        msgContinuityId, action)
-                    async for msg_data in msgGenerator:
-                        self.send_msg(msg_data, reply_metadata)
-
-                elif action == 'take_photo':
-                    print("TODO: take_photo")
-                    reply_msg_data["status"] = "done"
-
-                elif action == 'start_video_rec':
-                    print("TODO: start_video_rec")
-                    reply_msg_data["status"] = "done"
-
-                elif action == 'stop_video_rec':
-                    print("TODO: stop_video_rec")
-                    reply_msg_data["status"] = "done"
-
-                # all below actions require that the peer that sent the message is the current pilot (and that the peer is authenticated)
-                elif self.current_pilot_peerid == src_peer_id:
-
-                    if action == "move":
-                        self.motion_ctrl.set_rov_motion(
-                            thrust_vector=actionValue['thrustVector'],
-                            turn_rate=actionValue['turnRate'])
-
-                    elif action == "toggle_lights":
-                        print("TODO: Toggle lights")
-                        pass
-
-                elif action in ["move", "toggle_lights"]:
-                    reply_msg_data['status'] = 'error'
-                    reply_msg_data[
-                        'val'] = 'You must be the ROV pilot before using the ' + action + ' action'
-
-                else:
-                    reply_msg_data['status'] = 'error'
-                    reply_msg_data['val'] = 'Unknown action: ' + action
-
-            else:
-                reply_msg_data['status'] = 'password-required'
-
-            if len(reply_msg_data) > 0:  #or len(reply_metadata) > 0:
-                msgContinuityId = msg_dict.get('cid', None)
-                reply_msg_data['cid'] = msgContinuityId
+            # handle action requests that are invalid (do not contain the required action parameter):
+            elif action == None:
                 await self.send_msg(
-                    reply_msg_data, reply_metadata, src_peer_id
-                )  # send only back to the original peer (src_peer_id at end)
+                    {
+                        "status": 'error',
+                        'val': 'No action specified',
+                        'cid': msg_cid
+                    }, {}, [])
+
+            # handle action requests that are invalid (contain an unknown value for the action parameter):
+            else:
+                await self.send_msg(
+                    {
+                        "status": 'error',
+                        'val': 'Unknown action: ' + action,
+                        'cid': msg_cid,
+                    }, {}, [])
 
     async def socket_update_message_sender_loop(self):
         while True:
 
-            # create empty dicts to hold the reply message data:
-            reply_metadata = {}
-            reply_msg_data = {}
-
             sensorUpdates = self.sensor_ctrl.get_sensor_update_dict()
-            reply_msg_data.update(sensorUpdates)
-
             # send to all connected peers (empty list at end)
-            await self.send_msg(reply_msg_data, reply_metadata, [])
-
+            await self.send_msg(sensorUpdates, {}, [])
             await asyncio.sleep(1)
