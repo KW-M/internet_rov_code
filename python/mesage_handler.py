@@ -163,7 +163,7 @@ class MessageHandler:
                                 [src_peer_id])
 
         elif action in [
-                "rov_status_report"
+                "rov_status_report",
                 "restart_rov_services",
                 "pull_rov_github_code",
         ]:
@@ -302,7 +302,10 @@ class MessageHandler:
                   "msg_cid: " + str(msg_cid))
 
             # These actions can be done by any peer
-            if action in ["ping", "begin_livestream", "password_attempt"]:
+            if action in [
+                    "ping", "begin_livestream", "rov_status_report",
+                    "rov_logs", "pull_rov_github_code", "password_attempt"
+            ]:
                 await self.handle_normal_actions(src_peer_id, action,
                                                  action_value, msg_cid)
 
@@ -312,6 +315,7 @@ class MessageHandler:
                     "take_photo",
                     "start_video_rec",
                     "stop_video_rec",
+                    "restart_rov_services",
                     "shutdown_rov",
                     "reboot_rov",
                     "enable_wifi",
