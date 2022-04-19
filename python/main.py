@@ -22,6 +22,7 @@ from utilities import *
 # import logging_formatter
 
 config = read_config_file()
+print(config)
 
 ##### Setup Variables #####
 ############################

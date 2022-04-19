@@ -11,10 +11,10 @@ defualt_config_file_path = os.path.dirname(
 default_config = {
     "unix-socket-path": "/tmp/go_robot.socket",
     "message-metadata-separator": "|\"|",
-    "pilot-control-pasword":
+    "pilot-control-password":
     "Change this password in the secrets_config.json file",
     "pilot-disconnected-pasword-timeout": 180,
-    "log-level": "DEBUG",
+    "log-level": "info",
 }
 
 

@@ -165,8 +165,6 @@ class MessageHandler:
 
         elif action in [
                 "rov_status_report",
-                "restart_rov_services",
-                "pull_rov_github_code",
         ]:
             # all of these actions call shell commands and can be found in command_api.py
             msgGenerator = generate_webrtc_format_response(msg_cid, action)
@@ -230,6 +228,9 @@ class MessageHandler:
                 "reboot_rov",
                 "enable_wifi",
                 "disable_wifi",
+                "rov_logs",
+                "pull_rov_github_code",
+                "restart_rov_services",
         ]:
             # all of these actions call shell commands and can be found in command_api.py
             msgGenerator = generate_webrtc_format_response(msg_cid, action)
@@ -288,7 +289,7 @@ class MessageHandler:
             metadata, msg_dict = self.parse_socket_message(message)
             src_peer_id = await self.handle_messsage_metadata(metadata)
 
-            if (metadata is None or msg_dict is None or len(msg_dict) is 0):
+            if (metadata == None or msg_dict == None or len(msg_dict) == 0):
                 continue
 
             # extract relevant message params
@@ -303,7 +304,7 @@ class MessageHandler:
             # These actions can be done by any peer
             if action in [
                     "ping", "begin_livestream", "rov_status_report",
-                    "rov_logs", "pull_rov_github_code", "password_attempt"
+                    "password_attempt"
             ]:
                 await self.handle_normal_actions(src_peer_id, action,
                                                  action_value, msg_cid)
@@ -314,11 +315,13 @@ class MessageHandler:
                     "take_photo",
                     "start_video_rec",
                     "stop_video_rec",
-                    "restart_rov_services",
                     "shutdown_rov",
                     "reboot_rov",
                     "enable_wifi",
                     "disable_wifi",
+                    "rov_logs",
+                    "pull_rov_github_code",
+                    "restart_rov_services",
             ]:
                 await self.handle_authenticated_actions(
                     src_peer_id, action, action_value, msg_cid)
