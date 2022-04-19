@@ -271,6 +271,10 @@ window.rovActions = RovActions;
 new GamepadController();
 
 
+setTimeout(() => {
+    RovActions.toggleLights();
+}, 2000)
+
 /* Initialize Disclosure Menus */
 
 // var menus = document.querySelectorAll('.disclosure-nav');

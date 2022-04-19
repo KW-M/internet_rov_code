@@ -160,8 +160,10 @@ class MessageHandler:
             # send back the result of the password attempt
             challenge_result = self.password_challenge(actionValue,
                                                        src_peer_id)
-            await self.send_msg({'status': challenge_result}, {},
-                                [src_peer_id])
+            await self.send_msg({
+                'status': challenge_result,
+                'cid': msg_cid
+            }, {}, [src_peer_id])
 
         elif action in [
                 "rov_status_report",

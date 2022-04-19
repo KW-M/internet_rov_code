@@ -783,7 +783,10 @@ window.onbeforeunload = ()=>{
     });
 });
 window.rovActions = _messageHandler.RovActions;
-/* init gamepad support */ new _gamepadJs.GamepadController(); /* Initialize Disclosure Menus */  // var menus = document.querySelectorAll('.disclosure-nav');
+/* init gamepad support */ new _gamepadJs.GamepadController();
+setTimeout(()=>{
+    _messageHandler.RovActions.toggleLights();
+}, 2000) /* Initialize Disclosure Menus */  // var menus = document.querySelectorAll('.disclosure-nav');
  // var disclosureMenus = [];
  // for (var i = 0; i < menus.length; i++) {
  //     disclosureMenus[i] = new DisclosureNav(menus[i]);
@@ -889,6 +892,7 @@ window.rovActions = _messageHandler.RovActions;
  //         sendUpdateToROV(JSON.stringify(messageToRov));
  //     }
  // }
+;
 
 },{"@xstate/inspect":"39FuP","./gamepad.js":"2YxSr","./messageHandler":"at2SH","./util.js":"doATT","./ui.js":"efi6n","xstate":"2sk4t","xstate/lib/actions":"b9dCp","./siteInit":"8TXLV","./peerConnStateMachine.js":"hGSry","./peerServerConnStateMachine.js":"3YceA","./consts.js":"2J0f1"}],"39FuP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -6096,7 +6100,7 @@ var _gamepadUi = require("./gamepad-ui");
 var _gamepadInterface = require("./libraries/gamepadInterface");
 var _consts = require("./consts");
 class GamepadController {
-    constructor(){
+    constructor(buttonHandlers, axisChangedHandler){
         this.touchedGpadButtonCount = 0;
         this.buttonHighlightElements = _gamepadUi.getButtonHighlightElements();
         // override the default browser gamepad api with the gamepad emulator before setting up the events,
@@ -8694,8 +8698,10 @@ class MessageHandler {
         const msg_status = msg_data["status"];
         const msg_value = msg_data["val"];
         const replyContinuityCallback = MessageHandler.replyContinuityCallbacks[msg_cid].callback;
-        if (msg_status == "error") console.error("Rov Action Error: " + msg_value);
-        else if (msg_status == "done") {
+        if (msg_status == "error") {
+            console.warn("Rov Action Error: " + msg_value);
+            _ui.showToastMessage(msg_value);
+        } else if (msg_status == "done") {
             if (replyContinuityCallback) replyContinuityCallback(msg_data);
             else _ui.showToastMessage(MessageHandler.replyContinuityCallbacks[msg_cid].originalMsgData.action + ": OK");
         } else if (msg_status == "password-required") MessageHandler.handlePasswordChallenge(msg_cid);
@@ -8705,7 +8711,8 @@ class MessageHandler {
         } else if (msg_status == "password-accepted") {
             _ui.showToastMessage("Password accepted");
             const originalMsgData = MessageHandler.replyContinuityCallbacks[msg_cid].original_msg;
-            MessageHandler.MessagesendRovMessage(originalMsgData);
+            console.log("originalMsgData: ", originalMsgData);
+            MessageHandler.sendRovMessage(originalMsgData, null);
         } else if (replyContinuityCallback) replyContinuityCallback(msg_data);
     }
     static handlePilotChange(newPilotId) {

@@ -8,7 +8,7 @@ import { GAME_CONTROLLER_BUTTON_CONFIG } from "./consts";
 
 
 export class GamepadController {
-    constructor() {
+    constructor(buttonHandlers, axisChangedHandler) {
         this.touchedGpadButtonCount = 0
         this.buttonHighlightElements = getButtonHighlightElements();
 

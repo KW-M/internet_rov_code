@@ -1,4 +1,4 @@
-import { showPasswordPrompt, showScrollableTextPopup, showToastMessage } from "./ui";
+import { showPasswordPrompt, showScrollableTextPopup, showToastDialog, showToastMessage } from "./ui";
 import { v4 as uuidV4 } from "uuid"
 
 export class MessageHandler {
@@ -54,7 +54,8 @@ export class MessageHandler {
 
 
         if (msg_status == "error") {
-            console.error("Rov Action Error: " + msg_value);
+            console.warn("Rov Action Error: " + msg_value);
+            showToastMessage(msg_value);
 
         } else if (msg_status == "done") {
             if (replyContinuityCallback) replyContinuityCallback(msg_data);
@@ -70,7 +71,8 @@ export class MessageHandler {
         } else if (msg_status == "password-accepted") {
             showToastMessage("Password accepted");
             const originalMsgData = MessageHandler.replyContinuityCallbacks[msg_cid].original_msg
-            MessageHandler.MessagesendRovMessage(originalMsgData);
+            console.log("originalMsgData: ", originalMsgData);
+            MessageHandler.sendRovMessage(originalMsgData, null);
 
         } else if (replyContinuityCallback) {
             replyContinuityCallback(msg_data);
