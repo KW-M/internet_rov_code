@@ -1,4 +1,4 @@
-import { showPasswordPrompt, showScrollableTextPopup, showToastDialog, showToastMessage } from "./ui";
+import { showPasswordPrompt, showScrollableTextPopup, showToastMessage } from "./ui";
 import { v4 as uuidV4 } from "uuid"
 
 export class MessageHandler {
@@ -64,11 +64,11 @@ export class MessageHandler {
             MessageHandler.handlePasswordChallenge(msg_cid);
 
         } else if (msg_status == "password-invalid") {
-            showToastDialog("Invalid password");
+            showToastMessage("Invalid password");
             MessageHandler.handlePasswordChallenge(msg_cid);
 
         } else if (msg_status == "password-accepted") {
-            showToastDialog("Password accepted");
+            showToastMessage("Password accepted");
             const originalMsgData = MessageHandler.replyContinuityCallbacks[msg_cid].original_msg
             MessageHandler.MessagesendRovMessage(originalMsgData);
 
@@ -119,9 +119,9 @@ export class RovActions {
 
     // ==== Helpers =====
 
-    static sendActionAndWaitForDone(action, callback) {
+    static sendActionAndWaitForDone(msg_data, callback) {
         let responseMessage = "";
-        MessageHandler.sendRovMessage({ "action": action }, (response) => {
+        MessageHandler.sendRovMessage(msg_data, (response) => {
 
             const responseText = response["val"] || ""
             responseMessage += responseText + "\n";
@@ -179,8 +179,9 @@ export class RovActions {
             const addTextToPopup = showScrollableTextPopup("Restarting ROV Services...\n")
             addTextToPopup("Sending Service Restart Request (Please Wait)...")
             MessageHandler.sendRovMessage({ "action": "restart_rov_services" }, (response) => {
-                if (response['val']) addTextToPopup(response['val'])
-                if (response['error']) addTextToPopup("\nError:\n" + response['error']);
+                if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
+                else if (response['val']) addTextToPopup(response['val'])
+                else if (response['status'] == "done") addTextToPopup("\n\nDone")
             })
         }
     }
@@ -189,8 +190,9 @@ export class RovActions {
         const addTextToPopup = showScrollableTextPopup("ROV Status Report...")
         addTextToPopup("Sending Status Request (Please Wait)...\n")
         MessageHandler.sendRovMessage({ "action": "rov_status_report" }, (response) => {
-            if (response['val']) addTextToPopup(response['val'])
-            if (response['error']) addTextToPopup("\nError:\n" + response['error']);
+            if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
+            else if (response['val']) addTextToPopup(response['val'])
+            else if (response['status'] == "done") addTextToPopup("\n\nDone")
         })
     }
 
@@ -198,8 +200,9 @@ export class RovActions {
         const addTextToPopup = showScrollableTextPopup("ROV Logs...")
         addTextToPopup("Sending Logs Request (Please Wait)...\n")
         MessageHandler.sendRovMessage({ "action": "rov_logs" }, (response) => {
-            if (response['val']) addTextToPopup(response['val'])
-            if (response['error']) addTextToPopup("\nError:\n" + response['error']);
+            if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
+            else if (response['val']) addTextToPopup(response['val'])
+            else if (response['status'] == "done") addTextToPopup("\n\nDone")
         })
     }
 
@@ -208,10 +211,10 @@ export class RovActions {
         const addTextToPopup = showScrollableTextPopup("Pulling Updated Code...")
         addTextToPopup("Sending Code Pull Request (Please Wait)...\n")
         MessageHandler.sendRovMessage({ "action": "pull_rov_github_code" }, (response) => {
-            if (response['val']) addTextToPopup(response['val'])
-            if (response['error']) addTextToPopup("\nError:\n" + response['error']);
-            else if (response['done']) {
-                addTextToPopup("\n\nDone.")
+            if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
+            else if (response['val']) addTextToPopup(response['val'])
+            else if (response['status'] == "done") {
+                addTextToPopup("\n\nDone")
                 addTextToPopup("Please run 'Restart ROV Services' from the same menu in ~30 seconds to fully apply any code changes.")
             }
         });

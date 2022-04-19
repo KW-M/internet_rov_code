@@ -117,6 +117,7 @@ class MessageHandler:
     def password_challenge(self, password, src_peer_id):
         correct_password = self.program_config.get(
             'pilot-control-password', 'You Should Set This In The Config File')
+        print("Password: " + password, "Correct Password: " + correct_password)
         if password == correct_password:
             self.authenticated_peerids[src_peer_id] = True
             return 'password-accepted'
@@ -282,10 +283,8 @@ class MessageHandler:
         # loop infinitely:
         while True:
 
-            # get the next message from the socket
+            # get the next message from the socket and parse it into some dicts and data:
             message = await self.unix_socket.messages_from_socket_queue.get()
-            print("Received message: " + message)
-
             metadata, msg_dict = self.parse_socket_message(message)
             src_peer_id = await self.handle_messsage_metadata(metadata)
 

@@ -8700,10 +8700,10 @@ class MessageHandler {
             else _ui.showToastMessage(MessageHandler.replyContinuityCallbacks[msg_cid].originalMsgData.action + ": OK");
         } else if (msg_status == "password-required") MessageHandler.handlePasswordChallenge(msg_cid);
         else if (msg_status == "password-invalid") {
-            _ui.showToastDialog("Invalid password");
+            _ui.showToastMessage("Invalid password");
             MessageHandler.handlePasswordChallenge(msg_cid);
         } else if (msg_status == "password-accepted") {
-            _ui.showToastDialog("Password accepted");
+            _ui.showToastMessage("Password accepted");
             const originalMsgData = MessageHandler.replyContinuityCallbacks[msg_cid].original_msg;
             MessageHandler.MessagesendRovMessage(originalMsgData);
         } else if (replyContinuityCallback) replyContinuityCallback(msg_data);
@@ -8729,11 +8729,9 @@ class MessageHandler {
 }
 class RovActions {
     // ==== Helpers =====
-    static sendActionAndWaitForDone(action, callback) {
+    static sendActionAndWaitForDone(msg_data, callback) {
         let responseMessage = "";
-        MessageHandler.sendRovMessage({
-            "action": action
-        }, (response)=>{
+        MessageHandler.sendRovMessage(msg_data, (response)=>{
             const responseText = response["val"] || "";
             responseMessage += responseText + "\n";
             const status = response["status"];
@@ -8799,8 +8797,9 @@ class RovActions {
             MessageHandler.sendRovMessage({
                 "action": "restart_rov_services"
             }, (response)=>{
-                if (response['val']) addTextToPopup(response['val']);
-                if (response['error']) addTextToPopup("\nError:\n" + response['error']);
+                if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
+                else if (response['val']) addTextToPopup(response['val']);
+                else if (response['status'] == "done") addTextToPopup("\n\nDone");
             });
         }
     };
@@ -8810,8 +8809,9 @@ class RovActions {
         MessageHandler.sendRovMessage({
             "action": "rov_status_report"
         }, (response)=>{
-            if (response['val']) addTextToPopup(response['val']);
-            if (response['error']) addTextToPopup("\nError:\n" + response['error']);
+            if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
+            else if (response['val']) addTextToPopup(response['val']);
+            else if (response['status'] == "done") addTextToPopup("\n\nDone");
         });
     };
     static getRovLogs = ()=>{
@@ -8820,8 +8820,9 @@ class RovActions {
         MessageHandler.sendRovMessage({
             "action": "rov_logs"
         }, (response)=>{
-            if (response['val']) addTextToPopup(response['val']);
-            if (response['error']) addTextToPopup("\nError:\n" + response['error']);
+            if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
+            else if (response['val']) addTextToPopup(response['val']);
+            else if (response['status'] == "done") addTextToPopup("\n\nDone");
         });
     };
     static rePullRovGithubCode = ()=>{
@@ -8831,10 +8832,10 @@ class RovActions {
         MessageHandler.sendRovMessage({
             "action": "pull_rov_github_code"
         }, (response)=>{
-            if (response['val']) addTextToPopup(response['val']);
-            if (response['error']) addTextToPopup("\nError:\n" + response['error']);
-            else if (response['done']) {
-                addTextToPopup("\n\nDone.");
+            if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
+            else if (response['val']) addTextToPopup(response['val']);
+            else if (response['status'] == "done") {
+                addTextToPopup("\n\nDone");
                 addTextToPopup("Please run 'Restart ROV Services' from the same menu in ~30 seconds to fully apply any code changes.");
             }
         });
