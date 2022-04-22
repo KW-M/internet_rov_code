@@ -8776,7 +8776,7 @@ class RovActions {
         }, null);
     }
     static shutdownRov = ()=>{
-        if (confirm("Are you sure you want to shutdown the ROV? - The ROV will be on a different ngrok url when rebooted.")) {
+        if (confirm("Are you sure you want to shutdown the ROV?")) {
             _ui.showToastMessage("Sending Shutdown Request...");
             RovActions.sendActionAndWaitForDone({
                 "action": "shutdown_rov"
@@ -8787,7 +8787,7 @@ class RovActions {
         }
     };
     static rebootRov = ()=>{
-        if (confirm("Are you sure you want to reboot the ROV? - The ROV will be on a different ngrok url when rebooted.")) {
+        if (confirm("Are you sure you want to reboot the ROV?")) {
             _ui.showToastMessage("Sending Reboot Request...");
             RovActions.sendActionAndWaitForDone({
                 "action": "reboot_rov"
@@ -8798,7 +8798,7 @@ class RovActions {
         }
     };
     static restartRovServices = ()=>{
-        if (confirm("Are you sure you want to restart services? - The ROV will stop responding for about minute and then you will need to re-connect")) {
+        if (confirm("Are you sure you want to restart services? - The ROV will stop responding for about a minute and then you will need to re-connect.")) {
             const addTextToPopup = _ui.showScrollableTextPopup("Restarting ROV Services...");
             addTextToPopup("Sending Service Restart Request (Please Wait)...\n");
             MessageHandler.sendRovMessage({

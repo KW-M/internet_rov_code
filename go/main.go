@@ -11,22 +11,35 @@ import (
 )
 
 // command line flag placeholder variables
-// var videoShellCommand = ""
-// var peerServerListenPort = ""
-var ADD_METADATA_TO_UNIX_SOCKET_MESSAGES = true
+var configFilePath string = "./secret_config.json"
+var config ProgramConfig
+var msgPipe DuplexNamedPipeRelay
 
 func parseProgramCmdlineFlags() {
-	// Parse the command line parameters passed to program in the shell eg "-a" in "ls -a"
-	// flag.StringVar(&videoShellCommand, "video-shell-cmd", "cat -", "Shell command that will send a h264 video stream to stdout, Default is \"cat -\"")
-	// flag.StringVar(&peerServerListenPort, "peerserver-listen-port", "8181", "Port number for the go peerjs server to listen on. Default is 8181")
-	// flag.BoolVar(&ADD_METADATA_TO_UNIX_SOCKET_MESSAGES, "add-metadata-to-messages", true, "If true, when a datachannel message is recived, metataa like the sender's peer id will be prepended to all message, followed by the delimeter before being sent to the unix socket. Default is false")
+	flag.StringVar(&configFilePath, "config-file", "./webrtc-relay-config.json", "Path to the config file. Default is ./webrtc-relay-config.json")
 	flag.Parse()
 }
 
-var sendMessagesToUnixSocketChan = make(chan string, 24) // a channel with a buffer of 24 messages which can pile up until they are handled
-var messagesFromUnixSocketChan = make(chan string, 24)   // a channel with a buffer of 24 messages which can pile up until they are handled
+// var sendMessagesToUnixSocketChan = make(chan string, 24) // a channel with a buffer of 24 messages which can pile up until they are handled
+// var messagesFromUnixSocketChan = make(chan string, 24)   // a channel with a buffer of 24 messages which can pile up until they are handled
 
 func main() {
+
+	// Parse the command line parameters passed to program in the shell eg "-a" in "ls -a"
+	// read the config file and set it to the config global variable
+	parseProgramCmdlineFlags()
+	config, err = ReadConfigFile(configFilePath)
+	if err != nil {
+		log.Fatal("Failed to read config file: ", err)
+	}
+
+	// Set up the logrus logger
+	log.SetLevel(log.DebugLevel)
+	log.SetFormatter(&log.TextFormatter{
+		DisableColors:    true,
+		DisableTimestamp: true,
+		DisableQuote:     true,
+	})
 
 	// Create a simple boolean "channel" that we can close to signal to go subroutine functions that they should stop cleanly:
 	programShouldQuitSignal := newUnblockSignal()
@@ -37,51 +50,13 @@ func main() {
 		}
 	}()
 
-	// Set up the logrus logger
-	log.SetLevel(log.DebugLevel)
-	log.SetFormatter(&log.TextFormatter{
-		DisableColors:    true,
-		DisableTimestamp: true,
-		DisableQuote:     true,
-	})
-
-	parseProgramCmdlineFlags()
-
-	// Create the unix socket to send and receive data to - from python
-	sock := CreateUnixSocketRelay(programShouldQuitSignal, &messagesFromUnixSocketChan, &sendMessagesToUnixSocketChan, UNIX_SOCKET_PATH, 2048)
-	defer sock.cleanupSocketServer()
-
-	// DEBUG FOR SOCKET MESSAGES
-	// go func() {
-	// 	for {
-	// 		select {
-	// 		case <-programShouldQuitSignal.GetSignal():
-	// 			return
-	// 		case <-time.After(time.Second * 1):
-	// 			sendMessagesToUnixSocketChan <- "{\"ping\":3}"
-	// 		case msg := <-messagesFromUnixSocketChan:
-	// 			log.Debug("Got message from socket: ", msg)
-	// 		}
-	// 	}
-	// }()
-
-	// DEBUG FOR ECHOING BACK ALL MESSAGES & BYPASSING SOCKET
-	// go func() {
-	// 	for {
-	// 		select {
-	// 		case msg := <-sendMessagesToUnixSocket:
-	// 			log.Println("Received message from unix socket: ", msg)
-	// 			messagesFromUnixSocket <- "DEBUG USOCKET ECHO: " + msg
-	// 		case <-quitProgramChan:
-	// 			log.Println("Closing down echo loop bcuz of quit program channel")
-	// 			return
-	// 		}
-	// 	}
-	// }()
-
-	// Setup the video stream and start the camera running
-	initVideoTrack()
-	go pipeVideoToStream(programShouldQuitSignal)
+	// Create the two named pipes to send and receive data to / from the webrtc-relay user's backend code
+	msgPipe, err := CreateDuplexNamedPipeRelay("/tmp/to_datachannel_relay.pipe", "/tmp/from_datachannel_relay.pipe", 4096)
+	if err != nil {
+		log.Fatal("Failed to create message relay named pipe: ", err)
+	}
+	defer msgPipe.Close()
+	go msgPipe.runPipeLoops(programShouldQuitSignal)
 
 	// Setup the peerjs client to accept webrtc connections
 	go startPeerServerConnectionLoop(programShouldQuitSignal)
@@ -101,3 +76,18 @@ func main() {
 		return
 	}
 }
+
+// func scheduleWrite(pipe *NamedPipeRelay) {
+// 	for {
+// 		<-time.After(time.Second * 1)
+// 		print(".")
+// 		pipe.SendMessagesToPipe <- "Hello" + time.Now().String()
+// 	}
+// }
+
+// func readLoop(pipe *NamedPipeRelay) {
+// 	for {
+// 		message := <-pipe.GetMessagesFromPipe
+// 		pipe.log.Info("Message from pipe: ", message)
+// 	}
+// }

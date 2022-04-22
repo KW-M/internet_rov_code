@@ -56,14 +56,14 @@ var activeDataConnectionsToThisRobot = make(map[string]*peerjs.DataConnection) /
 
 func sendMessageToUnixSocket(message string) {
 	select {
-	case sendMessagesToUnixSocketChan <- message:
+	case msgPipe.SendMessagesToPipe <- message:
 	default:
 		log.Error("sendMessageToUnixSocket: Go channel is full! Msg:", message)
 	}
 }
 
 func generateToUnixSocketMetadataMessage(srcPeerId string, peerEvent string, err string) string {
-	var metadata = new(DatachannelToUnixSocketMessageMetadata)
+	var metadata = new(DatachannelToRelayPipeMetadata)
 	metadata.SrcPeerId = srcPeerId
 	if len(peerEvent) > 0 {
 		metadata.PeerEvent = peerEvent
@@ -86,9 +86,9 @@ func handleIncomingDatachannelMessage(message string, robotPeer *peerjs.Peer, cl
 			return
 		}
 	} else {
-		if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
+		if config.AddMetadataToPipeMessages {
 			var metadata string = generateToUnixSocketMetadataMessage(clientPeerId, "", "")
-			message = metadata + UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR + message
+			message = metadata + config.MessageMetadataSeparator + message
 		}
 		// send a message down the unix socket with the message from the client peer
 		sendMessageToUnixSocket(message)
@@ -99,16 +99,16 @@ func handleIncomingDatachannelMessage(message string, robotPeer *peerjs.Peer, cl
 func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
 	for {
 		select {
-		case msgFromUnixSocket := <-messagesFromUnixSocketChan:
+		case msgFromUnixSocket := <-msgPipe.GetMessagesFromPipe:
 			log.Printf("msgFromUnixSocket GOT MESSAGE: %s", msgFromUnixSocket)
 			var TargetPeerIds = make(map[string]bool)
 
-			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				metadataAndMessage := strings.Split(msgFromUnixSocket, UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR)
+			if config.AddMetadataToPipeMessages {
+				metadataAndMessage := strings.Split(msgFromUnixSocket, config.MessageMetadataSeparator)
 				if len(metadataAndMessage) == 2 {
 					msgFromUnixSocket = metadataAndMessage[1]
 					var metadataJson = metadataAndMessage[0]
-					var metadata = new(UnixSocketToDatachannelMessageMetadataJson)
+					var metadata = new(RelayPipeToDatachannelMetadata)
 					err := json.Unmarshal([]byte(metadataJson), &metadata)
 					if err != nil {
 						fmt.Printf("Error unmarshalling message metadata: %s\n", err)
@@ -160,46 +160,42 @@ func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
  * Given the parameter number of "tries" to sucessfully connect to a peerjs server, this function will return a new set of peerServerOptions, that can be used to try to establish a peer server connection
  * This function is non-blockng and will return the next set of peerServerOptions immediately.
  */
-func getNextPeerServerOptions(tries int) peerjs.Options {
-	var peerServerOptions = peerjs.NewOptions()
-	peerServerOptions.Debug = 4
+func getNextPeerServerOptions(tries int) (*peerjs.Options, *peerjsServer.Options) {
+	var peerOptionsConfig = config.PeerServerConfigs[tries%len(config.PeerServerConfigs)]
 
-	// integer division results in rounded-down whole numbers:
-	tries = (tries / 2) % 3
+	var peerOptions = peerjs.NewOptions()
+	peerOptions.Host = peerOptionsConfig.Host
+	peerOptions.Port = peerOptionsConfig.Port
+	peerOptions.Path = peerOptionsConfig.Path
+	peerOptions.Secure = peerOptionsConfig.Secure
+	peerOptions.Key = peerOptionsConfig.Key
+	peerOptions.Debug = peerOptionsConfig.Debug
+	peerOptions.Token = peerOptionsConfig.Token
+	peerOptions.Configuration = peerOptionsConfig.Configuration
 
-	if tries == 0 {
-		// FOR CLOUD HOSTED PEERJS SERVER running on heroku (or wherever - you could use the default peerjs cloud server):
-		peerServerOptions.Host = "0.peerjs.com"
-		peerServerOptions.Port = 443
-		peerServerOptions.Path = "/"
-		peerServerOptions.Key = "peerjs"
-		peerServerOptions.Secure = true
-		peerServerOptions.PingInterval = 3000
-	} else {
-		// FOR LOCAL PEERJS SERVER RUNNING ON THIS raspberrypi (not heroku):
-		peerServerOptions.Host = "localhost"
-		peerServerOptions.Port = 9000
-		peerServerOptions.Path = "/"
-		peerServerOptions.Key = "peerjs"
-		peerServerOptions.Secure = false
-		peerServerOptions.PingInterval = 3000
+	if peerOptionsConfig.StartLocalServer {
+		var peerServerOptions = peerjsServer.NewOptions()
+		peerServerOptions.LogLevel = peerOptionsConfig.ServerLogLevel
+		peerServerOptions.Host = peerOptionsConfig.Host
+		peerServerOptions.Port = peerOptionsConfig.Port
+		peerServerOptions.Path = peerOptionsConfig.Path
+		peerServerOptions.Key = peerOptionsConfig.Key
+		peerServerOptions.ExpireTimeout = peerOptionsConfig.ExpireTimeout
+		peerServerOptions.AliveTimeout = peerOptionsConfig.AliveTimeout
+		peerServerOptions.AllowDiscovery = peerOptionsConfig.AllowDiscovery
+		peerServerOptions.ConcurrentLimit = peerOptionsConfig.ConcurrentLimit
+		peerServerOptions.CleanupOutMsgs = peerOptionsConfig.CleanupOutMsgs
+		return &peerOptions, &peerServerOptions
 	}
-	return peerServerOptions
+
+	return &peerOptions, &peerjsServer.Options{} // returns nil for peerServerOptions
 }
 
 /* startLocalPeerJsServer (blocking goroutine)
  * This function starts up a local PeerJs SERVER on this computer. This can be used when no external internet access is available.
  * This function is blocking and will not return until programShouldQuitSignal is triggered or a panic in the server occurs.
  */
-func startLocalPeerJsServer(peerServerOptions peerjs.Options, programShouldQuitSignal *UnblockSignal) {
-	serverOptions := peerjsServer.NewOptions()
-	serverOptions.LogLevel = "Debug"
-	serverOptions.AllowDiscovery = true
-	serverOptions.Port = peerServerOptions.Port
-	serverOptions.Host = peerServerOptions.Host
-	serverOptions.Path = peerServerOptions.Path
-	serverOptions.Key = peerServerOptions.Key
-
+func startLocalPeerJsServer(serverOptions peerjsServer.Options, programShouldQuitSignal *UnblockSignal) {
 	for {
 		server := peerjsServer.New(serverOptions)
 		defer server.Stop()
@@ -223,7 +219,7 @@ func startLocalPeerJsServer(peerServerOptions peerjs.Options, programShouldQuitS
 func startPeerServerConnectionLoop(programShouldQuitSignal *UnblockSignal) {
 
 	peerServerConnectionTries := 0
-	peerServerOptions := getNextPeerServerOptions(peerServerConnectionTries)
+	peerOptions, peerServerOptions := getNextPeerServerOptions(peerServerConnectionTries)
 
 	go func() {
 		for {
@@ -232,11 +228,11 @@ func startPeerServerConnectionLoop(programShouldQuitSignal *UnblockSignal) {
 				log.Println("Closing down webrtc connection loop.")
 				return
 			default:
-				if peerServerOptions.Host == "localhost" {
-					go startLocalPeerJsServer(peerServerOptions, programShouldQuitSignal)
+				if peerServerOptions != nil {
+					// go startLocalPeerJsServer(*peerServerOptions, programShouldQuitSignal)
 				}
 				activeDataConnectionsToThisRobot = make(map[string]*peerjs.DataConnection)
-				err := setupRobotPeer(peerServerOptions, programShouldQuitSignal)
+				err := setupRobotPeer(*peerOptions, programShouldQuitSignal)
 				if e, ok := err.(*peerjs.PeerError); ok {
 					errorType := e.Type
 					if errorType == "unavailable-id" {
@@ -246,7 +242,7 @@ func startPeerServerConnectionLoop(programShouldQuitSignal *UnblockSignal) {
 					if errorType == "network" {
 						log.Printf("Peer Js server is unavailable, switching to next peer server\n")
 						peerServerConnectionTries++ // increment the peer id ending integer
-						peerServerOptions = getNextPeerServerOptions(peerServerConnectionTries)
+						peerOptions, peerServerOptions = getNextPeerServerOptions(peerServerConnectionTries)
 					}
 				}
 			}
@@ -279,8 +275,8 @@ func peerConnectionOpenHandler(robotPeer *peerjs.Peer, peerId string, peerServer
 			activeDataConnectionsToThisRobot[clientPeerId+"::"+peerServerOpts.Host] = clientPeerDataConnection
 
 			// send a metadata message down the unix socket that a new peer has connected
-			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				msg := generateToUnixSocketMetadataMessage(clientPeerId, "Connected", "") + UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR + "{}"
+			if config.AddMetadataToPipeMessages {
+				msg := generateToUnixSocketMetadataMessage(clientPeerId, "Connected", "") + config.MessageMetadataSeparator + "{}"
 				sendMessageToUnixSocket(msg)
 			}
 
@@ -297,8 +293,8 @@ func peerConnectionOpenHandler(robotPeer *peerjs.Peer, peerId string, peerServer
 			delete(activeDataConnectionsToThisRobot, clientPeerId+"::"+peerServerOpts.Host) // remove this connection from the map of active connections
 
 			// send a metadata message down the unix socket that this peer connection has been closed
-			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				msg := generateToUnixSocketMetadataMessage(clientPeerId, "Closed", "") + UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR + "{}"
+			if config.AddMetadataToPipeMessages {
+				msg := generateToUnixSocketMetadataMessage(clientPeerId, "Closed", "") + config.MessageMetadataSeparator + "{}"
 				sendMessageToUnixSocket(msg)
 			}
 		})
@@ -307,8 +303,8 @@ func peerConnectionOpenHandler(robotPeer *peerjs.Peer, peerId string, peerServer
 			log.Info("CLIENT PEER DATACHANNEL DISCONNECTED EVENT", message)
 
 			// send a metadata message down the unix socket that this peer has disconnected
-			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				msg := generateToUnixSocketMetadataMessage(clientPeerId, "Disconnected", "") + UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR + "{}"
+			if config.AddMetadataToPipeMessages {
+				msg := generateToUnixSocketMetadataMessage(clientPeerId, "Disconnected", "") + config.MessageMetadataSeparator + "{}"
 				sendMessageToUnixSocket(msg)
 			}
 		})
@@ -316,8 +312,8 @@ func peerConnectionOpenHandler(robotPeer *peerjs.Peer, peerId string, peerServer
 		clientPeerDataConnection.On("error", func(message interface{}) {
 			errMessage := message.(error).Error()
 			log.Error("CLIENT PEER DATACHANNEL ERROR EVENT: %s\n", errMessage)
-			if ADD_METADATA_TO_UNIX_SOCKET_MESSAGES {
-				msg := generateToUnixSocketMetadataMessage(clientPeerId, "Error", errMessage) + UNIX_SOCKET_MESSAGE_METADATA_SEPARATOR + "{}"
+			if config.AddMetadataToPipeMessages {
+				msg := generateToUnixSocketMetadataMessage(clientPeerId, "Error", errMessage) + config.MessageMetadataSeparator + "{}"
 				sendMessageToUnixSocket(msg)
 			}
 		})
@@ -332,18 +328,18 @@ func peerConnectionOpenHandler(robotPeer *peerjs.Peer, peerId string, peerServer
  * This function also handles the "error", "disconnected" and "closed" events for the peerjs server connection.
  * This function is blocking and will not return until the peer connection fails (with the error) or programShouldQuitSignal is triggered.
  */
-func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *UnblockSignal) error {
+func setupRobotPeer(peerOptions peerjs.Options, programShouldQuitSignal *UnblockSignal) error {
 	exitFuncSignal := newUnblockSignal()
 
-	log.Info("Setting up connection to peerjs server: " + peerServerOptions.Host + ":" + strconv.Itoa(peerServerOptions.Port))
+	log.Info("Setting up connection to peerjs server: " + peerOptions.Host + ":" + strconv.Itoa(peerOptions.Port))
 
-	var robotPeerId string = BASE_PEER_ID + strconv.Itoa(robotPeerIdEndingNum)
+	var robotPeerId string = config.BasePeerId + strconv.Itoa(robotPeerIdEndingNum)
 
 	// setup logrus logger
-	robotConnLog := log.WithFields(log.Fields{"peer": robotPeerId, "peerServer": peerServerOptions.Host})
+	robotConnLog := log.WithFields(log.Fields{"peer": robotPeerId, "peerServer": peerOptions.Host})
 
 	// establish peer with peerjs server
-	var robotPeer, err = peerjs.NewPeer(robotPeerId, peerServerOptions)
+	var robotPeer, err = peerjs.NewPeer(robotPeerId, peerjs.NewOptions())
 	defer func() { // func to run when setupWebrtcConnection function exits (either normally or because of a panic)
 		if robotPeer != nil && !robotPeer.GetDestroyed() {
 			robotPeer.Close() // close this peer (including peer server connection)
@@ -360,8 +356,8 @@ func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *U
 		if peerID != robotPeerId {
 			exitFuncSignal.Trigger() // signal to this goroutine to exit and let the setupConnections loop take over and rerun this function
 		} else {
-			log.Info("Robot Peer Established!")
-			peerConnectionOpenHandler(robotPeer, robotPeerId, peerServerOptions, robotConnLog)
+			robotConnLog.Info("Robot Peer Established!")
+			peerConnectionOpenHandler(robotPeer, robotPeerId, peerOptions, robotConnLog)
 		}
 	})
 
@@ -401,18 +397,3 @@ func setupRobotPeer(peerServerOptions peerjs.Options, programShouldQuitSignal *U
 		return nil
 	}
 }
-
-// // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs#avc_h.264
-// // Find the H264 codec in the list of codecs supported by the remote peer (aka the pilot's browser)
-// var h264PayloadType uint8 = 0
-// for _, videoCodec := range mediaEngine.GetCodecsByKind(webrtc.RTPCodecTypeVideo) {
-// 	if videoCodec.Name == "H264" {
-// 		h264PayloadType = videoCodec.PayloadType
-// 		break
-// 	}
-// }
-// // if the payloadTypeNumber from never changed, the broswer doesn't support H264 (highly unlikely)
-// if h264PayloadType == 0 {
-// 	fmt.Println("Remote peer does not support H264")
-// 	continue
-// }

@@ -141,3 +141,8 @@ fi
 
 
 https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/
+
+
+
+# ON MAC TO READ WEBCAM TO STDOUT AS H264: (2>&- means ignore stderr)
+ffmpeg -f avfoundation -pix_fmt nv12 -video_size 640x480 -use_wallclock_as_timestamps 1 -framerate 30 -i "default" -f h264 pipe:1 2>&-
