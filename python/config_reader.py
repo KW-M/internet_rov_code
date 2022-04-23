@@ -9,12 +9,13 @@ defualt_config_file_path = os.path.dirname(
     os.path.realpath(__file__)) + "/../secret_config.json"
 
 default_config = {
-    "unix-socket-path": "/tmp/go_robot.socket",
-    "message-metadata-separator": "|\"|",
-    "pilot-control-password":
+    "LogLevel": "info",
+    "BasePeerId": "go-robot-",
+    "NamedPipeFolder": "/tmp/webtrc-relay-pipes/",
+    "MessageMetadataSeparator": "|\"|",
+    "PilotControlPassword":
     "Change this password in the secrets_config.json file",
-    "pilot-disconnected-pasword-timeout": 180,
-    "log-level": "info",
+    "PilotDisconnectedPaswordTimeout": 180,
 }
 
 

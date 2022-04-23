@@ -12,9 +12,10 @@ log = logging.getLogger(__name__)
 
 
 class MessageHandler:
-    def __init__(self, unix_socket, motion_controller, sensor_controller,
-                 program_config):
-        self.unix_socket = unix_socket
+    def __init__(self, msg_named_pipe, media_controller, motion_controller,
+                 sensor_controller, program_config):
+        self.msg_named_pipe = msg_named_pipe
+        self.media_controller = media_controller
         self.motion_ctrl = motion_controller
         self.sensor_ctrl = sensor_controller
         self.program_config = program_config
@@ -26,9 +27,9 @@ class MessageHandler:
 
         # constants
         self.MESSAGE_METADATA_SEPARATOR = program_config.get(
-            'message-metadata-separator', '|"|')
+            'MessageMetadataSeparator', '|"|')
         self.PASSWORD_INACTIVITY_TIMEOUT = self.program_config.get(
-            'pilot-disconnected-pasword-timeout', 180)
+            'PilotDisconnectedPaswordTimeout', 180)
 
     def parse_socket_message(self, message):
         """
@@ -116,7 +117,7 @@ class MessageHandler:
 
     def password_challenge(self, password, src_peer_id):
         correct_password = self.program_config.get(
-            'pilot-control-password', 'You Should Set This In The Config File')
+            'PilotControlPassword', 'You Should Set This In The Config File')
         print("Password: " + password, "Correct Password: " + correct_password)
         if password == correct_password:
             self.authenticated_peerids[src_peer_id] = True
@@ -131,7 +132,7 @@ class MessageHandler:
         msg_metadata and sends the message to the unix socket
         """
 
-        if self.unix_socket.socket_open:
+        if self.msg_named_pipe.is_open():
 
             # add the target peer ids to the outgoing message metadata:
             msg_metadata.setdefault('TargetPeerIds', recipient_peer_ids)
@@ -141,8 +142,7 @@ class MessageHandler:
                 msg_metadata) + self.MESSAGE_METADATA_SEPARATOR + json.dumps(
                     msg_dict)
             log.debug("Sending Reply: " + reply_message)
-            await self.unix_socket.messages_to_send_to_socket_queue.put(
-                reply_message)
+            await self.msg_named_pipe.write_message(reply_message)
 
     async def handle_normal_actions(self, src_peer_id, action, actionValue,
                                     msg_cid):
@@ -176,6 +176,7 @@ class MessageHandler:
         # -- golang relay commands:
         elif action == "begin_livestream":
             # send the *golang* code (note the action is in reply_metadata) the begin_livestream command
+            self.media_controller.get_video_pipe()
             await self.send_msg({}, {"Action": "begin_livestream"},
                                 [src_peer_id])
 
@@ -287,7 +288,7 @@ class MessageHandler:
         while True:
 
             # get the next message from the socket and parse it into some dicts and data:
-            message = await self.unix_socket.messages_from_socket_queue.get()
+            message = await self.msg_named_pipe.get_next_message()
             metadata, msg_dict = self.parse_socket_message(message)
             src_peer_id = await self.handle_messsage_metadata(metadata)
 

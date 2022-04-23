@@ -139,28 +139,28 @@ var defaultProgramConfig = ProgramConfig{
 	AddMetadataToPipeMessages: true,
 }
 
-func ReadConfigFile(configFilePath string) (ProgramConfig, error) {
+func ReadConfigFile(configFilePath string) (*ProgramConfig, error) {
 	// Read the config file
 	configFile, err := os.Open(configFilePath)
 	if err != nil {
-		return defaultProgramConfig, err
+		return &defaultProgramConfig, err
 	}
 	defer configFile.Close()
 
 	// read our opened jsonFile as a byte array.
 	byteValue, err := ioutil.ReadAll(configFile)
 	if err != nil {
-		return defaultProgramConfig, err
+		return &defaultProgramConfig, err
 	}
 
 	// we unmarshal our byteArray which contains our
 	// jsonFile's content into 'users' which we defined above
 	err = json.Unmarshal(byteValue, &defaultProgramConfig)
 	if err != nil {
-		return defaultProgramConfig, err
+		return &defaultProgramConfig, err
 	}
 
-	return defaultProgramConfig, nil
+	return &defaultProgramConfig, nil
 }
 
 // if tries == 0 {

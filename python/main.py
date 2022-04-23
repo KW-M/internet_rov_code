@@ -13,8 +13,11 @@ import asyncio
 # import our python files from the same directory
 from config_reader import read_config_file, get_log_level
 from command_api import start_aiohttp_api_server
-from unix_socket import Unix_Socket
+from named_pipe import Duplex_Named_Pipe_Relay
+# from unix_socket import Unix_Socket
 from motion_controller import Motion_Controller
+from media_stream_controller import Media_Stream_Controller
+
 # from sensor_log import Sensor_Log
 from sensors import Sensor_Controller
 from mesage_handler import MessageHandler
@@ -24,31 +27,38 @@ from utilities import *
 config = read_config_file()
 print(config)
 
-##### Setup Variables #####
-############################
-
-unix_socket = Unix_Socket(socket_path=config["unix-socket-path"])
-sensors = Sensor_Controller()
-# sensor_log = Sensor_Log(sensors.all_sensors)
-motion_ctrl = Motion_Controller()
-message_handler = MessageHandler(unix_socket, motion_ctrl, sensors, config)
-
 ###### Setup Logging #######
 ############################
 
-# set the loglevel is from command line argument or config file. Use either --log-level=DEBUG or --log-level=debug
-logging.basicConfig(level=get_log_level(config['log-level']))
+# set the Loglevel is from command line argument or config file. Use either --LogLevel=DEBUG or --LogLevel=debug
+logging.basicConfig(level=get_log_level(config['LogLevel']))
 log = logging.getLogger(__name__)
 
 
 ######## Main Program Loop ###########
 ######################################
 async def main():
+    global duplex_relay, sensors, motion_ctrl, message_handler
+
+    ##### Setup Variables #####
+    ############################
+
+    named_pipe_folder = config['NamedPipeFolder']
+    duplex_relay = Duplex_Named_Pipe_Relay(
+        named_pipe_folder + 'from_datachannel_relay.pipe',
+        named_pipe_folder + 'to_datachannel_relay.pipe')
+    sensors = Sensor_Controller()
+    # sensor_log = Sensor_Log(sensors.all_sensors)
+    motion_ctrl = Motion_Controller()
+    media_ctrl = Media_Stream_Controller(config)
+    message_handler = MessageHandler(duplex_relay, media_ctrl, motion_ctrl,
+                                     sensors, config)
+
     # setup the asyncio loop to run each of these async functions aka "tasks" aka "coroutines" concurently
     await asyncio.gather(
         # sensors.sensor_setup_loop(),
         # motion_ctrl.motor_setup_loop(),
-        unix_socket.socket_relay_setup_loop(),
+        duplex_relay.start_loops(),
         message_handler.socket_incoming_message_handler_loop(),
         # message_handler.socket_update_message_sender_loop(),
         # start_aiohttp_api_server()
@@ -64,7 +74,7 @@ finally:
     # cleanup that will always run no matter what
     # sensors.cleanup()
     # motion_ctrl.cleanup_gpio()
-    unix_socket.cleanup()
+    duplex_relay.cleanup()
     pass
 
 # while True:

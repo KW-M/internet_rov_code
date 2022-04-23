@@ -47,14 +47,14 @@ a few notes about the peerjs-go library:
 var err error // handy variable to stuff any error messages into
 
 // To handle the case where multiple robots are running at the same time,
-// we make the PeerId of this ROBOT the basePeerId plus this number tacked on
+// we make the PeerId of this ROBOT the BasePeerId plus this number tacked on
 // the end (eg: iROBOT-0) that we increment if the current peerId is already taken.
 var robotPeerIdEndingNum int = 0
 
 // map off all peer datachannels connected to this robot (includes both the robot peer associated with the local peerjs server and the robot peer associated with the cloud peerjs server)
 var activeDataConnectionsToThisRobot = make(map[string]*peerjs.DataConnection) // map of the open datachannel connection Ids to this peer.
 
-func sendMessageToUnixSocket(message string) {
+func sendMessageThroughNamedPipe(message string) {
 	select {
 	case msgPipe.SendMessagesToPipe <- message:
 	default:
@@ -91,11 +91,11 @@ func handleIncomingDatachannelMessage(message string, robotPeer *peerjs.Peer, cl
 			message = metadata + config.MessageMetadataSeparator + message
 		}
 		// send a message down the unix socket with the message from the client peer
-		sendMessageToUnixSocket(message)
+		sendMessageThroughNamedPipe(message)
 	}
 }
 
-/* handle sending messages to the client/browser */
+/* handle forwarding messages from the named channel to the client/browser */
 func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
 	for {
 		select {
@@ -277,7 +277,7 @@ func peerConnectionOpenHandler(robotPeer *peerjs.Peer, peerId string, peerServer
 			// send a metadata message down the unix socket that a new peer has connected
 			if config.AddMetadataToPipeMessages {
 				msg := generateToUnixSocketMetadataMessage(clientPeerId, "Connected", "") + config.MessageMetadataSeparator + "{}"
-				sendMessageToUnixSocket(msg)
+				sendMessageThroughNamedPipe(msg)
 			}
 
 			// handle incoming messages from this client peer
@@ -295,7 +295,7 @@ func peerConnectionOpenHandler(robotPeer *peerjs.Peer, peerId string, peerServer
 			// send a metadata message down the unix socket that this peer connection has been closed
 			if config.AddMetadataToPipeMessages {
 				msg := generateToUnixSocketMetadataMessage(clientPeerId, "Closed", "") + config.MessageMetadataSeparator + "{}"
-				sendMessageToUnixSocket(msg)
+				sendMessageThroughNamedPipe(msg)
 			}
 		})
 
@@ -305,7 +305,7 @@ func peerConnectionOpenHandler(robotPeer *peerjs.Peer, peerId string, peerServer
 			// send a metadata message down the unix socket that this peer has disconnected
 			if config.AddMetadataToPipeMessages {
 				msg := generateToUnixSocketMetadataMessage(clientPeerId, "Disconnected", "") + config.MessageMetadataSeparator + "{}"
-				sendMessageToUnixSocket(msg)
+				sendMessageThroughNamedPipe(msg)
 			}
 		})
 
@@ -314,7 +314,7 @@ func peerConnectionOpenHandler(robotPeer *peerjs.Peer, peerId string, peerServer
 			log.Error("CLIENT PEER DATACHANNEL ERROR EVENT: %s\n", errMessage)
 			if config.AddMetadataToPipeMessages {
 				msg := generateToUnixSocketMetadataMessage(clientPeerId, "Error", errMessage) + config.MessageMetadataSeparator + "{}"
-				sendMessageToUnixSocket(msg)
+				sendMessageThroughNamedPipe(msg)
 			}
 		})
 

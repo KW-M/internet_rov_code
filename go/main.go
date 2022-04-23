@@ -12,8 +12,17 @@ import (
 
 // command line flag placeholder variables
 var configFilePath string = "./secret_config.json"
-var config ProgramConfig
-var msgPipe DuplexNamedPipeRelay
+var config *ProgramConfig
+var msgPipe *DuplexNamedPipeRelay
+
+func sendMessageThroughNamedPipez(message string) {
+	select {
+	case msgPipe.SendMessagesToPipe <- message:
+		log.Println("Sent message: ", message)
+	case <-time.After(time.Millisecond * 50):
+		log.Error("Pipe: Go channel is full! Msg:", message)
+	}
+}
 
 func parseProgramCmdlineFlags() {
 	flag.StringVar(&configFilePath, "config-file", "./webrtc-relay-config.json", "Path to the config file. Default is ./webrtc-relay-config.json")
@@ -24,6 +33,7 @@ func parseProgramCmdlineFlags() {
 // var messagesFromUnixSocketChan = make(chan string, 24)   // a channel with a buffer of 24 messages which can pile up until they are handled
 
 func main() {
+	println("------------ Starting WebRTC Relay ----------------")
 
 	// Parse the command line parameters passed to program in the shell eg "-a" in "ls -a"
 	// read the config file and set it to the config global variable
@@ -51,7 +61,9 @@ func main() {
 	}()
 
 	// Create the two named pipes to send and receive data to / from the webrtc-relay user's backend code
-	msgPipe, err := CreateDuplexNamedPipeRelay("/tmp/to_datachannel_relay.pipe", "/tmp/from_datachannel_relay.pipe", 4096)
+	print("Creating named pipe relay...", config.NamedPipeFolder)
+	os.MkdirAll(config.NamedPipeFolder, 0777)
+	msgPipe, err = CreateDuplexNamedPipeRelay(config.NamedPipeFolder+"to_datachannel_relay.pipe", config.NamedPipeFolder+"from_datachannel_relay.pipe", 4096)
 	if err != nil {
 		log.Fatal("Failed to create message relay named pipe: ", err)
 	}

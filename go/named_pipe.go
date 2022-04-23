@@ -68,6 +68,7 @@ func (pipe *NamedPipeRelay) readMessagesLoop() {
 
 func (pipe *NamedPipeRelay) writeMessagesLoop() {
 	// writer := bufio.NewWriter(pipe.pipeFile)
+	pipe.log.Print("Entering write loop...")
 	defer pipe.log.Print("Exiting write loop...")
 	for {
 		select {
@@ -151,6 +152,8 @@ func CreateDuplexNamedPipeRelay(incomingPipeFilePath string, outgoingPipeFilePat
 	duplexPipe.SendMessagesToPipe = duplexPipe.outgoingPipe.SendMessagesToPipe
 	duplexPipe.GetMessagesFromPipe = duplexPipe.incomingPipe.GetMessagesFromPipe
 
+	// duplexPipe.SendMessagesToPipe <- "Hello1"
+
 	return &duplexPipe, nil
 }
 
@@ -164,5 +167,4 @@ func (pipe *DuplexNamedPipeRelay) runPipeLoops(exitSignal *UnblockSignal) {
 	go pipe.incomingPipe.runPipeLoops(exitSignal, true, false)
 	go pipe.outgoingPipe.runPipeLoops(exitSignal, false, true)
 	exitSignal.Wait()
-	return
 }

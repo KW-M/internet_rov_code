@@ -2,7 +2,7 @@ from array import array
 import asyncio
 from cmath import nan
 import logging
-import ms5803py
+# import ms5803py
 
 from utilities import *
 
@@ -78,8 +78,8 @@ class Generic_Sensor:
             await asyncio.sleep(self.sensor_read_interval)
 
 
-async def setup_pressure_sensor():
-    return ms5803py.MS5803()
+# async def setup_pressure_sensor():
+#     return ms5803py.MS5803()
 
 
 async def read_pressure_sensor(sensor_connection):

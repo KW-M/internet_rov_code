@@ -80,7 +80,7 @@ formatter = OneLineDuplicateExceptionFormatter(logging.BASIC_FORMAT)
 handler.setFormatter(formatter)
 handler.terminator = ""
 root = logging.getLogger()
-root.setLevel(logging.DEBUG)  # os.environ.get("LOGLEVEL", "info")
+root.setLevel(logging.DEBUG)
 root.addHandler(handler)
 
 # logging.basicConfig(level=logging.DEBUG)

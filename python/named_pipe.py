@@ -51,7 +51,11 @@ class Named_Pipe:
             await asyncio.sleep(1)
 
     def close(self):
-        self.pipe_file.close()
+        if self.pipe_file is not None:
+            try:
+                os.close(self.pipe_file)
+            except Exception as e:
+                log.warn(f'Failed to close pipe file: {e}')
 
 
 class Named_Pipe_Relay:
@@ -68,11 +72,13 @@ class Named_Pipe_Relay:
             asyncLoop = asyncio.get_event_loop()
 
         read_transport = None
+        self.closed = False
 
         while True:
             # from: https://gist.github.com/oconnor663/08c081904264043e55bf
             try:
                 pipe_file = await self.pipe.get_open_pipe('r')
+                print("read pipe_file open: " + str(self.pipe.pipe_file_path))
                 with os.fdopen(pipe_file, 'r') as stream:
                     reader = asyncio.StreamReader()
                     read_transport, _ = await asyncLoop.connect_read_pipe(
@@ -85,18 +91,24 @@ class Named_Pipe_Relay:
                                 str(data, 'utf-8').strip('\n'))
 
             except Exception as e:
-                log.error(f'Pipe read failed: {e}')
                 if read_transport != None:
                     read_transport.close()
+                if self.closed == True:
+                    return
+                self.pipe.close()
+                log.error(f'Pipe read failed: {e}')
                 break
 
     async def write_loop(self, asyncLoop=None):
         if asyncLoop is None:
             asyncLoop = asyncio.get_event_loop()
 
+        self.closed = False
+
         while True:
             try:
                 pipe_file = await self.pipe.get_open_pipe('w')
+                print("write pipe_file open: " + str(self.pipe.pipe_file_path))
                 with os.fdopen(pipe_file, 'w') as stream:
 
                     while True:
@@ -107,7 +119,14 @@ class Named_Pipe_Relay:
                             stream.flush()
 
             except Exception as e:
+                if self.closed == True:
+                    return
+                self.pipe.close()
                 log.error(f'Pipe write failed: {e}')
+
+    def close(self):
+        self.closed = True
+        self.pipe.close()
 
 
 class Duplex_Named_Pipe_Relay:
@@ -116,10 +135,16 @@ class Duplex_Named_Pipe_Relay:
                  outgoing_pipe_file_path: str,
                  create_pipes: bool = False,
                  max_queue_size: int = 30):
+        self.max_queue_size = max_queue_size
         self.incoming_pipe = Named_Pipe_Relay(incoming_pipe_file_path,
                                               create_pipes, max_queue_size)
         self.outgoing_pipe = Named_Pipe_Relay(outgoing_pipe_file_path,
                                               create_pipes, max_queue_size)
+
+    def is_open(self):
+        return self.incoming_pipe.pipe_message_queue.qsize(
+        ) < self.max_queue_size and self.outgoing_pipe.pipe_message_queue.qsize(
+        ) < self.max_queue_size
 
     async def start_loops(self, asyncLoop=None):
         if asyncLoop is None:
@@ -133,6 +158,10 @@ class Duplex_Named_Pipe_Relay:
 
     async def get_next_message(self):
         return await self.incoming_pipe.pipe_message_queue.get()
+
+    def cleanup(self):
+        self.incoming_pipe.close()
+        self.outgoing_pipe.close()
 
 
 class Command_Output_To_Named_Pipe:
@@ -159,7 +188,7 @@ class Command_Output_To_Named_Pipe:
                                             stdin=self.input_pipe,
                                             stdout=os.fdopen(pipe_file, 'w'),
                                             stderr=None)
-        return self.running_cmd.wait()
+        return self.running_cmd
 
     def stop_piping_cmd(self):
         self.running_cmd.terminate()
@@ -199,7 +228,7 @@ if __name__ == '__main__':
         while True:
             await asyncio.sleep(1.2)
             await duplex_relay.write_message('{"action":"pong","value":"' +
-                                             time() + '"}')
+                                             str(time()) + '"}')
 
     async def video_command_test():
         await Command_Output_To_Named_Pipe(
@@ -211,8 +240,8 @@ if __name__ == '__main__':
     async def main():
 
         duplex_relay = Duplex_Named_Pipe_Relay(
-            '/Users/ky/Downloads/tmpr/w.pipe',
-            '/Users/ky/Downloads/tmpr/r.pipe')
+            '/tmp/from_datachannel_relay.pipe',
+            '/tmp/to_datachannel_relay.pipe')
 
         pipe_task = asyncio.create_task(duplex_relay.start_loops())
         read_queue_task = asyncio.create_task(read_msgs(duplex_relay))
