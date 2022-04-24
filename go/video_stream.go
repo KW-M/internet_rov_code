@@ -4,17 +4,17 @@ import (
 	// "encoding/json"
 	// "io/ioutil"
 	// "errors"
-	"bufio"
+
 	"io"
+	"os"
 
 	// "flag"
-	"fmt"
 
 	// "strconv"
 	// "os"
 	// "os/signal"
 	// "sync"
-	"os/exec"
+
 	"time"
 
 	webrtc "github.com/pion/webrtc/v3"
@@ -26,6 +26,7 @@ import (
 const (
 	h264FrameDuration = time.Millisecond * 33
 )
+
 // setup logrus logger
 var cameraLog = log.WithFields(log.Fields{})
 
@@ -48,29 +49,37 @@ func pipeVideoToStream(programShouldQuitSignal *UnblockSignal) error {
 	// Startup libcamera-vid command to get the video data from the camera exposed (locally) on a http/tcp port
 	//960x720
 	//"--width", "640", "--height", "480",
-	cmd := exec.Command("libcamera-vid", "--width", "960", "--height", "720", "--codec", "h264", "--profile", "high", "--level", "4.2","--bitrate", "800000",  "--framerate", "16", "--inline", "1", "--flush", "1", "--timeout", "0","--nopreview", "1","--output", "-") //"--listen", "1", "--output", "tcp://0.0.0.0:8585")
-	fmt.Println(cmd.Args)
+	// "libcamera-vid", "--width", "960", "--height", "720", "--codec", "h264", "--profile", "high", "--level", "4.2","--bitrate", "800000",  "--framerate", "16", "--inline", "1", "--flush", "1", "--timeout", "0","--nopreview", "1","--output", "-"
+	// https://trac.ffmpeg.org/wiki/StreamingGuide#Latency
+	// https://ffmpeg.org/ffmpeg-bitstream-filters.html#toc-h264_005fmp4toannexb "-bsf:v", "h264_mp4toannexb",
+	// https://gist.github.com/tayvano/6e2d456a9897f55025e25035478a3a50
+	//"ffmpeg", "-f", "avfoundation", "-pix_fmt", "nv12", "-framerate", "30", "-use_wallclock_as_timestamps", "1", "-i", "default", "-preset", "ultrafast", "-vcodec", "libx264", "-tune", "zerolatency", "-b:v", "900k", "-flags", "low_delay", "-max_delay", "0", "-bf", "0", "-f", "h264", "pipe:1")
+	//
+	//"-preset", "ultrafast", "-tune", "zerolatency", "-b:v", "900k", "-flags", "low_delay", "-max_delay", "0", "-bf", "0",
 
-	sdoutPipe, _ := cmd.StdoutPipe()
-	sderrPipe, err := cmd.StderrPipe()
-	if err != nil {
-		cameraLog.Fatal("could not create video stream cmd output pipes. ", err)
-	}
+	// cmd := exec.Command("cat", "/Users/ky/Downloads/webrtc-relay/vido.pipe")
+	// fmt.Println(cmd.Args)
 
-	// print out the stderr output of the command in a seperate go routine
-	go func() {
-		scanner := bufio.NewScanner(sderrPipe)
-		scanner.Split(bufio.ScanLines)
-		for scanner.Scan() {
-			// cameraLog.Printf("[camera-stream-sderr] > %s\n", scanner.Text())
-		}
-	}()
+	// sdoutPipe, _ := cmd.StdoutPipe()
+	// sderrPipe, err := cmd.StderrPipe()
+	// if err != nil {
+	// 	cameraLog.Fatal("could not create video stream cmd output pipes. ", err)
+	// }
 
-	// Create a new video track from the h264 reader
-	if err := cmd.Start(); err != nil {
-		cameraLog.Printf("[camera-stream-cmd][CMD START ERROR] > %s\n", err)
-		return err
-	}
+	// // print out the stderr output of the command in a seperate go routine
+	// go func() {
+	// 	scanner := bufio.NewScanner(sderrPipe)
+	// 	scanner.Split(bufio.ScanLines)
+	// 	for scanner.Scan() {
+	// 		cameraLog.Printf("[camera-stream-sderr] > %s\n", scanner.Text())
+	// 	}
+	// }()
+
+	// // Create a new video track from the h264 reader
+	// if err := cmd.Start(); err != nil {
+	// 	cameraLog.Printf("[camera-stream-cmd][CMD START ERROR] > %s\n", err)
+	// 	return err
+	// }
 
 	// print out the stdout output of the command until a Long line of text is found, indicating that the video data has started flowing (most likely)
 	// scanner := bufio.NewScanner(sdoutPipe)
@@ -83,8 +92,13 @@ func pipeVideoToStream(programShouldQuitSignal *UnblockSignal) error {
 	// 	fmt.Printf("[libcamera-vid] > %s\n", line)
 	// }
 
+	stdoutPipe, err := os.OpenFile(config.NamedPipeFolder+"vid.pipe", os.O_RDWR, os.ModeNamedPipe|0666)
+	if err != nil {
+		log.Error("Error opening named pipe:", err)
+		return nil
+	}
 	// Now attach the h264 reader to the output of the camera-streaming command
-	h264, h264Err := h264reader.NewReader(sdoutPipe)
+	h264, h264Err := h264reader.NewReader(stdoutPipe)
 	if h264Err != nil {
 		cameraLog.Println("h264reader Initilization Error")
 		panic(h264Err)
@@ -100,14 +114,14 @@ func pipeVideoToStream(programShouldQuitSignal *UnblockSignal) error {
 		// * works around latency issues with Sleep (see https://github.com/golang/go/issues/44343)
 		spsAndPpsCache := []byte{}
 		ticker := time.NewTicker(h264FrameDuration)
-		for ;true; <-ticker.C {
+		for ; true; <-ticker.C {
 			nal, h264Err := h264.NextNAL()
 			if h264Err == io.EOF {
 				cameraLog.Println("All video frames parsed and sent")
 				return
 			}
 			if h264Err != nil {
-				cameraLog.Println("h264reader Decode Error: ",h264Err)
+				cameraLog.Println("h264reader Decode Error: ", h264Err)
 				return
 			}
 			nal.Data = append([]byte{0x00, 0x00, 0x00, 0x01}, nal.Data...)

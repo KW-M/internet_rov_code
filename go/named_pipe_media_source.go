@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"os"
 	"syscall"
+	"time"
 
 	// "os"
 
@@ -11,21 +13,21 @@ import (
 )
 
 type NamedPipeMediaSource struct {
-	pipeFile          *os.File
-	pipeFilePath      string
-	exitRWLoopsSignal *UnblockSignal
-	WebrtcTrack       *webrtc.TrackLocalStaticSample
-	readBufferSize    int
-	log               *log.Entry
+	pipeFile           *os.File
+	pipeFilePath       string
+	exitReadLoopSignal *UnblockSignal
+	WebrtcTrack        *webrtc.TrackLocalStaticSample
+	readBufferSize     int
+	log                *log.Entry
 }
 
 func CreateNamedPipeMediaSource(pipeFilePath string, readBufferSize int, mediaMimeType string, trackName string) (*NamedPipeMediaSource, error) {
 	var pipe = NamedPipeMediaSource{
-		pipeFile:          nil,
-		pipeFilePath:      pipeFilePath,
-		exitRWLoopsSignal: newUnblockSignal(),
-		readBufferSize:    readBufferSize,
-		log:               log.WithField("media_pipe", pipeFilePath),
+		pipeFile:           nil,
+		pipeFilePath:       pipeFilePath,
+		exitReadLoopSignal: newUnblockSignal(),
+		readBufferSize:     readBufferSize,
+		log:                log.WithField("media_pipe", pipeFilePath),
 	}
 
 	track, err := webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: mediaMimeType}, trackName, trackName+"_stream")
@@ -47,9 +49,47 @@ func CreateNamedPipeMediaSource(pipeFilePath string, readBufferSize int, mediaMi
 	return &pipe, nil
 }
 
-// func (pipe *NamedPipeMediaStream) PipeToStream() {
+func (pipe *NamedPipeMediaSource) Close() {
+	pipe.log.Print("Closing pipe file")
+	if pipe.pipeFile != nil {
+		pipe.exitReadLoopSignal.Trigger()
+		pipe.pipeFile.Close()
+	}
+}
 
-// }
+//https://stackoverflow.com/questions/41739837/all-mime-types-supported-by-mediarecorder-in-firefox-and-chrome
+func (pipe *NamedPipeMediaSource) startMediaStream(exitSignal *UnblockSignal) error {
+	defer pipe.Close()
+	for {
+		pipe.pipeFile, err = os.OpenFile(pipe.pipeFilePath, os.O_RDWR, os.ModeNamedPipe|0666)
+		if err != nil {
+			pipe.log.Error("Error opening media source named pipe:", err)
+			<-time.After(time.Second)
+			continue
+		}
+
+		mimeType := pipe.WebrtcTrack.Codec().MimeType
+		if mimeType == "video/h264" {
+			go read_h264(pipe)
+		} else if mimeType == "video/x-ivf" || mimeType == "video/x-indeo" {
+			go read_ivf(pipe)
+		} else if mimeType == "audio/ogg" {
+			go read_ogg(pipe)
+		} else {
+			return errors.New("Unsupported Media Source MimeType: " + mimeType)
+		}
+
+		select {
+		case <-pipe.exitReadLoopSignal.GetSignal():
+			<-time.After(time.Second)
+			continue
+		case <-exitSignal.GetSignal():
+			pipe.log.Print("Exiting pipe loops...")
+			pipe.exitReadLoopSignal.Trigger()
+			return nil
+		}
+	}
+}
 
 // func (pipe *NamedPipeMediaStream) ReadDataLoop() {
 
@@ -69,79 +109,4 @@ func CreateNamedPipeMediaSource(pipeFilePath string, readBufferSize int, mediaMi
 // 		continue
 // 	}
 // }
-// }
-
-// func (pipe *NamedPipeRelay) readMessagesLoop() {
-// 	defer pipe.log.Print("Exiting read loop...")
-// 	scanner := bufio.NewScanner(pipe.pipeFile)
-// 	for scanner.Scan() {
-// 		if pipe.exitRWLoopsSignal.HasTriggered {
-// 			return
-// 		} else if err := scanner.Err(); err != nil {
-// 			pipe.log.Printf("Error reading message from pipe: %v", err)
-// 			pipe.exitRWLoopsSignal.TriggerWithError(err)
-// 			return
-// 		}
-// 		pipe.GetMessagesFromPipe <- scanner.Text()
-// 	}
-// }
-
-// func (pipe *NamedPipeRelay) writeMessagesLoop() {
-// 	// writer := bufio.NewWriter(pipe.pipeFile)
-// 	defer pipe.log.Print("Exiting write loop...")
-// 	for {
-// 		select {
-// 		case <-pipe.exitRWLoopsSignal.GetSignal():
-// 			return
-// 		case message := <-pipe.SendMessagesToPipe:
-// 			log.Print("Writing message to pipe: ", message)
-// 			// _, err := writer.WriteString(message + "\n")
-// 			num, err := pipe.pipeFile.WriteString(message + "\n")
-// 			log.Print("Num: ", num)
-// 			if err != nil {
-// 				pipe.log.Printf("Error writing message to pipe: %v", err)
-// 				pipe.exitRWLoopsSignal.TriggerWithError(err)
-// 				return
-// 			}
-// 		}
-// 	}
-// }
-
-// func (pipe *NamedPipeRelay) Close() {
-// 	pipe.log.Print("Closing pipe file")
-// 	if pipe.pipeFile != nil {
-// 		pipe.pipeFile.Close()
-// 	}
-// }
-
-// func (pipe *NamedPipeRelay) runPipeLoops(exitSignal *UnblockSignal, readable bool, writeable bool) error {
-// 	defer pipe.Close()
-// 	for {
-// 		pipeFile, err := os.OpenFile(pipe.pipeFilePath, os.O_RDWR, os.ModeNamedPipe|0666)
-// 		if err != nil {
-// 			pipe.log.Error("Error opening named pipe:", err)
-// 			<-time.After(time.Second)
-// 			continue
-// 		}
-// 		pipe.pipeFile = pipeFile
-// 		log.Print("Pipe file open: ", pipe.pipeFilePath)
-
-// 		if readable {
-// 			go pipe.readMessagesLoop()
-// 		}
-// 		if writeable {
-// 			go pipe.writeMessagesLoop()
-// 		}
-
-// 		select {
-// 		case <-pipe.exitRWLoopsSignal.GetSignal():
-// 			<-time.After(time.Second)
-// 			continue
-// 		case <-exitSignal.GetSignal():
-// 			pipe.log.Print("Exiting pipe loops...")
-// 			pipe.exitRWLoopsSignal.Trigger()
-// 			return nil
-// 		}
-// 	}
-
 // }

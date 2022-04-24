@@ -176,9 +176,13 @@ class MessageHandler:
         # -- golang relay commands:
         elif action == "begin_livestream":
             # send the *golang* code (note the action is in reply_metadata) the begin_livestream command
-            self.media_controller.get_video_pipe()
-            await self.send_msg({}, {"Action": "begin_livestream"},
-                                [src_peer_id])
+            startVideo, pipePath = await self.media_controller.get_video_pipe()
+            await self.send_msg({}, {
+                "Action": "Media_Call_Peer",
+                "Params": ["FRONTCALL", "video/h264", pipePath]
+            }, [src_peer_id])
+            # await startVideo
+            print("begin_livestream: " + pipePath)
 
     async def handle_authenticated_actions(self, src_peer_id, action,
                                            actionValue, msg_cid):

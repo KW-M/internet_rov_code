@@ -50,7 +50,7 @@ async def main():
     sensors = Sensor_Controller()
     # sensor_log = Sensor_Log(sensors.all_sensors)
     motion_ctrl = Motion_Controller()
-    media_ctrl = Media_Stream_Controller(config)
+    media_ctrl = Media_Stream_Controller(named_pipe_folder)
     message_handler = MessageHandler(duplex_relay, media_ctrl, motion_ctrl,
                                      sensors, config)
 

@@ -20,6 +20,6 @@ type RelayPipeToDatachannelMetadata struct {
 	// An action to be performed by this go code. Options are currently: "Media_Call_Peer"
 	Action string `json:"Action"`
 	// Parameters used by the Action.
-	// - When Action is "Media_Call_Peer": This param is an array in the following format ["peer id to call", "stream name", "media MIME type eg: video/h264", "filename of media source pipe in the configured NamedPipeFolder eg: lowRezFrontCameraH264.pipe"]
+	// - When Action is "Media_Call_Peer": This param is an array in the following format ["stream name", "media MIME type eg: video/h264", "filename of media source pipe in the configured NamedPipeFolder eg: lowRezFrontCameraH264.pipe"]
 	Params []string `json:"Params"`
 }

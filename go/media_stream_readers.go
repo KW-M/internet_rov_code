@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"io"
 	"time"
 
@@ -15,7 +14,7 @@ import (
 ///https://github.com/edaniels/gostream/blob/master/codec/x264/encoder.go
 // https://github.com/pion/mediadevices/blob/08a396571f87ee2888fc855964a5442f2a163879/track.go#L314
 
-func read_h264(pipe *NamedPipeMediaSource) error {
+func read_h264(pipe *NamedPipeMediaSource) {
 
 	// from https://github.com/ashellunts/ffmpeg-to-webrtc/blob/master/src/main.go
 	// Send our video a frame at a time. Pace our sending so we send it at the same speed it should be played back as.
@@ -27,39 +26,47 @@ func read_h264(pipe *NamedPipeMediaSource) error {
 
 	h264, h264Err := h264reader.NewReader(pipe.pipeFile)
 	if h264Err != nil {
-		log.Println("h264reader Initilization Error")
-		return h264Err
+		log.Error("h264reader Initilization Error", h264Err)
+		pipe.exitReadLoopSignal.TriggerWithError(h264Err)
+		return
 	}
 
 	spsAndPpsCache := []byte{}
 	ticker := time.NewTicker(h264FrameDuration)
-	for ; true; <-ticker.C {
-		nal, h264Err := h264.NextNAL()
-		if h264Err == io.EOF {
-			cameraLog.Println("All video frames parsed and sent")
-			return nil
-		} else if h264Err != nil {
-			cameraLog.Println("h264reader Decode Error: ", h264Err)
-			return h264Err
-		}
-		nal.Data = append([]byte{0x00, 0x00, 0x00, 0x01}, nal.Data...)
+	for {
+		select {
+		case <-pipe.exitReadLoopSignal.GetSignal():
+			return
+		case <-ticker.C:
+			nal, h264Err := h264.NextNAL()
+			if h264Err == io.EOF {
+				log.Println("All video frames parsed and sent")
+				// pipe.exitReadLoopSignal.Trigger()
+				// return
+				continue
+			} else if h264Err != nil {
+				log.Error("h264reader Decode Error: ", h264Err)
+				pipe.exitReadLoopSignal.TriggerWithError(h264Err)
+				return
+			}
+			nal.Data = append([]byte{0x00, 0x00, 0x00, 0x01}, nal.Data...)
 
-		if nal.UnitType == h264reader.NalUnitTypeSPS || nal.UnitType == h264reader.NalUnitTypePPS {
-			spsAndPpsCache = append(spsAndPpsCache, nal.Data...)
-			continue
-		} else if nal.UnitType == h264reader.NalUnitTypeCodedSliceIdr {
-			nal.Data = append(spsAndPpsCache, nal.Data...)
-			spsAndPpsCache = []byte{}
-		}
+			if nal.UnitType == h264reader.NalUnitTypeSPS || nal.UnitType == h264reader.NalUnitTypePPS {
+				spsAndPpsCache = append(spsAndPpsCache, nal.Data...)
+				continue
+			} else if nal.UnitType == h264reader.NalUnitTypeCodedSliceIdr {
+				nal.Data = append(spsAndPpsCache, nal.Data...)
+				spsAndPpsCache = []byte{}
+			}
 
-		if h264WriteErr := cameraLivestreamVideoTrack.WriteSample(media.Sample{Data: nal.Data, Duration: time.Second}); h264WriteErr != nil {
-			cameraLog.Println("Error writing h264 video track sample: ", h264WriteErr)
+			if h264WriteErr := cameraLivestreamVideoTrack.WriteSample(media.Sample{Data: nal.Data, Duration: time.Second}); h264WriteErr != nil {
+				log.Println("Error writing h264 video track sample: ", h264WriteErr)
+			}
 		}
 	}
-	return nil
 }
 
-func read_ivf(pipe *NamedPipeMediaSource) error {
+func read_ivf(pipe *NamedPipeMediaSource) {
 
 	// from https://github.com/ashellunts/ffmpeg-to-webrtc/blob/master/src/main.go
 	// Send our video a frame at a time. Pace our sending so we send it at the same speed it should be played back as.
@@ -71,40 +78,24 @@ func read_ivf(pipe *NamedPipeMediaSource) error {
 
 	ivfReader, ivfHeader, ivfErr := ivfreader.NewWith(pipe.pipeFile)
 	if ivfErr != nil {
-		log.Println("ivfReader Initilization Error")
-		return ivfErr
+		log.Error("ivfReader Initilization Error", ivfErr)
+		return
 	}
+	log.Warn("IVF READER NOT IMPLEMENTED!")
 	print(ivfReader, ivfHeader)
-
-	return nil
 }
 
-func read_ogg(pipe *NamedPipeMediaSource) error {
+func read_ogg(pipe *NamedPipeMediaSource) {
 
 	// only works with opus codec in the ogg container
 	// https://github.com/pion/webrtc/issues/2181
 	oggReader, oggHeader, oggErr := oggreader.NewWith(pipe.pipeFile)
 	if oggErr != nil {
-		log.Println("oggReader Initilization Error")
-		return oggErr
+		log.Error("oggReader Initilization Error", oggErr)
+		return
 	}
+	log.Warn("OGG READER NOT IMPLEMENTED!")
 	print(oggReader, oggHeader)
-
-	return nil
-}
-
-//https://stackoverflow.com/questions/41739837/all-mime-types-supported-by-mediarecorder-in-firefox-and-chrome
-func startMediaStream(pipe *NamedPipeMediaSource) error {
-	mimeType := pipe.WebrtcTrack.Codec().MimeType
-	if mimeType == "video/h264" {
-		return read_h264(pipe)
-	} else if mimeType == "video/x-ivf" || mimeType == "video/x-indeo" {
-		return read_ivf(pipe)
-	} else if mimeType == "audio/ogg" {
-		return read_ogg(pipe)
-	} else {
-		return errors.New("Unsupported Media Source MimeType: " + mimeType)
-	}
 }
 
 // // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs#avc_h.264

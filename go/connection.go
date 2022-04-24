@@ -53,6 +53,7 @@ var robotPeerIdEndingNum int = 0
 
 // map off all peer datachannels connected to this robot (includes both the robot peer associated with the local peerjs server and the robot peer associated with the cloud peerjs server)
 var activeDataConnectionsToThisRobot = make(map[string]*peerjs.DataConnection) // map of the open datachannel connection Ids to this peer.
+var currentRobotPeer *peerjs.Peer = &peerjs.Peer{}                             // nil equivalent of the peerjs.Peer struct
 
 func sendMessageThroughNamedPipe(message string) {
 	select {
@@ -75,27 +76,17 @@ func generateToUnixSocketMetadataMessage(srcPeerId string, peerEvent string, err
 	return string(mtaDataJson)
 }
 
-/* handle a message that comes from the client/browser */
+/* forwards the passed message string (should come from the client/browser via the datachannel) to the named pipe */
 func handleIncomingDatachannelMessage(message string, robotPeer *peerjs.Peer, clientPeerId string, clientPeerDataConnection *peerjs.DataConnection, log *logrus.Entry) {
-	if message == "" {
-		log.Info("VIDEO CALLING client peer: %s\n", clientPeerId)
-		_, err = robotPeer.Call(clientPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
-		if err != nil {
-			log.Error("Error video calling client peer: ", clientPeerId)
-			clientPeerDataConnection.Close()
-			return
-		}
-	} else {
-		if config.AddMetadataToPipeMessages {
-			var metadata string = generateToUnixSocketMetadataMessage(clientPeerId, "", "")
-			message = metadata + config.MessageMetadataSeparator + message
-		}
-		// send a message down the unix socket with the message from the client peer
-		sendMessageThroughNamedPipe(message)
+	if config.AddMetadataToPipeMessages {
+		var metadata string = generateToUnixSocketMetadataMessage(clientPeerId, "", "")
+		message = metadata + config.MessageMetadataSeparator + message
 	}
+	// send a message down the unix socket with the message from the client peer
+	sendMessageThroughNamedPipe(message)
 }
 
-/* handle forwarding messages from the named channel to the client/browser */
+/* handle forwarding messages from the named pipe to the client/browser (via the datachannel) */
 func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
 	for {
 		select {
@@ -116,6 +107,32 @@ func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
 						// copy all of the target peer ids into the TargetPeerIds map
 						for i := 0; i < len(metadata.TargetPeerIds); i++ {
 							TargetPeerIds[metadata.TargetPeerIds[i]] = true
+						}
+
+						if metadata.Action == "Media_Call_Peer" {
+							log.Printf("msgFromUnixSocket GOT MESSAGE: %s", msgFromUnixSocket)
+
+							streamName := metadata.Params[0]
+							mimeType := metadata.Params[1]
+							pipeName := metadata.Params[2]
+
+							mediaSrc, err := CreateNamedPipeMediaSource(config.NamedPipeFolder+pipeName, 10000, mimeType, streamName)
+							if err != nil {
+								log.Error("Error creating named pipe media source: ", err)
+								break
+							}
+							if currentRobotPeer == nil {
+								log.Error("Error video calling: currentRobotPeer is nil")
+							}
+							mediaSrc.startMediaStream()
+							for _, peerId := range metadata.TargetPeerIds {
+								_, err = currentRobotPeer.Call(peerId, mediaSrc.WebrtcTrack, peerjs.NewConnectionOptions())
+								if err != nil {
+									log.Error("Error video calling client peer: ", peerId)
+								}
+							}
+
+							break
 						}
 
 						// handle other actions
@@ -263,6 +280,7 @@ func startPeerServerConnectionLoop(programShouldQuitSignal *UnblockSignal) {
  */
 func peerConnectionOpenHandler(robotPeer *peerjs.Peer, peerId string, peerServerOpts peerjs.Options, robotConnLog *log.Entry) {
 	robotPeer.On("connection", func(data interface{}) {
+		currentRobotPeer = robotPeer
 		clientPeerDataConnection := data.(*peerjs.DataConnection) // typecast to DataConnection
 		var clientPeerId string = clientPeerDataConnection.GetPeerID()
 
@@ -286,6 +304,15 @@ func peerConnectionOpenHandler(robotPeer *peerjs.Peer, peerId string, peerServer
 				log.Printf("clientDataConnection 👩🏻‍✈️ GOT MESSAGE: %s", msgString)
 				handleIncomingDatachannelMessage(msgString, robotPeer, clientPeerId, clientPeerDataConnection, log)
 			})
+
+			log.Info("VIDEO CALLING client peer: %s\n", clientPeerId)
+			_, err = robotPeer.Call(clientPeerId, cameraLivestreamVideoTrack, peerjs.NewConnectionOptions())
+			if err != nil {
+				log.Error("Error video calling client peer: ", clientPeerId)
+				clientPeerDataConnection.Close()
+				return
+			}
+
 		})
 
 		clientPeerDataConnection.On("close", func(message interface{}) {
