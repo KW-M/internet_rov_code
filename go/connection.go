@@ -124,7 +124,7 @@ func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
 							if currentRobotPeer == nil {
 								log.Error("Error video calling: currentRobotPeer is nil")
 							}
-							mediaSrc.startMediaStream()
+							mediaSrc.startMediaStream(programShouldQuitSignal)
 							for _, peerId := range metadata.TargetPeerIds {
 								_, err = currentRobotPeer.Call(peerId, mediaSrc.WebrtcTrack, peerjs.NewConnectionOptions())
 								if err != nil {
