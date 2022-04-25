@@ -64,12 +64,12 @@ func main() {
 	os.MkdirAll(config.NamedPipeFolder, os.ModePerm)
 
 	// Create the two named pipes to send and receive data to / from the webrtc-relay user's backend code
-	// msgPipe, err = CreateDuplexNamedPipeRelay(config.NamedPipeFolder+"to_datachannel_relay.pipe", config.NamedPipeFolder+"from_datachannel_relay.pipe", 4096)
-	// if err != nil {
-	// 	log.Fatal("Failed to create message relay named pipe: ", err)
-	// }
-	// defer msgPipe.Close()
-	// go msgPipe.runPipeLoops(programShouldQuitSignal)
+	msgPipe, err = CreateDuplexNamedPipeRelay(config.NamedPipeFolder+"to_datachannel_relay.pipe", config.NamedPipeFolder+"from_datachannel_relay.pipe", 4096)
+	if err != nil {
+		log.Fatal("Failed to create message relay named pipe: ", err)
+	}
+	defer msgPipe.Close()
+	go msgPipe.runPipeLoops(programShouldQuitSignal)
 
 	// initVideoTrack()
 	// go pipeVideoToStream(programShouldQuitSignal)
