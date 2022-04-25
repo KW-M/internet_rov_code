@@ -60,9 +60,10 @@ func main() {
 		}
 	}()
 
+	print("Creating named pipe relay folder...", config.NamedPipeFolder)
+	os.MkdirAll(config.NamedPipeFolder, os.ModePerm)
+
 	// Create the two named pipes to send and receive data to / from the webrtc-relay user's backend code
-	// print("Creating named pipe relay...", config.NamedPipeFolder)
-	// os.MkdirAll(config.NamedPipeFolder, os.ModePerm)
 	// msgPipe, err = CreateDuplexNamedPipeRelay(config.NamedPipeFolder+"to_datachannel_relay.pipe", config.NamedPipeFolder+"from_datachannel_relay.pipe", 4096)
 	// if err != nil {
 	// 	log.Fatal("Failed to create message relay named pipe: ", err)

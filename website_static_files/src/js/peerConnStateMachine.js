@@ -1,5 +1,5 @@
 import { createMachine, assign, spawn } from "xstate";
-import { showToastMessage, showROVConnectingUi, showROVConnectedUi, hideLoadingUi, setupSwitchRovBtnClickHandler, showLivestreamUi, hideLivestreamUi } from "./ui"
+import { showToastMessage, showROVConnectingUi, showROVConnectedUi, hideLoadingUi, setupSwitchRovBtnClickHandler, showLivestreamUi, hideLivestreamUi, showLoadingUi } from "./ui"
 import { generateStateChangeFunction } from "./util";
 
 import { pure, stop, send, sendParent } from "xstate/lib/actions";
@@ -229,25 +229,25 @@ export const peerConnMachine =
         services: {
             "awaitMediaCall": (context) => {
                 return (sendStateChange) => {
-                    // showLoadingUi("Waiting for ROV Media Call...");
-                    // const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
-                    //     showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
-                    //     rovMediaConnection.answer(null, {
-                    //         // sdpTransform: function (sdp) {
-                    //         //     console.log('answer sdp: ', sdp);
-                    //         //     return sdp;
-                    //         // }
-                    //     });
-                    // })
-                    // context.thisPeer.on('call', callHandler);
+                    showLoadingUi("Waiting for ROV Media Call...");
+                    const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
+                        showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
+                        rovMediaConnection.answer(null, {
+                            // sdpTransform: function (sdp) {
+                            //     console.log('answer sdp: ', sdp);
+                            //     return sdp;
+                            // }
+                        });
+                    })
+                    context.thisPeer.on('call', callHandler);
 
-                    // const timeoutId = setTimeout(() => {
-                    //     sendStateChange({ type: "MEDIA_CHANNEL_TIMEOUT" });
-                    // }, 16000);
-                    // return () => {
-                    //     clearTimeout(timeoutId);
-                    //     context.thisPeer.off('call', callHandler);
-                    // }
+                    const timeoutId = setTimeout(() => {
+                        sendStateChange({ type: "MEDIA_CHANNEL_TIMEOUT" });
+                    }, 16000);
+                    return () => {
+                        clearTimeout(timeoutId);
+                        context.thisPeer.off('call', callHandler);
+                    }
                 };
             },
             awaitVideoStream: (context) => {

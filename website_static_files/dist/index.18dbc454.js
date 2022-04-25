@@ -11429,24 +11429,22 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
     services: {
         "awaitMediaCall": (context)=>{
             return (sendStateChange)=>{
-            // showLoadingUi("Waiting for ROV Media Call...");
-            // const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
-            //     showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
-            //     rovMediaConnection.answer(null, {
-            //         // sdpTransform: function (sdp) {
-            //         //     console.log('answer sdp: ', sdp);
-            //         //     return sdp;
-            //         // }
-            //     });
-            // })
-            // context.thisPeer.on('call', callHandler);
-            // const timeoutId = setTimeout(() => {
-            //     sendStateChange({ type: "MEDIA_CHANNEL_TIMEOUT" });
-            // }, 16000);
-            // return () => {
-            //     clearTimeout(timeoutId);
-            //     context.thisPeer.off('call', callHandler);
-            // }
+                _ui.showLoadingUi("Waiting for ROV Media Call...");
+                const callHandler = _util.generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection)=>{
+                    _ui.showToastMessage('Got media call from peer: ' + rovMediaConnection.peer);
+                    rovMediaConnection.answer(null, {
+                    });
+                });
+                context.thisPeer.on('call', callHandler);
+                const timeoutId = setTimeout(()=>{
+                    sendStateChange({
+                        type: "MEDIA_CHANNEL_TIMEOUT"
+                    });
+                }, 16000);
+                return ()=>{
+                    clearTimeout(timeoutId);
+                    context.thisPeer.off('call', callHandler);
+                };
             };
         },
         awaitVideoStream: (context)=>{
