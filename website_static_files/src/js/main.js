@@ -40,7 +40,7 @@ import { ROV_PEERID_BASE } from "./consts.js";
 // }, 100);
 
 const mainMachine =
-    /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QAmAGwBmbAEYAHMoAMAdg0BWbQBYVATkNyANCACeibQq0y9U1XLVqpclQF8P5tFmwMAV0xMLChsADlefDoAYRFMMABjfEhSAAUaGgY6XCyANSzYgHlw8JoYqgoSuhpcKmYAIQAZClwACRpWMT4BIRExSQRlQw1sdzkZRTk9ZTkRxT1zKwRHUbk5jVU9bXk1Q00vHwwcQODQ7DSwMCIc64A3a9j4pJSIchpw1joAWVrcZgA4vQqEVGEU8t1+IJhKIkBJEFN5NgpBpDG49HJtMo9GosUtEHptthXFN3DoZHtjIcQL4TkEQpgwpdHrh7o84sEXqkAUUqD8-oD6AAxBhFb5giFwnrQ-pwwaKRRuMYyZRSQzKDQUuSbRT4hCE7TEqSkxTkymGam0-z00KkVitGIlMoVOgNACqVBB4ToaSYuFyXSlUL6sNAgykyLUKqmalmemMmJserVemwqqkGbUihkunsUktx2tZ0Z6Uy2VyDAK2SFzHqTRqDFFDEhvRhA0QGlNRtVeh06k7ez1Mi02FRRhzKM7GYLflODKgpAA6jQGgwqDE6DW6w2my2ZaH4QhswZsMOMVIszttLrLIhpooxp2HFJtuo1BMZ3Tiwvlw1KLRYiaIpcj3EN2yPGQc2RXsDEggwUxkZMkW0QwVVjFVILkY05E-bBmAAdwwIRGQlJ5OWSV0AnwfARB9Ig4FgUhHVKco+XdT1ql9P5OlAts5TvHRsH0dZjUJEwnz1bZDDTbQXH0YZUOUTxqUwXgIDgMQrQIYh8F42Uw2kB9VRQ2ZDBsJT0T1XRR1mWZTW1KNZGxXC53OSJog5BJkkgPSD0GaMjQMLERMUNRtmTdQ0xxU0KXUbNjG0FybUZC4rhuVkiAeG5PK5CBfPAxV9mwNFcTMzQTCw5NO2RRRjAw1wUNRHDvBpQtXMZfL+IQHNRlcILZiw0LwtvBBrzGLDtRkScUL63CCKI0JSJyiiGiomjMDohjOoMhAAFodiEjNtA0TRjvsfZEJGmYZFHSlZijHYXGao4-FYEQwG2w8VEgoTNXVZQVW2RQkxGtVlFHDQ3E0ewsNxexP0+wZdsi7QjpOnRNXjKM9V241TwmJqs1cCY9i8LwgA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QBWAEwAGbABYA7MrmK5MgIyKdymQBoQAT0QBmZYuxyAnADYzMmXZtydcqQF9PRtFmwMAK6YmFhQ2AAKYGBEdLgxAG4xdAByvPh0AMIimGAAxviQpBE0NAxxZQBqZVkA8ikpNJlUFPV0NLhUzABCADIUuAASNKxifAJCImKSCDIAHGbYc6paUmZac1JSilJaRqYIOmZ2SzaKMhpuNrtyZt6+GDhBIWGR0bHxREmx2SH5hRByDQUqw6ABZDq4ZgAcXoVFqjFqlTG-EEwlESAkiAWymwWjMczscw8jm0dkMJkQWhkNhs2BpZ0UdiJNjMBK8PhAfiewVCmHCUWSn2+WRy-yK0NqVHBkJh9AAYgxamDEcjMeM0VNMTM7FoFGoZBZlPjqWY1vsqQz6bSVMpdTTljJ7lzHgFea9BR9EslfrkCkUlZU6g0mi02h0un0BsNRurUZMMaAdVs8U45s4pMozdo9pTDnZbtZrrapA4Wcpndy3S9+aRMvVGs06PDUjQABrSwMoibo6aIJy4jZbLPp1TGuTKC0IVyD3XXVbKQmKOaKSuu558qCkJhUBjsVXBxthlLdzWJrEIY5SbD6ReWQmaGwXKfp6+KJnDk3LGxaNf+DdhKQrADPWIZNoqyqqqeCZ9pembWOszIaFoahrIoU4oWs1hqJoGbbLIf48jWW4lDUKRSnQ7A0J2LAcO0DBKgw0G9tqiB2Fm2COMoshSE+OzLHYL6GkWGjsRmZiuL+nJVgBtakeUuBVDU8rMF0vT0YxzFakm2IXEocz4lIcjGRYcjMlO1wKGYHhaFodiZvYBlOtJ67urWADqNDdAwVCZHQKlqRptRMXGPbaRetkSfSuqbFxZnpjYGFMvqxIoXMrhOPZcyEdWm6kJ53SULQWS9LUilaeeMy2eSSxmIoNgrhJFiuOhebUvo1jErSCweMuyw5cwADuGBCPyB6+v8dDdIE+D4CIdAREQcCwHWDahlNACqVDwikC1MLgimxjw8YsTpCC6lYdV2ds+gFqsuYHJhiwTsZqzklmHKcpgvAQHAYhVgQxD4BVsGZTeWW2C4mxaA1ZhThYJx6hY1X2SoZl2DlskCu8cTerEaQZBN-oQCDrGXvI2C6naE72bZXVSBh6wyNaTNrHqBnqJjbnY0KeOin8xOk2ddjvtYxmOmZrKjozDXYD+xybCLMMyFmXPEULF4yLxSwrGzmz4Q9VL4nSBLZhcr1MlJDz+ENI1hONYoFFNM1zZgC1LbA8ChWesEaMzajLhsth3txGELIsigWFr5K0qsNg5awIhgBrVWGnS2zLjs+LKPYmaMzVWweCrd68Y4hEp-2mjg1IXVQ7ssNTmDKG9cXN0Nau3ieEAA */
     createMachine({
         context: {
             peerServerConfig: {},
@@ -51,12 +51,12 @@ const mainMachine =
             peerConnActor: null,
             pingSenderActor: null,
         },
-        id: "main",
-        initial: "Start",
         invoke: {
             src: "setupUiButtonHandlers",
             id: "setupUiButtonHandlers",
         },
+        id: "main",
+        initial: "Start",
         states: {
             Start: {
                 invoke: {
@@ -73,9 +73,9 @@ const mainMachine =
             Running: {
                 entry: "startPeerServerConnMachine",
                 exit: "stopPeerServerConnMachine",
-                initial: "Not_Connected",
+                initial: "Peer_Server_Not_Connected",
                 states: {
-                    Not_Connected: {
+                    Peer_Server_Not_Connected: {
                         on: {
                             PEER_SERVER_CONNECTION_ESTABLISHED: {
                                 target: "Peer_Server_Connected",
@@ -83,7 +83,7 @@ const mainMachine =
                         },
                     },
                     Peer_Server_Connected: {
-                        entry: ["startPeerConnMachine"],//, "startPingMessageGenerator"],
+                        entry: "startPeerConnMachine",
                         exit: ["stopPeerConnMachine", "stopPingMessageGenerator"],
                         on: {
                             SEND_MESSAGE_TO_ROV: {
@@ -92,32 +92,31 @@ const mainMachine =
                             GOT_MESSAGE_FROM_ROV: {
                                 actions: "gotMessageFromRov",
                             },
+                            ROV_CONNECTION_ESTABLISHED: {
+                                actions: "rovPeerConnectionEstablished",
+                            },
                         },
                     },
                 },
                 on: {
-                    ROV_CONNECTION_ESTABLISHED: {
-                        actions: "rovPeerConnectionEstablished",
-                        internal: true // DON'T cause the transition to trigger the exit and entry actions
-                    },
                     CONNECT_TO_NEXT_ROV: {
                         actions: "switchToNextRovPeerId",
-                        target: "Running", // retry
-                        internal: false, // cause the transition to trigger the exit and entry actions
+                        target: "Running",
+                        internal: false,
                     },
                     RETRY_ROV_CONNECTION: {
-                        target: "Running", // retry
-                        internal: false, // cause the transition to trigger the exit and entry actions
+                        target: "Running",
+                        internal: false,
                     },
                     DISCONNECT_FROM_ROV: {
                         target: "Awaiting_ROV_Connect_Button_Press",
                     },
                     PEER_NOT_YET_READY_ERROR: {
-                        actions: "handlePeerNotYetReadyError", // will either go to the Running with the previous rov ID or go to Awaiting_ROV_Connect_Button_Press if the very first rov or the last connected rov is offline
+                        actions: "handlePeerNotYetReadyError",
                     },
                     PEER_SERVER_FATAL_ERROR: {
-                        target: "Running", // retry
-                        internal: false, // cause the transition to trigger the exit and entry actions
+                        target: "Running",
+                        internal: false,
                     },
                     WEBRTC_FATAL_ERROR: {
                         actions: "reloadWebsite",
@@ -257,8 +256,8 @@ window.mainRovMachineService = interpret(mainMachine, { devTools: true })
 window.mainRovMachineService.start();
 
 window.onbeforeunload = () => {
-    // window.mainRovMachineService.send("WEBSITE_CLOSE");
     window.thisPeerjsPeer.destroy();
+    window.mainRovMachineService.send("WEBSITE_CLOSE");
 }
 
 /* init rov message handler */
