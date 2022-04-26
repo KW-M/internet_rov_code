@@ -1,11 +1,9 @@
 package main
 
 import (
-	"io"
 	"time"
 
 	"github.com/pion/webrtc/v3/pkg/media"
-	"github.com/pion/webrtc/v3/pkg/media/h264reader"
 	"github.com/pion/webrtc/v3/pkg/media/ivfreader"
 	"github.com/pion/webrtc/v3/pkg/media/oggreader"
 	log "github.com/sirupsen/logrus"
@@ -24,42 +22,77 @@ func read_h264(pipe *NamedPipeMediaSource) {
 	// * avoids accumulating skew, just calling time.Sleep didn't compensate for the time spent parsing the data
 	// * works around latency issues with Sleep (see https://github.com/golang/go/issues/44343)
 
-	h264, h264Err := h264reader.NewReader(pipe.pipeFile)
-	if h264Err != nil {
-		log.Error("h264reader Initilization Error", h264Err)
-		pipe.exitReadLoopSignal.TriggerWithError(h264Err)
-		return
-	}
+	// h264, h264Err := h264reader.NewReader(pipe.pipeFile)
+	// if h264Err != nil {
+	// 	log.Error("h264reader Initilization Error", h264Err)
+	// 	pipe.exitReadLoopSignal.TriggerWithError(h264Err)
+	// 	return
+	// }
 
-	spsAndPpsCache := []byte{}
+	// spsAndPpsCache := []byte{}
+	// ticker := time.NewTicker(h264FrameDuration)
+	// for {
+	// 	select {
+	// 	case <-pipe.exitReadLoopSignal.GetSignal():
+	// 		return
+	// 	case <-ticker.C:
+	// 		nal, h264Err := h264.NextNAL()
+	// 		if h264Err == io.EOF {
+	// 			log.Println("All video frames parsed and sent")
+	// 			// pipe.exitReadLoopSignal.Trigger()
+	// 			// return
+	// 			continue
+	// 		} else if h264Err != nil {
+	// 			log.Error("h264reader Decode Error: ", h264Err)
+	// 			pipe.exitReadLoopSignal.TriggerWithError(h264Err)
+	// 			return
+	// 		}
+	// 		nal.Data = append([]byte{0x00, 0x00, 0x00, 0x01}, nal.Data...)
+
+	// 		if nal.UnitType == h264reader.NalUnitTypeSPS || nal.UnitType == h264reader.NalUnitTypePPS {
+	// 			spsAndPpsCache = append(spsAndPpsCache, nal.Data...)
+	// 			continue
+	// 		} else if nal.UnitType == h264reader.NalUnitTypeCodedSliceIdr {
+	// 			nal.Data = append(spsAndPpsCache, nal.Data...)
+	// 			spsAndPpsCache = []byte{}
+	// 		}
+
+	// 		if h264WriteErr := cameraLivestreamVideoTrack.WriteSample(media.Sample{Data: nal.Data, Duration: time.Second}); h264WriteErr != nil {
+	// 			log.Println("Error writing h264 video track sample: ", h264WriteErr)
+	// 		}
+	// 	}
+	// }
+
+	// naive implementation
+
+	tmpReadBuf := make([]byte, 4096)
 	ticker := time.NewTicker(h264FrameDuration)
 	for {
 		select {
 		case <-pipe.exitReadLoopSignal.GetSignal():
 			return
 		case <-ticker.C:
-			nal, h264Err := h264.NextNAL()
-			if h264Err == io.EOF {
-				log.Println("All video frames parsed and sent")
-				// pipe.exitReadLoopSignal.Trigger()
-				// return
-				continue
-			} else if h264Err != nil {
-				log.Error("h264reader Decode Error: ", h264Err)
-				pipe.exitReadLoopSignal.TriggerWithError(h264Err)
+			numBytes, err := pipe.pipeFile.Read(tmpReadBuf) // read as much data as possible
+			if err != nil {
+				log.Error("video reader error: ", err)
+				pipe.exitReadLoopSignal.TriggerWithError(err)
 				return
 			}
-			nal.Data = append([]byte{0x00, 0x00, 0x00, 0x01}, nal.Data...)
-
-			if nal.UnitType == h264reader.NalUnitTypeSPS || nal.UnitType == h264reader.NalUnitTypePPS {
-				spsAndPpsCache = append(spsAndPpsCache, nal.Data...)
-				continue
-			} else if nal.UnitType == h264reader.NalUnitTypeCodedSliceIdr {
-				nal.Data = append(spsAndPpsCache, nal.Data...)
-				spsAndPpsCache = []byte{}
+			if numBytes == 0 {
+				log.Println("All video frames parsed and sent")
 			}
 
-			if h264WriteErr := cameraLivestreamVideoTrack.WriteSample(media.Sample{Data: nal.Data, Duration: time.Second}); h264WriteErr != nil {
+			// nal.Data = append([]byte{0x00, 0x00, 0x00, 0x01}, nal.Data...)
+
+			// if nal.UnitType == h264reader.NalUnitTypeSPS || nal.UnitType == h264reader.NalUnitTypePPS {
+			// 	spsAndPpsCache = append(spsAndPpsCache, nal.Data...)
+			// 	continue
+			// } else if nal.UnitType == h264reader.NalUnitTypeCodedSliceIdr {
+			// 	nal.Data = append(spsAndPpsCache, nal.Data...)
+			// 	spsAndPpsCache = []byte{}
+			// }
+
+			if h264WriteErr := cameraLivestreamVideoTrack.WriteSample(media.Sample{Data: tmpReadBuf, Duration: time.Second}); h264WriteErr != nil {
 				log.Println("Error writing h264 video track sample: ", h264WriteErr)
 			}
 		}
