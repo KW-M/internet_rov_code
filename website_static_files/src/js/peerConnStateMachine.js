@@ -26,6 +26,7 @@ export const peerConnMachine =
             Not_Connected_To_Rov: {
                 entry: [
                     "showConnectingUi",
+                    "stopPeerConnectionEventHandler",
                     "connectToRovPeerAndStartPeerConnectionEventHandler",
                 ],
                 on: {

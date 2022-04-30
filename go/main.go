@@ -25,7 +25,7 @@ func sendMessageThroughNamedPipez(message string) {
 }
 
 func parseProgramCmdlineFlags() {
-	flag.StringVar(&configFilePath, "config-file", "./webrtc-relay-config.json", "Path to the config file. Default is ./webrtc-relay-config.json")
+	flag.StringVar(&configFilePath, "config-file", "webrtc-relay-config.json", "Path to the config file. Default is webrtc-relay-config.json")
 	flag.Parse()
 }
 

@@ -545,7 +545,7 @@ if (_utilJs.getURLQueryStringVariable("debug-mode")) _inspect.inspect({
 // setInterval(() => {
 //     a(Date.now() + " djflksdjf dslkfjsdsdjflksdjflkfjsd" + " \n");
 // }, 100);
-const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QAmAGwBmbAEYAHMoAMAdg0BWbQBYVATkNyANCACeibQq0y9U1XLVqpclQF8P5tFmwMAV0xMLChsADlefDoAYRFMMABjfEhSAAUaGgY6XCyANSzYgHlw8JoYqgoSuhpcKmYAIQAZClwACRpWMT4BIRExSQRlQw1sdzkZRTk9ZTkRxT1zKwRHUbk5jVU9bXk1Q00vHwwcQODQ7DSwMCIc64A3a9j4pJSIchpw1joAWVrcZgA4vQqEVGEU8t1+IJhKIkBJEFN5NgpBpDG49HJtMo9GosUtEHptthXFN3DoZHtjIcQL4TkEQpgwpdHrh7o84sEXqkAUUqD8-oD6AAxBhFb5giFwnrQ-pwwaKRRuMYyZRSQzKDQUuSbRT4hCE7TEqSkxTkymGam0-z00KkVitGIlMoVOgNACqVBB4ToaSYuFyXSlUL6sNAgykyLUKqmalmemMmJserVemwqqkGbUihkunsUktx2tZ0Z6Uy2VyDAK2SFzHqTRqDFFDEhvRhA0QGlNRtVeh06k7ez1Mi02FRRhzKM7GYLflODKgpAA6jQGgwqDE6DW6w2my2ZaH4QhswZsMOMVIszttLrLIhpooxp2HFJtuo1BMZ3Tiwvlw1KLRYiaIpcj3EN2yPGQc2RXsDEggwUxkZMkW0QwVVjFVILkY05E-bBmAAdwwIRGQlJ5OWSV0AnwfARB9Ig4FgUhHVKco+XdT1ql9P5OlAts5TvHRsH0dZjUJEwnz1bZDDTbQXH0YZUOUTxqUwXgIDgMQrQIYh8F42Uw2kB9VRQ2ZDBsJT0T1XRR1mWZTW1KNZGxXC53OSJog5BJkkgPSD0GaMjQMLERMUNRtmTdQ0xxU0KXUbNjG0FybUZC4rhuVkiAeG5PK5CBfPAxV9mwNFcTMzQTCw5NO2RRRjAw1wUNRHDvBpQtXMZfL+IQHNRlcILZiw0LwtvBBrzGLDtRkScUL63CCKI0JSJyiiGiomjMDohjOoMhAAFodiEjNtA0TRjvsfZEJGmYZFHSlZijHYXGao4-FYEQwG2w8VEgoTNXVZQVW2RQkxGtVlFHDQ3E0ewsNxexP0+wZdsi7QjpOnRNXjKM9V241TwmJqs1cCY9i8LwgA */ _xstate.createMachine({
+const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QBWAEwAGbABYA7MrmK5MgIyKdymQBoQAT0QBmZYuxyAnADYzMmXZtydcqQF9PRtFmwMAK6YmFhQ2AAKYGBEdLgxAG4xdAByvPh0AMIimGAAxviQpBE0NAxxZQBqZVkA8ikpNJlUFPV0NLhUzABCADIUuAASNKxifAJCImKSCDIAHGbYc6paUmZac1JSilJaRqYIOmZ2SzaKMhpuNrtyZt6+GDhBIWGR0bHxREmx2SH5hRByDQUqw6ABZDq4ZgAcXoVFqjFqlTG-EEwlESAkiAWymwWjMczscw8jm0dkMJkQWhkNhs2BpZ0UdiJNjMBK8PhAfiewVCmHCUWSn2+WRy-yK0NqVHBkJh9AAYgxamDEcjMeM0VNMTM7FoFGoZBZlPjqWY1vsqQz6bSVMpdTTljJ7lzHgFea9BR9EslfrkCkUlZU6g0mi02h0un0BsNRurUZMMaAdVs8U45s4pMozdo9pTDnZbtZrrapA4Wcpndy3S9+aRMvVGs06PDUjQABrSwMoibo6aIJy4jZbLPp1TGuTKC0IVyD3XXVbKQmKOaKSuu558qCkJhUBjsVXBxthlLdzWJrEIY5SbD6ReWQmaGwXKfp6+KJnDk3LGxaNf+DdhKQrADPWIZNoqyqqqeCZ9pembWOszIaFoahrIoU4oWs1hqJoGbbLIf48jWW4lDUKRSnQ7A0J2LAcO0DBKgw0G9tqiB2Fm2COMoshSE+OzLHYL6GkWGjsRmZiuL+nJVgBtakeUuBVDU8rMF0vT0YxzFakm2IXEocz4lIcjGRYcjMlO1wKGYHhaFodiZvYBlOtJ67urWADqNDdAwVCZHQKlqRptRMXGPbaRetkSfSuqbFxZnpjYGFMvqxIoXMrhOPZcyEdWm6kJ53SULQWS9LUilaeeMy2eSSxmIoNgrhJFiuOhebUvo1jErSCweMuyw5cwADuGBCPyB6+v8dDdIE+D4CIdAREQcCwHWDahlNACqVDwikC1MLgimxjw8YsTpCC6lYdV2ds+gFqsuYHJhiwTsZqzklmHKcpgvAQHAYhVgQxD4BVsGZTeWW2C4mxaA1ZhThYJx6hY1X2SoZl2DlskCu8cTerEaQZBN-oQCDrGXvI2C6naE72bZXVSBh6wyNaTNrHqBnqJjbnY0KeOin8xOk2ddjvtYxmOmZrKjozDXYD+xybCLMMyFmXPEULF4yLxSwrGzmz4Q9VL4nSBLZhcr1MlJDz+ENI1hONYoFFNM1zZgC1LbA8ChWesEaMzajLhsth3txGELIsigWFr5K0qsNg5awIhgBrVWGnS2zLjs+LKPYmaMzVWweCrd68Y4hEp-2mjg1IXVQ7ssNTmDKG9cXN0Nau3ieEAA */ _xstate.createMachine({
     context: {
         peerServerConfig: {},
         rovIpAddr: "",
@@ -555,12 +555,12 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
         peerConnActor: null,
         pingSenderActor: null
     },
-    id: "main",
-    initial: "Start",
     invoke: {
         src: "setupUiButtonHandlers",
         id: "setupUiButtonHandlers"
     },
+    id: "main",
+    initial: "Start",
     states: {
         Start: {
             invoke: {
@@ -580,9 +580,9 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
         Running: {
             entry: "startPeerServerConnMachine",
             exit: "stopPeerServerConnMachine",
-            initial: "Not_Connected",
+            initial: "Peer_Server_Not_Connected",
             states: {
-                Not_Connected: {
+                Peer_Server_Not_Connected: {
                     on: {
                         PEER_SERVER_CONNECTION_ESTABLISHED: {
                             target: "Peer_Server_Connected"
@@ -590,9 +590,7 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
                     }
                 },
                 Peer_Server_Connected: {
-                    entry: [
-                        "startPeerConnMachine"
-                    ],
+                    entry: "startPeerConnMachine",
                     exit: [
                         "stopPeerConnMachine",
                         "stopPingMessageGenerator"
@@ -603,15 +601,14 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
                         },
                         GOT_MESSAGE_FROM_ROV: {
                             actions: "gotMessageFromRov"
+                        },
+                        ROV_CONNECTION_ESTABLISHED: {
+                            actions: "rovPeerConnectionEstablished"
                         }
                     }
                 }
             },
             on: {
-                ROV_CONNECTION_ESTABLISHED: {
-                    actions: "rovPeerConnectionEstablished",
-                    internal: true // DON'T cause the transition to trigger the exit and entry actions
-                },
                 CONNECT_TO_NEXT_ROV: {
                     actions: "switchToNextRovPeerId",
                     target: "Running",
@@ -773,8 +770,8 @@ window.mainRovMachineService = _xstate.interpret(mainMachine, {
 // window.mainRovMachineService.onChange(console.log)
 window.mainRovMachineService.start();
 window.onbeforeunload = ()=>{
-    // window.mainRovMachineService.send("WEBSITE_CLOSE");
     window.thisPeerjsPeer.destroy();
+    window.mainRovMachineService.send("WEBSITE_CLOSE");
 };
 /* init rov message handler */ new _messageHandler.MessageHandler((messageStrForRov)=>{
     window.mainRovMachineService.send({
@@ -2725,7 +2722,6 @@ var _environmentJs = require("./environment.js");
 var _utilsJs = require("./utils.js");
 var _schedulerJs = require("./scheduler.js");
 var _actorJs = require("./Actor.js");
-var _stateUtilsJs = require("./stateUtils.js");
 var _registryJs = require("./registry.js");
 var _devToolsJs = require("./devTools.js");
 var _serviceScopeJs = require("./serviceScope.js");
@@ -2750,7 +2746,6 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
         var _this = this;
         if (options === void 0) options = Interpreter1.defaultOptions;
         this.machine = machine;
-        this.scheduler = new _schedulerJs.Scheduler();
         this.delayedEventsMap = {};
         this.listeners = new Set();
         this.contextListeners = new Set();
@@ -2806,12 +2801,15 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
                 if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "Service '".concat(_this.id, "' has no parent: unable to send event ").concat(event.type));
                 return;
             }
-            if ('machine' in target) // Send SCXML events to machines
-            target.send(_tslibJs.__assign(_tslibJs.__assign({}, event), {
-                name: event.name === _actionTypesJs.error ? "".concat(_actionsJs.error(_this.id)) : event.name,
-                origin: _this.sessionId
-            }));
-            else // Send normal events to other targets
+            if ('machine' in target) // perhaps those events should be rejected in the parent
+            // but atm it doesn't have easy access to all of the information that is required to do it reliably
+            {
+                if (_this.status !== InterpreterStatus.Stopped || _this.parent !== target || _this.state.done) // Send SCXML events to machines
+                target.send(_tslibJs.__assign(_tslibJs.__assign({}, event), {
+                    name: event.name === _actionTypesJs.error ? "".concat(_actionsJs.error(_this.id)) : event.name,
+                    origin: _this.sessionId
+                }));
+            } else // Send normal events to other targets
             target.send(event.data);
         };
         var resolvedOptions = _tslibJs.__assign(_tslibJs.__assign({}, Interpreter1.defaultOptions), options);
@@ -2931,8 +2929,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
                 if (e_4) throw e_4.error;
             }
         }
-        var isDone = _stateUtilsJs.isInFinalState(state.configuration || [], this.machine);
-        if (this.state.configuration && isDone) {
+        if (this.state.done) {
             // get final child state node
             var finalChildStateNode = state.configuration.find(function(sn) {
                 return sn.type === 'final' && sn.parent === _this.machine;
@@ -2954,7 +2951,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
                     if (e_5) throw e_5.error;
                 }
             }
-            this.stop();
+            this._stop();
         }
     };
     /*
@@ -2982,8 +2979,11 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
             resolvedCompleteListener = nextListenerOrObserver.complete.bind(nextListenerOrObserver);
         }
         this.listeners.add(listener); // Send current state to listener
-        if (this.status === InterpreterStatus.Running) listener(this.state);
-        if (resolvedCompleteListener) this.onDone(resolvedCompleteListener);
+        if (this.status !== InterpreterStatus.NotStarted) listener(this.state);
+        if (resolvedCompleteListener) {
+            if (this.status === InterpreterStatus.Stopped) resolvedCompleteListener();
+            else this.onDone(resolvedCompleteListener);
+        }
         return {
             unsubscribe: function() {
                 listener && _this.listeners.delete(listener);
@@ -3062,13 +3062,8 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
         });
         return this;
     };
-    /**
-   * Stops the interpreter and unsubscribe all listeners.
-   *
-   * This will also notify the `onStop` listeners.
-   */ Interpreter1.prototype.stop = function() {
-        var e_6, _a1, e_7, _b1, e_8, _c1, e_9, _d, e_10, _e;
-        var _this = this;
+    Interpreter1.prototype._stop = function() {
+        var e_6, _a, e_7, _b, e_8, _c, e_9, _d, e_10, _e;
         try {
             for(var _f = _tslibJs.__values(this.listeners), _g = _f.next(); !_g.done; _g = _f.next()){
                 var listener = _g.value;
@@ -3080,7 +3075,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
             };
         } finally{
             try {
-                if (_g && !_g.done && (_a1 = _f.return)) _a1.call(_f);
+                if (_g && !_g.done && (_a = _f.return)) _a.call(_f);
             } finally{
                 if (e_6) throw e_6.error;
             }
@@ -3097,7 +3092,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
             };
         } finally{
             try {
-                if (_j && !_j.done && (_b1 = _h.return)) _b1.call(_h);
+                if (_j && !_j.done && (_b = _h.return)) _b.call(_h);
             } finally{
                 if (e_7) throw e_7.error;
             }
@@ -3113,7 +3108,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
             };
         } finally{
             try {
-                if (_l && !_l.done && (_c1 = _k.return)) _c1.call(_k);
+                if (_l && !_l.done && (_c = _k.return)) _c.call(_k);
             } finally{
                 if (e_8) throw e_8.error;
             }
@@ -3136,32 +3131,12 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
         }
         if (!this.initialized) // Interpreter already stopped; do nothing
         return this;
-        _tslibJs.__spreadArray([], _tslibJs.__read(this.state.configuration), false).sort(function(a, b) {
-            return b.order - a.order;
-        }).forEach(function(stateNode) {
-            var e_11, _a;
-            try {
-                for(var _b = _tslibJs.__values(stateNode.definition.exit), _c = _b.next(); !_c.done; _c = _b.next()){
-                    var action = _c.value;
-                    _this.exec(action, _this.state);
-                }
-            } catch (e_11_1) {
-                e_11 = {
-                    error: e_11_1
-                };
-            } finally{
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                } finally{
-                    if (e_11) throw e_11.error;
-                }
-            }
-        }); // Stop all children
-        this.children.forEach(function(child) {
-            if (_utilsJs.isFunction(child.stop)) child.stop();
-        });
+        this.initialized = false;
+        this.status = InterpreterStatus.Stopped;
+        this._initialState = undefined;
         try {
-            // Cancel all delayed events
+            // we are going to stop within the current sync frame
+            // so we can safely just cancel this here as nothing async should be fired anyway
             for(var _p = _tslibJs.__values(Object.keys(this.delayedEventsMap)), _q = _p.next(); !_q.done; _q = _p.next()){
                 var key = _q.value;
                 this.clock.clearTimeout(this.delayedEventsMap[key]);
@@ -3176,11 +3151,63 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
             } finally{
                 if (e_10) throw e_10.error;
             }
-        }
+        } // clear everything that might be enqueued
         this.scheduler.clear();
-        this.initialized = false;
-        this.status = InterpreterStatus.Stopped;
-        _registryJs.registry.free(this.sessionId);
+        this.scheduler = new _schedulerJs.Scheduler({
+            deferEvents: this.options.deferEvents
+        });
+    };
+    /**
+   * Stops the interpreter and unsubscribe all listeners.
+   *
+   * This will also notify the `onStop` listeners.
+   */ Interpreter1.prototype.stop = function() {
+        // TODO: add warning for stopping non-root interpreters
+        var _this = this; // grab the current scheduler as it will be replaced in _stop
+        var scheduler = this.scheduler;
+        this._stop(); // let what is currently processed to be finished
+        scheduler.schedule(function() {
+            // it feels weird to handle this here but we need to handle this even slightly "out of band"
+            var _event = _utilsJs.toSCXMLEvent({
+                type: 'xstate.stop'
+            });
+            var nextState = _serviceScopeJs.provide(_this, function() {
+                var exitActions = _utilsJs.flatten(_tslibJs.__spreadArray([], _tslibJs.__read(_this.state.configuration), false).sort(function(a, b) {
+                    return b.order - a.order;
+                }).map(function(stateNode) {
+                    return _actionsJs.toActionObjects(stateNode.onExit, _this.machine.options.actions);
+                }));
+                var _a = _tslibJs.__read(_actionsJs.resolveActions(_this.machine, _this.state, _this.state.context, _event, exitActions, _this.machine.config.preserveActionOrder), 2), resolvedActions = _a[0], updatedContext = _a[1];
+                var newState = new _stateJs.State({
+                    value: _this.state.value,
+                    context: updatedContext,
+                    _event: _event,
+                    _sessionid: _this.sessionId,
+                    historyValue: undefined,
+                    history: _this.state,
+                    actions: resolvedActions.filter(function(action) {
+                        return action.type !== _actionTypesJs.raise && (action.type !== _actionTypesJs.send || !!action.to && action.to !== _typesJs.SpecialTargets.Internal);
+                    }),
+                    activities: {},
+                    events: [],
+                    configuration: [],
+                    transitions: [],
+                    children: {},
+                    done: _this.state.done,
+                    tags: _this.state.tags,
+                    machine: _this.machine
+                });
+                newState.changed = true;
+                return newState;
+            });
+            _this.update(nextState, _event); // TODO: think about converting those to actions
+            // Stop all children
+            _this.children.forEach(function(child) {
+                if (_utilsJs.isFunction(child.stop)) child.stop();
+            });
+            _this.children.clear();
+            _registryJs.registry.free(_this.sessionId);
+        });
         return this;
     };
     Interpreter1.prototype.batch = function(events) {
@@ -3190,7 +3217,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
             if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "".concat(events.length, " event(s) were sent to uninitialized service \"").concat(this.machine.id, "\" and are deferred. Make sure .start() is called for this service.\nEvent: ").concat(JSON.stringify(event)));
         } else if (this.status !== InterpreterStatus.Running) throw new Error("".concat(events.length, " event(s) were sent to uninitialized service \"").concat(this.machine.id, "\". Make sure .start() is called for this service, or set { deferEvents: true } in the service options."));
         this.scheduler.schedule(function() {
-            var e_12, _a;
+            var e_11, _a;
             var nextState = _this.state;
             var batchChanged = false;
             var batchedActions = [];
@@ -3210,15 +3237,15 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
                     var event_11 = events_1_1.value;
                     _loop_1(event_11);
                 }
-            } catch (e_12_1) {
-                e_12 = {
-                    error: e_12_1
+            } catch (e_11_1) {
+                e_11 = {
+                    error: e_11_1
                 };
             } finally{
                 try {
                     if (events_1_1 && !events_1_1.done && (_a = events_1.return)) _a.call(events_1);
                 } finally{
-                    if (e_12) throw e_12.error;
+                    if (e_11) throw e_11.error;
                 }
             }
             nextState.changed = batchChanged;
@@ -3251,7 +3278,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
         return nextState;
     };
     Interpreter1.prototype.forward = function(event) {
-        var e_13, _a;
+        var e_12, _a;
         try {
             for(var _b = _tslibJs.__values(this.forwardTo), _c = _b.next(); !_c.done; _c = _b.next()){
                 var id = _c.value;
@@ -3259,15 +3286,15 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
                 if (!child) throw new Error("Unable to forward event '".concat(event, "' from interpreter '").concat(this.id, "' to nonexistant child '").concat(id, "'."));
                 child.send(event);
             }
-        } catch (e_13_1) {
-            e_13 = {
-                error: e_13_1
+        } catch (e_12_1) {
+            e_12 = {
+                error: e_12_1
             };
         } finally{
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             } finally{
-                if (e_13) throw e_13.error;
+                if (e_12) throw e_12.error;
             }
         }
     };
@@ -3378,6 +3405,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
         if (_utilsJs.isFunction(child.stop)) child.stop();
     };
     Interpreter1.prototype.spawn = function(entity, name, options) {
+        if (this.status !== InterpreterStatus.Running) return _actorJs.createDeferredActor(entity, name);
         if (_utilsJs.isPromiseLike(entity)) return this.spawnPromise(Promise.resolve(entity), name);
         else if (_utilsJs.isFunction(entity)) return this.spawnCallback(entity, name);
         else if (_actorJs.isSpawnedActor(entity)) return this.spawnActor(entity, name);
@@ -3731,7 +3759,7 @@ function spawn(entity, nameOrOptions) {
     return interpreter;
 }
 
-},{"./_virtual/_tslib.js":"4So72","./types.js":"5mTTI","./State.js":"h85Z6","./actionTypes.js":"2WTWb","./actions.js":"fKWcO","./environment.js":"fNNF6","./utils.js":"5Ce8y","./scheduler.js":"gUstx","./Actor.js":"itCIE","./stateUtils.js":"1Q0v5","./registry.js":"dKYy9","./devTools.js":"iAAuP","./serviceScope.js":"jT5rp","./behaviors.js":"7RjKM","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"h85Z6":[function(require,module,exports) {
+},{"./_virtual/_tslib.js":"4So72","./types.js":"5mTTI","./State.js":"h85Z6","./actionTypes.js":"2WTWb","./actions.js":"fKWcO","./environment.js":"fNNF6","./utils.js":"5Ce8y","./scheduler.js":"gUstx","./Actor.js":"itCIE","./registry.js":"dKYy9","./devTools.js":"iAAuP","./serviceScope.js":"jT5rp","./behaviors.js":"7RjKM","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"h85Z6":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "State", ()=>State
@@ -3987,6 +4015,8 @@ var isLeafNode = function(stateNode) {
 function getChildren(stateNode) {
     return Object.keys(stateNode.states).map(function(key) {
         return stateNode.states[key];
+    }).filter(function(sn) {
+        return sn.type !== 'history';
     });
 }
 function getAllStateNodes(stateNode) {
@@ -4038,7 +4068,6 @@ function getConfiguration(prevStateNodes, stateNodes) {
                 if (s.type === 'parallel') try {
                     for(var _e = (e_3 = void 0, _tslibJs.__values(getChildren(s))), _f = _e.next(); !_f.done; _f = _e.next()){
                         var child = _f.value;
-                        if (child.type === 'history') continue;
                         if (!configuration.has(child)) {
                             configuration.add(child);
                             if (prevAdjList.get(child)) prevAdjList.get(child).forEach(function(sn) {
@@ -4963,12 +4992,11 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
         }
         return true;
     };
-    StateNode1.prototype.getActions = function(transition, currentContext, _event, prevState) {
+    StateNode1.prototype.getActions = function(resolvedConfig, isDone, transition, currentContext, _event, prevState) {
         var e_4, _a, e_5, _b;
         var prevConfig = _stateUtilsJs.getConfiguration([], prevState ? this.getStateNodes(prevState.value) : [
             this
         ]);
-        var resolvedConfig = transition.configuration.length ? _stateUtilsJs.getConfiguration(prevConfig, transition.configuration) : prevConfig;
         try {
             for(var resolvedConfig_1 = _tslibJs.__values(resolvedConfig), resolvedConfig_1_1 = resolvedConfig_1.next(); !resolvedConfig_1_1.done; resolvedConfig_1_1 = resolvedConfig_1.next()){
                 var sn = resolvedConfig_1_1.value;
@@ -5036,6 +5064,16 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
             }))
         ], 2), entryActions = _c[0], exitActions = _c[1];
         var actions = _actionsJs.toActionObjects(exitActions.concat(transition.actions).concat(entryActions), this.machine.options.actions);
+        if (isDone) {
+            var stopActions = _actionsJs.toActionObjects(_utilsJs.flatten(_tslibJs.__spreadArray([], _tslibJs.__read(resolvedConfig), false).sort(function(a, b) {
+                return b.order - a.order;
+            }).map(function(stateNode) {
+                return stateNode.onExit;
+            })), this.machine.options.actions).filter(function(action) {
+                return action.type !== _actionTypesJs.raise && (action.type !== _actionTypesJs.send || !!action.to && action.to !== _typesJs.SpecialTargets.Internal);
+            });
+            return actions.concat(stopActions);
+        }
         return actions;
     };
     /**
@@ -5089,9 +5127,11 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
         // - this is the initial state (there is no current state)
         // - OR there are transitions
         var willTransition = !currentState || stateTransition.transitions.length > 0;
+        var resolvedConfiguration = willTransition ? stateTransition.configuration : currentState ? currentState.configuration : [];
+        var isDone = _stateUtilsJs.isInFinalState(resolvedConfiguration, this);
         var resolvedStateValue = willTransition ? _stateUtilsJs.getValue(this.machine, configuration) : undefined;
         var historyValue = currentState ? currentState.historyValue ? currentState.historyValue : stateTransition.source ? this.machine.historyValue(currentState.value) : undefined : undefined;
-        var actions = this.getActions(stateTransition, context, _event, currentState);
+        var actions = this.getActions(new Set(resolvedConfiguration), isDone, stateTransition, context, _event, currentState);
         var activities = currentState ? _tslibJs.__assign({}, currentState.activities) : {};
         try {
             for(var actions_1 = _tslibJs.__values(actions), actions_1_1 = actions_1.next(); !actions_1_1.done; actions_1_1 = actions_1.next()){
@@ -5122,8 +5162,6 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
             acc[action.activity.id] = _actorJs.createInvocableActor(action.activity, _this.machine, updatedContext, _event);
             return acc;
         }, currentState ? _tslibJs.__assign({}, currentState.children) : {});
-        var resolvedConfiguration = willTransition ? stateTransition.configuration : currentState ? currentState.configuration : [];
-        var isDone = _stateUtilsJs.isInFinalState(resolvedConfiguration, this);
         var nextState = new _stateJs.State({
             value: resolvedStateValue || currentState.value,
             context: updatedContext,
@@ -5139,7 +5177,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
             transitions: stateTransition.transitions,
             children: children,
             done: isDone,
-            tags: currentState === null || currentState === void 0 ? void 0 : currentState.tags,
+            tags: _stateUtilsJs.getTagsFromConfiguration(resolvedConfiguration),
             machine: this
         });
         var didUpdateContext = context !== updatedContext;
@@ -5173,7 +5211,6 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
         var changed = maybeNextState.changed || (history ? !!maybeNextState.actions.length || didUpdateContext || typeof history.value !== typeof maybeNextState.value || !_stateJs.stateValuesEqual(maybeNextState.value, history.value) : undefined);
         maybeNextState.changed = changed; // Preserve original history after raised events
         maybeNextState.history = history;
-        maybeNextState.tags = _stateUtilsJs.getTagsFromConfiguration(maybeNextState.configuration);
         return maybeNextState;
     };
     /**
@@ -11211,6 +11248,7 @@ const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CW
         Not_Connected_To_Rov: {
             entry: [
                 "showConnectingUi",
+                "stopPeerConnectionEventHandler",
                 "connectToRovPeerAndStartPeerConnectionEventHandler", 
             ],
             on: {
