@@ -13,40 +13,47 @@ import { inspect } from "@xstate/inspect";
 // import {} from "./gamepad-ui.js";
 import { GamepadController } from "./gamepad.js";
 
-import { MessageHandler, RovActions } from "./messageHandler";
+import { RovActions } from "./messageHandler";
 import { getURLQueryStringVariable } from "./util.js";
-import { createTitle, setupConnectBtnClickHandler, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandler, showReloadingWebsiteUi, showROVDisconnectedUi, showToastDialog, showToastMessage } from "./ui.js";
+import { createTitle, hideRovConnectionBar, setCurrentRovName, setupConnectBtnClickHandler, setupDisconnectBtnClickHandler, setupSwitchRovBtnClickHandlers, showReloadingWebsiteUi, showRovConnectionBar, showROVDisconnectedUi, showToastDialog } from "./ui.js";
 
 // show an inspector if the query string is present
-if (getURLQueryStringVariable("debug-mode")) {
+let debugXstateMode = !!getURLQueryStringVariable("debug");
+if (debugXstateMode) {
     inspect({
         iframe: false,
     });
 }
 
-import { createMachine, assign, send, interpret, spawn } from "xstate";
-import { pure, stop } from "xstate/lib/actions";
+import { createMachine, assign, interpret, spawn } from "xstate";
+import { stop } from "xstate/lib/actions";
 import { siteInitMachine } from "./siteInit";
-import { peerConnMachine } from "./peerConnStateMachine.js";
+import { peerConnMachine } from "./rovConnStateMachine.js";
 import { peerServerConnMachine } from "./peerServerConnStateMachine.js";
 import { ROV_PEERID_BASE } from "./consts.js";
 // import { DisclosureNav } from "./libraries/accesableDropdownMenu.js";
 
+window.rovActions = RovActions;
 
-// // showChoiceDialog("Pick A food", ["peanuts", "cashews", "rum"], console.log)
-// let a = showScrollableTextPopup("ROV Status")
-// setInterval(() => {
-//     a(Date.now() + " djflksdjf dslkfjsdsdjflksdjflkfjsd" + " \n");
-// }, 100);
+/* init gamepad support */
+new GamepadController();
 
+const savedRovEndNumber = parseInt(localStorage.getItem("rovPeerIdEndNumber") || 0);
+setCurrentRovName(ROV_PEERID_BASE + savedRovEndNumber)
+
+/* mainMachine: Defines the main state machine that controls the all rov connection parts of the site:
+ * NOTE: This statemachine is much easier to understand as a flowchart by copying and pasting this whole mainMachine definition into: https://stately.ai/viz
+ *       or using the "xState extension for VS Code" (google it). I highly recomend you use it!
+ */
 const mainMachine =
     /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QBWAEwAGbABYA7MrmK5MgIyKdymQBoQAT0QBmZYuxyAnADYzMmXZtydcqQF9PRtFmwMAK6YmFhQ2AAKYGBEdLgxAG4xdAByvPh0AMIimGAAxviQpBE0NAxxZQBqZVkA8ikpNJlUFPV0NLhUzABCADIUuAASNKxifAJCImKSCDIAHGbYc6paUmZac1JSilJaRqYIOmZ2SzaKMhpuNrtyZt6+GDhBIWGR0bHxREmx2SH5hRByDQUqw6ABZDq4ZgAcXoVFqjFqlTG-EEwlESAkiAWymwWjMczscw8jm0dkMJkQWhkNhs2BpZ0UdiJNjMBK8PhAfiewVCmHCUWSn2+WRy-yK0NqVHBkJh9AAYgxamDEcjMeM0VNMTM7FoFGoZBZlPjqWY1vsqQz6bSVMpdTTljJ7lzHgFea9BR9EslfrkCkUlZU6g0mi02h0un0BsNRurUZMMaAdVs8U45s4pMozdo9pTDnZbtZrrapA4Wcpndy3S9+aRMvVGs06PDUjQABrSwMoibo6aIJy4jZbLPp1TGuTKC0IVyD3XXVbKQmKOaKSuu558qCkJhUBjsVXBxthlLdzWJrEIY5SbD6ReWQmaGwXKfp6+KJnDk3LGxaNf+DdhKQrADPWIZNoqyqqqeCZ9pembWOszIaFoahrIoU4oWs1hqJoGbbLIf48jWW4lDUKRSnQ7A0J2LAcO0DBKgw0G9tqiB2Fm2COMoshSE+OzLHYL6GkWGjsRmZiuL+nJVgBtakeUuBVDU8rMF0vT0YxzFakm2IXEocz4lIcjGRYcjMlO1wKGYHhaFodiZvYBlOtJ67urWADqNDdAwVCZHQKlqRptRMXGPbaRetkSfSuqbFxZnpjYGFMvqxIoXMrhOPZcyEdWm6kJ53SULQWS9LUilaeeMy2eSSxmIoNgrhJFiuOhebUvo1jErSCweMuyw5cwADuGBCPyB6+v8dDdIE+D4CIdAREQcCwHWDahlNACqVDwikC1MLgimxjw8YsTpCC6lYdV2ds+gFqsuYHJhiwTsZqzklmHKcpgvAQHAYhVgQxD4BVsGZTeWW2C4mxaA1ZhThYJx6hY1X2SoZl2DlskCu8cTerEaQZBN-oQCDrGXvI2C6naE72bZXVSBh6wyNaTNrHqBnqJjbnY0KeOin8xOk2ddjvtYxmOmZrKjozDXYD+xybCLMMyFmXPEULF4yLxSwrGzmz4Q9VL4nSBLZhcr1MlJDz+ENI1hONYoFFNM1zZgC1LbA8ChWesEaMzajLhsth3txGELIsigWFr5K0qsNg5awIhgBrVWGnS2zLjs+LKPYmaMzVWweCrd68Y4hEp-2mjg1IXVQ7ssNTmDKG9cXN0Nau3ieEAA */
     createMachine({
         context: {
             peerServerConfig: {},
             rovIpAddr: "",
-            rovPeerIdEndNumber: 0,
+            rovPeerIdEndNumber: savedRovEndNumber || 0,
             attemptingNewRovPeerId: false,
+            thisPeer: null,
             peerServerConnActor: null,
             peerConnActor: null,
             pingSenderActor: null,
@@ -66,68 +73,62 @@ const mainMachine =
                 on: {
                     SITE_READY: {
                         actions: ["setRovIpAddr", "setPeerServerConfig"],
-                        target: "Running",
+                        target: "Connecting_to_Peer_Server",
                     },
                 },
             },
-            Running: {
-                entry: "startPeerServerConnMachine",
-                exit: "stopPeerServerConnMachine",
-                initial: "Peer_Server_Not_Connected",
-                states: {
-                    Peer_Server_Not_Connected: {
-                        on: {
-                            PEER_SERVER_CONNECTION_ESTABLISHED: {
-                                target: "Peer_Server_Connected",
-                            },
-                        },
-                    },
-                    Peer_Server_Connected: {
-                        entry: "startPeerConnMachine",
-                        exit: ["stopPeerConnMachine", "stopPingMessageGenerator"],
-                        on: {
-                            SEND_MESSAGE_TO_ROV: {
-                                actions: "sendMessageToRov",
-                            },
-                            GOT_MESSAGE_FROM_ROV: {
-                                actions: "gotMessageFromRov",
-                            },
-                            ROV_CONNECTION_ESTABLISHED: {
-                                actions: "rovPeerConnectionEstablished",
-                            },
-                        },
+            Connecting_to_Peer_Server: {
+                entry: ["stopPeerServerConnMachine", "runPeerServerConnMachine", "hideRovConnectionBar"],
+                on: {
+                    PEER_SERVER_CONNECTION_ESTABLISHED: {
+                        actions: ["setThisPeer"],
+                        target: "Connecting_to_Rov",
                     },
                 },
+            },
+            Connecting_to_Rov: {
+                entry: ["runPeerConnMachine", "showRovConnectionBar"],
+                exit: ["stopPeerConnMachine"],
                 on: {
-                    CONNECT_TO_NEXT_ROV: {
+                    SWITCH_TO_NEXT_ROV: {
                         actions: "switchToNextRovPeerId",
-                        target: "Running",
+                        target: "Connecting_to_Rov",
+                        internal: false,
+                    },
+                    SWITCH_TO_PREV_ROV: {
+                        actions: "switchToPrevRovPeerId",
+                        target: "Connecting_to_Rov",
                         internal: false,
                     },
                     RETRY_ROV_CONNECTION: {
-                        target: "Running",
+                        target: "Connecting_to_Rov",
                         internal: false,
                     },
                     DISCONNECT_FROM_ROV: {
-                        target: "Awaiting_ROV_Connect_Button_Press",
+                        target: "Waiting_for_Connect_to_Rov_Btn_Press",
                     },
-                    PEER_NOT_YET_READY_ERROR: {
-                        actions: "handlePeerNotYetReadyError",
-                    },
+                    PEER_UNAVAILABLE: [
+                        {
+
+                            target: "Waiting_for_Connect_to_Rov_Btn_Press",
+                        },
+                        // {
+                        //     actions: [() => console.log("hello")],
+                        //     target: "Connecting_to_Peer_Server",
+                        // }
+                    ],
                     PEER_SERVER_FATAL_ERROR: {
-                        target: "Running",
+                        actions: "stopPeerServerConnMachine",
+                        target: "Connecting_to_Peer_Server",
                         internal: false,
                     },
                     WEBRTC_FATAL_ERROR: {
                         actions: "reloadWebsite",
-                        target: "Done",
-                    },
-                    WEBSITE_CLOSE: {
-                        target: "Done",
+                        target: "End",
                     },
                 },
             },
-            Awaiting_ROV_Connect_Button_Press: {
+            Waiting_for_Connect_to_Rov_Btn_Press: {
                 entry: "showDisconnectedUi",
                 invoke: {
                     src: "awaitConnectBtnPress",
@@ -135,22 +136,31 @@ const mainMachine =
                 },
                 on: {
                     CONNECT_BUTTON_PRESSED: {
-                        target: "Running",
+                        target: "Connecting_to_Rov",
+                    },
+                    SWITCH_TO_NEXT_ROV: {
+                        actions: "switchToNextRovPeerId",
+                    },
+                    SWITCH_TO_PREV_ROV: {
+                        actions: "switchToPrevRovPeerId",
                     },
                 },
             },
-            Done: {
+            End: {
                 type: "final",
             },
         },
+        on: {
+            WEBSITE_CLOSE: {
+                target: "End",
+            },
+        }
     }, {
         actions: {
+            "showRovConnectionBar": showRovConnectionBar,
+            "hideRovConnectionBar": hideRovConnectionBar,
             "showDisconnectedUi": () => {
                 showROVDisconnectedUi()
-            },
-            "reloadWebsite": () => {
-                showReloadingWebsiteUi()
-                setTimeout(() => { window.location.reload() }, 2000)
             },
             "setRovIpAddr": assign({
                 rovIpAddr: (context, event) => event.data.rovIpAddr
@@ -158,29 +168,28 @@ const mainMachine =
             "setPeerServerConfig": assign({
                 peerServerConfig: (context, event) => event.data.peerServerConfig
             }),
+            "setThisPeer": assign({
+                thisPeer: (context, event) => event.data
+            }),
             "switchToNextRovPeerId": assign({
                 rovPeerIdEndNumber: (context) => {
-                    return context.rovPeerIdEndNumber + 1
+                    let newRovPeerIdEndNumber = context.rovPeerIdEndNumber + 1;
+                    setCurrentRovName(ROV_PEERID_BASE + newRovPeerIdEndNumber);
+                    localStorage.setItem("rovPeerIdEndNumber", newRovPeerIdEndNumber);
+                    return newRovPeerIdEndNumber
                 },
                 attemptingNewRovPeerId: true,
             }),
-            "rovPeerConnectionEstablished": assign({
-                attemptingNewRovPeerId: false,
+            "switchToPrevRovPeerId": assign({
+                rovPeerIdEndNumber: (context) => {
+                    let newRovPeerIdEndNumber = Math.max(0, context.rovPeerIdEndNumber - 1);
+                    setCurrentRovName(ROV_PEERID_BASE + newRovPeerIdEndNumber);
+                    localStorage.setItem("rovPeerIdEndNumber", newRovPeerIdEndNumber);
+                    return newRovPeerIdEndNumber
+                },
+                attemptingNewRovPeerId: true,
             }),
-            "handlePeerNotYetReadyError": pure((context) => {
-                // this function is called whenever we fail to find or connect to a rov:
-                showToastMessage("Could not connect to " + ROV_PEERID_BASE + String(context.rovPeerIdEndNumber))
-                if (context.attemptingNewRovPeerId && context.rovPeerIdEndNumber != 0) {
-                    // we've tried all the rov IDs and none of them are online
-                    showToastMessage("Trying previous rov: " + ROV_PEERID_BASE + String(context.rovPeerIdEndNumber - 1))
-                    return [assign({
-                        rovPeerIdEndNumber: context.rovPeerIdEndNumber - 1,
-                    }), send("RETRY_ROV_CONNECTION")]
-                } else {
-                    return send("DISCONNECT_FROM_ROV")
-                }
-            }), // will either go to the Running with the previous rov ID or go to Awaiting_ROV_Connect_Button_Press if the very first rov or the last connected rov is offline
-            "startPeerServerConnMachine": assign({
+            "runPeerServerConnMachine": assign({
                 peerServerConnActor: (context) => spawn(peerServerConnMachine
                     .withContext({
                         ...peerServerConnMachine.context, // spread syntax to fill in the rest of the context specified in the child machine (otherwise xstate removes the rest: https://github.com/statelyai/xstate/issues/993)
@@ -189,32 +198,44 @@ const mainMachine =
                     })
                     , "peerServerConnMachine"),
             }),
-            "startPeerConnMachine": assign({
-                peerServerConnActor: (context, event) => {
+            "runPeerConnMachine": assign({
+                peerServerConnActor: (context) => {
                     return spawn(peerConnMachine
                         .withContext({
                             ...peerConnMachine.context, // spread syntax to fill in the rest of the context specified in the child machine (otherwise xstate removes the rest: https://github.com/statelyai/xstate/issues/993)
-                            thisPeer: event.data,
+                            thisPeer: context.thisPeer,
                             rovPeerId: ROV_PEERID_BASE + String(context.rovPeerIdEndNumber),
-                        })
-                        // .withConfig(peerConnMachine.config)
-                        , "peerConnMachine")
+                        }), "peerConnMachine")
                 },
             }),
-            "startPingMessageGenerator": assign({
-                pingSenderActor: () => {
-                    return spawn(RovActions.startPingMessageSenderLoop, "pingMessageGenerator")
-                }
-            }),
-            "stopPingMessageGenerator": stop("pingMessageGenerator"),
             "stopPeerServerConnMachine": stop("peerServerConnMachine"),
             "stopPeerConnMachine": stop("peerConnMachine"),
-            "gotMessageFromRov": (context, event) => {
-                MessageHandler.handleRecivedMessage(event.data)
+            // "handlePeerNotYetReadyError": pure((context) => {
+            //     // this function is called whenever we fail to find or connect to a rov:
+            //     showToastMessage("Could not connect to " + ROV_PEERID_BASE + String(context.rovPeerIdEndNumber))
+            //     if (context.attemptingNewRovPeerId && context.rovPeerIdEndNumber != 0) {
+            //         // we've tried all the rov IDs and none of them are online
+            //         showToastMessage("Trying previous rov: " + ROV_PEERID_BASE + String(context.rovPeerIdEndNumber - 1))
+            //         return [assign({
+            //             rovPeerIdEndNumber: context.rovPeerIdEndNumber - 1,
+            //         }), send("RETRY_ROV_CONNECTION")]
+            //     } else {
+            //         return send("DISCONNECT_FROM_ROV")
+            //     }
+            // }), // will either go to the Running with the previous rov ID or go to Waiting_for_Connect_to_Rov_Btn_Press if the very first rov or the last connected rov is offline
+
+            // "gotMessageFromRov": (context, event) => {
+            //     MessageHandler.handleRecivedMessage(event.data)
+            // },
+
+            // "sendMessageToRov": send((context, event) => {
+            //     return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
+            // }, { to: "peerConnMachine" }),
+
+            "reloadWebsite": () => {
+                showReloadingWebsiteUi()
+                setTimeout(() => { window.location.reload() }, 5000)
             },
-            "sendMessageToRov": send((context, event) => {
-                return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
-            }, { to: "peerConnMachine" }),
         },
         services: {
             "awaitConnectBtnPress": (context, event) => {
@@ -223,7 +244,8 @@ const mainMachine =
                     console.log(event)
                     var toastMsg = null
                     if (err && err.type == "peer-unavailable") {
-                        toastMsg = showToastDialog([createTitle("ROV is not yet online!")], { duration: 12000 })
+                        const msg = ROV_PEERID_BASE + context.rovPeerIdEndNumber + " is not yet online!"
+                        toastMsg = showToastDialog([createTitle(msg)], { duration: 12000 })
                     }
                     const cleanupFunc = setupConnectBtnClickHandler(() => {
                         if (toastMsg) toastMsg.hideToast()
@@ -237,37 +259,47 @@ const mainMachine =
                     const disconnectBtnCleanupFunc = setupDisconnectBtnClickHandler(() => {
                         sendStateChange("DISCONNECT_FROM_ROV");
                     })
-                    const nextRovBtnCleanupFunc = setupSwitchRovBtnClickHandler(() => {
-                        sendStateChange("CONNECT_TO_NEXT_ROV");
+
+                    const switchRovCleanupFunc = setupSwitchRovBtnClickHandlers(() => {
+                        sendStateChange("SWITCH_TO_PREV_ROV");
+                    }, () => {
+                        sendStateChange("SWITCH_TO_NEXT_ROV");
                     })
+
                     return () => {
                         disconnectBtnCleanupFunc();
-                        nextRovBtnCleanupFunc();
+                        switchRovCleanupFunc();
                     };
                 };
             },
         },
         guards: {
+            "rovDatachannelIsOpen": (context) => {
+                console.log(context.peerConnActor)
+                return false; //context.peerConnActor && context.peerConnActor.state.context.rovDataConnection
+            }
         },
     })
 
-window.mainRovMachineService = interpret(mainMachine, { devTools: true })
-// window.mainRovMachineService.onChange(console.log)
-window.mainRovMachineService.start();
 
-window.onbeforeunload = () => {
-    window.thisPeerjsPeer.destroy();
-    window.mainRovMachineService.send("WEBSITE_CLOSE");
+function startMachine() {
+    window.mainRovMachineService = interpret(mainMachine, { devTools: debugXstateMode })
+    window.mainRovMachineService.onTransition((state) => { console.log("MainTransition:", state.value) })
+    window.mainRovMachineService.start();
+
+
+    window.onbeforeunload = () => {
+        window.thisPeerjsPeer.destroy();
+        window.mainRovMachineService.send("WEBSITE_CLOSE");
+    }
+
 }
 
-/* init rov message handler */
-new MessageHandler((messageStrForRov) => {
-    window.mainRovMachineService.send({ type: "SEND_MESSAGE_TO_ROV", data: messageStrForRov });
-});
-window.rovActions = RovActions;
-
-/* init gamepad support */
-new GamepadController();
+if (debugXstateMode) {
+    setTimeout(startMachine, 1000);
+} else {
+    startMachine();
+}
 
 
 setTimeout(() => {

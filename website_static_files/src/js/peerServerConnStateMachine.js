@@ -26,18 +26,23 @@ export const peerServerConnMachine = createMachine({
         Not_Connected_To_Peer_Server: {
             entry: ["setupPeerAndStartPeerServerEventsHandler"],
             on: {
-                PEER_SERVER_CONNECTION_ESTABLISHED: {
+                SERVER_CONNECTION_ESTABLISHED: {
                     target:
                         "#peerServerConnection.Connected_To_Peer_Server",
+                    actions: ["notifyParentOfPeerServerConnection", "showPeerServerConnectedNotice"],
                 },
                 PEERJS_ERROR: {
                     target:
                         "#peerServerConnection.Handling_Error",
                 },
             },
+            after: {
+                5000: {
+                    target: "#peerServerConnection.Handling_Error"
+                }
+            },
         },
         Connected_To_Peer_Server: {
-            entry: ["showPeerServerConnectedNotice", "notifyParentOfPeerServerConnection"],
             invoke: {
                 src: "handlePeerSeverEvents",
                 id: "handlePeerSeverEvents",
@@ -60,15 +65,20 @@ export const peerServerConnMachine = createMachine({
                 id: "reconnectToPeerServer"
             },
             on: {
-                PEER_SERVER_CONNECTION_ESTABLISHED: {
-                    actions: "showPeerServerConnectedNotice",
+                SERVER_CONNECTION_ESTABLISHED: {
                     target:
                         "#peerServerConnection.Connected_To_Peer_Server",
+                    actions: ["notifyParentOfPeerServerConnection", "showPeerServerConnectedNotice"],
                 },
                 PEERJS_ERROR: {
                     target:
                         "#peerServerConnection.Handling_Error",
                 },
+            },
+            after: {
+                6000: {
+                    target: "Handling_Error"
+                }
             },
         },
         Handling_Error: {
@@ -79,6 +89,11 @@ export const peerServerConnMachine = createMachine({
                     target:
                         "#peerServerConnection.Not_Connected_To_Peer_Server",
                 },
+                PEER_SERVER_CONNECTION_OK: {
+                    target:
+                        "#peerServerConnection.Connected_To_Peer_Server",
+                    internal: true,
+                },
             },
         },
     }
@@ -86,43 +101,58 @@ export const peerServerConnMachine = createMachine({
     actions: {
         "showPeerServerConnectedNotice": () => { showToastMessage("Connected to Peerjs Server!") },
         "showPeerServerDisconnectedNotice": () => { showToastMessage("Peerjs Server Disconnected") },
-        // setupThisPeerWithPeerServer: assign({
-        // }),
         "notifyParentOfPeerServerConnection": sendParent((context) => {
             return { type: "PEER_SERVER_CONNECTION_ESTABLISHED", data: context.thisPeer }
         }),
         "handlePeerServerError": pure((context, event) => {
             const err = event.data;
+            console.log("handlePeerServerError: ", err);
+
             if (err.type == 'browser-incompatible') {
                 alert('Your web browser does not support some WebRTC features. Please use a newer or different browser.');
                 return sendParent({ type: "WEBRTC_FATAL_ERROR" })
+
             } else if (err.type == "webrtc") {
                 showToastMessage("WebRTC protocol error! Reloading website now...")
                 localStorage.setItem("reloadCount", -1); //for debug
                 return sendParent({ type: "WEBRTC_FATAL_ERROR" })
+
             } else if (err.type == "peer-unavailable") {
-                return sendParent({ type: "PEER_NOT_YET_READY_ERROR", data: err })
+                return [
+                    send("PEER_SERVER_CONNECTION_OK"),
+                    sendParent({ type: "PEER_UNAVAILABLE", data: err })
+                ]
+
             } else if (err.type == "unavailable-id") {
-                localStorage.removeItem('thisClientPeerId') // discard our saved peer id so we will use a fresh one
-                return sendParent({ type: "PEER_SERVER_FATAL_ERROR" })
+                localStorage.removeItem('thisClientPeerId') // discard our saved peer id so we will use a fresh one next time we connect
+                return send("PEER_SERVER_CONNECTION_CLOSED"); // will cause a reconnection attempt
+
             } else if (FATAL_PEER_ERROR_TYPES.includes(err.type)) {
                 showToastMessage("Peerjs Server Fatal Error: " + err.type + " Restarting...")
-                return sendParent({ type: "PEER_SERVER_FATAL_ERROR" })
+                return [
+                    send("PEER_SERVER_CONNECTION_CLOSED"),
+                    sendParent({ type: "PEER_SERVER_FATAL_ERROR" })
+                ]
+
             } else {
                 showToastMessage("Peerjs Server Error: " + err.type + " Restarting...")
                 console.dir("Peerjs Server Error: ", err)
-                return send({ type: "PEER_SERVER_CONNECTION_CLOSED" })
+                return [
+                    send({ type: "PEER_SERVER_CONNECTION_CLOSED" }),
+                    sendParent({ type: "PEER_SERVER_FATAL_ERROR" })
+                ]
             }
+
         }),
-        "cleanupPeerServerConnection": assign({
-            thisPeer: (context) => {
-                console.log("cleanupPeerServerConnection: ", context.thisPeer)
-                if (context.thisPeer) {
-                    context.thisPeer.destroy()
-                }
-                return null;
+        "setThisPeer": assign({
+            thisPeer: (_, event) => event.data
+        }),
+        "cleanupPeerServerConnection": (context) => {
+            console.log("cleanupPeerServerConnection: ", context.thisPeer)
+            if (context.thisPeer) {
+                context.thisPeer.destroy()
             }
-        }),
+        },
         "setupPeerAndStartPeerServerEventsHandler": assign((context) => {
             var ourPeerId = localStorage.getItem('thisClientPeerId');
             if (!ourPeerId) {
@@ -135,7 +165,7 @@ export const peerServerConnMachine = createMachine({
                 thisPeer: thisPeer,
                 peerServerEventsHandler: spawn((sendStateChange) => {
                     const openHandler = generateStateChangeFunction(
-                        sendStateChange, "PEER_SERVER_CONNECTION_ESTABLISHED", thisPeer
+                        sendStateChange, "SERVER_CONNECTION_ESTABLISHED", thisPeer
                     )
                     const errHandler = generateStateChangeFunction(
                         sendStateChange, "PEERJS_ERROR", null, console.log

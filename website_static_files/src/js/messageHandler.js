@@ -1,4 +1,4 @@
-import { showPasswordPrompt, showScrollableTextPopup, showToastDialog, showToastMessage } from "./ui";
+import { showPasswordPrompt, showScrollableTextPopup, showToastMessage } from "./ui";
 import { v4 as uuidV4 } from "uuid"
 
 export class MessageHandler {
@@ -11,13 +11,12 @@ export class MessageHandler {
     // This callback should be set in the constructor below.
     static sendMessageCallback = () => { };
 
-    constructor(sendMessageCallback) {
-        MessageHandler.sendMessageCallback = sendMessageCallback;
+    static setSendMessageCallback = (callback) => {
+        MessageHandler.sendMessageCallback = callback;
     }
 
     // sendRovMessage: Send a message to the rov peer and setup reply callbacks based on a message cid if reply(ies) are expected.
     static sendRovMessage = (msgObject, replyCallback) => {
-
         // setup the reply callback
         let cid = msgObject["cid"]
         if (!cid) {
@@ -28,7 +27,7 @@ export class MessageHandler {
 
         // send the message to the rov
         const messageString = JSON.stringify(msgObject);
-        MessageHandler.sendMessageCallback(messageString);
+        if (MessageHandler.sendMessageCallback) MessageHandler.sendMessageCallback(messageString);
     }
 
     static handlePasswordChallenge(msg_cid) {

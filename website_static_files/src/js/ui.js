@@ -143,26 +143,35 @@ export function showChoiceDialog(title, buttons, callback) {
 const connectBtn = document.getElementById('connect_btn');
 const disconnectBtn = document.getElementById('disconnect_btn');
 const connectedRovLabel = document.getElementById('connected_rov_label');
+const rovConnectionBar = document.getElementById('rov_connection_bar');
 export function showROVDisconnectedUi() {
     connectBtn.style.display = 'block';
     disconnectBtn.style.display = 'none';
-    connectedRovLabel.parentElement.parentElement.classList.add('hidden')
-    connectedRovLabel.innerText = 'None';
     hideLoadingUi()
+}
+
+export function hideRovConnectionBar() {
+    rovConnectionBar.classList.add('hidden')
+}
+
+export function showRovConnectionBar() {
+    rovConnectionBar.classList.remove('hidden')
 }
 
 export function showROVConnectingUi() {
     connectBtn.style.display = 'none';
-    connectedRovLabel.parentElement.parentElement.classList.add('hidden')
     showLoadingUi("Searching for ROV...");
 }
 
-export function showROVConnectedUi(rovName) {
+export function showROVConnectedUi() {
     connectBtn.style.display = 'none';
     disconnectBtn.style.display = 'block';
-    connectedRovLabel.parentElement.parentElement.classList.remove('hidden')
-    if (rovName) connectedRovLabel.innerText = rovName
     hideLoadingUi()
+}
+
+export function setCurrentRovName(name) {
+    connectBtn.innerText = "Connect to " + name;
+    connectedRovLabel.innerText = name
 }
 
 export function showReloadingWebsiteUi() {
@@ -189,7 +198,7 @@ export function setupDisconnectBtnClickHandler(callback) {
 
 const switchToPrevRovBtn = document.getElementById('switch_to_prev_rov_btn');
 const switchToNextRovBtn = document.getElementById('switch_to_next_rov_btn');
-export function setupSwitchRovBtnClickHandler(prevRovCallback, nextRovCallback) {
+export function setupSwitchRovBtnClickHandlers(prevRovCallback, nextRovCallback) {
     switchToPrevRovBtn.addEventListener('click', prevRovCallback);
     switchToNextRovBtn.addEventListener('click', nextRovCallback);
     return () => { // cleanup function
@@ -287,7 +296,7 @@ export function setArtificialHorizonBackground(roll, pitch) {
 
 //             // beta: Tilting the device from the front to the back. Tilting the device to the front will result in a positive value.
 //             var tiltFB = eventData.beta;
-//             // this.document.getElementById("rov_connection_display").innerHTML = "tiltLR: " + tiltLR + " tiltFB: " + (tiltFB - 90);
+//             // this.document.getElementById("rov_connection_bar").innerHTML = "tiltLR: " + tiltLR + " tiltFB: " + (tiltFB - 90);
 
 //             // alpha: The direction the compass of the device aims to in degrees.
 //             var dir = eventData.alpha

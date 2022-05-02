@@ -228,7 +228,8 @@ table.top-left-corner td {
   display: inline-block;
 }
 
-#rov_connection_display {
+#rov_connection_bar {
+  max-height: 128px;
   border-radius: 12px 12px 0 0;
   padding: 0 6px;
   transition: max-height .4s;
@@ -236,19 +237,24 @@ table.top-left-corner td {
   overflow: hidden;
 }
 
-.fullscreen-open #rov_connection_display {
-  max-height: 16px;
-}
-
-.fullscreen-open #rov_connection_display * {
+#rov_connection_bar.hidden {
+  max-height: 0;
   pointer-events: none;
 }
 
-.fullscreen-open #rov_connection_display:hover, .fullscreen-open #rov_connection_display:focus-within {
+.fullscreen-open #rov_connection_bar {
+  max-height: 16px;
+}
+
+.fullscreen-open #rov_connection_bar * {
+  pointer-events: none;
+}
+
+.fullscreen-open #rov_connection_bar:hover, .fullscreen-open #rov_connection_bar:focus-within {
   max-height: 128px;
 }
 
-.fullscreen-open #rov_connection_display:hover *, .fullscreen-open #rov_connection_display:focus-within * {
+.fullscreen-open #rov_connection_bar:hover *, .fullscreen-open #rov_connection_bar:focus-within * {
   pointer-events: auto;
 }
 

@@ -1,10 +1,9 @@
 import { createMachine, assign, spawn } from "xstate";
-import { showToastMessage, showROVConnectingUi, showROVConnectedUi, hideLoadingUi, setupSwitchRovBtnClickHandler, showLivestreamUi, hideLivestreamUi, showLoadingUi } from "./ui"
+import { showToastMessage, showROVConnectingUi, showROVConnectedUi, hideLoadingUi, showLivestreamUi, hideLivestreamUi, showLoadingUi } from "./ui"
 import { generateStateChangeFunction } from "./util";
 
-import { pure, stop, send, sendParent } from "xstate/lib/actions";
-import { MessageHandler } from "./messageHandler";
-
+import { stop } from "xstate/lib/actions";
+import { MessageHandler, RovActions } from "./messageHandler";
 
 // FOR CONVERTING TEXT TO/FROM BINARY FOR SENDING OVER THE WEBRTC DATACHANNEL
 const messageEncoder = new TextEncoder(); // always utf-8
@@ -18,6 +17,7 @@ export const peerConnMachine =
             thisPeer: null,
             rovPeerId: null,
             rovDataConnection: null,
+            mediaChannel: null,
         },
         exit: "stopPeerConnectionEventHandler",
         id: "peerConnection",
@@ -26,30 +26,34 @@ export const peerConnMachine =
             Not_Connected_To_Rov: {
                 entry: [
                     "showConnectingUi",
-                    "stopPeerConnectionEventHandler",
                     "connectToRovPeerAndStartPeerConnectionEventHandler",
                 ],
                 on: {
                     ROV_CONNECTION_ESTABLISHED: {
-                        actions: "rovPeerConnectionEstablished",
                         target: "Connected_To_Rov",
                     },
                     ROV_PEER_CONNECTION_ERROR: {
+                        actions: "stopPeerConnectionEventHandler",
                         target: "Not_Connected_To_Rov",
                         internal: false,
                     },
                 },
+                after: {
+                    8000: {
+                        target: "Not_Connected_To_Rov",
+                        internal: false,
+                    }
+                },
             },
             Connected_To_Rov: {
-                entry: ["showRovConnectedUi"], //"debugReload"
+                entry: ["showRovConnectedUi", "debugReload"],
                 type: "parallel",
                 states: {
                     DataChannel: {
-                        exit: "closeDownDataChannel",
                         initial: "Data_Channel_Open",
                         states: {
                             Data_Channel_Disconnected: {
-                                entry: "showConnectingUi",
+                                // entry: "showConnectingUi",
                                 invoke: {
                                     src: "watchForRovReconnect",
                                     id: "watchForRovReconnect",
@@ -58,48 +62,37 @@ export const peerConnMachine =
                                     DATACHANNEL_ESTABLISHED: {
                                         target: "Data_Channel_Open",
                                     },
-                                    DATACHANNEL_TIMEOUT: {
+                                },
+                                after: {
+                                    10000: {
+                                        actions: "stopPeerConnectionEventHandler",
                                         target: "#peerConnection.Not_Connected_To_Rov",
                                     },
                                 },
                             },
                             Data_Channel_Open: {
-                                entry: "showRovConnectedUi",
+                                entry: ["showRovConnectedUi", "showWaitingForMediaChannelNotice"],
                                 invoke: [
                                     {
                                         src: "handleDataChannelEvents",
                                         id: "handleDataChannelEvents",
-                                    },
-                                    {
-                                        src: "watchForRovDisconnect",
-                                        id: "watchForRovDisconnect",
                                     },
                                 ],
                                 on: {
                                     DATACHANNEL_DISCONNECT: {
                                         target: "Data_Channel_Disconnected",
                                     },
-                                    SEND_MESSAGE_TO_ROV: {
-                                        actions: "sendMessageToRov",
-                                    },
-                                    GOT_MESSAGE_FROM_ROV: {
-                                        actions: "gotMessageFromRov",
-                                    },
                                 },
                             },
                         },
                     },
                     MediaChannel: {
-                        exit: ["closeDownMediaChannel", "hideLivestreamUi"],
+                        exit: ["hideLivestreamUi"],
                         initial: "Not_Open",
                         states: {
                             Not_Open: {
                                 description:
-                                    'ROV Will "Video Call" this plot, and that is hooked up to trigger the MEDIA_CHANNEL_ESTABLISHED transition',
-                                invoke: {
-                                    src: "awaitMediaCall",
-                                    id: "awaitMediaCall",
-                                },
+                                    'ROV Will "Video Call" this browser, and that is hooked up to trigger the MEDIA_CHANNEL_ESTABLISHED transition',
                                 on: {
                                     MEDIA_CHANNEL_ESTABLISHED: {
                                         actions: [
@@ -107,6 +100,12 @@ export const peerConnMachine =
                                             "showMediaChannelConnectedNotice",
                                         ],
                                         target: "Media_Channel_Connected",
+                                    },
+                                },
+                                after: {
+                                    16000: {
+                                        actions: "stopPeerConnectionEventHandler",
+                                        target: "#peerConnection.Not_Connected_To_Rov",
                                     },
                                 },
                             },
@@ -124,15 +123,11 @@ export const peerConnMachine =
                             },
                             Video_Stream_Open: {},
                         },
-                        on: {
-                            MEDIA_CHANNEL_TIMEOUT: {
-                                target: "#peerConnection.Not_Connected_To_Rov",
-                            },
-                        },
                     },
                 },
                 on: {
                     ROV_PEER_CONNECTION_ERROR: {
+                        actions: "stopPeerConnectionEventHandler",
                         target: "Not_Connected_To_Rov",
                     },
                 },
@@ -140,71 +135,12 @@ export const peerConnMachine =
         },
     }, {
         actions: {
-            showConnectingUi: showROVConnectingUi,
-            showRovConnectedUi: (context, event) => { showROVConnectedUi(event.data ? event.data.peer : null) },
-            debugReload: () => {
-                var reloadCount = localStorage.getItem("reloadCount") || 0;
-                console.log("reloadCount: ", reloadCount, reloadCount == -1);
-                if (reloadCount == -1 || reloadCount > 8) {
-
-                    setTimeout(() => { localStorage.setItem("reloadCount", 0); window.location.reload() }, 10000);
-                } else {
-                    reloadCount++;
-                    localStorage.setItem("reloadCount", reloadCount);
-                    window.location.reload()
-                }
-            },
-            showMediaChannelConnectedNotice: () => { showToastMessage("ROV Media Channel Connected!") },
-            showGotVideoStreamNotice: () => { showToastMessage("Got ROV Video Stream!"); hideLoadingUi(); showLivestreamUi() },
-            hideLivestreamUi: () => { hideLivestreamUi() },
-            setMediaChannel: assign({
-                mediaChannel: (context, event) => {
-                    const mediaChannel = event.data
-                    return mediaChannel;
-                },
-            }),
-            setVideoStream: assign({
-                videoStream: (context, event) => {
-                    const rovVideoStream = event.data
-                    const videoElem = document.getElementById('video-livestream');
-                    videoElem.srcObject = rovVideoStream;  // video.src = URL.createObjectURL(rovVideoStream);
-                    videoElem.muted = true
-                    videoElem.autoplay = true
-                    videoElem.controls = false
-                    videoElem.play();
-                    return rovVideoStream
-                },
-            }),
-            rovPeerConnectionEstablished: sendParent("ROV_CONNECTION_ESTABLISHED"),
-            "sendMessageToRov": (context, event) => {
-                const outgoingMessage = event.data
-                const rovDataConnection = context.rovDataConnection
-                if (!rovDataConnection || !rovDataConnection.open || !rovDataConnection.peerConnection.iceConnectionState || rovDataConnection.peerConnection.iceConnectionState != "connected") {
-                    console.warn("Tried to send message on closed data channel: ", outgoingMessage)
-                    return;
-                }
-                console.log("Sending Datachannel Message: ", outgoingMessage);
-                const encodedMessage = messageEncoder.encode(outgoingMessage);
-                rovDataConnection.send(encodedMessage);
-            },
-            gotMessageFromRov: sendParent((context, event) => {
-                return {
-                    type: "GOT_MESSAGE_FROM_ROV",
-                    data: event.data,
-                }
-            }),
-            closeDownMediaChannel: (context) => {
-                console.info("Closing media channel...");
-                if (context.mediaChannel) {
-                    context.mediaChannel.close();
-                }
-            },
-            closeDownDataChannel: (context) => {
-                console.info("Closing data channel...");
-                if (context.rovDataConnection) {
-                    context.rovDataConnection.close();
-                }
-            },
+            "showConnectingUi": showROVConnectingUi,
+            "showRovConnectedUi": (context, event) => { showROVConnectedUi(event.data ? event.data.peer : null) },
+            "showWaitingForMediaChannelNotice": () => { showLoadingUi("Waiting for ROV livestream...") },
+            "showMediaChannelConnectedNotice": () => { showToastMessage("ROV Media Channel Connected!") },
+            "showGotVideoStreamNotice": () => { showToastMessage("Got ROV Video Stream!"); hideLoadingUi(); showLivestreamUi(); console.info("Got Video Stream!") },
+            "hideLivestreamUi": () => { hideLivestreamUi() },
             "connectToRovPeerAndStartPeerConnectionEventHandler": assign((context) => {
                 console.log("Connecting to ROV:" + context.rovPeerId);
                 const rovDataConnection = context.thisPeer.connect(context.rovPeerId, {
@@ -216,16 +152,78 @@ export const peerConnMachine =
                     peerConnectionEventHandler: spawn((sendStateChange) => {
                         const openHandler = generateStateChangeFunction(sendStateChange, "ROV_CONNECTION_ESTABLISHED", rovDataConnection)
                         const errorHandler = generateStateChangeFunction(sendStateChange, "ROV_PEER_CONNECTION_ERROR", null, (err) => console.log("ROV_PEER_CONNECTION_ERROR:", err))
+                        const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
+                            showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
+                            rovMediaConnection.answer(null, {
+                                // sdpTransform: function (sdp) {
+                                //     console.log('answer sdp: ', sdp);
+                                //     return sdp;
+                                // }
+                            });
+                        })
                         rovDataConnection.on("open", openHandler)
                         rovDataConnection.on("error", errorHandler)
+                        context.thisPeer.on('call', callHandler);
+
                         return () => { // return a cleanup / stop function
+                            console.log("Stopping PeerConnectionEventHandler");
                             rovDataConnection.off("open", openHandler);
                             rovDataConnection.off("error", errorHandler);
+                            context.thisPeer.off('call', callHandler);
+                            console.log(context)
+                            if (context.mediaChannel) {
+                                console.info("Closing media channel...");
+                                context.mediaChannel.close();
+                            }
+                            if (context.rovDataConnection) {
+                                console.info("Closing data channel...");
+                                context.rovDataConnection.close();
+                            }
+                            console.log("Done Stopping PeerConnectionEventHandler");
                         }
                     }, "peerConnectionEventHandler")
                 }
             }),
+            "setMediaChannel": assign({
+                mediaChannel: (context, event) => event.data,
+            }),
+            "setVideoStream": assign({
+                videoStream: (context, event) => {
+                    const rovVideoStream = event.data
+                    const videoElem = document.getElementById('video-livestream');
+                    videoElem.srcObject = rovVideoStream;  // video.src = URL.createObjectURL(rovVideoStream);
+                    videoElem.muted = true
+                    videoElem.autoplay = true
+                    videoElem.controls = false
+                    videoElem.play();
+                    return rovVideoStream
+                },
+            }),
+            // "closeDownMediaChannel": (context) => {
+            //     if (context.mediaChannel) {
+            //         console.info("Closing media channel...");
+            //         context.mediaChannel.close();
+            //     }
+            // },
+            // "closeDownDataChannel": (context) => {
+            //     if (context.rovDataConnection) {
+            //         console.info("Closing data channel...");
+            //         context.rovDataConnection.close();
+            //     }
+            // },
             "stopPeerConnectionEventHandler": stop("peerConnectionEventHandler"),
+            // "rovPeerConnectionEstablished": sendParent("ROV_CONNECTION_ESTABLISHED"),
+            "debugReload": () => {
+                var reloadCount = localStorage.getItem("reloadCount") || 0;
+                console.log("reloadCount: ", reloadCount, reloadCount == -1);
+                // if (reloadCount == -1 || reloadCount > 8) {
+                //     setTimeout(() => { localStorage.setItem("reloadCount", 0); window.location.reload() }, 10000);
+                // } else {
+                reloadCount++;
+                localStorage.setItem("reloadCount", reloadCount);
+                // window.location.reload()
+                // }
+            },
         },
         services: {
             "awaitMediaCall": (context) => {
@@ -251,7 +249,7 @@ export const peerConnMachine =
                     }
                 };
             },
-            awaitVideoStream: (context) => {
+            "awaitVideoStream": (context) => {
                 return (sendStateChange) => {
                     console.log("Awaiting video stream from ROV...");
                     const videoReadyHandler = generateStateChangeFunction(sendStateChange, "VIDEO_STREAM_READY")
@@ -270,39 +268,43 @@ export const peerConnMachine =
                 return (sendStateChange) => {
                     showToastMessage("Connected to ROV!");
                     const rovDataConnection = context.rovDataConnection
-                    // handle new messages from the datachannel (comming FROM the rov)
-                    console.log("handleDataChannelEvents:", rovDataConnection);
+
+                    // Handle sending messages to rov:
+                    MessageHandler.setSendMessageCallback((message) => {
+                        const encodedMessage = messageEncoder.encode(message);
+                        rovDataConnection.send(encodedMessage);
+                    });
+
+                    // handle reciving messages from rov:
                     const dataMsgRecivedHandler = (encodedMessage) => {
                         const message = messageDecoder.decode(encodedMessage);
-                        sendStateChange({ type: "GOT_MESSAGE_FROM_ROV", data: message });
+                        MessageHandler.handleRecivedMessage(message);
                     }; rovDataConnection.on('data', dataMsgRecivedHandler)
 
-                    MessageHandler.sendRovMessage({ action: "begin_livestream" })
-
-                    // cleanup event listeners when the state is exited
-                    return () => {
-                        rovDataConnection.off("data", dataMsgRecivedHandler);
-                    }
-                };
-            },
-            watchForRovDisconnect: (context) => {
-                return (sendStateChange) => {
-                    const rovDataConnection = context.rovDataConnection
-
-                    // every second (interval 1000) check if the datachannel peer connection has disconnected
+                    // Keep checking if the datachannel goes offline: (every half second (interval 500) check if the datachannel peer connection state is "disconnected")
                     const intervalId = setInterval(() => {
-                        const connectionState = rovDataConnection.peerConnection ? rovDataConnection.peerConnection.iceConnectionState : "disconnected";
+                        const connectionState = context.rovDataConnection.peerConnection ? context.rovDataConnection.peerConnection.iceConnectionState : "disconnected";
                         if (connectionState == "disconnected") {
                             sendStateChange("DATACHANNEL_DISCONNECT");
                         }
-                    }, 1000);
+                    }, 500);
 
+
+                    // finally tell the rov to begin sending us the video livestream:
+                    MessageHandler.sendRovMessage({ action: "begin_livestream" })
+                    // start sending ping messages to the ROV (as a heartbeat signal & used for the net ping stat):
+                    const stopPingLoop = RovActions.startPingMessageSenderLoop();
+
+                    // cleanup event listeners when the state machine state is exited:
                     return () => {
+                        rovDataConnection.off("data", dataMsgRecivedHandler);
+                        stopPingLoop();
+                        MessageHandler.setSendMessageCallback(null)
                         // cleanup the check interval when the state is exited
                         clearInterval(intervalId);
+
                     }
                 };
-
             },
             watchForRovReconnect: (context) => {
                 return (sendStateChange) => {
@@ -315,37 +317,27 @@ export const peerConnMachine =
                     // if it connects: reset the countdown.
                     const intervalId = setInterval(() => {
                         const connectionState = rovDataConnection.peerConnection ? rovDataConnection.peerConnection.iceConnectionState : "disconnected";
-                        if (connectionState == "disconnected") {
+                        if (connectionState == "disconnected" && datachannelTimeoutCountdown > 0) {
                             datachannelTimeoutCountdown--
                             showToastMessage("Waiting for ROV to Reconnect: " + datachannelTimeoutCountdown, 1000)
+
                         } else if (connectionState == "connected" && lastIceConnectionState != "connected") {
                             datachannelTimeoutCountdown = 10
                             showToastMessage("ROV Reconnected!", 2000)
                             sendStateChange("DATACHANNEL_ESTABLISHED")
-                        }
-                        lastIceConnectionState = connectionState
 
-                        // If we have waited too long without the rov reconnecting
-                        if (datachannelTimeoutCountdown <= 0) {
+                        } else {
+                            // If we have waited too long without the rov reconnecting
                             sendStateChange({ type: "DATACHANNEL_TIMEOUT" });
                         }
 
+                        lastIceConnectionState = connectionState
                     }, 1000);
 
                     return () => {
                         // cleanup the check interval when the state is exited
                         clearInterval(intervalId);
                     }
-                };
-            },
-            awaitSwitchRovBtnPress: () => {
-                return (sendStateChange) => {
-                    const cleanupFunc = setupSwitchRovBtnClickHandler(() => {
-                        sendStateChange("CONNECT_TO_PREV_ROBOT");
-                    }, () => {
-                        sendStateChange("CONNECT_TO_NEXT_ROBOT");
-                    })
-                    return cleanupFunc;
                 };
             },
             // chooseROVPopup: (context) => {

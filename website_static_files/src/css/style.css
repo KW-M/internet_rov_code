@@ -208,11 +208,12 @@ table.top-left-corner td {
   line-height: 80px;
 }
 
-#rov_connection_display {
+#rov_connection_bar {
   bottom: 0;
 
   overflow: hidden;
 
+  max-height: 128px;
   padding: 0 6px;
 
   transition: max-height 0.4s ease;
@@ -220,21 +221,27 @@ table.top-left-corner td {
   border-radius: 12px 12px 0 0;
 }
 
-.fullscreen-open #rov_connection_display {
-  max-height: 16px;
-}
+#rov_connection_bar.hidden {
+  max-height: 0;
 
-.fullscreen-open #rov_connection_display * {
   pointer-events: none;
 }
 
-.fullscreen-open #rov_connection_display:hover,
-.fullscreen-open #rov_connection_display:focus-within {
+.fullscreen-open #rov_connection_bar {
+  max-height: 16px;
+}
+
+.fullscreen-open #rov_connection_bar * {
+  pointer-events: none;
+}
+
+.fullscreen-open #rov_connection_bar:hover,
+.fullscreen-open #rov_connection_bar:focus-within {
   max-height: 128px;
 }
 
-.fullscreen-open #rov_connection_display:hover *,
-.fullscreen-open #rov_connection_display:focus-within * {
+.fullscreen-open #rov_connection_bar:hover *,
+.fullscreen-open #rov_connection_bar:focus-within * {
   pointer-events: auto;
 }
 

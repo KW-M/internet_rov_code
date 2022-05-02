@@ -532,25 +532,29 @@ var _uiJs = require("./ui.js");
 var _xstate = require("xstate");
 var _actions = require("xstate/lib/actions");
 var _siteInit = require("./siteInit");
-var _peerConnStateMachineJs = require("./peerConnStateMachine.js");
+var _rovConnStateMachineJs = require("./rovConnStateMachine.js");
 var _peerServerConnStateMachineJs = require("./peerServerConnStateMachine.js");
 var _constsJs = require("./consts.js");
 // show an inspector if the query string is present
-if (_utilJs.getURLQueryStringVariable("debug-mode")) _inspect.inspect({
+let debugXstateMode = !!_utilJs.getURLQueryStringVariable("debug");
+if (debugXstateMode) _inspect.inspect({
     iframe: false
 });
 // import { DisclosureNav } from "./libraries/accesableDropdownMenu.js";
-// // showChoiceDialog("Pick A food", ["peanuts", "cashews", "rum"], console.log)
-// let a = showScrollableTextPopup("ROV Status")
-// setInterval(() => {
-//     a(Date.now() + " djflksdjf dslkfjsdsdjflksdjflkfjsd" + " \n");
-// }, 100);
-const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QBWAEwAGbABYA7MrmK5MgIyKdymQBoQAT0QBmZYuxyAnADYzMmXZtydcqQF9PRtFmwMAK6YmFhQ2AAKYGBEdLgxAG4xdAByvPh0AMIimGAAxviQpBE0NAxxZQBqZVkA8ikpNJlUFPV0NLhUzABCADIUuAASNKxifAJCImKSCDIAHGbYc6paUmZac1JSilJaRqYIOmZ2SzaKMhpuNrtyZt6+GDhBIWGR0bHxREmx2SH5hRByDQUqw6ABZDq4ZgAcXoVFqjFqlTG-EEwlESAkiAWymwWjMczscw8jm0dkMJkQWhkNhs2BpZ0UdiJNjMBK8PhAfiewVCmHCUWSn2+WRy-yK0NqVHBkJh9AAYgxamDEcjMeM0VNMTM7FoFGoZBZlPjqWY1vsqQz6bSVMpdTTljJ7lzHgFea9BR9EslfrkCkUlZU6g0mi02h0un0BsNRurUZMMaAdVs8U45s4pMozdo9pTDnZbtZrrapA4Wcpndy3S9+aRMvVGs06PDUjQABrSwMoibo6aIJy4jZbLPp1TGuTKC0IVyD3XXVbKQmKOaKSuu558qCkJhUBjsVXBxthlLdzWJrEIY5SbD6ReWQmaGwXKfp6+KJnDk3LGxaNf+DdhKQrADPWIZNoqyqqqeCZ9pembWOszIaFoahrIoU4oWs1hqJoGbbLIf48jWW4lDUKRSnQ7A0J2LAcO0DBKgw0G9tqiB2Fm2COMoshSE+OzLHYL6GkWGjsRmZiuL+nJVgBtakeUuBVDU8rMF0vT0YxzFakm2IXEocz4lIcjGRYcjMlO1wKGYHhaFodiZvYBlOtJ67urWADqNDdAwVCZHQKlqRptRMXGPbaRetkSfSuqbFxZnpjYGFMvqxIoXMrhOPZcyEdWm6kJ53SULQWS9LUilaeeMy2eSSxmIoNgrhJFiuOhebUvo1jErSCweMuyw5cwADuGBCPyB6+v8dDdIE+D4CIdAREQcCwHWDahlNACqVDwikC1MLgimxjw8YsTpCC6lYdV2ds+gFqsuYHJhiwTsZqzklmHKcpgvAQHAYhVgQxD4BVsGZTeWW2C4mxaA1ZhThYJx6hY1X2SoZl2DlskCu8cTerEaQZBN-oQCDrGXvI2C6naE72bZXVSBh6wyNaTNrHqBnqJjbnY0KeOin8xOk2ddjvtYxmOmZrKjozDXYD+xybCLMMyFmXPEULF4yLxSwrGzmz4Q9VL4nSBLZhcr1MlJDz+ENI1hONYoFFNM1zZgC1LbA8ChWesEaMzajLhsth3txGELIsigWFr5K0qsNg5awIhgBrVWGnS2zLjs+LKPYmaMzVWweCrd68Y4hEp-2mjg1IXVQ7ssNTmDKG9cXN0Nau3ieEAA */ _xstate.createMachine({
+window.rovActions = _messageHandler.RovActions;
+/* init gamepad support */ new _gamepadJs.GamepadController();
+const savedRovEndNumber = parseInt(localStorage.getItem("rovPeerIdEndNumber") || 0);
+_uiJs.setCurrentRovName(_constsJs.ROV_PEERID_BASE + savedRovEndNumber);
+/* mainMachine: Defines the main state machine that controls the all rov connection parts of the site:
+ * NOTE: This statemachine is much easier to understand as a flowchart by copying and pasting this whole mainMachine definition into: https://stately.ai/viz
+ *       or using the "xState extension for VS Code" (google it). I highly recomend you use it!
+ */ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QBWAEwAGbABYA7MrmK5MgIyKdymQBoQAT0QBmZYuxyAnADYzMmXZtydcqQF9PRtFmwMAK6YmFhQ2AAKYGBEdLgxAG4xdAByvPh0AMIimGAAxviQpBE0NAxxZQBqZVkA8ikpNJlUFPV0NLhUzABCADIUuAASNKxifAJCImKSCDIAHGbYc6paUmZac1JSilJaRqYIOmZ2SzaKMhpuNrtyZt6+GDhBIWGR0bHxREmx2SH5hRByDQUqw6ABZDq4ZgAcXoVFqjFqlTG-EEwlESAkiAWymwWjMczscw8jm0dkMJkQWhkNhs2BpZ0UdiJNjMBK8PhAfiewVCmHCUWSn2+WRy-yK0NqVHBkJh9AAYgxamDEcjMeM0VNMTM7FoFGoZBZlPjqWY1vsqQz6bSVMpdTTljJ7lzHgFea9BR9EslfrkCkUlZU6g0mi02h0un0BsNRurUZMMaAdVs8U45s4pMozdo9pTDnZbtZrrapA4Wcpndy3S9+aRMvVGs06PDUjQABrSwMoibo6aIJy4jZbLPp1TGuTKC0IVyD3XXVbKQmKOaKSuu558qCkJhUBjsVXBxthlLdzWJrEIY5SbD6ReWQmaGwXKfp6+KJnDk3LGxaNf+DdhKQrADPWIZNoqyqqqeCZ9pembWOszIaFoahrIoU4oWs1hqJoGbbLIf48jWW4lDUKRSnQ7A0J2LAcO0DBKgw0G9tqiB2Fm2COMoshSE+OzLHYL6GkWGjsRmZiuL+nJVgBtakeUuBVDU8rMF0vT0YxzFakm2IXEocz4lIcjGRYcjMlO1wKGYHhaFodiZvYBlOtJ67urWADqNDdAwVCZHQKlqRptRMXGPbaRetkSfSuqbFxZnpjYGFMvqxIoXMrhOPZcyEdWm6kJ53SULQWS9LUilaeeMy2eSSxmIoNgrhJFiuOhebUvo1jErSCweMuyw5cwADuGBCPyB6+v8dDdIE+D4CIdAREQcCwHWDahlNACqVDwikC1MLgimxjw8YsTpCC6lYdV2ds+gFqsuYHJhiwTsZqzklmHKcpgvAQHAYhVgQxD4BVsGZTeWW2C4mxaA1ZhThYJx6hY1X2SoZl2DlskCu8cTerEaQZBN-oQCDrGXvI2C6naE72bZXVSBh6wyNaTNrHqBnqJjbnY0KeOin8xOk2ddjvtYxmOmZrKjozDXYD+xybCLMMyFmXPEULF4yLxSwrGzmz4Q9VL4nSBLZhcr1MlJDz+ENI1hONYoFFNM1zZgC1LbA8ChWesEaMzajLhsth3txGELIsigWFr5K0qsNg5awIhgBrVWGnS2zLjs+LKPYmaMzVWweCrd68Y4hEp-2mjg1IXVQ7ssNTmDKG9cXN0Nau3ieEAA */ _xstate.createMachine({
     context: {
         peerServerConfig: {},
         rovIpAddr: "",
-        rovPeerIdEndNumber: 0,
+        rovPeerIdEndNumber: savedRovEndNumber || 0,
         attemptingNewRovPeerId: false,
+        thisPeer: null,
         peerServerConnActor: null,
         peerConnActor: null,
         pingSenderActor: null
@@ -573,71 +577,68 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
                         "setRovIpAddr",
                         "setPeerServerConfig"
                     ],
-                    target: "Running"
+                    target: "Connecting_to_Peer_Server"
                 }
             }
         },
-        Running: {
-            entry: "startPeerServerConnMachine",
-            exit: "stopPeerServerConnMachine",
-            initial: "Peer_Server_Not_Connected",
-            states: {
-                Peer_Server_Not_Connected: {
-                    on: {
-                        PEER_SERVER_CONNECTION_ESTABLISHED: {
-                            target: "Peer_Server_Connected"
-                        }
-                    }
-                },
-                Peer_Server_Connected: {
-                    entry: "startPeerConnMachine",
-                    exit: [
-                        "stopPeerConnMachine",
-                        "stopPingMessageGenerator"
-                    ],
-                    on: {
-                        SEND_MESSAGE_TO_ROV: {
-                            actions: "sendMessageToRov"
-                        },
-                        GOT_MESSAGE_FROM_ROV: {
-                            actions: "gotMessageFromRov"
-                        },
-                        ROV_CONNECTION_ESTABLISHED: {
-                            actions: "rovPeerConnectionEstablished"
-                        }
-                    }
-                }
-            },
+        Connecting_to_Peer_Server: {
+            entry: [
+                "stopPeerServerConnMachine",
+                "runPeerServerConnMachine",
+                "hideRovConnectionBar"
+            ],
             on: {
-                CONNECT_TO_NEXT_ROV: {
+                PEER_SERVER_CONNECTION_ESTABLISHED: {
+                    actions: [
+                        "setThisPeer"
+                    ],
+                    target: "Connecting_to_Rov"
+                }
+            }
+        },
+        Connecting_to_Rov: {
+            entry: [
+                "runPeerConnMachine",
+                "showRovConnectionBar"
+            ],
+            exit: [
+                "stopPeerConnMachine"
+            ],
+            on: {
+                SWITCH_TO_NEXT_ROV: {
                     actions: "switchToNextRovPeerId",
-                    target: "Running",
+                    target: "Connecting_to_Rov",
+                    internal: false
+                },
+                SWITCH_TO_PREV_ROV: {
+                    actions: "switchToPrevRovPeerId",
+                    target: "Connecting_to_Rov",
                     internal: false
                 },
                 RETRY_ROV_CONNECTION: {
-                    target: "Running",
+                    target: "Connecting_to_Rov",
                     internal: false
                 },
                 DISCONNECT_FROM_ROV: {
-                    target: "Awaiting_ROV_Connect_Button_Press"
+                    target: "Waiting_for_Connect_to_Rov_Btn_Press"
                 },
-                PEER_NOT_YET_READY_ERROR: {
-                    actions: "handlePeerNotYetReadyError"
-                },
+                PEER_UNAVAILABLE: [
+                    {
+                        target: "Waiting_for_Connect_to_Rov_Btn_Press"
+                    }
+                ],
                 PEER_SERVER_FATAL_ERROR: {
-                    target: "Running",
+                    actions: "stopPeerServerConnMachine",
+                    target: "Connecting_to_Peer_Server",
                     internal: false
                 },
                 WEBRTC_FATAL_ERROR: {
                     actions: "reloadWebsite",
-                    target: "Done"
-                },
-                WEBSITE_CLOSE: {
-                    target: "Done"
+                    target: "End"
                 }
             }
         },
-        Awaiting_ROV_Connect_Button_Press: {
+        Waiting_for_Connect_to_Rov_Btn_Press: {
             entry: "showDisconnectedUi",
             invoke: {
                 src: "awaitConnectBtnPress",
@@ -645,24 +646,31 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
             },
             on: {
                 CONNECT_BUTTON_PRESSED: {
-                    target: "Running"
+                    target: "Connecting_to_Rov"
+                },
+                SWITCH_TO_NEXT_ROV: {
+                    actions: "switchToNextRovPeerId"
+                },
+                SWITCH_TO_PREV_ROV: {
+                    actions: "switchToPrevRovPeerId"
                 }
             }
         },
-        Done: {
+        End: {
             type: "final"
+        }
+    },
+    on: {
+        WEBSITE_CLOSE: {
+            target: "End"
         }
     }
 }, {
     actions: {
+        "showRovConnectionBar": _uiJs.showRovConnectionBar,
+        "hideRovConnectionBar": _uiJs.hideRovConnectionBar,
         "showDisconnectedUi": ()=>{
             _uiJs.showROVDisconnectedUi();
-        },
-        "reloadWebsite": ()=>{
-            _uiJs.showReloadingWebsiteUi();
-            setTimeout(()=>{
-                window.location.reload();
-            }, 2000);
         },
         "setRovIpAddr": _xstate.assign({
             rovIpAddr: (context, event)=>event.data.rovIpAddr
@@ -670,64 +678,70 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
         "setPeerServerConfig": _xstate.assign({
             peerServerConfig: (context, event)=>event.data.peerServerConfig
         }),
+        "setThisPeer": _xstate.assign({
+            thisPeer: (context, event)=>event.data
+        }),
         "switchToNextRovPeerId": _xstate.assign({
             rovPeerIdEndNumber: (context)=>{
-                return context.rovPeerIdEndNumber + 1;
+                let newRovPeerIdEndNumber = context.rovPeerIdEndNumber + 1;
+                _uiJs.setCurrentRovName(_constsJs.ROV_PEERID_BASE + newRovPeerIdEndNumber);
+                localStorage.setItem("rovPeerIdEndNumber", newRovPeerIdEndNumber);
+                return newRovPeerIdEndNumber;
             },
             attemptingNewRovPeerId: true
         }),
-        "rovPeerConnectionEstablished": _xstate.assign({
-            attemptingNewRovPeerId: false
+        "switchToPrevRovPeerId": _xstate.assign({
+            rovPeerIdEndNumber: (context)=>{
+                let newRovPeerIdEndNumber = Math.max(0, context.rovPeerIdEndNumber - 1);
+                _uiJs.setCurrentRovName(_constsJs.ROV_PEERID_BASE + newRovPeerIdEndNumber);
+                localStorage.setItem("rovPeerIdEndNumber", newRovPeerIdEndNumber);
+                return newRovPeerIdEndNumber;
+            },
+            attemptingNewRovPeerId: true
         }),
-        "handlePeerNotYetReadyError": _actions.pure((context)=>{
-            // this function is called whenever we fail to find or connect to a rov:
-            _uiJs.showToastMessage("Could not connect to " + _constsJs.ROV_PEERID_BASE + String(context.rovPeerIdEndNumber));
-            if (context.attemptingNewRovPeerId && context.rovPeerIdEndNumber != 0) {
-                // we've tried all the rov IDs and none of them are online
-                _uiJs.showToastMessage("Trying previous rov: " + _constsJs.ROV_PEERID_BASE + String(context.rovPeerIdEndNumber - 1));
-                return [
-                    _xstate.assign({
-                        rovPeerIdEndNumber: context.rovPeerIdEndNumber - 1
-                    }),
-                    _xstate.send("RETRY_ROV_CONNECTION")
-                ];
-            } else return _xstate.send("DISCONNECT_FROM_ROV");
-        }),
-        "startPeerServerConnMachine": _xstate.assign({
+        "runPeerServerConnMachine": _xstate.assign({
             peerServerConnActor: (context)=>_xstate.spawn(_peerServerConnStateMachineJs.peerServerConnMachine.withContext({
                     ..._peerServerConnStateMachineJs.peerServerConnMachine.context,
                     rovIpAddr: context.rovIpAddr,
                     peerServerConfig: context.peerServerConfig
                 }), "peerServerConnMachine")
         }),
-        "startPeerConnMachine": _xstate.assign({
-            peerServerConnActor: (context, event)=>{
-                return _xstate.spawn(_peerConnStateMachineJs.peerConnMachine.withContext({
-                    ..._peerConnStateMachineJs.peerConnMachine.context,
-                    thisPeer: event.data,
+        "runPeerConnMachine": _xstate.assign({
+            peerServerConnActor: (context)=>{
+                return _xstate.spawn(_rovConnStateMachineJs.peerConnMachine.withContext({
+                    ..._rovConnStateMachineJs.peerConnMachine.context,
+                    thisPeer: context.thisPeer,
                     rovPeerId: _constsJs.ROV_PEERID_BASE + String(context.rovPeerIdEndNumber)
                 }), "peerConnMachine");
             }
         }),
-        "startPingMessageGenerator": _xstate.assign({
-            pingSenderActor: ()=>{
-                return _xstate.spawn(_messageHandler.RovActions.startPingMessageSenderLoop, "pingMessageGenerator");
-            }
-        }),
-        "stopPingMessageGenerator": _actions.stop("pingMessageGenerator"),
         "stopPeerServerConnMachine": _actions.stop("peerServerConnMachine"),
         "stopPeerConnMachine": _actions.stop("peerConnMachine"),
-        "gotMessageFromRov": (context, event)=>{
-            _messageHandler.MessageHandler.handleRecivedMessage(event.data);
-        },
-        "sendMessageToRov": _xstate.send((context, event)=>{
-            return {
-                type: 'SEND_MESSAGE_TO_ROV',
-                data: event.data
-            };
-        }, {
-            to: "peerConnMachine"
-        })
+        // "handlePeerNotYetReadyError": pure((context) => {
+        //     // this function is called whenever we fail to find or connect to a rov:
+        //     showToastMessage("Could not connect to " + ROV_PEERID_BASE + String(context.rovPeerIdEndNumber))
+        //     if (context.attemptingNewRovPeerId && context.rovPeerIdEndNumber != 0) {
+        //         // we've tried all the rov IDs and none of them are online
+        //         showToastMessage("Trying previous rov: " + ROV_PEERID_BASE + String(context.rovPeerIdEndNumber - 1))
+        //         return [assign({
+        //             rovPeerIdEndNumber: context.rovPeerIdEndNumber - 1,
+        //         }), send("RETRY_ROV_CONNECTION")]
+        //     } else {
+        //         return send("DISCONNECT_FROM_ROV")
+        //     }
+        // }), // will either go to the Running with the previous rov ID or go to Waiting_for_Connect_to_Rov_Btn_Press if the very first rov or the last connected rov is offline
+        // "gotMessageFromRov": (context, event) => {
+        //     MessageHandler.handleRecivedMessage(event.data)
+        // },
+        // "sendMessageToRov": send((context, event) => {
+        //     return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
+        // }, { to: "peerConnMachine" }),
+        "reloadWebsite": ()=>{
+            _uiJs.showReloadingWebsiteUi();
+            setTimeout(()=>{
+                window.location.reload();
+            }, 5000);
+        }
     },
     services: {
         "awaitConnectBtnPress": (context, event)=>{
@@ -735,11 +749,14 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
                 const err = event.data;
                 console.log(event);
                 var toastMsg = null;
-                if (err && err.type == "peer-unavailable") toastMsg = _uiJs.showToastDialog([
-                    _uiJs.createTitle("ROV is not yet online!")
-                ], {
-                    duration: 12000
-                });
+                if (err && err.type == "peer-unavailable") {
+                    const msg = _constsJs.ROV_PEERID_BASE + context.rovPeerIdEndNumber + " is not yet online!";
+                    toastMsg = _uiJs.showToastDialog([
+                        _uiJs.createTitle(msg)
+                    ], {
+                        duration: 12000
+                    });
+                }
                 const cleanupFunc = _uiJs.setupConnectBtnClickHandler(()=>{
                     if (toastMsg) toastMsg.hideToast();
                     sendStateChange("CONNECT_BUTTON_PRESSED");
@@ -752,35 +769,40 @@ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEk
                 const disconnectBtnCleanupFunc = _uiJs.setupDisconnectBtnClickHandler(()=>{
                     sendStateChange("DISCONNECT_FROM_ROV");
                 });
-                const nextRovBtnCleanupFunc = _uiJs.setupSwitchRovBtnClickHandler(()=>{
-                    sendStateChange("CONNECT_TO_NEXT_ROV");
+                const switchRovCleanupFunc = _uiJs.setupSwitchRovBtnClickHandlers(()=>{
+                    sendStateChange("SWITCH_TO_PREV_ROV");
+                }, ()=>{
+                    sendStateChange("SWITCH_TO_NEXT_ROV");
                 });
                 return ()=>{
                     disconnectBtnCleanupFunc();
-                    nextRovBtnCleanupFunc();
+                    switchRovCleanupFunc();
                 };
             };
         }
     },
-    guards: {}
+    guards: {
+        "rovDatachannelIsOpen": (context)=>{
+            console.log(context.peerConnActor);
+            return false; //context.peerConnActor && context.peerConnActor.state.context.rovDataConnection
+        }
+    }
 });
-window.mainRovMachineService = _xstate.interpret(mainMachine, {
-    devTools: true
-});
-// window.mainRovMachineService.onChange(console.log)
-window.mainRovMachineService.start();
-window.onbeforeunload = ()=>{
-    window.thisPeerjsPeer.destroy();
-    window.mainRovMachineService.send("WEBSITE_CLOSE");
-};
-/* init rov message handler */ new _messageHandler.MessageHandler((messageStrForRov)=>{
-    window.mainRovMachineService.send({
-        type: "SEND_MESSAGE_TO_ROV",
-        data: messageStrForRov
+function startMachine() {
+    window.mainRovMachineService = _xstate.interpret(mainMachine, {
+        devTools: debugXstateMode
     });
-});
-window.rovActions = _messageHandler.RovActions;
-/* init gamepad support */ new _gamepadJs.GamepadController();
+    window.mainRovMachineService.onTransition((state)=>{
+        console.log("MainTransition:", state.value);
+    });
+    window.mainRovMachineService.start();
+    window.onbeforeunload = ()=>{
+        window.thisPeerjsPeer.destroy();
+        window.mainRovMachineService.send("WEBSITE_CLOSE");
+    };
+}
+if (debugXstateMode) setTimeout(startMachine, 1000);
+else startMachine();
 setTimeout(()=>{
     _messageHandler.RovActions.toggleLights();
 }, 2000) /* Initialize Disclosure Menus */  // var menus = document.querySelectorAll('.disclosure-nav');
@@ -891,7 +913,7 @@ setTimeout(()=>{
  // }
 ;
 
-},{"@xstate/inspect":"39FuP","./gamepad.js":"2YxSr","./messageHandler":"at2SH","./util.js":"doATT","./ui.js":"efi6n","xstate":"2sk4t","xstate/lib/actions":"b9dCp","./siteInit":"8TXLV","./peerConnStateMachine.js":"hGSry","./peerServerConnStateMachine.js":"3YceA","./consts.js":"2J0f1"}],"39FuP":[function(require,module,exports) {
+},{"@xstate/inspect":"39FuP","./gamepad.js":"2YxSr","./messageHandler":"at2SH","./util.js":"doATT","./ui.js":"efi6n","xstate":"2sk4t","xstate/lib/actions":"b9dCp","./siteInit":"8TXLV","./peerServerConnStateMachine.js":"3YceA","./consts.js":"2J0f1","./rovConnStateMachine.js":"j5PiZ"}],"39FuP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "createDevTools", ()=>_browserJs.createDevTools
@@ -8702,9 +8724,9 @@ class MessageHandler {
     // sendMessageCallback: Function that will send the message to the rov peer.
     // This callback should be set in the constructor below.
     static sendMessageCallback = ()=>{};
-    constructor(sendMessageCallback){
-        MessageHandler.sendMessageCallback = sendMessageCallback;
-    }
+    static setSendMessageCallback = (callback)=>{
+        MessageHandler.sendMessageCallback = callback;
+    };
     // sendRovMessage: Send a message to the rov peer and setup reply callbacks based on a message cid if reply(ies) are expected.
     static sendRovMessage = (msgObject, replyCallback)=>{
         // setup the reply callback
@@ -8716,7 +8738,7 @@ class MessageHandler {
         if (replyCallback) MessageHandler.replyContinuityCallbacks[cid].callback = replyCallback;
         // send the message to the rov
         const messageString = JSON.stringify(msgObject);
-        MessageHandler.sendMessageCallback(messageString);
+        if (MessageHandler.sendMessageCallback) MessageHandler.sendMessageCallback(messageString);
     };
     static handlePasswordChallenge(msg_cid) {
         _ui.showPasswordPrompt("Please enter the piloting password", (password)=>{
@@ -8933,9 +8955,15 @@ parcelHelpers.export(exports, "showChoiceDialog", ()=>showChoiceDialog
 );
 parcelHelpers.export(exports, "showROVDisconnectedUi", ()=>showROVDisconnectedUi
 );
+parcelHelpers.export(exports, "hideRovConnectionBar", ()=>hideRovConnectionBar
+);
+parcelHelpers.export(exports, "showRovConnectionBar", ()=>showRovConnectionBar
+);
 parcelHelpers.export(exports, "showROVConnectingUi", ()=>showROVConnectingUi
 );
 parcelHelpers.export(exports, "showROVConnectedUi", ()=>showROVConnectedUi
+);
+parcelHelpers.export(exports, "setCurrentRovName", ()=>setCurrentRovName
 );
 parcelHelpers.export(exports, "showReloadingWebsiteUi", ()=>showReloadingWebsiteUi
 );
@@ -8943,7 +8971,7 @@ parcelHelpers.export(exports, "setupConnectBtnClickHandler", ()=>setupConnectBtn
 );
 parcelHelpers.export(exports, "setupDisconnectBtnClickHandler", ()=>setupDisconnectBtnClickHandler
 );
-parcelHelpers.export(exports, "setupSwitchRovBtnClickHandler", ()=>setupSwitchRovBtnClickHandler
+parcelHelpers.export(exports, "setupSwitchRovBtnClickHandlers", ()=>setupSwitchRovBtnClickHandlers
 );
 parcelHelpers.export(exports, "showScanIpBtn", ()=>showScanIpBtn
 );
@@ -8978,7 +9006,7 @@ parcelHelpers.export(exports, "setArtificialHorizonBackground", ()=>setArtificia
  //             // var tiltLR = eventData.gamma;
  //             // beta: Tilting the device from the front to the back. Tilting the device to the front will result in a positive value.
  //             var tiltFB = eventData.beta;
- //             // this.document.getElementById("rov_connection_display").innerHTML = "tiltLR: " + tiltLR + " tiltFB: " + (tiltFB - 90);
+ //             // this.document.getElementById("rov_connection_bar").innerHTML = "tiltLR: " + tiltLR + " tiltFB: " + (tiltFB - 90);
  //             // alpha: The direction the compass of the device aims to in degrees.
  //             var dir = eventData.alpha
  //             setArtificialHorizonBackground(dir, -tiltFB);
@@ -9144,24 +9172,30 @@ function showChoiceDialog(title, buttons, callback) {
 const connectBtn = document.getElementById('connect_btn');
 const disconnectBtn = document.getElementById('disconnect_btn');
 const connectedRovLabel = document.getElementById('connected_rov_label');
+const rovConnectionBar = document.getElementById('rov_connection_bar');
 function showROVDisconnectedUi() {
     connectBtn.style.display = 'block';
     disconnectBtn.style.display = 'none';
-    connectedRovLabel.parentElement.parentElement.classList.add('hidden');
-    connectedRovLabel.innerText = 'None';
     hideLoadingUi();
+}
+function hideRovConnectionBar() {
+    rovConnectionBar.classList.add('hidden');
+}
+function showRovConnectionBar() {
+    rovConnectionBar.classList.remove('hidden');
 }
 function showROVConnectingUi() {
     connectBtn.style.display = 'none';
-    connectedRovLabel.parentElement.parentElement.classList.add('hidden');
     showLoadingUi("Searching for ROV...");
 }
-function showROVConnectedUi(rovName) {
+function showROVConnectedUi() {
     connectBtn.style.display = 'none';
     disconnectBtn.style.display = 'block';
-    connectedRovLabel.parentElement.parentElement.classList.remove('hidden');
-    if (rovName) connectedRovLabel.innerText = rovName;
     hideLoadingUi();
+}
+function setCurrentRovName(name) {
+    connectBtn.innerText = "Connect to " + name;
+    connectedRovLabel.innerText = name;
 }
 function showReloadingWebsiteUi() {
     connectBtn.style.display = 'none';
@@ -9183,7 +9217,7 @@ function setupDisconnectBtnClickHandler(callback) {
 }
 const switchToPrevRovBtn = document.getElementById('switch_to_prev_rov_btn');
 const switchToNextRovBtn = document.getElementById('switch_to_next_rov_btn');
-function setupSwitchRovBtnClickHandler(prevRovCallback, nextRovCallback) {
+function setupSwitchRovBtnClickHandlers(prevRovCallback, nextRovCallback) {
     switchToPrevRovBtn.addEventListener('click', prevRovCallback);
     switchToNextRovBtn.addEventListener('click', nextRovCallback);
     return ()=>{
@@ -11222,367 +11256,7 @@ const siteInitMachine = /** @xstate-layout N4IgpgJg5mDOIC5SwJYBcwEkB26B0AwgBZgDG
  //   guards: {},
  // }
 
-},{"xstate":"2sk4t","./util":"doATT","./ui":"efi6n","./consts":"2J0f1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hGSry":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "peerConnMachine", ()=>peerConnMachine
-);
-var _xstate = require("xstate");
-var _ui = require("./ui");
-var _util = require("./util");
-var _actions = require("xstate/lib/actions");
-var _messageHandler = require("./messageHandler");
-// FOR CONVERTING TEXT TO/FROM BINARY FOR SENDING OVER THE WEBRTC DATACHANNEL
-const messageEncoder = new TextEncoder(); // always utf-8
-const messageDecoder = new TextDecoder(); // always utf-8
-const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CWeAdAHLbED6O+RxkdAKtnQErYBuAxFwDyANQZCqVAKKY2ASQl0pAZTYBBAEIAZOcoASUgCKIU2WKTJ4TIAB6IAtAEYArACYKAdgBsX194AcAAwejq7+AJyuADQgAJ6IjoEALBT+Po5JzgDMXuEe-q6uWQC+xTGoGIwEJOS41LQMeNUsEOycPALCYgAKUlJc4pIy8or9wlzWyGYWtdZ2CPYRKV7OkUX+jv5JXln+MfEImx6pWW5ZgYFnroE5peVoWE3MtRRVzKwc3HwUhgCGxL9MAALX5MAA2P3+vwYIPBdEMpFghCeJEg-EManUmD0aiGWiUqk0On0Rkm00suDmiCyHnc-n8qx2DOy2w8SX2iA8zkCFBp4XONM2WSSlzuIAqjyYNUob1RrU+HUhAOBoIIEL+AJhqrAYPhiORUpa6MxamxuOk+PkAFkpEIAKpsMnmClUhAeEIURz88KBNIRRKudlxRCrCjhVbh5JJRxs-wlMrih6yimvFEtNpfXhKwGwtXZrVwoSoXDGrE4vHw3SYCTSWROmZWJC2am0ijOEKB9uFVyhLIct3hfy8pKRZxbLLhFbhMUS5MvZMfdrfDU57XqqEFtV0ItgEvKKRUQx0G3KZRqADiUnYQm4onrLqb8ycPdSDK9eW2gRc-g8-a8FwoJItiSIp-x-NwvBnJM03nNNF0zbMVXBfMkK3HcS3PIQ2GPFQz0vOgADFhCtW8RHvWZHwcUJwlSEcvEcGMbmcdsGX7ZxHCyNs-DZL0LjCLJXCgyoYJlOD5SXLMrUgUhV2Qmh6HQ-gbUMOQ1AYcsLQJdRtF0AxjCbKZnQo0B5j8RwKECVxwjyQJJ1CLwkj7YNDi9dxHPDNZuX-bIhMlZpYMNeDFSkiAZNQnUKBCmTNx1RpAogfgRDkQxbToVQuCkNQSIytRDAATXIxsTMQGyKFcXJbMuLZgjjfsGMiQCJ1WQovMueN7mEw0AuaILvii2S1SUoxVPU80pEtOQbXtR0DPJYzmwQQVeXKoCMiyIV6LYmiPJ9bwQI8G5yt8udRPijMOkEUQ6F6fpBlrEYqCULhxkKylKIWEIhy8fJvF8crnCZftypopIOzSZJbJjJJSgTXBsAgOBJmgrrKHkuKevEzNXtdexViHHsvCCMcuTcEJ+3sdwLjjdiRSKTsMmhhNZxEuoF0xxUV3C9dNS5vUkTE7H3sJ5xPRcCcLg8XZQkcftaTc4Gf1CVxmJA46WdTM6FWXKEuZQ3NYvQwXioWUJjj8SJfCCZWBPYv8GqSaNEmyGNu3axNOv806MfO7XlX1sEjYWpxslouzGNOFjnH7XYaOauMewZcNlbVlHWbEn3JOkgaIrRw3ZqMoqg4YziIgFc45fDBi6pcFJwzHBzTYcyCmeRz2081iTIqz3X+pi3U2cD+YAc4sJ6NpDiIi2aJnPqlIHdyCJInOSGU7bjXva1zPQuziERFIBHOGUYh0DAX4AFtt2LQeEh7TiJ3ycJQfWopvDqnttqs910gE-JV+eL33jsz6t3f218TY0lSPyG45dCiV37NZEWENgig3yF+DIf9pTtw3hJMBTh3Sh3ouHZi+Qo7OX+hQFYHgfSDiCIkGMGCHymALm9Y29hwibAoc1dYmxti7HJqEEWj8BLrWyOGHYDsYbFCAA */ _xstate.createMachine({
-    context: {
-        /* NOTE that the context is really set by the parent machine, not here */ thisPeer: null,
-        rovPeerId: null,
-        rovDataConnection: null
-    },
-    exit: "stopPeerConnectionEventHandler",
-    id: "peerConnection",
-    initial: "Not_Connected_To_Rov",
-    states: {
-        Not_Connected_To_Rov: {
-            entry: [
-                "showConnectingUi",
-                "stopPeerConnectionEventHandler",
-                "connectToRovPeerAndStartPeerConnectionEventHandler", 
-            ],
-            on: {
-                ROV_CONNECTION_ESTABLISHED: {
-                    actions: "rovPeerConnectionEstablished",
-                    target: "Connected_To_Rov"
-                },
-                ROV_PEER_CONNECTION_ERROR: {
-                    target: "Not_Connected_To_Rov",
-                    internal: false
-                }
-            }
-        },
-        Connected_To_Rov: {
-            entry: [
-                "showRovConnectedUi"
-            ],
-            type: "parallel",
-            states: {
-                DataChannel: {
-                    exit: "closeDownDataChannel",
-                    initial: "Data_Channel_Open",
-                    states: {
-                        Data_Channel_Disconnected: {
-                            entry: "showConnectingUi",
-                            invoke: {
-                                src: "watchForRovReconnect",
-                                id: "watchForRovReconnect"
-                            },
-                            on: {
-                                DATACHANNEL_ESTABLISHED: {
-                                    target: "Data_Channel_Open"
-                                },
-                                DATACHANNEL_TIMEOUT: {
-                                    target: "#peerConnection.Not_Connected_To_Rov"
-                                }
-                            }
-                        },
-                        Data_Channel_Open: {
-                            entry: "showRovConnectedUi",
-                            invoke: [
-                                {
-                                    src: "handleDataChannelEvents",
-                                    id: "handleDataChannelEvents"
-                                },
-                                {
-                                    src: "watchForRovDisconnect",
-                                    id: "watchForRovDisconnect"
-                                }, 
-                            ],
-                            on: {
-                                DATACHANNEL_DISCONNECT: {
-                                    target: "Data_Channel_Disconnected"
-                                },
-                                SEND_MESSAGE_TO_ROV: {
-                                    actions: "sendMessageToRov"
-                                },
-                                GOT_MESSAGE_FROM_ROV: {
-                                    actions: "gotMessageFromRov"
-                                }
-                            }
-                        }
-                    }
-                },
-                MediaChannel: {
-                    exit: [
-                        "closeDownMediaChannel",
-                        "hideLivestreamUi"
-                    ],
-                    initial: "Not_Open",
-                    states: {
-                        Not_Open: {
-                            description: 'ROV Will "Video Call" this plot, and that is hooked up to trigger the MEDIA_CHANNEL_ESTABLISHED transition',
-                            invoke: {
-                                src: "awaitMediaCall",
-                                id: "awaitMediaCall"
-                            },
-                            on: {
-                                MEDIA_CHANNEL_ESTABLISHED: {
-                                    actions: [
-                                        "setMediaChannel",
-                                        "showMediaChannelConnectedNotice", 
-                                    ],
-                                    target: "Media_Channel_Connected"
-                                }
-                            }
-                        },
-                        Media_Channel_Connected: {
-                            invoke: {
-                                src: "awaitVideoStream",
-                                id: "awaitVideoStream"
-                            },
-                            on: {
-                                VIDEO_STREAM_READY: {
-                                    actions: [
-                                        "setVideoStream",
-                                        "showGotVideoStreamNotice"
-                                    ],
-                                    target: "Video_Stream_Open"
-                                }
-                            }
-                        },
-                        Video_Stream_Open: {}
-                    },
-                    on: {
-                        MEDIA_CHANNEL_TIMEOUT: {
-                            target: "#peerConnection.Not_Connected_To_Rov"
-                        }
-                    }
-                }
-            },
-            on: {
-                ROV_PEER_CONNECTION_ERROR: {
-                    target: "Not_Connected_To_Rov"
-                }
-            }
-        }
-    }
-}, {
-    actions: {
-        showConnectingUi: _ui.showROVConnectingUi,
-        showRovConnectedUi: (context, event)=>{
-            _ui.showROVConnectedUi(event.data ? event.data.peer : null);
-        },
-        debugReload: ()=>{
-            var reloadCount = localStorage.getItem("reloadCount") || 0;
-            console.log("reloadCount: ", reloadCount, reloadCount == -1);
-            if (reloadCount == -1 || reloadCount > 8) setTimeout(()=>{
-                localStorage.setItem("reloadCount", 0);
-                window.location.reload();
-            }, 10000);
-            else {
-                reloadCount++;
-                localStorage.setItem("reloadCount", reloadCount);
-                window.location.reload();
-            }
-        },
-        showMediaChannelConnectedNotice: ()=>{
-            _ui.showToastMessage("ROV Media Channel Connected!");
-        },
-        showGotVideoStreamNotice: ()=>{
-            _ui.showToastMessage("Got ROV Video Stream!");
-            _ui.hideLoadingUi();
-            _ui.showLivestreamUi();
-        },
-        hideLivestreamUi: ()=>{
-            _ui.hideLivestreamUi();
-        },
-        setMediaChannel: _xstate.assign({
-            mediaChannel: (context, event)=>{
-                const mediaChannel = event.data;
-                return mediaChannel;
-            }
-        }),
-        setVideoStream: _xstate.assign({
-            videoStream: (context, event)=>{
-                const rovVideoStream = event.data;
-                const videoElem = document.getElementById('video-livestream');
-                videoElem.srcObject = rovVideoStream; // video.src = URL.createObjectURL(rovVideoStream);
-                videoElem.muted = true;
-                videoElem.autoplay = true;
-                videoElem.controls = false;
-                videoElem.play();
-                return rovVideoStream;
-            }
-        }),
-        rovPeerConnectionEstablished: _actions.sendParent("ROV_CONNECTION_ESTABLISHED"),
-        "sendMessageToRov": (context, event)=>{
-            const outgoingMessage = event.data;
-            const rovDataConnection = context.rovDataConnection;
-            if (!rovDataConnection || !rovDataConnection.open || !rovDataConnection.peerConnection.iceConnectionState || rovDataConnection.peerConnection.iceConnectionState != "connected") {
-                console.warn("Tried to send message on closed data channel: ", outgoingMessage);
-                return;
-            }
-            console.log("Sending Datachannel Message: ", outgoingMessage);
-            const encodedMessage = messageEncoder.encode(outgoingMessage);
-            rovDataConnection.send(encodedMessage);
-        },
-        gotMessageFromRov: _actions.sendParent((context, event)=>{
-            return {
-                type: "GOT_MESSAGE_FROM_ROV",
-                data: event.data
-            };
-        }),
-        closeDownMediaChannel: (context)=>{
-            console.info("Closing media channel...");
-            if (context.mediaChannel) context.mediaChannel.close();
-        },
-        closeDownDataChannel: (context)=>{
-            console.info("Closing data channel...");
-            if (context.rovDataConnection) context.rovDataConnection.close();
-        },
-        "connectToRovPeerAndStartPeerConnectionEventHandler": _xstate.assign((context)=>{
-            console.log("Connecting to ROV:" + context.rovPeerId);
-            const rovDataConnection = context.thisPeer.connect(context.rovPeerId, {
-                reliable: true,
-                serialization: 'none'
-            });
-            return {
-                rovDataConnection: rovDataConnection,
-                peerConnectionEventHandler: _xstate.spawn((sendStateChange)=>{
-                    const openHandler = _util.generateStateChangeFunction(sendStateChange, "ROV_CONNECTION_ESTABLISHED", rovDataConnection);
-                    const errorHandler = _util.generateStateChangeFunction(sendStateChange, "ROV_PEER_CONNECTION_ERROR", null, (err)=>console.log("ROV_PEER_CONNECTION_ERROR:", err)
-                    );
-                    rovDataConnection.on("open", openHandler);
-                    rovDataConnection.on("error", errorHandler);
-                    return ()=>{
-                        rovDataConnection.off("open", openHandler);
-                        rovDataConnection.off("error", errorHandler);
-                    };
-                }, "peerConnectionEventHandler")
-            };
-        }),
-        "stopPeerConnectionEventHandler": _actions.stop("peerConnectionEventHandler")
-    },
-    services: {
-        "awaitMediaCall": (context)=>{
-            return (sendStateChange)=>{
-                _ui.showLoadingUi("Waiting for ROV Media Call...");
-                const callHandler = _util.generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection)=>{
-                    _ui.showToastMessage('Got media call from peer: ' + rovMediaConnection.peer);
-                    rovMediaConnection.answer(null, {
-                    });
-                });
-                context.thisPeer.on('call', callHandler);
-                const timeoutId = setTimeout(()=>{
-                    sendStateChange({
-                        type: "MEDIA_CHANNEL_TIMEOUT"
-                    });
-                }, 16000);
-                return ()=>{
-                    clearTimeout(timeoutId);
-                    context.thisPeer.off('call', callHandler);
-                };
-            };
-        },
-        awaitVideoStream: (context)=>{
-            return (sendStateChange)=>{
-                console.log("Awaiting video stream from ROV...");
-                const videoReadyHandler = _util.generateStateChangeFunction(sendStateChange, "VIDEO_STREAM_READY");
-                context.mediaChannel.on('stream', videoReadyHandler);
-                const timeoutId = setTimeout(()=>{
-                    sendStateChange({
-                        type: "MEDIA_CHANNEL_TIMEOUT"
-                    });
-                }, 16000);
-                return ()=>{
-                    clearTimeout(timeoutId);
-                    context.mediaChannel.off('stream', videoReadyHandler);
-                };
-            };
-        },
-        "handleDataChannelEvents": (context)=>{
-            return (sendStateChange)=>{
-                _ui.showToastMessage("Connected to ROV!");
-                const rovDataConnection = context.rovDataConnection;
-                // handle new messages from the datachannel (comming FROM the rov)
-                console.log("handleDataChannelEvents:", rovDataConnection);
-                const dataMsgRecivedHandler = (encodedMessage)=>{
-                    const message = messageDecoder.decode(encodedMessage);
-                    sendStateChange({
-                        type: "GOT_MESSAGE_FROM_ROV",
-                        data: message
-                    });
-                };
-                rovDataConnection.on('data', dataMsgRecivedHandler);
-                _messageHandler.MessageHandler.sendRovMessage({
-                    action: "begin_livestream"
-                });
-                // cleanup event listeners when the state is exited
-                return ()=>{
-                    rovDataConnection.off("data", dataMsgRecivedHandler);
-                };
-            };
-        },
-        watchForRovDisconnect: (context)=>{
-            return (sendStateChange)=>{
-                const rovDataConnection = context.rovDataConnection;
-                // every second (interval 1000) check if the datachannel peer connection has disconnected
-                const intervalId = setInterval(()=>{
-                    const connectionState = rovDataConnection.peerConnection ? rovDataConnection.peerConnection.iceConnectionState : "disconnected";
-                    if (connectionState == "disconnected") sendStateChange("DATACHANNEL_DISCONNECT");
-                }, 1000);
-                return ()=>{
-                    // cleanup the check interval when the state is exited
-                    clearInterval(intervalId);
-                };
-            };
-        },
-        watchForRovReconnect: (context)=>{
-            return (sendStateChange)=>{
-                const rovDataConnection = context.rovDataConnection;
-                var datachannelTimeoutCountdown = 10;
-                var lastIceConnectionState = "disconnected";
-                // every second (interval 1000) check if the datachannel peer connection is still disconnected
-                // if it's disconnected: count down a timeout counter, if it's still not connected after the timeout, then fire the DATACHANNEL_TIMEOUT event
-                // if it connects: reset the countdown.
-                const intervalId = setInterval(()=>{
-                    const connectionState = rovDataConnection.peerConnection ? rovDataConnection.peerConnection.iceConnectionState : "disconnected";
-                    if (connectionState == "disconnected") {
-                        datachannelTimeoutCountdown--;
-                        _ui.showToastMessage("Waiting for ROV to Reconnect: " + datachannelTimeoutCountdown, 1000);
-                    } else if (connectionState == "connected" && lastIceConnectionState != "connected") {
-                        datachannelTimeoutCountdown = 10;
-                        _ui.showToastMessage("ROV Reconnected!", 2000);
-                        sendStateChange("DATACHANNEL_ESTABLISHED");
-                    }
-                    lastIceConnectionState = connectionState;
-                    // If we have waited too long without the rov reconnecting
-                    if (datachannelTimeoutCountdown <= 0) sendStateChange({
-                        type: "DATACHANNEL_TIMEOUT"
-                    });
-                }, 1000);
-                return ()=>{
-                    // cleanup the check interval when the state is exited
-                    clearInterval(intervalId);
-                };
-            };
-        },
-        awaitSwitchRovBtnPress: ()=>{
-            return (sendStateChange)=>{
-                const cleanupFunc = _ui.setupSwitchRovBtnClickHandler(()=>{
-                    sendStateChange("CONNECT_TO_PREV_ROBOT");
-                }, ()=>{
-                    sendStateChange("CONNECT_TO_NEXT_ROBOT");
-                });
-                return cleanupFunc;
-            };
-        }
-    }
-});
-console.log("Peerjs rov Connection Machine: ", peerConnMachine.options);
-
-},{"xstate":"2sk4t","./ui":"efi6n","./util":"doATT","xstate/lib/actions":"b9dCp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./messageHandler":"at2SH"}],"3YceA":[function(require,module,exports) {
+},{"xstate":"2sk4t","./util":"doATT","./ui":"efi6n","./consts":"2J0f1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3YceA":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "peerServerConnMachine", ()=>peerServerConnMachine
@@ -11625,19 +11299,24 @@ const peerServerConnMachine = _xstate.createMachine({
                 "setupPeerAndStartPeerServerEventsHandler"
             ],
             on: {
-                PEER_SERVER_CONNECTION_ESTABLISHED: {
-                    target: "#peerServerConnection.Connected_To_Peer_Server"
+                SERVER_CONNECTION_ESTABLISHED: {
+                    target: "#peerServerConnection.Connected_To_Peer_Server",
+                    actions: [
+                        "notifyParentOfPeerServerConnection",
+                        "showPeerServerConnectedNotice"
+                    ]
                 },
                 PEERJS_ERROR: {
+                    target: "#peerServerConnection.Handling_Error"
+                }
+            },
+            after: {
+                5000: {
                     target: "#peerServerConnection.Handling_Error"
                 }
             }
         },
         Connected_To_Peer_Server: {
-            entry: [
-                "showPeerServerConnectedNotice",
-                "notifyParentOfPeerServerConnection"
-            ],
             invoke: {
                 src: "handlePeerSeverEvents",
                 id: "handlePeerSeverEvents"
@@ -11658,12 +11337,20 @@ const peerServerConnMachine = _xstate.createMachine({
                 id: "reconnectToPeerServer"
             },
             on: {
-                PEER_SERVER_CONNECTION_ESTABLISHED: {
-                    actions: "showPeerServerConnectedNotice",
-                    target: "#peerServerConnection.Connected_To_Peer_Server"
+                SERVER_CONNECTION_ESTABLISHED: {
+                    target: "#peerServerConnection.Connected_To_Peer_Server",
+                    actions: [
+                        "notifyParentOfPeerServerConnection",
+                        "showPeerServerConnectedNotice"
+                    ]
                 },
                 PEERJS_ERROR: {
                     target: "#peerServerConnection.Handling_Error"
+                }
+            },
+            after: {
+                6000: {
+                    target: "Handling_Error"
                 }
             }
         },
@@ -11675,6 +11362,10 @@ const peerServerConnMachine = _xstate.createMachine({
                         "cleanupPeerServerConnection"
                     ],
                     target: "#peerServerConnection.Not_Connected_To_Peer_Server"
+                },
+                PEER_SERVER_CONNECTION_OK: {
+                    target: "#peerServerConnection.Connected_To_Peer_Server",
+                    internal: true
                 }
             }
         }
@@ -11687,8 +11378,6 @@ const peerServerConnMachine = _xstate.createMachine({
         "showPeerServerDisconnectedNotice": ()=>{
             _ui.showToastMessage("Peerjs Server Disconnected");
         },
-        // setupThisPeerWithPeerServer: assign({
-        // }),
         "notifyParentOfPeerServerConnection": _actions.sendParent((context)=>{
             return {
                 type: "PEER_SERVER_CONNECTION_ESTABLISHED",
@@ -11697,6 +11386,7 @@ const peerServerConnMachine = _xstate.createMachine({
         }),
         "handlePeerServerError": _actions.pure((context, event)=>{
             const err = event.data;
+            console.log("handlePeerServerError: ", err);
             if (err.type == 'browser-incompatible') {
                 alert('Your web browser does not support some WebRTC features. Please use a newer or different browser.');
                 return _actions.sendParent({
@@ -11708,36 +11398,45 @@ const peerServerConnMachine = _xstate.createMachine({
                 return _actions.sendParent({
                     type: "WEBRTC_FATAL_ERROR"
                 });
-            } else if (err.type == "peer-unavailable") return _actions.sendParent({
-                type: "PEER_NOT_YET_READY_ERROR",
-                data: err
-            });
+            } else if (err.type == "peer-unavailable") return [
+                _actions.send("PEER_SERVER_CONNECTION_OK"),
+                _actions.sendParent({
+                    type: "PEER_UNAVAILABLE",
+                    data: err
+                })
+            ];
             else if (err.type == "unavailable-id") {
-                localStorage.removeItem('thisClientPeerId') // discard our saved peer id so we will use a fresh one
+                localStorage.removeItem('thisClientPeerId') // discard our saved peer id so we will use a fresh one next time we connect
                 ;
-                return _actions.sendParent({
-                    type: "PEER_SERVER_FATAL_ERROR"
-                });
+                return _actions.send("PEER_SERVER_CONNECTION_CLOSED"); // will cause a reconnection attempt
             } else if (FATAL_PEER_ERROR_TYPES.includes(err.type)) {
                 _ui.showToastMessage("Peerjs Server Fatal Error: " + err.type + " Restarting...");
-                return _actions.sendParent({
-                    type: "PEER_SERVER_FATAL_ERROR"
-                });
+                return [
+                    _actions.send("PEER_SERVER_CONNECTION_CLOSED"),
+                    _actions.sendParent({
+                        type: "PEER_SERVER_FATAL_ERROR"
+                    })
+                ];
             } else {
                 _ui.showToastMessage("Peerjs Server Error: " + err.type + " Restarting...");
                 console.dir("Peerjs Server Error: ", err);
-                return _actions.send({
-                    type: "PEER_SERVER_CONNECTION_CLOSED"
-                });
+                return [
+                    _actions.send({
+                        type: "PEER_SERVER_CONNECTION_CLOSED"
+                    }),
+                    _actions.sendParent({
+                        type: "PEER_SERVER_FATAL_ERROR"
+                    })
+                ];
             }
         }),
-        "cleanupPeerServerConnection": _actions.assign({
-            thisPeer: (context)=>{
-                console.log("cleanupPeerServerConnection: ", context.thisPeer);
-                if (context.thisPeer) context.thisPeer.destroy();
-                return null;
-            }
+        "setThisPeer": _actions.assign({
+            thisPeer: (_, event)=>event.data
         }),
+        "cleanupPeerServerConnection": (context)=>{
+            console.log("cleanupPeerServerConnection: ", context.thisPeer);
+            if (context.thisPeer) context.thisPeer.destroy();
+        },
         "setupPeerAndStartPeerServerEventsHandler": _actions.assign((context)=>{
             var ourPeerId = localStorage.getItem('thisClientPeerId');
             if (!ourPeerId) {
@@ -11749,7 +11448,7 @@ const peerServerConnMachine = _xstate.createMachine({
             return {
                 thisPeer: thisPeer,
                 peerServerEventsHandler: _xstate.spawn((sendStateChange)=>{
-                    const openHandler = _util.generateStateChangeFunction(sendStateChange, "PEER_SERVER_CONNECTION_ESTABLISHED", thisPeer);
+                    const openHandler = _util.generateStateChangeFunction(sendStateChange, "SERVER_CONNECTION_ESTABLISHED", thisPeer);
                     const errHandler = _util.generateStateChangeFunction(sendStateChange, "PEERJS_ERROR", null, console.log);
                     thisPeer.on("open", openHandler);
                     thisPeer.on("error", errHandler);
@@ -19766,6 +19465,357 @@ Prints log messages depending on the debug level passed in. Defaults to 0.
 ], null) //# sourceMappingURL=/peerjs.js.map
 ;
 
-},{}]},["g9TDx","1SICI"], "1SICI", "parcelRequire8802")
+},{}],"j5PiZ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "peerConnMachine", ()=>peerConnMachine
+);
+var _xstate = require("xstate");
+var _ui = require("./ui");
+var _util = require("./util");
+var _actions = require("xstate/lib/actions");
+var _messageHandler = require("./messageHandler");
+// FOR CONVERTING TEXT TO/FROM BINARY FOR SENDING OVER THE WEBRTC DATACHANNEL
+const messageEncoder = new TextEncoder(); // always utf-8
+const messageDecoder = new TextDecoder(); // always utf-8
+const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CWeAdAHLbED6O+RxkdAKtnQErYBuAxFwDyANQZCqVAKKY2ASQl0pAZTYBBAEIAZOcoASUgCKIU2WKTJ4TIAB6IAtAEYArACYKAdgBsX194AcAAwejq7+AJyuADQgAJ6IjoEALBT+Po5JzgDMXuEe-q6uWQC+xTGoGIwEJOS41LQMeNUsEOycPALCYgAKUlJc4pIy8or9wlzWyGYWtdZ2CPYRKV7OkUX+jv5JXln+MfEImx6pWW5ZgYFnroE5peVoWE3MtRRVzKwc3HwUhgCGxL9MAALX5MAA2P3+vwYIPBdEMpFghCeJEg-EManUmD0aiGWiUqk0On0Rkm00suDmiCyHnc-n8qx2DOy2w8SX2iA8zkCFBp4XONM2WSSlzuIAqjyYNUob1RrU+HUhAOBoIIEL+AJhqrAYPhiORUpa6MxamxuOk+PkAFkpEIAKpsMnmClUhAeEIURz88KBNIRRKudlxRCrCjhVbh5JJRxs-wlMrih6yimvFEtNpfXhKwGwtXZrVwoSoXDGrE4vHw3SYCTSWROmZWJC2am0ijOEKB9uFVyhLIct3hfy8pKRZxbLLhFbhMUS5MvZMfdrfDU57XqqEFtV0ItgEvKKRUQx0G3KZRqADiUnYQm4onrLqb8ycPdSDK9eW2gRc-g8-a8FwoJItiSIp-x-NwvBnJM03nNNF0zbMVXBfMkK3HcS3PIQ2GPFQz0vOgADFhCtW8RHvWZHwcUJwlSEcvEcGMbmcdsGX7ZxHCyNs-DZL0LjCLJXCgyoYJlOD5SXLMrUgUhV2Qmh6HQ-gbUMOQ1AYcsLQJdRtF0AxjCbKZnQo0B5j8RwKECVxwjyQJJ1CLwkj7YNDi9dxHPDNZuX-bIhMlZpYMNeDFSkiAZNQnUKBCmTNx1RpAogfgRDkQxbToVQuCkNQSIytRDAATXIxsTMQGyKFcXJbMuLZgjjfsGMiQCJ1WQovMueN7mEw0AuaILvii2S1SUoxVPU80pEtOQbXtR0DPJYzmwQQVeXKoCMiyIV6LYmiPJ9bwQI8G5yt8udRPijMOkEUQ6F6fpBlrEYqCULhxkKylKIWEIhy8fJvF8crnCZftypopIOzSZJbJjJJSgTXBsAgOBJmgrrKHkuKevEzNXtdexViHHsvCCMcuTcEJ+3sdwLjjdiRSKTsMmhhNZxEuoF0xxUV3C9dNS5vUkTE7H3sJ5xPRcCcLg8XZQkcftaTc4Gf1CVxmJA46WdTM6FWXKEuZQ3NYvQwXioWUJjj8SJfCCZWBPYv8GqSaNEmyGNu3axNOv806MfO7XlX1sEjYWpxslouzGNOFjnH7XYaOauMewZcNlbVlHWbEn3JOkgaIrRw3ZqMoqg4YziIgFc45fDBi6pcFJwzHBzTYcyCmeRz2081iTIqz3X+pi3U2cD+YAc4sJ6NpDiIi2aJnPqlIHdyCJInOSGU7bjXva1zPQuziERFIBHOGUYh0DAX4AFtt2LQeEh7TiJ3ycJQfWopvDqnttqs910gE-JV+eL33jsz6t3f218TY0lSPyG45dCiV37NZEWENgig3yF+DIf9pTtw3hJMBTh3Sh3ouHZi+Qo7OX+hQFYHgfSDiCIkGMGCHymALm9Y29hwibAoc1dYmxti7HJqEEWj8BLrWyOGHYDsYbFCAA */ _xstate.createMachine({
+    context: {
+        /* NOTE that the context is really set by the parent machine, not here */ thisPeer: null,
+        rovPeerId: null,
+        rovDataConnection: null,
+        mediaChannel: null
+    },
+    exit: "stopPeerConnectionEventHandler",
+    id: "peerConnection",
+    initial: "Not_Connected_To_Rov",
+    states: {
+        Not_Connected_To_Rov: {
+            entry: [
+                "showConnectingUi",
+                "connectToRovPeerAndStartPeerConnectionEventHandler", 
+            ],
+            on: {
+                ROV_CONNECTION_ESTABLISHED: {
+                    target: "Connected_To_Rov"
+                },
+                ROV_PEER_CONNECTION_ERROR: {
+                    actions: "stopPeerConnectionEventHandler",
+                    target: "Not_Connected_To_Rov",
+                    internal: false
+                }
+            },
+            after: {
+                8000: {
+                    target: "Not_Connected_To_Rov",
+                    internal: false
+                }
+            }
+        },
+        Connected_To_Rov: {
+            entry: [
+                "showRovConnectedUi",
+                "debugReload"
+            ],
+            type: "parallel",
+            states: {
+                DataChannel: {
+                    initial: "Data_Channel_Open",
+                    states: {
+                        Data_Channel_Disconnected: {
+                            // entry: "showConnectingUi",
+                            invoke: {
+                                src: "watchForRovReconnect",
+                                id: "watchForRovReconnect"
+                            },
+                            on: {
+                                DATACHANNEL_ESTABLISHED: {
+                                    target: "Data_Channel_Open"
+                                }
+                            },
+                            after: {
+                                10000: {
+                                    actions: "stopPeerConnectionEventHandler",
+                                    target: "#peerConnection.Not_Connected_To_Rov"
+                                }
+                            }
+                        },
+                        Data_Channel_Open: {
+                            entry: [
+                                "showRovConnectedUi",
+                                "showWaitingForMediaChannelNotice"
+                            ],
+                            invoke: [
+                                {
+                                    src: "handleDataChannelEvents",
+                                    id: "handleDataChannelEvents"
+                                }, 
+                            ],
+                            on: {
+                                DATACHANNEL_DISCONNECT: {
+                                    target: "Data_Channel_Disconnected"
+                                }
+                            }
+                        }
+                    }
+                },
+                MediaChannel: {
+                    exit: [
+                        "hideLivestreamUi"
+                    ],
+                    initial: "Not_Open",
+                    states: {
+                        Not_Open: {
+                            description: 'ROV Will "Video Call" this browser, and that is hooked up to trigger the MEDIA_CHANNEL_ESTABLISHED transition',
+                            on: {
+                                MEDIA_CHANNEL_ESTABLISHED: {
+                                    actions: [
+                                        "setMediaChannel",
+                                        "showMediaChannelConnectedNotice", 
+                                    ],
+                                    target: "Media_Channel_Connected"
+                                }
+                            },
+                            after: {
+                                16000: {
+                                    actions: "stopPeerConnectionEventHandler",
+                                    target: "#peerConnection.Not_Connected_To_Rov"
+                                }
+                            }
+                        },
+                        Media_Channel_Connected: {
+                            invoke: {
+                                src: "awaitVideoStream",
+                                id: "awaitVideoStream"
+                            },
+                            on: {
+                                VIDEO_STREAM_READY: {
+                                    actions: [
+                                        "setVideoStream",
+                                        "showGotVideoStreamNotice"
+                                    ],
+                                    target: "Video_Stream_Open"
+                                }
+                            }
+                        },
+                        Video_Stream_Open: {}
+                    }
+                }
+            },
+            on: {
+                ROV_PEER_CONNECTION_ERROR: {
+                    actions: "stopPeerConnectionEventHandler",
+                    target: "Not_Connected_To_Rov"
+                }
+            }
+        }
+    }
+}, {
+    actions: {
+        "showConnectingUi": _ui.showROVConnectingUi,
+        "showRovConnectedUi": (context, event)=>{
+            _ui.showROVConnectedUi(event.data ? event.data.peer : null);
+        },
+        "showWaitingForMediaChannelNotice": ()=>{
+            _ui.showLoadingUi("Waiting for ROV livestream...");
+        },
+        "showMediaChannelConnectedNotice": ()=>{
+            _ui.showToastMessage("ROV Media Channel Connected!");
+        },
+        "showGotVideoStreamNotice": ()=>{
+            _ui.showToastMessage("Got ROV Video Stream!");
+            _ui.hideLoadingUi();
+            _ui.showLivestreamUi();
+            console.info("Got Video Stream!");
+        },
+        "hideLivestreamUi": ()=>{
+            _ui.hideLivestreamUi();
+        },
+        "connectToRovPeerAndStartPeerConnectionEventHandler": _xstate.assign((context)=>{
+            console.log("Connecting to ROV:" + context.rovPeerId);
+            const rovDataConnection = context.thisPeer.connect(context.rovPeerId, {
+                reliable: true,
+                serialization: 'none'
+            });
+            return {
+                rovDataConnection: rovDataConnection,
+                peerConnectionEventHandler: _xstate.spawn((sendStateChange)=>{
+                    const openHandler = _util.generateStateChangeFunction(sendStateChange, "ROV_CONNECTION_ESTABLISHED", rovDataConnection);
+                    const errorHandler = _util.generateStateChangeFunction(sendStateChange, "ROV_PEER_CONNECTION_ERROR", null, (err)=>console.log("ROV_PEER_CONNECTION_ERROR:", err)
+                    );
+                    const callHandler = _util.generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection)=>{
+                        _ui.showToastMessage('Got media call from peer: ' + rovMediaConnection.peer);
+                        rovMediaConnection.answer(null, {
+                        });
+                    });
+                    rovDataConnection.on("open", openHandler);
+                    rovDataConnection.on("error", errorHandler);
+                    context.thisPeer.on('call', callHandler);
+                    return ()=>{
+                        console.log("Stopping PeerConnectionEventHandler");
+                        rovDataConnection.off("open", openHandler);
+                        rovDataConnection.off("error", errorHandler);
+                        context.thisPeer.off('call', callHandler);
+                        console.log(context);
+                        if (context.mediaChannel) {
+                            console.info("Closing media channel...");
+                            context.mediaChannel.close();
+                        }
+                        if (context.rovDataConnection) {
+                            console.info("Closing data channel...");
+                            context.rovDataConnection.close();
+                        }
+                        console.log("Done Stopping PeerConnectionEventHandler");
+                    };
+                }, "peerConnectionEventHandler")
+            };
+        }),
+        "setMediaChannel": _xstate.assign({
+            mediaChannel: (context, event)=>event.data
+        }),
+        "setVideoStream": _xstate.assign({
+            videoStream: (context, event)=>{
+                const rovVideoStream = event.data;
+                const videoElem = document.getElementById('video-livestream');
+                videoElem.srcObject = rovVideoStream; // video.src = URL.createObjectURL(rovVideoStream);
+                videoElem.muted = true;
+                videoElem.autoplay = true;
+                videoElem.controls = false;
+                videoElem.play();
+                return rovVideoStream;
+            }
+        }),
+        // "closeDownMediaChannel": (context) => {
+        //     if (context.mediaChannel) {
+        //         console.info("Closing media channel...");
+        //         context.mediaChannel.close();
+        //     }
+        // },
+        // "closeDownDataChannel": (context) => {
+        //     if (context.rovDataConnection) {
+        //         console.info("Closing data channel...");
+        //         context.rovDataConnection.close();
+        //     }
+        // },
+        "stopPeerConnectionEventHandler": _actions.stop("peerConnectionEventHandler"),
+        // "rovPeerConnectionEstablished": sendParent("ROV_CONNECTION_ESTABLISHED"),
+        "debugReload": ()=>{
+            var reloadCount = localStorage.getItem("reloadCount") || 0;
+            console.log("reloadCount: ", reloadCount, reloadCount == -1);
+            // if (reloadCount == -1 || reloadCount > 8) {
+            //     setTimeout(() => { localStorage.setItem("reloadCount", 0); window.location.reload() }, 10000);
+            // } else {
+            reloadCount++;
+            localStorage.setItem("reloadCount", reloadCount);
+        // window.location.reload()
+        // }
+        }
+    },
+    services: {
+        "awaitMediaCall": (context)=>{
+            return (sendStateChange)=>{
+                _ui.showLoadingUi("Waiting for ROV Media Call...");
+                const callHandler = _util.generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection)=>{
+                    _ui.showToastMessage('Got media call from peer: ' + rovMediaConnection.peer);
+                    rovMediaConnection.answer(null, {
+                    });
+                });
+                context.thisPeer.on('call', callHandler);
+                const timeoutId = setTimeout(()=>{
+                    sendStateChange({
+                        type: "MEDIA_CHANNEL_TIMEOUT"
+                    });
+                }, 16000);
+                return ()=>{
+                    clearTimeout(timeoutId);
+                    context.thisPeer.off('call', callHandler);
+                };
+            };
+        },
+        "awaitVideoStream": (context)=>{
+            return (sendStateChange)=>{
+                console.log("Awaiting video stream from ROV...");
+                const videoReadyHandler = _util.generateStateChangeFunction(sendStateChange, "VIDEO_STREAM_READY");
+                context.mediaChannel.on('stream', videoReadyHandler);
+                const timeoutId = setTimeout(()=>{
+                    sendStateChange({
+                        type: "MEDIA_CHANNEL_TIMEOUT"
+                    });
+                }, 16000);
+                return ()=>{
+                    clearTimeout(timeoutId);
+                    context.mediaChannel.off('stream', videoReadyHandler);
+                };
+            };
+        },
+        "handleDataChannelEvents": (context)=>{
+            return (sendStateChange)=>{
+                _ui.showToastMessage("Connected to ROV!");
+                const rovDataConnection = context.rovDataConnection;
+                // Handle sending messages to rov:
+                _messageHandler.MessageHandler.setSendMessageCallback((message)=>{
+                    const encodedMessage = messageEncoder.encode(message);
+                    rovDataConnection.send(encodedMessage);
+                });
+                // handle reciving messages from rov:
+                const dataMsgRecivedHandler = (encodedMessage)=>{
+                    const message = messageDecoder.decode(encodedMessage);
+                    _messageHandler.MessageHandler.handleRecivedMessage(message);
+                };
+                rovDataConnection.on('data', dataMsgRecivedHandler);
+                // Keep checking if the datachannel goes offline: (every half second (interval 500) check if the datachannel peer connection state is "disconnected")
+                const intervalId = setInterval(()=>{
+                    const connectionState = context.rovDataConnection.peerConnection ? context.rovDataConnection.peerConnection.iceConnectionState : "disconnected";
+                    if (connectionState == "disconnected") sendStateChange("DATACHANNEL_DISCONNECT");
+                }, 500);
+                // finally tell the rov to begin sending us the video livestream:
+                _messageHandler.MessageHandler.sendRovMessage({
+                    action: "begin_livestream"
+                });
+                // start sending ping messages to the ROV (as a heartbeat signal & used for the net ping stat):
+                const stopPingLoop = _messageHandler.RovActions.startPingMessageSenderLoop();
+                // cleanup event listeners when the state machine state is exited:
+                return ()=>{
+                    rovDataConnection.off("data", dataMsgRecivedHandler);
+                    stopPingLoop();
+                    _messageHandler.MessageHandler.setSendMessageCallback(null);
+                    // cleanup the check interval when the state is exited
+                    clearInterval(intervalId);
+                };
+            };
+        },
+        watchForRovReconnect: (context)=>{
+            return (sendStateChange)=>{
+                const rovDataConnection = context.rovDataConnection;
+                var datachannelTimeoutCountdown = 10;
+                var lastIceConnectionState = "disconnected";
+                // every second (interval 1000) check if the datachannel peer connection is still disconnected
+                // if it's disconnected: count down a timeout counter, if it's still not connected after the timeout, then fire the DATACHANNEL_TIMEOUT event
+                // if it connects: reset the countdown.
+                const intervalId = setInterval(()=>{
+                    const connectionState = rovDataConnection.peerConnection ? rovDataConnection.peerConnection.iceConnectionState : "disconnected";
+                    if (connectionState == "disconnected" && datachannelTimeoutCountdown > 0) {
+                        datachannelTimeoutCountdown--;
+                        _ui.showToastMessage("Waiting for ROV to Reconnect: " + datachannelTimeoutCountdown, 1000);
+                    } else if (connectionState == "connected" && lastIceConnectionState != "connected") {
+                        datachannelTimeoutCountdown = 10;
+                        _ui.showToastMessage("ROV Reconnected!", 2000);
+                        sendStateChange("DATACHANNEL_ESTABLISHED");
+                    } else // If we have waited too long without the rov reconnecting
+                    sendStateChange({
+                        type: "DATACHANNEL_TIMEOUT"
+                    });
+                    lastIceConnectionState = connectionState;
+                }, 1000);
+                return ()=>{
+                    // cleanup the check interval when the state is exited
+                    clearInterval(intervalId);
+                };
+            };
+        }
+    }
+});
+console.log("Peerjs rov Connection Machine: ", peerConnMachine.options);
+
+},{"xstate":"2sk4t","./ui":"efi6n","./util":"doATT","xstate/lib/actions":"b9dCp","./messageHandler":"at2SH","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["g9TDx","1SICI"], "1SICI", "parcelRequire8802")
 
 //# sourceMappingURL=index.18dbc454.js.map
