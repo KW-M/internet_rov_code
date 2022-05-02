@@ -25,6 +25,8 @@ if (debugXstateMode) {
     });
 }
 
+// pre state machine simple refactor
+
 import { createMachine, assign, interpret, spawn } from "xstate";
 import { stop } from "xstate/lib/actions";
 import { siteInitMachine } from "./siteInit";
