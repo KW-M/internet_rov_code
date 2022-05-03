@@ -368,7 +368,7 @@ func setupRobotPeer(peerOptions peerjs.Options, programShouldQuitSignal *Unblock
 	robotConnLog := log.WithFields(log.Fields{"peer": robotPeerId, "peerServer": peerOptions.Host})
 
 	// establish peer with peerjs server
-	var robotPeer, err = peerjs.NewPeer(robotPeerId, peerjs.NewOptions())
+	var robotPeer, err = peerjs.NewPeer(robotPeerId, peerOptions)
 	defer func() { // func to run when setupWebrtcConnection function exits (either normally or because of a panic)
 		if robotPeer != nil && !robotPeer.GetDestroyed() {
 			robotPeer.Close() // close this peer (including peer server connection)
