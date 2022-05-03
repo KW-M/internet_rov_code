@@ -189,7 +189,7 @@ func getNextPeerServerOptions(tries int) (*peerjs.Options, *peerjsServer.Options
 	peerOptions.Secure = peerOptionsConfig.Secure
 	peerOptions.Key = peerOptionsConfig.Key
 	peerOptions.Debug = peerOptionsConfig.Debug
-	peerOptions.Token = peerOptionsConfig.Token
+	// peerOptions.Token = peerOptionsConfig.Token
 	peerOptions.Configuration = peerOptionsConfig.Configuration
 
 	if peerOptionsConfig.StartLocalServer {
