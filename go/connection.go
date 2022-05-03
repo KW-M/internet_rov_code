@@ -180,6 +180,8 @@ func handleOutgoingDatachannelMessages(programShouldQuitSignal *UnblockSignal) {
 func getNextPeerServerOptions(tries int) (*peerjs.Options, *peerjsServer.Options) {
 	var peerOptionsConfig = config.PeerServerConfigs[tries%len(config.PeerServerConfigs)]
 
+	log.Print("using peerjs Host: ", peerOptionsConfig.Host)
+
 	var peerOptions = peerjs.NewOptions()
 	peerOptions.Host = peerOptionsConfig.Host
 	peerOptions.Port = peerOptionsConfig.Port

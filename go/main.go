@@ -52,6 +52,7 @@ func main() {
 	})
 
 	log.Debug("Config:", config)
+	log.Debug("PeerServerConfigs 0:", config.PeerServerConfigs[0])
 
 	// Create a simple boolean "channel" that we can close to signal to go subroutine functions that they should stop cleanly:
 	programShouldQuitSignal := newUnblockSignal()
