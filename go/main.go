@@ -51,6 +51,8 @@ func main() {
 		DisableQuote:     true,
 	})
 
+	log.Debug("Config:", config)
+
 	// Create a simple boolean "channel" that we can close to signal to go subroutine functions that they should stop cleanly:
 	programShouldQuitSignal := newUnblockSignal()
 	defer func() {
