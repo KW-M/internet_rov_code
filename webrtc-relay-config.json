@@ -1,0 +1,29 @@
+{
+    "LogLevel": "info",
+    "BasePeerId": "iROV-",
+    "PilotControlPassword": "CHANGE THIS PASSWORD",
+    "PilotDisconnectedPaswordTimeout": 180,
+    "NamedPipeFolder": "/users/ky/Downloads/webrtc-relay/",
+    "MessageMetadataSeparator": "|\"|",
+    "AddMetadataToMessages": true,
+    "PeerServerConfigs": [
+        {
+            "StartLocalServer": false,
+            "Host": "0.peerjs.com",
+            "Port": 443,
+            "Path": "/",
+            "Key": "peerjs",
+            "Secure": false,
+            "PingInterval": 3000
+        },
+        {
+            "StartLocalServer": true,
+            "Host": "localhost",
+            "Port": 9000,
+            "Path": "/",
+            "Key": "peerjs",
+            "Secure": false,
+            "PingInterval": 3000
+        }
+    ]
+}

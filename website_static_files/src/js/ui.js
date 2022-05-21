@@ -1,5 +1,6 @@
 import Toastify from 'toastify-js'
 import { isArray } from 'xstate/lib/utils';
+import { LOADING_MESSAGES } from './consts';
 
 // -------------------------------------------------------------
 // ------ UI Stuff ---------------------------------------------
@@ -147,7 +148,29 @@ const rovConnectionBar = document.getElementById('rov_connection_bar');
 export function showROVDisconnectedUi() {
     connectBtn.style.display = 'block';
     disconnectBtn.style.display = 'none';
-    hideLoadingUi()
+    hideLoadingUi("all")
+    showRovConnectionBar();
+}
+
+export function showROVConnectingUi(rovPeerId) {
+    connectBtn.style.display = 'none';
+    showLoadingUi("webrtc-connecting", "Searching for " + rovPeerId);
+    hideRovConnectionBar();
+}
+
+export function showROVConnectedUi() {
+    connectBtn.style.display = 'none';
+    disconnectBtn.style.display = 'block';
+    hideLoadingUi("webrtc-connecting")
+    hideLoadingUi("webrtc-reconnecting")
+    showRovConnectionBar();
+}
+
+export function showReloadingWebsiteUi() {
+    connectBtn.style.display = 'none';
+    disconnectBtn.style.display = 'none';
+    connectedRovLabel.parentElement.parentElement.classList.add('hidden')
+    showLoadingUi("reloading-site");
 }
 
 export function hideRovConnectionBar() {
@@ -158,27 +181,9 @@ export function showRovConnectionBar() {
     rovConnectionBar.classList.remove('hidden')
 }
 
-export function showROVConnectingUi() {
-    connectBtn.style.display = 'none';
-    showLoadingUi("Searching for ROV...");
-}
-
-export function showROVConnectedUi() {
-    connectBtn.style.display = 'none';
-    disconnectBtn.style.display = 'block';
-    hideLoadingUi()
-}
-
 export function setCurrentRovName(name) {
     connectBtn.innerText = "Connect to " + name;
     connectedRovLabel.innerText = name
-}
-
-export function showReloadingWebsiteUi() {
-    connectBtn.style.display = 'none';
-    disconnectBtn.style.display = 'none';
-    connectedRovLabel.parentElement.parentElement.classList.add('hidden')
-    showLoadingUi("Reloading Page...");
 }
 
 export function setupConnectBtnClickHandler(callback) {
@@ -189,9 +194,9 @@ export function setupConnectBtnClickHandler(callback) {
 }
 
 export function setupDisconnectBtnClickHandler(callback) {
-    connectBtn.addEventListener('click', callback);
+    disconnectBtn.addEventListener('click', callback);
     return () => { // cleanup function
-        connectBtn.removeEventListener('click', callback);
+        disconnectBtn.removeEventListener('click', callback);
     }
 }
 
@@ -217,13 +222,29 @@ export function hideScanIpButton() {
 
 const loadingIndicator = document.getElementById("site_loading_indicator")
 const loadingIndicatorText = document.getElementById("site_loading_text")
-export function showLoadingUi(loadingMessage) {
+let loadingStack = {};
+export function showLoadingUi(loadingMsgId, loadingMessage) {
+    const message = loadingStack[loadingMsgId] = loadingMessage || LOADING_MESSAGES[loadingMsgId] || LOADING_MESSAGES["default"];
     loadingIndicator.style.display = 'block';
-    loadingIndicatorText.innerHTML = loadingMessage;
+    loadingIndicatorText.innerHTML = message;
+
 }
 
-export function hideLoadingUi() {
-    loadingIndicator.style.display = 'none';
+export function hideLoadingUi(loadingMsgId) {
+
+    // remove the loading message from the stack
+    delete loadingStack[loadingMsgId]
+
+    // if there are no more messages in the stack, hide the loading indicator, otherwise show the top message
+    const loadingStackIds = Object.keys(loadingStack);
+    if (loadingMsgId == "all" || loadingStackIds.length == 0) {
+        loadingIndicator.style.display = 'none';
+        loadingStack = {};
+        console.log("here", loadingMsgId)
+    } else {
+        const msg = loadingStack[loadingStackIds[loadingStackIds.length - 1]]
+        loadingIndicatorText.innerHTML = msg || LOADING_MESSAGES["default"];
+    }
 }
 
 const livestreamContainer = document.getElementById("livestream_container")

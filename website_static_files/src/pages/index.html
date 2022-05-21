@@ -2,9 +2,6 @@
 <html>
 
 <head>
-    <script>
-        console.log(navigator.getGamepads()); // might trigger gamepad support in some browsers
-    </script>
     <title>ROV Cockpit</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -58,22 +55,22 @@
 
         <button class="power-menu-btn icon-btn middle-btn"></button>
         <menu role="menu" class="dropdown-menu-list light-bg">
-            <button onclick="rovActions.shutdownRov()" role="menuitem" class="alt-colors">Shutdown ROV</button>
-            <button onclick="rovActions.rebootRov()" role="menuitem" class="alt-colors">Reboot ROV</button>
+            <button onclick="RovActions.shutdownRov()" role="menuitem" class="alt-colors">Shutdown ROV</button>
+            <button onclick="RovActions.rebootRov()" role="menuitem" class="alt-colors">Reboot ROV</button>
             <button id='disconnect_btn' style="display: none;" role="menuitem" class="alt-colors">Disconnect</button>
         </menu>
 
         <button class="debug-menu-btn icon-btn bottom-btn"></button>
         <menu class="dropdown-menu-list light-bg">
-            <button onclick="rovActions.getRovStatusReport()" role="menuitem">System Status</button>
-            <button onclick="rovActions.getRovLogs()" role="menuitem">ROV Logs</button>
+            <button onclick="RovActions.getRovStatusReport()" role="menuitem">System Status</button>
+            <button onclick="RovActions.getRovLogs()" role="menuitem">ROV Logs</button>
             <button onclick="window.open('./404.html')" role="menuitem">Local Debug Links</button>
-            <button onclick="rovActions.rePullRovGithubCode()" role="menuitem" class="alt-colors">Pull ROV Code from
+            <button onclick="RovActions.rePullRovGithubCode()" role="menuitem" class="alt-colors">Pull ROV Code from
                 Github</button>
-            <button onclick="rovActions.restartRovServices()" role="menuitem" class="alt-colors">Restart ROV
+            <button onclick="RovActions.restartRovServices()" role="menuitem" class="alt-colors">Restart ROV
                 Services</button>
-            <button onclick="rovActions.enableRovWifi()" role="menuitem" class="alt-colors">Enable ROV Wifi</button>
-            <button onclick="rovActions.disableRovWifi()" role="menuitem" class="alt-colors">Disable ROV Wifi</button>
+            <button onclick="RovActions.enableRovWifi()" role="menuitem" class="alt-colors">Enable ROV Wifi</button>
+            <button onclick="RovActions.disableRovWifi()" role="menuitem" class="alt-colors">Disable ROV Wifi</button>
         </menu>
     </nav>
 

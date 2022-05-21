@@ -1,12 +1,20 @@
-export const ROV_PEERID_BASE = "iROV-";
+export const ROV_PEERID_BASE = "go-robot-";
 
 // FOR A PEERJS SERVER RUNNING IN THE CLOUD (Heroku, but could be changed to connect to the peerjs cloud or elsewhere)
 export const peerServerCloudOptions = {
-    host: '0.peerjs.com',
+    host: "ssrov-peerjs-server.herokuapp.com",//"0.peerjs.com",//
     secure: true,
     path: '/',
     port: 443,
 }
+
+// export const peerServerCloudOptions = {
+//     host: "localhost",
+//     secure: false,
+//     path: '/',
+//     key: "peerjs",
+//     port: 9129,
+// }
 
 // FOR A PEERJS SERVER RUNNING ON THE ROV Raspberry Pi:
 export const peerServerLocalOptions = {
@@ -14,6 +22,21 @@ export const peerServerLocalOptions = {
     path: '/',
     secure: false,
     port: 9000,
+}
+
+/******* UI RELATED CONSTANTS ********/
+
+export const LOADING_MESSAGES = {
+    "default": "Loading...",
+    "ip-scan": "Scanning for ROV IP address...",
+    "internet-check": "Checking internet access...",
+    "server-connecting": "Connecting to peer server...",
+    "server-reconnecting": "Reconnecting to peer server...",
+    "webrtc-connecting": "Searching for ROV...",
+    "webrtc-reconnecting": "Reconnecting to ROV...",
+    "reloading-site": "Reloading site...",
+    "awaiting-video-call": "Waiting for livestream...",
+    "awaiting-rov-reconnect": "Waiting for ROV to reconnect...",
 }
 
 /****** GAMEPAD RELATED ***********/

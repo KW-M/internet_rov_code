@@ -30,7 +30,7 @@ When the python code RECIVES a message from the unix datachannel it will contain
 {
     "SrcPeerId": "The peer id of the browser client that sent this message (String)",
     "TargetPeerIds": ["the list of peerjs peers (by peer id) this mesage should be sent to. An empty list means broadcast mesage to all connected peers. (Array of Strings)"],
-    "Action": "An action to be performed by this go code. Noting Currently uses this",
+    "Action": "An action to be performed by this go code. Nothing Currently uses this",
     "Params": "When Action is  'Change_Video_Cmd': this is the video command split on arguments."
 }
 ```

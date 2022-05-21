@@ -514,298 +514,315 @@ function hmrAcceptRun(bundle, id) {
 }
 
 },{}],"1SICI":[function(require,module,exports) {
-// // import {} from "./libraries/joypad.min.js"
-// //import {} from "./libraries/gamepad-lib.js"
-// import {} from "./libraries/webrtc-signaling.js";
-// import {} from "./libraries/toastify-js.js";
-// import {} from "./libraries/joymap.min.js";
+var _constsJs = require("./consts.js");
 var _inspect = require("@xstate/inspect");
-// import {} from "./ui.js";
-// import {} from "./api.js";
-// import {} from "./connection.js";
-// import {} from "./gamepad-emulation.js";
-// import {} from "./gamepad-ui.js";
 var _gamepadJs = require("./gamepad.js");
-var _messageHandler = require("./messageHandler");
 var _utilJs = require("./util.js");
 var _uiJs = require("./ui.js");
-var _xstate = require("xstate");
-var _actions = require("xstate/lib/actions");
+// import { stop } from "xstate/lib/actions";
 var _siteInit = require("./siteInit");
-var _rovConnStateMachineJs = require("./rovConnStateMachine.js");
-var _peerServerConnStateMachineJs = require("./peerServerConnStateMachine.js");
-var _constsJs = require("./consts.js");
-// show an inspector if the query string is present
-let debugXstateMode = !!_utilJs.getURLQueryStringVariable("debug");
-if (debugXstateMode) _inspect.inspect({
+var _rovConnectionMachine = require("./rovConnectionMachine");
+var _thisPeerSetupMachineJs = require("./thisPeerSetupMachine.js");
+let globalContext = {
+    debugXstateMode: !!_utilJs.getURLQueryStringVariable("debug"),
+    peerServerConfig: {},
+    rovIpAddr: "",
+    rovPeerIdEndNumber: parseInt(localStorage.getItem("rovPeerIdEndNumber") || 0),
+    attemptingNewRovPeerId: false,
+    thisPeer: null
+};
+/* init gamepad support */ new _gamepadJs.GamepadController();
+// Show the rov name in the ui:
+_uiJs.setCurrentRovName(_constsJs.ROV_PEERID_BASE + globalContext.rovPeerIdEndNumber);
+// Show the xstate inspector if the debug query string is present
+if (globalContext.debugXstateMode) _inspect.inspect({
     iframe: false
 });
-// import { DisclosureNav } from "./libraries/accesableDropdownMenu.js";
-window.rovActions = _messageHandler.RovActions;
-/* init gamepad support */ new _gamepadJs.GamepadController();
-const savedRovEndNumber = parseInt(localStorage.getItem("rovPeerIdEndNumber") || 0);
-_uiJs.setCurrentRovName(_constsJs.ROV_PEERID_BASE + savedRovEndNumber);
-/* mainMachine: Defines the main state machine that controls the all rov connection parts of the site:
+_siteInit.runSiteInitMachine(globalContext, (eventName1)=>{
+    _uiJs.hideLoadingUi("internet-check");
+    console.log("siteInit: ", eventName1);
+    const RovConnectionMachine = _rovConnectionMachine.startRovConnectionMachine(globalContext, (eventName)=>{
+        console.log("rovConnectionMachine: ", eventName);
+        if (eventName === "ROV_CONNECTION_FAILED") {
+            _uiJs.showToastMessage("ROV Connection Failed");
+            _uiJs.showROVDisconnectedUi();
+        }
+    });
+    const ThisPeerSetupMachine = _thisPeerSetupMachineJs.startThisPeerSetupMachine(globalContext, (eventName)=>{
+        console.log("ThisPeerSetupMachine: ", eventName);
+        RovConnectionMachine.send(eventName); // OPTIONS: "THIS_PEER_DESTROYED", "THIS_PEER_READY";
+    });
+    _uiJs.setupConnectBtnClickHandler(()=>{
+        RovConnectionMachine.send("DO_CONNECT");
+    });
+    _uiJs.setupDisconnectBtnClickHandler(()=>{
+        RovConnectionMachine.send("DO_DISCONNECT");
+    });
+    const switchToNextRovPeerId = ()=>{
+        globalContext.rovPeerIdEndNumber++;
+        _uiJs.setCurrentRovName(_constsJs.ROV_PEERID_BASE + globalContext.rovPeerIdEndNumber);
+        localStorage.setItem("rovPeerIdEndNumber", globalContext.rovPeerIdEndNumber);
+        RovConnectionMachine.send("DO_DISCONNECT");
+    // RovConnectionMachine.send("DO_CONNECT");
+    };
+    const switchToPrevRovPeerId = ()=>{
+        globalContext.rovPeerIdEndNumber = Math.max(0, globalContext.rovPeerIdEndNumber - 1);
+        _uiJs.setCurrentRovName(_constsJs.ROV_PEERID_BASE + globalContext.rovPeerIdEndNumber);
+        localStorage.setItem("rovPeerIdEndNumber", globalContext.rovPeerIdEndNumber);
+        RovConnectionMachine.send("DO_DISCONNECT");
+    // RovConnectionMachine.send("DO_CONNECT");
+    };
+    _uiJs.setupSwitchRovBtnClickHandlers(switchToPrevRovPeerId, switchToNextRovPeerId);
+}) /* mainMachine: Defines the main state machine that controls the all rov connection parts of the site:
  * NOTE: This statemachine is much easier to understand as a flowchart by copying and pasting this whole mainMachine definition into: https://stately.ai/viz
  *       or using the "xState extension for VS Code" (google it). I highly recomend you use it!
- */ const mainMachine = /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QBWAEwAGbABYA7MrmK5MgIyKdymQBoQAT0QBmZYuxyAnADYzMmXZtydcqQF9PRtFmwMAK6YmFhQ2AAKYGBEdLgxAG4xdAByvPh0AMIimGAAxviQpBE0NAxxZQBqZVkA8ikpNJlUFPV0NLhUzABCADIUuAASNKxifAJCImKSCDIAHGbYc6paUmZac1JSilJaRqYIOmZ2SzaKMhpuNrtyZt6+GDhBIWGR0bHxREmx2SH5hRByDQUqw6ABZDq4ZgAcXoVFqjFqlTG-EEwlESAkiAWymwWjMczscw8jm0dkMJkQWhkNhs2BpZ0UdiJNjMBK8PhAfiewVCmHCUWSn2+WRy-yK0NqVHBkJh9AAYgxamDEcjMeM0VNMTM7FoFGoZBZlPjqWY1vsqQz6bSVMpdTTljJ7lzHgFea9BR9EslfrkCkUlZU6g0mi02h0un0BsNRurUZMMaAdVs8U45s4pMozdo9pTDnZbtZrrapA4Wcpndy3S9+aRMvVGs06PDUjQABrSwMoibo6aIJy4jZbLPp1TGuTKC0IVyD3XXVbKQmKOaKSuu558qCkJhUBjsVXBxthlLdzWJrEIY5SbD6ReWQmaGwXKfp6+KJnDk3LGxaNf+DdhKQrADPWIZNoqyqqqeCZ9pembWOszIaFoahrIoU4oWs1hqJoGbbLIf48jWW4lDUKRSnQ7A0J2LAcO0DBKgw0G9tqiB2Fm2COMoshSE+OzLHYL6GkWGjsRmZiuL+nJVgBtakeUuBVDU8rMF0vT0YxzFakm2IXEocz4lIcjGRYcjMlO1wKGYHhaFodiZvYBlOtJ67urWADqNDdAwVCZHQKlqRptRMXGPbaRetkSfSuqbFxZnpjYGFMvqxIoXMrhOPZcyEdWm6kJ53SULQWS9LUilaeeMy2eSSxmIoNgrhJFiuOhebUvo1jErSCweMuyw5cwADuGBCPyB6+v8dDdIE+D4CIdAREQcCwHWDahlNACqVDwikC1MLgimxjw8YsTpCC6lYdV2ds+gFqsuYHJhiwTsZqzklmHKcpgvAQHAYhVgQxD4BVsGZTeWW2C4mxaA1ZhThYJx6hY1X2SoZl2DlskCu8cTerEaQZBN-oQCDrGXvI2C6naE72bZXVSBh6wyNaTNrHqBnqJjbnY0KeOin8xOk2ddjvtYxmOmZrKjozDXYD+xybCLMMyFmXPEULF4yLxSwrGzmz4Q9VL4nSBLZhcr1MlJDz+ENI1hONYoFFNM1zZgC1LbA8ChWesEaMzajLhsth3txGELIsigWFr5K0qsNg5awIhgBrVWGnS2zLjs+LKPYmaMzVWweCrd68Y4hEp-2mjg1IXVQ7ssNTmDKG9cXN0Nau3ieEAA */ _xstate.createMachine({
-    context: {
-        peerServerConfig: {},
-        rovIpAddr: "",
-        rovPeerIdEndNumber: savedRovEndNumber || 0,
-        attemptingNewRovPeerId: false,
-        thisPeer: null,
-        peerServerConnActor: null,
-        peerConnActor: null,
-        pingSenderActor: null
-    },
-    invoke: {
-        src: "setupUiButtonHandlers",
-        id: "setupUiButtonHandlers"
-    },
-    id: "main",
-    initial: "Start",
-    states: {
-        Start: {
-            invoke: {
-                src: _siteInit.siteInitMachine,
-                id: "siteInitMachine"
-            },
-            on: {
-                SITE_READY: {
-                    actions: [
-                        "setRovIpAddr",
-                        "setPeerServerConfig"
-                    ],
-                    target: "Connecting_to_Peer_Server"
-                }
-            }
-        },
-        Connecting_to_Peer_Server: {
-            entry: [
-                "stopPeerServerConnMachine",
-                "runPeerServerConnMachine",
-                "hideRovConnectionBar"
-            ],
-            on: {
-                PEER_SERVER_CONNECTION_ESTABLISHED: {
-                    actions: [
-                        "setThisPeer"
-                    ],
-                    target: "Connecting_to_Rov"
-                }
-            }
-        },
-        Connecting_to_Rov: {
-            entry: [
-                "runPeerConnMachine",
-                "showRovConnectionBar"
-            ],
-            exit: [
-                "stopPeerConnMachine"
-            ],
-            on: {
-                SWITCH_TO_NEXT_ROV: {
-                    actions: "switchToNextRovPeerId",
-                    target: "Connecting_to_Rov",
-                    internal: false
-                },
-                SWITCH_TO_PREV_ROV: {
-                    actions: "switchToPrevRovPeerId",
-                    target: "Connecting_to_Rov",
-                    internal: false
-                },
-                RETRY_ROV_CONNECTION: {
-                    target: "Connecting_to_Rov",
-                    internal: false
-                },
-                DISCONNECT_FROM_ROV: {
-                    target: "Waiting_for_Connect_to_Rov_Btn_Press"
-                },
-                PEER_UNAVAILABLE: [
-                    {
-                        target: "Waiting_for_Connect_to_Rov_Btn_Press"
-                    }
-                ],
-                PEER_SERVER_FATAL_ERROR: {
-                    actions: "stopPeerServerConnMachine",
-                    target: "Connecting_to_Peer_Server",
-                    internal: false
-                },
-                WEBRTC_FATAL_ERROR: {
-                    actions: "reloadWebsite",
-                    target: "End"
-                }
-            }
-        },
-        Waiting_for_Connect_to_Rov_Btn_Press: {
-            entry: "showDisconnectedUi",
-            invoke: {
-                src: "awaitConnectBtnPress",
-                id: "awaitConnectBtnPress"
-            },
-            on: {
-                CONNECT_BUTTON_PRESSED: {
-                    target: "Connecting_to_Rov"
-                },
-                SWITCH_TO_NEXT_ROV: {
-                    actions: "switchToNextRovPeerId"
-                },
-                SWITCH_TO_PREV_ROV: {
-                    actions: "switchToPrevRovPeerId"
-                }
-            }
-        },
-        End: {
-            type: "final"
-        }
-    },
-    on: {
-        WEBSITE_CLOSE: {
-            target: "End"
-        }
-    }
-}, {
-    actions: {
-        "showRovConnectionBar": _uiJs.showRovConnectionBar,
-        "hideRovConnectionBar": _uiJs.hideRovConnectionBar,
-        "showDisconnectedUi": ()=>{
-            _uiJs.showROVDisconnectedUi();
-        },
-        "setRovIpAddr": _xstate.assign({
-            rovIpAddr: (context, event)=>event.data.rovIpAddr
-        }),
-        "setPeerServerConfig": _xstate.assign({
-            peerServerConfig: (context, event)=>event.data.peerServerConfig
-        }),
-        "setThisPeer": _xstate.assign({
-            thisPeer: (context, event)=>event.data
-        }),
-        "switchToNextRovPeerId": _xstate.assign({
-            rovPeerIdEndNumber: (context)=>{
-                let newRovPeerIdEndNumber = context.rovPeerIdEndNumber + 1;
-                _uiJs.setCurrentRovName(_constsJs.ROV_PEERID_BASE + newRovPeerIdEndNumber);
-                localStorage.setItem("rovPeerIdEndNumber", newRovPeerIdEndNumber);
-                return newRovPeerIdEndNumber;
-            },
-            attemptingNewRovPeerId: true
-        }),
-        "switchToPrevRovPeerId": _xstate.assign({
-            rovPeerIdEndNumber: (context)=>{
-                let newRovPeerIdEndNumber = Math.max(0, context.rovPeerIdEndNumber - 1);
-                _uiJs.setCurrentRovName(_constsJs.ROV_PEERID_BASE + newRovPeerIdEndNumber);
-                localStorage.setItem("rovPeerIdEndNumber", newRovPeerIdEndNumber);
-                return newRovPeerIdEndNumber;
-            },
-            attemptingNewRovPeerId: true
-        }),
-        "runPeerServerConnMachine": _xstate.assign({
-            peerServerConnActor: (context)=>_xstate.spawn(_peerServerConnStateMachineJs.peerServerConnMachine.withContext({
-                    ..._peerServerConnStateMachineJs.peerServerConnMachine.context,
-                    rovIpAddr: context.rovIpAddr,
-                    peerServerConfig: context.peerServerConfig
-                }), "peerServerConnMachine")
-        }),
-        "runPeerConnMachine": _xstate.assign({
-            peerServerConnActor: (context)=>{
-                return _xstate.spawn(_rovConnStateMachineJs.peerConnMachine.withContext({
-                    ..._rovConnStateMachineJs.peerConnMachine.context,
-                    thisPeer: context.thisPeer,
-                    rovPeerId: _constsJs.ROV_PEERID_BASE + String(context.rovPeerIdEndNumber)
-                }), "peerConnMachine");
-            }
-        }),
-        "stopPeerServerConnMachine": _actions.stop("peerServerConnMachine"),
-        "stopPeerConnMachine": _actions.stop("peerConnMachine"),
-        // "handlePeerNotYetReadyError": pure((context) => {
-        //     // this function is called whenever we fail to find or connect to a rov:
-        //     showToastMessage("Could not connect to " + ROV_PEERID_BASE + String(context.rovPeerIdEndNumber))
-        //     if (context.attemptingNewRovPeerId && context.rovPeerIdEndNumber != 0) {
-        //         // we've tried all the rov IDs and none of them are online
-        //         showToastMessage("Trying previous rov: " + ROV_PEERID_BASE + String(context.rovPeerIdEndNumber - 1))
-        //         return [assign({
-        //             rovPeerIdEndNumber: context.rovPeerIdEndNumber - 1,
-        //         }), send("RETRY_ROV_CONNECTION")]
-        //     } else {
-        //         return send("DISCONNECT_FROM_ROV")
-        //     }
-        // }), // will either go to the Running with the previous rov ID or go to Waiting_for_Connect_to_Rov_Btn_Press if the very first rov or the last connected rov is offline
-        // "gotMessageFromRov": (context, event) => {
-        //     MessageHandler.handleRecivedMessage(event.data)
-        // },
-        // "sendMessageToRov": send((context, event) => {
-        //     return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
-        // }, { to: "peerConnMachine" }),
-        "reloadWebsite": ()=>{
-            _uiJs.showReloadingWebsiteUi();
-            setTimeout(()=>{
-                window.location.reload();
-            }, 5000);
-        }
-    },
-    services: {
-        "awaitConnectBtnPress": (context, event)=>{
-            return (sendStateChange)=>{
-                const err = event.data;
-                console.log(event);
-                var toastMsg = null;
-                if (err && err.type == "peer-unavailable") {
-                    const msg = _constsJs.ROV_PEERID_BASE + context.rovPeerIdEndNumber + " is not yet online!";
-                    toastMsg = _uiJs.showToastDialog([
-                        _uiJs.createTitle(msg)
-                    ], {
-                        duration: 12000
-                    });
-                }
-                const cleanupFunc = _uiJs.setupConnectBtnClickHandler(()=>{
-                    if (toastMsg) toastMsg.hideToast();
-                    sendStateChange("CONNECT_BUTTON_PRESSED");
-                });
-                return cleanupFunc;
-            };
-        },
-        "setupUiButtonHandlers": ()=>{
-            return (sendStateChange)=>{
-                const disconnectBtnCleanupFunc = _uiJs.setupDisconnectBtnClickHandler(()=>{
-                    sendStateChange("DISCONNECT_FROM_ROV");
-                });
-                const switchRovCleanupFunc = _uiJs.setupSwitchRovBtnClickHandlers(()=>{
-                    sendStateChange("SWITCH_TO_PREV_ROV");
-                }, ()=>{
-                    sendStateChange("SWITCH_TO_NEXT_ROV");
-                });
-                return ()=>{
-                    disconnectBtnCleanupFunc();
-                    switchRovCleanupFunc();
-                };
-            };
-        }
-    },
-    guards: {
-        "rovDatachannelIsOpen": (context)=>{
-            console.log(context.peerConnActor);
-            return false; //context.peerConnActor && context.peerConnActor.state.context.rovDataConnection
-        }
-    }
-});
-function startMachine() {
-    window.mainRovMachineService = _xstate.interpret(mainMachine, {
-        devTools: debugXstateMode
-    });
-    window.mainRovMachineService.onTransition((state)=>{
-        console.log("MainTransition:", state.value);
-    });
-    window.mainRovMachineService.start();
-    window.onbeforeunload = ()=>{
-        window.thisPeerjsPeer.destroy();
-        window.mainRovMachineService.send("WEBSITE_CLOSE");
-    };
-}
-if (debugXstateMode) setTimeout(startMachine, 1000);
-else startMachine();
-setTimeout(()=>{
-    _messageHandler.RovActions.toggleLights();
-}, 2000) /* Initialize Disclosure Menus */  // var menus = document.querySelectorAll('.disclosure-nav');
+ */  // const mainMachine =
+ //     /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgMoBdUAnfAYlwEkAVAUQH0AlGgQQBEBNRUABwHtZ0+dL0xcQAD0QBWAEwAGbABYA7MrmK5MgIyKdymQBoQAT0QBmZYuxyAnADYzMmXZtydcqQF9PRtFmwMAK6YmFhQ2AAKYGBEdLgxAG4xdAByvPh0AMIimGAAxviQpBE0NAxxZQBqZVkA8ikpNJlUFPV0NLhUzABCADIUuAASNKxifAJCImKSCDIAHGbYc6paUmZac1JSilJaRqYIOmZ2SzaKMhpuNrtyZt6+GDhBIWGR0bHxREmx2SH5hRByDQUqw6ABZDq4ZgAcXoVFqjFqlTG-EEwlESAkiAWymwWjMczscw8jm0dkMJkQWhkNhs2BpZ0UdiJNjMBK8PhAfiewVCmHCUWSn2+WRy-yK0NqVHBkJh9AAYgxamDEcjMeM0VNMTM7FoFGoZBZlPjqWY1vsqQz6bSVMpdTTljJ7lzHgFea9BR9EslfrkCkUlZU6g0mi02h0un0BsNRurUZMMaAdVs8U45s4pMozdo9pTDnZbtZrrapA4Wcpndy3S9+aRMvVGs06PDUjQABrSwMoibo6aIJy4jZbLPp1TGuTKC0IVyD3XXVbKQmKOaKSuu558qCkJhUBjsVXBxthlLdzWJrEIY5SbD6ReWQmaGwXKfp6+KJnDk3LGxaNf+DdhKQrADPWIZNoqyqqqeCZ9pembWOszIaFoahrIoU4oWs1hqJoGbbLIf48jWW4lDUKRSnQ7A0J2LAcO0DBKgw0G9tqiB2Fm2COMoshSE+OzLHYL6GkWGjsRmZiuL+nJVgBtakeUuBVDU8rMF0vT0YxzFakm2IXEocz4lIcjGRYcjMlO1wKGYHhaFodiZvYBlOtJ67urWADqNDdAwVCZHQKlqRptRMXGPbaRetkSfSuqbFxZnpjYGFMvqxIoXMrhOPZcyEdWm6kJ53SULQWS9LUilaeeMy2eSSxmIoNgrhJFiuOhebUvo1jErSCweMuyw5cwADuGBCPyB6+v8dDdIE+D4CIdAREQcCwHWDahlNACqVDwikC1MLgimxjw8YsTpCC6lYdV2ds+gFqsuYHJhiwTsZqzklmHKcpgvAQHAYhVgQxD4BVsGZTeWW2C4mxaA1ZhThYJx6hY1X2SoZl2DlskCu8cTerEaQZBN-oQCDrGXvI2C6naE72bZXVSBh6wyNaTNrHqBnqJjbnY0KeOin8xOk2ddjvtYxmOmZrKjozDXYD+xybCLMMyFmXPEULF4yLxSwrGzmz4Q9VL4nSBLZhcr1MlJDz+ENI1hONYoFFNM1zZgC1LbA8ChWesEaMzajLhsth3txGELIsigWFr5K0qsNg5awIhgBrVWGnS2zLjs+LKPYmaMzVWweCrd68Y4hEp-2mjg1IXVQ7ssNTmDKG9cXN0Nau3ieEAA */
+ //     createMachine({
+ //         context: {
+ //             peerServerConfig: {},
+ //             rovIpAddr: "",
+ //             rovPeerIdEndNumber: savedRovEndNumber || 0,
+ //             attemptingNewRovPeerId: false,
+ //             thisPeer: null,
+ //             peerServerConnActor: null,
+ //             peerConnActor: null,
+ //             pingSenderActor: null,
+ //         },
+ //         invoke: {
+ //             src: "setupUiButtonHandlers",
+ //             id: "setupUiButtonHandlers",
+ //         },
+ //         id: "main",
+ //         initial: "Start",
+ //         states: {
+ //             Start: {
+ //                 invoke: {
+ //                     src: siteInitMachine,
+ //                     id: "siteInitMachine",
+ //                 },
+ //                 on: {
+ //                     SITE_READY: {
+ //                         actions: ["setRovIpAddr", "setPeerServerConfig"],
+ //                         target: "Connecting_to_Peer_Server",
+ //                     },
+ //                 },
+ //             },
+ //             Connecting_to_Peer_Server: {
+ //                 entry: ["stopPeerServerConnMachine", "runPeerServerConnMachine", "hideRovConnectionBar"],
+ //                 on: {
+ //                     PEER_SERVER_CONNECTION_ESTABLISHED: {
+ //                         actions: ["setThisPeer"],
+ //                         target: "Connecting_to_Rov",
+ //                     },
+ //                 },
+ //             },
+ //             Connecting_to_Rov: {
+ //                 entry: ["runPeerConnMachine", "showRovConnectionBar"],
+ //                 exit: ["stopPeerConnMachine"],
+ //                 on: {
+ //                     SWITCH_TO_NEXT_ROV: {
+ //                         actions: "switchToNextRovPeerId",
+ //                         target: "Connecting_to_Rov",
+ //                         internal: false,
+ //                     },
+ //                     SWITCH_TO_PREV_ROV: {
+ //                         actions: "switchToPrevRovPeerId",
+ //                         target: "Connecting_to_Rov",
+ //                         internal: false,
+ //                     },
+ //                     RETRY_ROV_CONNECTION: {
+ //                         target: "Connecting_to_Rov",
+ //                         internal: false,
+ //                     },
+ //                     DISCONNECT_FROM_ROV: {
+ //                         target: "Waiting_for_Connect_to_Rov_Btn_Press",
+ //                     },
+ //                     PEER_UNAVAILABLE: [
+ //                         {
+ //                             target: "Waiting_for_Connect_to_Rov_Btn_Press",
+ //                         },
+ //                         // {
+ //                         //     actions: [() => console.log("hello")],
+ //                         //     target: "Connecting_to_Peer_Server",
+ //                         // }
+ //                     ],
+ //                     PEER_SERVER_FATAL_ERROR: {
+ //                         actions: "stopPeerServerConnMachine",
+ //                         target: "Connecting_to_Peer_Server",
+ //                         internal: false,
+ //                     },
+ //                     WEBRTC_FATAL_ERROR: {
+ //                         actions: "reloadWebsite",
+ //                         target: "End",
+ //                     },
+ //                 },
+ //             },
+ //             Waiting_for_Connect_to_Rov_Btn_Press: {
+ //                 entry: "showDisconnectedUi",
+ //                 invoke: {
+ //                     src: "awaitConnectBtnPress",
+ //                     id: "awaitConnectBtnPress",
+ //                 },
+ //                 on: {
+ //                     CONNECT_BUTTON_PRESSED: {
+ //                         target: "Connecting_to_Rov",
+ //                     },
+ //                     SWITCH_TO_NEXT_ROV: {
+ //                         actions: "switchToNextRovPeerId",
+ //                     },
+ //                     SWITCH_TO_PREV_ROV: {
+ //                         actions: "switchToPrevRovPeerId",
+ //                     },
+ //                 },
+ //             },
+ //             End: {
+ //                 type: "final",
+ //             },
+ //         },
+ //         on: {
+ //             WEBSITE_CLOSE: {
+ //                 target: "End",
+ //             },
+ //         }
+ //     }, {
+ //         actions: {
+ //             "showRovConnectionBar": showRovConnectionBar,
+ //             "hideRovConnectionBar": hideRovConnectionBar,
+ //             "showDisconnectedUi": () => {
+ //                 showROVDisconnectedUi()
+ //             },
+ //             "setRovIpAddr": assign({
+ //                 rovIpAddr: (context, event) => event.data.rovIpAddr
+ //             }),
+ //             "setPeerServerConfig": assign({
+ //                 peerServerConfig: (context, event) => event.data.peerServerConfig
+ //             }),
+ //             "setThisPeer": assign({
+ //                 thisPeer: (context, event) => event.data
+ //             }),
+ //             "switchToNextRovPeerId": assign({
+ //                 rovPeerIdEndNumber: (context) => {
+ //                     let newRovPeerIdEndNumber = context.rovPeerIdEndNumber + 1;
+ //                     setCurrentRovName(ROV_PEERID_BASE + newRovPeerIdEndNumber);
+ //                     localStorage.setItem("rovPeerIdEndNumber", newRovPeerIdEndNumber);
+ //                     return newRovPeerIdEndNumber
+ //                 },
+ //                 attemptingNewRovPeerId: true,
+ //             }),
+ //             "switchToPrevRovPeerId": assign({
+ //                 rovPeerIdEndNumber: (context) => {
+ //                     let newRovPeerIdEndNumber = Math.max(0, context.rovPeerIdEndNumber - 1);
+ //                     setCurrentRovName(ROV_PEERID_BASE + newRovPeerIdEndNumber);
+ //                     localStorage.setItem("rovPeerIdEndNumber", newRovPeerIdEndNumber);
+ //                     return newRovPeerIdEndNumber
+ //                 },
+ //                 attemptingNewRovPeerId: true,
+ //             }),
+ //             "runPeerServerConnMachine": assign({
+ //                 peerServerConnActor: (context) => spawn(peerServerConnMachine
+ //                     .withContext({
+ //                         ...peerServerConnMachine.context, // spread syntax to fill in the rest of the context specified in the child machine (otherwise xstate removes the rest: https://github.com/statelyai/xstate/issues/993)
+ //                         rovIpAddr: context.rovIpAddr,
+ //                         peerServerConfig: context.peerServerConfig,
+ //                     })
+ //                     , "peerServerConnMachine"),
+ //             }),
+ //             "runPeerConnMachine": assign({
+ //                 peerServerConnActor: (context) => {
+ //                     return spawn(peerConnMachine
+ //                         .withContext({
+ //                             ...peerConnMachine.context, // spread syntax to fill in the rest of the context specified in the child machine (otherwise xstate removes the rest: https://github.com/statelyai/xstate/issues/993)
+ //                             thisPeer: context.thisPeer,
+ //                             rovPeerId: ROV_PEERID_BASE + String(context.rovPeerIdEndNumber),
+ //                         }), "peerConnMachine")
+ //                 },
+ //             }),
+ //             "stopPeerServerConnMachine": stop("peerServerConnMachine"),
+ //             "stopPeerConnMachine": stop("peerConnMachine"),
+ //             // "handlePeerNotYetReadyError": pure((context) => {
+ //             //     // this function is called whenever we fail to find or connect to a rov:
+ //             //     showToastMessage("Could not connect to " + ROV_PEERID_BASE + String(context.rovPeerIdEndNumber))
+ //             //     if (context.attemptingNewRovPeerId && context.rovPeerIdEndNumber != 0) {
+ //             //         // we've tried all the rov IDs and none of them are online
+ //             //         showToastMessage("Trying previous rov: " + ROV_PEERID_BASE + String(context.rovPeerIdEndNumber - 1))
+ //             //         return [assign({
+ //             //             rovPeerIdEndNumber: context.rovPeerIdEndNumber - 1,
+ //             //         }), send("RETRY_ROV_CONNECTION")]
+ //             //     } else {
+ //             //         return send("DISCONNECT_FROM_ROV")
+ //             //     }
+ //             // }), // will either go to the Running with the previous rov ID or go to Waiting_for_Connect_to_Rov_Btn_Press if the very first rov or the last connected rov is offline
+ //             // "gotMessageFromRov": (context, event) => {
+ //             //     MessageHandler.handleRecivedMessage(event.data)
+ //             // },
+ //             // "sendMessageToRov": send((context, event) => {
+ //             //     return { type: 'SEND_MESSAGE_TO_ROV', data: event.data }
+ //             // }, { to: "peerConnMachine" }),
+ //             "reloadWebsite": () => {
+ //                 showReloadingWebsiteUi()
+ //                 setTimeout(() => { window.location.reload() }, 5000)
+ //             },
+ //         },
+ //         services: {
+ //             "awaitConnectBtnPress": (context, event) => {
+ //                 return (sendStateChange) => {
+ //                     const err = event.data
+ //                     console.log(event)
+ //                     var toastMsg = null
+ //                     if (err && err.type == "peer-unavailable") {
+ //                         const msg = ROV_PEERID_BASE + context.rovPeerIdEndNumber + " is not yet online!"
+ //                         toastMsg = showToastDialog([createTitle(msg)], { duration: 12000 })
+ //                     }
+ //                     const cleanupFunc = setupConnectBtnClickHandler(() => {
+ //                         if (toastMsg) toastMsg.hideToast()
+ //                         sendStateChange("CONNECT_BUTTON_PRESSED");
+ //                     })
+ //                     return cleanupFunc;
+ //                 };
+ //             },
+ //             "setupUiButtonHandlers": () => {
+ //                 return (sendStateChange) => {
+ //                     const disconnectBtnCleanupFunc = setupDisconnectBtnClickHandler(() => {
+ //                         sendStateChange("DISCONNECT_FROM_ROV");
+ //                     })
+ //                     const switchRovCleanupFunc = setupSwitchRovBtnClickHandlers(() => {
+ //                         sendStateChange("SWITCH_TO_PREV_ROV");
+ //                     }, () => {
+ //                         sendStateChange("SWITCH_TO_NEXT_ROV");
+ //                     })
+ //                     return () => {
+ //                         disconnectBtnCleanupFunc();
+ //                         switchRovCleanupFunc();
+ //                     };
+ //                 };
+ //             },
+ //         },
+ //         guards: {
+ //             "rovDatachannelIsOpen": (context) => {
+ //                 console.log(context.peerConnActor)
+ //                 return false; //context.peerConnActor && context.peerConnActor.state.context.rovDataConnection
+ //             }
+ //         },
+ //     })
+ // function startMachine() {
+ //     window.mainRovMachineService = interpret(mainMachine, { devTools: debugXstateMode })
+ //     window.mainRovMachineService.onTransition((state) => { console.log("MainTransition:", state.value) })
+ //     window.mainRovMachineService.start();
+ //     window.onbeforeunload = () => {
+ //         window.thisPeerjsPeer.destroy();
+ //         window.mainRovMachineService.send("WEBSITE_CLOSE");
+ //     }
+ // }
+ // if (debugXstateMode) {
+ //     setTimeout(startMachine, 1000);
+ // } else {
+ //     startMachine();
+ // }
+ // setTimeout(() => {
+ //     RovActions.toggleLights();
+ // }, 2000)
+ /* Initialize Disclosure Menus */  // var menus = document.querySelectorAll('.disclosure-nav');
  // var disclosureMenus = [];
  // for (var i = 0; i < menus.length; i++) {
  //     disclosureMenus[i] = new DisclosureNav(menus[i]);
@@ -913,7 +930,209 @@ setTimeout(()=>{
  // }
 ;
 
-},{"@xstate/inspect":"39FuP","./gamepad.js":"2YxSr","./messageHandler":"at2SH","./util.js":"doATT","./ui.js":"efi6n","xstate":"2sk4t","xstate/lib/actions":"b9dCp","./siteInit":"8TXLV","./peerServerConnStateMachine.js":"3YceA","./consts.js":"2J0f1","./rovConnStateMachine.js":"j5PiZ"}],"39FuP":[function(require,module,exports) {
+},{"./consts.js":"2J0f1","@xstate/inspect":"39FuP","./gamepad.js":"2YxSr","./util.js":"doATT","./ui.js":"efi6n","./siteInit":"8TXLV","./rovConnectionMachine":"aaTha","./thisPeerSetupMachine.js":"2lhJt"}],"2J0f1":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "ROV_PEERID_BASE", ()=>ROV_PEERID_BASE
+);
+parcelHelpers.export(exports, "peerServerCloudOptions", ()=>peerServerCloudOptions
+);
+parcelHelpers.export(exports, "peerServerLocalOptions", ()=>peerServerLocalOptions
+);
+parcelHelpers.export(exports, "LOADING_MESSAGES", ()=>LOADING_MESSAGES
+);
+parcelHelpers.export(exports, "GAME_CONTROLLER_BUTTON_CONFIG", ()=>GAME_CONTROLLER_BUTTON_CONFIG
+);
+parcelHelpers.export(exports, "ONSCREEN_GPAD_BUTTON_LABELS", ()=>ONSCREEN_GPAD_BUTTON_LABELS
+);
+parcelHelpers.export(exports, "ONSCREEN_GPAD_BUTTON_TOUCHED_CLASS", ()=>ONSCREEN_GPAD_BUTTON_TOUCHED_CLASS
+);
+parcelHelpers.export(exports, "ONSCREEN_GPAD_BUTTON_PRESSED_CLASS", ()=>ONSCREEN_GPAD_BUTTON_PRESSED_CLASS
+);
+const ROV_PEERID_BASE = "go-robot-";
+const peerServerCloudOptions = {
+    host: "ssrov-peerjs-server.herokuapp.com",
+    secure: true,
+    path: '/',
+    port: 443
+};
+const peerServerLocalOptions = {
+    host: 'raspberrypi.local',
+    path: '/',
+    secure: false,
+    port: 9000
+};
+const LOADING_MESSAGES = {
+    "default": "Loading...",
+    "ip-scan": "Scanning for ROV IP address...",
+    "internet-check": "Checking internet access...",
+    "server-connecting": "Connecting to peer server...",
+    "server-reconnecting": "Reconnecting to peer server...",
+    "webrtc-connecting": "Searching for ROV...",
+    "webrtc-reconnecting": "Reconnecting to ROV...",
+    "reloading-site": "Reloading site...",
+    "awaiting-video-call": "Waiting for livestream...",
+    "awaiting-rov-reconnect": "Waiting for ROV to reconnect..."
+};
+const GAME_CONTROLLER_BUTTON_CONFIG = [
+    {
+        btnName: "button_1",
+        remoteAction: 'lights',
+        helpLabel: "Lights"
+    },
+    {
+        btnName: "button_2",
+        remoteAction: 'record',
+        helpLabel: "Start/Stop Recording"
+    },
+    {
+        btnName: "button_3",
+        remoteAction: 'photo',
+        helpLabel: "Take Phtoto"
+    },
+    {
+        btnName: "button_4",
+        remoteAction: null,
+        helpLabel: "Nothing"
+    },
+    {
+        btnName: "shoulder_btn_front_left",
+        remoteAction: null,
+        localAction: null,
+        helpLabel: "Nothing"
+    },
+    {
+        btnName: "shoulder_btn_front_right",
+        remoteAction: 'claw_open',
+        helpLabel: "TODO: Open Claw",
+        holdAllowed: true
+    },
+    {
+        btnName: "shoulder_trigger_back_left",
+        remoteAction: null,
+        helpLabel: "Nothing"
+    },
+    {
+        btnName: "shoulder_trigger_back_right",
+        remoteAction: 'claw_close',
+        helpLabel: "TODO: Close Claw",
+        holdAllowed: true
+    },
+    {
+        btnName: "select",
+        remoteAction: null,
+        helpLabel: "Show/Hide Gamepad Help"
+    },
+    {
+        btnName: "start",
+        remoteAction: null,
+        helpLabel: "Show/Hide Gamepad Help"
+    },
+    {
+        btnName: "stick_button_left",
+        remoteAction: null,
+        helpLabel: "Lock Vertical Thruster"
+    },
+    {
+        btnName: "stick_button_right",
+        remoteAction: null,
+        helpLabel: "Lock Horizontal"
+    },
+    {
+        btnName: "d_pad_up",
+        remoteAction: 'exposure_plus',
+        helpLabel: "Increase Camera Brightness",
+        holdAllowed: true
+    },
+    {
+        btnName: "d_pad_down",
+        remoteAction: 'exposure_minus',
+        helpLabel: "Decreases Camera Brightness",
+        holdAllowed: true
+    },
+    {
+        btnName: "d_pad_left",
+        remoteAction: 'v_quality_plus',
+        helpLabel: "Decrease Video Quality (reduces latency)",
+        holdAllowed: true
+    },
+    {
+        btnName: "d_pad_right",
+        remoteAction: 'v_quality_minus',
+        helpLabel: "Increase Video Quality (increases latency)",
+        holdAllowed: true
+    },
+    {
+        btnName: "vendor",
+        remoteAction: null,
+        helpLabel: "Nothing"
+    }
+];
+const ONSCREEN_GPAD_BUTTON_LABELS = [
+    "button_1",
+    "button_2",
+    "button_3",
+    "button_4",
+    "shoulder_btn_front_left",
+    "shoulder_btn_front_right",
+    "shoulder_trigger_back_left",
+    "shoulder_trigger_back_right",
+    "select",
+    "start",
+    "stick_button_left",
+    "stick_button_right",
+    "d_pad_up",
+    "d_pad_down",
+    "d_pad_left",
+    "d_pad_right"
+];
+const ONSCREEN_GPAD_BUTTON_TOUCHED_CLASS = "touched", ONSCREEN_GPAD_BUTTON_PRESSED_CLASS = "pressed"; //     'A': { remoteAction: 'photo', desc: 'Take Photo' },
+ //     'B': { remoteAction: 'record', desc: 'Start/Stop Recording' },
+ //     'X': { remoteAction: null, desc: 'TBD' },
+ //     'Y': { remoteAction: null, desc: 'TBD' },
+ //     'L1': { remoteAction: 'clawOpen', mode: "btn_hold_allowed", desc: 'Open Claw' },
+ //     'R1': { remoteAction: 'clawOpen', mode: "btn_hold_allowed", desc: 'Open Claw' },
+ //     'L2': { remoteAction: 'clawClose', mode: "btn_hold_allowed", desc: 'Close Claw' },
+ //     'R2': { remoteAction: 'clawClose', mode: "btn_hold_allowed", desc: 'Close Claw' },
+ //     'SELECT': { remoteAction: 'bitrate-', mode: "btn_hold_allowed", desc: 'TODO: Decrease Video Quality (lowers latency)' },
+ //     'START': { remoteAction: 'bitrate+', mode: "btn_hold_allowed", desc: 'TODO: Increase Video Quality (adds latency)' },
+ //     'dpadUp': { remoteAction: 'lights+', mode: "btn_hold_allowed", desc: 'TODO: Increase Intensity of Lights' },
+ //     'dpadDown': { remoteAction: 'lights-', mode: "btn_hold_allowed", desc: 'TODO: Decrease Intensity of Lights' },
+ //     'dpadLeft': { remoteAction: 'exposure-', mode: "btn_hold_allowed", desc: 'TODO: Dim Camera Exposure' },
+ //     'dpadRight': { remoteAction: 'exposure+', mode: "btn_hold_allowed", desc: 'TODO: Brighten Camera Exposure' },
+ // }
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, '__esModule', {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === 'default' || key === '__esModule' || dest.hasOwnProperty(key)) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"39FuP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "createDevTools", ()=>_browserJs.createDevTools
@@ -1248,37 +1467,7 @@ function __values(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, '__esModule', {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === 'default' || key === '__esModule' || dest.hasOwnProperty(key)) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
-
-},{}],"2sk4t":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2sk4t":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "actions", ()=>_actionsJs
@@ -2744,6 +2933,7 @@ var _environmentJs = require("./environment.js");
 var _utilsJs = require("./utils.js");
 var _schedulerJs = require("./scheduler.js");
 var _actorJs = require("./Actor.js");
+var _stateUtilsJs = require("./stateUtils.js");
 var _registryJs = require("./registry.js");
 var _devToolsJs = require("./devTools.js");
 var _serviceScopeJs = require("./serviceScope.js");
@@ -2768,6 +2958,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
         var _this = this;
         if (options === void 0) options = Interpreter1.defaultOptions;
         this.machine = machine;
+        this.scheduler = new _schedulerJs.Scheduler();
         this.delayedEventsMap = {};
         this.listeners = new Set();
         this.contextListeners = new Set();
@@ -2823,15 +3014,12 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
                 if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "Service '".concat(_this.id, "' has no parent: unable to send event ").concat(event.type));
                 return;
             }
-            if ('machine' in target) // perhaps those events should be rejected in the parent
-            // but atm it doesn't have easy access to all of the information that is required to do it reliably
-            {
-                if (_this.status !== InterpreterStatus.Stopped || _this.parent !== target || _this.state.done) // Send SCXML events to machines
-                target.send(_tslibJs.__assign(_tslibJs.__assign({}, event), {
-                    name: event.name === _actionTypesJs.error ? "".concat(_actionsJs.error(_this.id)) : event.name,
-                    origin: _this.sessionId
-                }));
-            } else // Send normal events to other targets
+            if ('machine' in target) // Send SCXML events to machines
+            target.send(_tslibJs.__assign(_tslibJs.__assign({}, event), {
+                name: event.name === _actionTypesJs.error ? "".concat(_actionsJs.error(_this.id)) : event.name,
+                origin: _this.sessionId
+            }));
+            else // Send normal events to other targets
             target.send(event.data);
         };
         var resolvedOptions = _tslibJs.__assign(_tslibJs.__assign({}, Interpreter1.defaultOptions), options);
@@ -2951,7 +3139,8 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
                 if (e_4) throw e_4.error;
             }
         }
-        if (this.state.done) {
+        var isDone = _stateUtilsJs.isInFinalState(state.configuration || [], this.machine);
+        if (this.state.configuration && isDone) {
             // get final child state node
             var finalChildStateNode = state.configuration.find(function(sn) {
                 return sn.type === 'final' && sn.parent === _this.machine;
@@ -2973,7 +3162,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
                     if (e_5) throw e_5.error;
                 }
             }
-            this._stop();
+            this.stop();
         }
     };
     /*
@@ -3001,11 +3190,8 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
             resolvedCompleteListener = nextListenerOrObserver.complete.bind(nextListenerOrObserver);
         }
         this.listeners.add(listener); // Send current state to listener
-        if (this.status !== InterpreterStatus.NotStarted) listener(this.state);
-        if (resolvedCompleteListener) {
-            if (this.status === InterpreterStatus.Stopped) resolvedCompleteListener();
-            else this.onDone(resolvedCompleteListener);
-        }
+        if (this.status === InterpreterStatus.Running) listener(this.state);
+        if (resolvedCompleteListener) this.onDone(resolvedCompleteListener);
         return {
             unsubscribe: function() {
                 listener && _this.listeners.delete(listener);
@@ -3084,8 +3270,13 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
         });
         return this;
     };
-    Interpreter1.prototype._stop = function() {
-        var e_6, _a, e_7, _b, e_8, _c, e_9, _d, e_10, _e;
+    /**
+   * Stops the interpreter and unsubscribe all listeners.
+   *
+   * This will also notify the `onStop` listeners.
+   */ Interpreter1.prototype.stop = function() {
+        var e_6, _a1, e_7, _b1, e_8, _c1, e_9, _d, e_10, _e;
+        var _this = this;
         try {
             for(var _f = _tslibJs.__values(this.listeners), _g = _f.next(); !_g.done; _g = _f.next()){
                 var listener = _g.value;
@@ -3097,7 +3288,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
             };
         } finally{
             try {
-                if (_g && !_g.done && (_a = _f.return)) _a.call(_f);
+                if (_g && !_g.done && (_a1 = _f.return)) _a1.call(_f);
             } finally{
                 if (e_6) throw e_6.error;
             }
@@ -3114,7 +3305,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
             };
         } finally{
             try {
-                if (_j && !_j.done && (_b = _h.return)) _b.call(_h);
+                if (_j && !_j.done && (_b1 = _h.return)) _b1.call(_h);
             } finally{
                 if (e_7) throw e_7.error;
             }
@@ -3130,7 +3321,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
             };
         } finally{
             try {
-                if (_l && !_l.done && (_c = _k.return)) _c.call(_k);
+                if (_l && !_l.done && (_c1 = _k.return)) _c1.call(_k);
             } finally{
                 if (e_8) throw e_8.error;
             }
@@ -3153,12 +3344,32 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
         }
         if (!this.initialized) // Interpreter already stopped; do nothing
         return this;
-        this.initialized = false;
-        this.status = InterpreterStatus.Stopped;
-        this._initialState = undefined;
+        _tslibJs.__spreadArray([], _tslibJs.__read(this.state.configuration), false).sort(function(a, b) {
+            return b.order - a.order;
+        }).forEach(function(stateNode) {
+            var e_11, _a;
+            try {
+                for(var _b = _tslibJs.__values(stateNode.definition.exit), _c = _b.next(); !_c.done; _c = _b.next()){
+                    var action = _c.value;
+                    _this.exec(action, _this.state);
+                }
+            } catch (e_11_1) {
+                e_11 = {
+                    error: e_11_1
+                };
+            } finally{
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                } finally{
+                    if (e_11) throw e_11.error;
+                }
+            }
+        }); // Stop all children
+        this.children.forEach(function(child) {
+            if (_utilsJs.isFunction(child.stop)) child.stop();
+        });
         try {
-            // we are going to stop within the current sync frame
-            // so we can safely just cancel this here as nothing async should be fired anyway
+            // Cancel all delayed events
             for(var _p = _tslibJs.__values(Object.keys(this.delayedEventsMap)), _q = _p.next(); !_q.done; _q = _p.next()){
                 var key = _q.value;
                 this.clock.clearTimeout(this.delayedEventsMap[key]);
@@ -3173,63 +3384,11 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
             } finally{
                 if (e_10) throw e_10.error;
             }
-        } // clear everything that might be enqueued
+        }
         this.scheduler.clear();
-        this.scheduler = new _schedulerJs.Scheduler({
-            deferEvents: this.options.deferEvents
-        });
-    };
-    /**
-   * Stops the interpreter and unsubscribe all listeners.
-   *
-   * This will also notify the `onStop` listeners.
-   */ Interpreter1.prototype.stop = function() {
-        // TODO: add warning for stopping non-root interpreters
-        var _this = this; // grab the current scheduler as it will be replaced in _stop
-        var scheduler = this.scheduler;
-        this._stop(); // let what is currently processed to be finished
-        scheduler.schedule(function() {
-            // it feels weird to handle this here but we need to handle this even slightly "out of band"
-            var _event = _utilsJs.toSCXMLEvent({
-                type: 'xstate.stop'
-            });
-            var nextState = _serviceScopeJs.provide(_this, function() {
-                var exitActions = _utilsJs.flatten(_tslibJs.__spreadArray([], _tslibJs.__read(_this.state.configuration), false).sort(function(a, b) {
-                    return b.order - a.order;
-                }).map(function(stateNode) {
-                    return _actionsJs.toActionObjects(stateNode.onExit, _this.machine.options.actions);
-                }));
-                var _a = _tslibJs.__read(_actionsJs.resolveActions(_this.machine, _this.state, _this.state.context, _event, exitActions, _this.machine.config.preserveActionOrder), 2), resolvedActions = _a[0], updatedContext = _a[1];
-                var newState = new _stateJs.State({
-                    value: _this.state.value,
-                    context: updatedContext,
-                    _event: _event,
-                    _sessionid: _this.sessionId,
-                    historyValue: undefined,
-                    history: _this.state,
-                    actions: resolvedActions.filter(function(action) {
-                        return action.type !== _actionTypesJs.raise && (action.type !== _actionTypesJs.send || !!action.to && action.to !== _typesJs.SpecialTargets.Internal);
-                    }),
-                    activities: {},
-                    events: [],
-                    configuration: [],
-                    transitions: [],
-                    children: {},
-                    done: _this.state.done,
-                    tags: _this.state.tags,
-                    machine: _this.machine
-                });
-                newState.changed = true;
-                return newState;
-            });
-            _this.update(nextState, _event); // TODO: think about converting those to actions
-            // Stop all children
-            _this.children.forEach(function(child) {
-                if (_utilsJs.isFunction(child.stop)) child.stop();
-            });
-            _this.children.clear();
-            _registryJs.registry.free(_this.sessionId);
-        });
+        this.initialized = false;
+        this.status = InterpreterStatus.Stopped;
+        _registryJs.registry.free(this.sessionId);
         return this;
     };
     Interpreter1.prototype.batch = function(events) {
@@ -3239,7 +3398,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
             if (!_environmentJs.IS_PRODUCTION) _utilsJs.warn(false, "".concat(events.length, " event(s) were sent to uninitialized service \"").concat(this.machine.id, "\" and are deferred. Make sure .start() is called for this service.\nEvent: ").concat(JSON.stringify(event)));
         } else if (this.status !== InterpreterStatus.Running) throw new Error("".concat(events.length, " event(s) were sent to uninitialized service \"").concat(this.machine.id, "\". Make sure .start() is called for this service, or set { deferEvents: true } in the service options."));
         this.scheduler.schedule(function() {
-            var e_11, _a;
+            var e_12, _a;
             var nextState = _this.state;
             var batchChanged = false;
             var batchedActions = [];
@@ -3259,15 +3418,15 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
                     var event_11 = events_1_1.value;
                     _loop_1(event_11);
                 }
-            } catch (e_11_1) {
-                e_11 = {
-                    error: e_11_1
+            } catch (e_12_1) {
+                e_12 = {
+                    error: e_12_1
                 };
             } finally{
                 try {
                     if (events_1_1 && !events_1_1.done && (_a = events_1.return)) _a.call(events_1);
                 } finally{
-                    if (e_11) throw e_11.error;
+                    if (e_12) throw e_12.error;
                 }
             }
             nextState.changed = batchChanged;
@@ -3300,7 +3459,7 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
         return nextState;
     };
     Interpreter1.prototype.forward = function(event) {
-        var e_12, _a;
+        var e_13, _a;
         try {
             for(var _b = _tslibJs.__values(this.forwardTo), _c = _b.next(); !_c.done; _c = _b.next()){
                 var id = _c.value;
@@ -3308,15 +3467,15 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
                 if (!child) throw new Error("Unable to forward event '".concat(event, "' from interpreter '").concat(this.id, "' to nonexistant child '").concat(id, "'."));
                 child.send(event);
             }
-        } catch (e_12_1) {
-            e_12 = {
-                error: e_12_1
+        } catch (e_13_1) {
+            e_13 = {
+                error: e_13_1
             };
         } finally{
             try {
                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             } finally{
-                if (e_12) throw e_12.error;
+                if (e_13) throw e_13.error;
             }
         }
     };
@@ -3427,7 +3586,6 @@ var Interpreter = /*#__PURE__*/ /** @class */ function() {
         if (_utilsJs.isFunction(child.stop)) child.stop();
     };
     Interpreter1.prototype.spawn = function(entity, name, options) {
-        if (this.status !== InterpreterStatus.Running) return _actorJs.createDeferredActor(entity, name);
         if (_utilsJs.isPromiseLike(entity)) return this.spawnPromise(Promise.resolve(entity), name);
         else if (_utilsJs.isFunction(entity)) return this.spawnCallback(entity, name);
         else if (_actorJs.isSpawnedActor(entity)) return this.spawnActor(entity, name);
@@ -3781,7 +3939,7 @@ function spawn(entity, nameOrOptions) {
     return interpreter;
 }
 
-},{"./_virtual/_tslib.js":"4So72","./types.js":"5mTTI","./State.js":"h85Z6","./actionTypes.js":"2WTWb","./actions.js":"fKWcO","./environment.js":"fNNF6","./utils.js":"5Ce8y","./scheduler.js":"gUstx","./Actor.js":"itCIE","./registry.js":"dKYy9","./devTools.js":"iAAuP","./serviceScope.js":"jT5rp","./behaviors.js":"7RjKM","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"h85Z6":[function(require,module,exports) {
+},{"./_virtual/_tslib.js":"4So72","./types.js":"5mTTI","./State.js":"h85Z6","./actionTypes.js":"2WTWb","./actions.js":"fKWcO","./environment.js":"fNNF6","./utils.js":"5Ce8y","./scheduler.js":"gUstx","./Actor.js":"itCIE","./stateUtils.js":"1Q0v5","./registry.js":"dKYy9","./devTools.js":"iAAuP","./serviceScope.js":"jT5rp","./behaviors.js":"7RjKM","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"h85Z6":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "State", ()=>State
@@ -4037,8 +4195,6 @@ var isLeafNode = function(stateNode) {
 function getChildren(stateNode) {
     return Object.keys(stateNode.states).map(function(key) {
         return stateNode.states[key];
-    }).filter(function(sn) {
-        return sn.type !== 'history';
     });
 }
 function getAllStateNodes(stateNode) {
@@ -4090,6 +4246,7 @@ function getConfiguration(prevStateNodes, stateNodes) {
                 if (s.type === 'parallel') try {
                     for(var _e = (e_3 = void 0, _tslibJs.__values(getChildren(s))), _f = _e.next(); !_f.done; _f = _e.next()){
                         var child = _f.value;
+                        if (child.type === 'history') continue;
                         if (!configuration.has(child)) {
                             configuration.add(child);
                             if (prevAdjList.get(child)) prevAdjList.get(child).forEach(function(sn) {
@@ -5014,11 +5171,12 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
         }
         return true;
     };
-    StateNode1.prototype.getActions = function(resolvedConfig, isDone, transition, currentContext, _event, prevState) {
+    StateNode1.prototype.getActions = function(transition, currentContext, _event, prevState) {
         var e_4, _a, e_5, _b;
         var prevConfig = _stateUtilsJs.getConfiguration([], prevState ? this.getStateNodes(prevState.value) : [
             this
         ]);
+        var resolvedConfig = transition.configuration.length ? _stateUtilsJs.getConfiguration(prevConfig, transition.configuration) : prevConfig;
         try {
             for(var resolvedConfig_1 = _tslibJs.__values(resolvedConfig), resolvedConfig_1_1 = resolvedConfig_1.next(); !resolvedConfig_1_1.done; resolvedConfig_1_1 = resolvedConfig_1.next()){
                 var sn = resolvedConfig_1_1.value;
@@ -5086,16 +5244,6 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
             }))
         ], 2), entryActions = _c[0], exitActions = _c[1];
         var actions = _actionsJs.toActionObjects(exitActions.concat(transition.actions).concat(entryActions), this.machine.options.actions);
-        if (isDone) {
-            var stopActions = _actionsJs.toActionObjects(_utilsJs.flatten(_tslibJs.__spreadArray([], _tslibJs.__read(resolvedConfig), false).sort(function(a, b) {
-                return b.order - a.order;
-            }).map(function(stateNode) {
-                return stateNode.onExit;
-            })), this.machine.options.actions).filter(function(action) {
-                return action.type !== _actionTypesJs.raise && (action.type !== _actionTypesJs.send || !!action.to && action.to !== _typesJs.SpecialTargets.Internal);
-            });
-            return actions.concat(stopActions);
-        }
         return actions;
     };
     /**
@@ -5149,11 +5297,9 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
         // - this is the initial state (there is no current state)
         // - OR there are transitions
         var willTransition = !currentState || stateTransition.transitions.length > 0;
-        var resolvedConfiguration = willTransition ? stateTransition.configuration : currentState ? currentState.configuration : [];
-        var isDone = _stateUtilsJs.isInFinalState(resolvedConfiguration, this);
         var resolvedStateValue = willTransition ? _stateUtilsJs.getValue(this.machine, configuration) : undefined;
         var historyValue = currentState ? currentState.historyValue ? currentState.historyValue : stateTransition.source ? this.machine.historyValue(currentState.value) : undefined : undefined;
-        var actions = this.getActions(new Set(resolvedConfiguration), isDone, stateTransition, context, _event, currentState);
+        var actions = this.getActions(stateTransition, context, _event, currentState);
         var activities = currentState ? _tslibJs.__assign({}, currentState.activities) : {};
         try {
             for(var actions_1 = _tslibJs.__values(actions), actions_1_1 = actions_1.next(); !actions_1_1.done; actions_1_1 = actions_1.next()){
@@ -5184,6 +5330,8 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
             acc[action.activity.id] = _actorJs.createInvocableActor(action.activity, _this.machine, updatedContext, _event);
             return acc;
         }, currentState ? _tslibJs.__assign({}, currentState.children) : {});
+        var resolvedConfiguration = willTransition ? stateTransition.configuration : currentState ? currentState.configuration : [];
+        var isDone = _stateUtilsJs.isInFinalState(resolvedConfiguration, this);
         var nextState = new _stateJs.State({
             value: resolvedStateValue || currentState.value,
             context: updatedContext,
@@ -5199,7 +5347,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
             transitions: stateTransition.transitions,
             children: children,
             done: isDone,
-            tags: _stateUtilsJs.getTagsFromConfiguration(resolvedConfiguration),
+            tags: currentState === null || currentState === void 0 ? void 0 : currentState.tags,
             machine: this
         });
         var didUpdateContext = context !== updatedContext;
@@ -5233,6 +5381,7 @@ var StateNode = /*#__PURE__*/ /** @class */ function() {
         var changed = maybeNextState.changed || (history ? !!maybeNextState.actions.length || didUpdateContext || typeof history.value !== typeof maybeNextState.value || !_stateJs.stateValuesEqual(maybeNextState.value, history.value) : undefined);
         maybeNextState.changed = changed; // Preserve original history after raised events
         maybeNextState.history = history;
+        maybeNextState.tags = _stateUtilsJs.getTagsFromConfiguration(maybeNextState.configuration);
         return maybeNextState;
     };
     /**
@@ -8427,165 +8576,7 @@ function computeAutoPlacement(state, options) {
 }
 exports.default = computeAutoPlacement;
 
-},{"./getVariation.js":"hIo7Y","../enums.js":"lCAq5","./detectOverflow.js":"ltCuw","./getBasePlacement.js":"59Wp3","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2J0f1":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "ROV_PEERID_BASE", ()=>ROV_PEERID_BASE
-);
-parcelHelpers.export(exports, "peerServerCloudOptions", ()=>peerServerCloudOptions
-);
-parcelHelpers.export(exports, "peerServerLocalOptions", ()=>peerServerLocalOptions
-);
-parcelHelpers.export(exports, "GAME_CONTROLLER_BUTTON_CONFIG", ()=>GAME_CONTROLLER_BUTTON_CONFIG
-);
-parcelHelpers.export(exports, "ONSCREEN_GPAD_BUTTON_LABELS", ()=>ONSCREEN_GPAD_BUTTON_LABELS
-);
-parcelHelpers.export(exports, "ONSCREEN_GPAD_BUTTON_TOUCHED_CLASS", ()=>ONSCREEN_GPAD_BUTTON_TOUCHED_CLASS
-);
-parcelHelpers.export(exports, "ONSCREEN_GPAD_BUTTON_PRESSED_CLASS", ()=>ONSCREEN_GPAD_BUTTON_PRESSED_CLASS
-);
-const ROV_PEERID_BASE = "iROV-";
-const peerServerCloudOptions = {
-    host: '0.peerjs.com',
-    secure: true,
-    path: '/',
-    port: 443
-};
-const peerServerLocalOptions = {
-    host: 'raspberrypi.local',
-    path: '/',
-    secure: false,
-    port: 9000
-};
-const GAME_CONTROLLER_BUTTON_CONFIG = [
-    {
-        btnName: "button_1",
-        remoteAction: 'lights',
-        helpLabel: "Lights"
-    },
-    {
-        btnName: "button_2",
-        remoteAction: 'record',
-        helpLabel: "Start/Stop Recording"
-    },
-    {
-        btnName: "button_3",
-        remoteAction: 'photo',
-        helpLabel: "Take Phtoto"
-    },
-    {
-        btnName: "button_4",
-        remoteAction: null,
-        helpLabel: "Nothing"
-    },
-    {
-        btnName: "shoulder_btn_front_left",
-        remoteAction: null,
-        localAction: null,
-        helpLabel: "Nothing"
-    },
-    {
-        btnName: "shoulder_btn_front_right",
-        remoteAction: 'claw_open',
-        helpLabel: "TODO: Open Claw",
-        holdAllowed: true
-    },
-    {
-        btnName: "shoulder_trigger_back_left",
-        remoteAction: null,
-        helpLabel: "Nothing"
-    },
-    {
-        btnName: "shoulder_trigger_back_right",
-        remoteAction: 'claw_close',
-        helpLabel: "TODO: Close Claw",
-        holdAllowed: true
-    },
-    {
-        btnName: "select",
-        remoteAction: null,
-        helpLabel: "Show/Hide Gamepad Help"
-    },
-    {
-        btnName: "start",
-        remoteAction: null,
-        helpLabel: "Show/Hide Gamepad Help"
-    },
-    {
-        btnName: "stick_button_left",
-        remoteAction: null,
-        helpLabel: "Lock Vertical Thruster"
-    },
-    {
-        btnName: "stick_button_right",
-        remoteAction: null,
-        helpLabel: "Lock Horizontal"
-    },
-    {
-        btnName: "d_pad_up",
-        remoteAction: 'exposure_plus',
-        helpLabel: "Increase Camera Brightness",
-        holdAllowed: true
-    },
-    {
-        btnName: "d_pad_down",
-        remoteAction: 'exposure_minus',
-        helpLabel: "Decreases Camera Brightness",
-        holdAllowed: true
-    },
-    {
-        btnName: "d_pad_left",
-        remoteAction: 'v_quality_plus',
-        helpLabel: "Decrease Video Quality (reduces latency)",
-        holdAllowed: true
-    },
-    {
-        btnName: "d_pad_right",
-        remoteAction: 'v_quality_minus',
-        helpLabel: "Increase Video Quality (increases latency)",
-        holdAllowed: true
-    },
-    {
-        btnName: "vendor",
-        remoteAction: null,
-        helpLabel: "Nothing"
-    }
-];
-const ONSCREEN_GPAD_BUTTON_LABELS = [
-    "button_1",
-    "button_2",
-    "button_3",
-    "button_4",
-    "shoulder_btn_front_left",
-    "shoulder_btn_front_right",
-    "shoulder_trigger_back_left",
-    "shoulder_trigger_back_right",
-    "select",
-    "start",
-    "stick_button_left",
-    "stick_button_right",
-    "d_pad_up",
-    "d_pad_down",
-    "d_pad_left",
-    "d_pad_right"
-];
-const ONSCREEN_GPAD_BUTTON_TOUCHED_CLASS = "touched", ONSCREEN_GPAD_BUTTON_PRESSED_CLASS = "pressed"; //     'A': { remoteAction: 'photo', desc: 'Take Photo' },
- //     'B': { remoteAction: 'record', desc: 'Start/Stop Recording' },
- //     'X': { remoteAction: null, desc: 'TBD' },
- //     'Y': { remoteAction: null, desc: 'TBD' },
- //     'L1': { remoteAction: 'clawOpen', mode: "btn_hold_allowed", desc: 'Open Claw' },
- //     'R1': { remoteAction: 'clawOpen', mode: "btn_hold_allowed", desc: 'Open Claw' },
- //     'L2': { remoteAction: 'clawClose', mode: "btn_hold_allowed", desc: 'Close Claw' },
- //     'R2': { remoteAction: 'clawClose', mode: "btn_hold_allowed", desc: 'Close Claw' },
- //     'SELECT': { remoteAction: 'bitrate-', mode: "btn_hold_allowed", desc: 'TODO: Decrease Video Quality (lowers latency)' },
- //     'START': { remoteAction: 'bitrate+', mode: "btn_hold_allowed", desc: 'TODO: Increase Video Quality (adds latency)' },
- //     'dpadUp': { remoteAction: 'lights+', mode: "btn_hold_allowed", desc: 'TODO: Increase Intensity of Lights' },
- //     'dpadDown': { remoteAction: 'lights-', mode: "btn_hold_allowed", desc: 'TODO: Decrease Intensity of Lights' },
- //     'dpadLeft': { remoteAction: 'exposure-', mode: "btn_hold_allowed", desc: 'TODO: Dim Camera Exposure' },
- //     'dpadRight': { remoteAction: 'exposure+', mode: "btn_hold_allowed", desc: 'TODO: Brighten Camera Exposure' },
- // }
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jRoqP":[function(require,module,exports) {
+},{"./getVariation.js":"hIo7Y","../enums.js":"lCAq5","./detectOverflow.js":"ltCuw","./getBasePlacement.js":"59Wp3","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jRoqP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 // Note: this file was written by me (Kyle), and is not a library found on the web.
@@ -8708,225 +8699,154 @@ class GamepadInterface {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"at2SH":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"doATT":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "MessageHandler", ()=>MessageHandler
+parcelHelpers.export(exports, "clamp", ()=>clamp
 );
-parcelHelpers.export(exports, "RovActions", ()=>RovActions
+/* generateStateChangeFunction is a function generator for an xstate machine that will return a function that will run a callback and send the named state transition with the data or event from the calling transition */ parcelHelpers.export(exports, "generateStateChangeFunction", ()=>generateStateChangeFunction
 );
-var _ui = require("./ui");
-var _uuid = require("uuid");
-class MessageHandler {
-    // replyContinuityCallbacks: keep track of functions to run when we get a reply to a message we sent with some "cid" aka continuityId
-    // object format: (key is the cid of the sent message): { '1234': { callback: function() {}, original_msg: "{action:'move'}" }, etc... }
-    static replyContinuityCallbacks = {};
-    // sendMessageCallback: Function that will send the message to the rov peer.
-    // This callback should be set in the constructor below.
-    static sendMessageCallback = ()=>{};
-    static setSendMessageCallback = (callback)=>{
-        MessageHandler.sendMessageCallback = callback;
-    };
-    // sendRovMessage: Send a message to the rov peer and setup reply callbacks based on a message cid if reply(ies) are expected.
-    static sendRovMessage = (msgObject, replyCallback)=>{
-        // setup the reply callback
-        let cid = msgObject["cid"];
-        if (!cid) cid = msgObject["cid"] = _uuid.v4().substring(0, 8); // generate a random cid if none is provided
-        if (!MessageHandler.replyContinuityCallbacks[cid]) MessageHandler.replyContinuityCallbacks[cid] = {
-            original_msg: msgObject
-        };
-        if (replyCallback) MessageHandler.replyContinuityCallbacks[cid].callback = replyCallback;
-        // send the message to the rov
-        const messageString = JSON.stringify(msgObject);
-        if (MessageHandler.sendMessageCallback) MessageHandler.sendMessageCallback(messageString);
-    };
-    static handlePasswordChallenge(msg_cid) {
-        _ui.showPasswordPrompt("Please enter the piloting password", (password)=>{
-            if (password) {
-                const msg_data = {
-                    "cid": msg_cid,
-                    "action": "password_attempt",
-                    "val": password
-                };
-                MessageHandler.sendRovMessage(msg_data, null);
-            } else // remove the reply callback if the user cancels the password prompt (empty password)
-            delete MessageHandler.replyContinuityCallbacks[msg_cid];
+parcelHelpers.export(exports, "calculateDesiredMotion", ()=>calculateDesiredMotion
+);
+/*
+* Gets just the passed name parameter from the query string the curent url:
+* Example: if the url is: https://example.com/abc?some-variable-name=somevalue&someotherthing=someothervalue
+* then getURLQueryStringVariable("some-variable-name") will return "somevalue"
+*/ parcelHelpers.export(exports, "getURLQueryStringVariable", ()=>getURLQueryStringVariable
+);
+parcelHelpers.export(exports, "isInternetAvailable", ()=>isInternetAvailable
+);
+parcelHelpers.export(exports, "toggleFullscreen", ()=>toggleFullscreen
+);
+// Downloads the given link, with an optional filename for the download
+parcelHelpers.export(exports, "download", ()=>download
+);
+function clamp(number, max, min) {
+    return Math.max(Math.min(number, max), min);
+}
+function generateStateChangeFunction(sendStateChange, stateTransition, data, additionalCallback) {
+    const func = function(evt) {
+        if (additionalCallback) additionalCallback(evt);
+        sendStateChange({
+            type: stateTransition,
+            data: data || evt
         });
+    };
+    return func;
+}
+function calculateDesiredMotion(axes) {
+    var turn = axes[0].toFixed(3);
+    var forward = -1 * axes[1].toFixed(3);
+    var strafe = axes[2].toFixed(3);
+    var vertical = -1 * axes[3].toFixed(3);
+    return {
+        thrustVector: [
+            strafe,
+            forward,
+            vertical
+        ],
+        turnRate: turn
+    };
+}
+function getURLQueryStringVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split('&');
+    for(var i = 0; i < vars.length; i++){
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == variable) return decodeURIComponent(pair[1]);
     }
-    static handleReplyMsgRecived(msg_data, msg_cid) {
-        const msg_status = msg_data["status"];
-        const msg_value = msg_data["val"];
-        const replyContinuityCallback = MessageHandler.replyContinuityCallbacks[msg_cid].callback;
-        if (msg_status == "error") {
-            console.warn("Rov Action Error: " + msg_value);
-            _ui.showToastMessage(msg_value);
-        } else if (msg_status == "done") {
-            if (replyContinuityCallback) replyContinuityCallback(msg_data);
-            else _ui.showToastMessage(MessageHandler.replyContinuityCallbacks[msg_cid].originalMsgData.action + ": OK");
-        } else if (msg_status == "password-required") MessageHandler.handlePasswordChallenge(msg_cid);
-        else if (msg_status == "password-invalid") {
-            _ui.showToastMessage("Invalid password");
-            MessageHandler.handlePasswordChallenge(msg_cid);
-        } else if (msg_status == "password-accepted") {
-            _ui.showToastMessage("Password accepted");
-            const originalMsgData = MessageHandler.replyContinuityCallbacks[msg_cid].original_msg;
-            console.log("originalMsgData: ", originalMsgData);
-            MessageHandler.sendRovMessage(originalMsgData, null);
-        } else if (replyContinuityCallback) replyContinuityCallback(msg_data);
+// console.log('Query variable %s not found', variable);
+}
+function isInternetAvailable(urlToCheck) {
+    return new Promise((resolve)=>{
+        console.info("checkingUrl", urlToCheck);
+        try {
+            fetch(urlToCheck).then(()=>{
+                resolve(true);
+            }).catch((e)=>{
+                console.warn("Internet Offline, starting switch to local mode", e);
+                resolve(false);
+            });
+        // setTimeout(() => {
+        //     resolve(false)
+        // }, 10000)
+        } catch (e) {
+            console.warn("Error Checking internet, starting switch to local mode", e);
+            resolve(false);
+        }
+    });
+}
+window.closeFullscreen = ()=>{
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    if (fullscreenElement) {
+        const removeFullscreenUi = ()=>{
+            fullscreenElement.classList.remove('fullscreen-open');
+        };
+        if (document.exitFullscreen) document.exitFullscreen().then(removeFullscreenUi);
+        else if (document.msExitFullscreen) document.msExitFullscreen().then(removeFullscreenUi);
+        else if (document.mozCancelFullScreen) document.mozCancelFullScreen().then(removeFullscreenUi);
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen().then(removeFullscreenUi);
     }
-    static handlePilotChange(newPilotId) {
-        _ui.showToastMessage("ROV Pilot has changed to " + newPilotId);
+};
+/* When the toggleFullscreen() export function is executed, open the passed element in fullscreen.
+Note that we must include prefixes for different browsers, as they don't support the requestFullscreen method yet */ window.toggleFullscreen = (e, elem)=>{
+    elem = elem || document.documentElement;
+    if (e && e.initialTarget) e.initialTarget.classList.toggle('fullscreen-open');
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    const addFullscreenUi = ()=>{
+        elem.classList.add('fullscreen-open');
+    };
+    const removeFullscreenUi = ()=>{
+        fullscreenElement.classList.remove('fullscreen-open');
+        if (elem !== fullscreenElement) {
+            if (elem.requestFullscreen) elem.requestFullscreen().then(addFullscreenUi);
+            else if (elem.msRequestFullscreen) elem.msRequestFullscreen().then(addFullscreenUi);
+            else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen().then(addFullscreenUi);
+            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT).then(addFullscreenUi);
+        }
+    };
+    if (fullscreenElement) {
+        if (document.exitFullscreen) document.exitFullscreen().then(removeFullscreenUi);
+        else if (document.msExitFullscreen) document.msExitFullscreen().then(removeFullscreenUi);
+        else if (document.mozCancelFullScreen) document.mozCancelFullScreen().then(removeFullscreenUi);
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen().then(removeFullscreenUi);
+    } else {
+        if (elem.requestFullscreen) elem.requestFullscreen().then(addFullscreenUi);
+        else if (elem.msRequestFullscreen) elem.msRequestFullscreen().then(addFullscreenUi);
+        else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen().then(addFullscreenUi);
+        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT).then(addFullscreenUi);
     }
-    static handleBroadcastMsgRecived(msg_data) {
-        const msg_status = msg_data["status"];
-        const msg_value = msg_data["val"];
-        if (msg_status == "error") console.error("Rov Error: " + msg_value);
-        else if (msg_status == "pilotHasChanged") MessageHandler.handlePilotChange(msg_value);
-    }
-    static handleRecivedMessage(messageString) {
-        console.log("Recived message: " + messageString);
-        const msg_data = JSON.parse(messageString);
-        const msg_cid = msg_data["cid"];
-        if (msg_cid && msg_cid in MessageHandler.replyContinuityCallbacks) // --- this IS a reply to a message we sent ---
-        MessageHandler.handleReplyMsgRecived(msg_data, msg_cid);
-        else // --- this is NOT a reply to a message we sent ---
-        MessageHandler.handleBroadcastMsgRecived(msg_data);
+};
+function toggleFullscreen(event, elem) {
+    elem = elem || document.documentElement;
+    var fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    if (!fullscreenElement || elem !== fullscreenElement) {
+        const requestFullscreenFunc = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.mozRequestFullScreen || elem.msRequestFullscreen;
+        console.log(requestFullscreenFunc);
+        requestFullscreenFunc(Element.ALLOW_KEYBOARD_INPUT);
+    } else {
+        const exitFullscreenFunc = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exitFullscreenFunc().then(()=>{
+            fullscreenElement.classList.remove('fullscreen-open');
+        });
     }
 }
-class RovActions {
-    // ==== Helpers =====
-    static sendActionAndWaitForDone(msg_data, callback) {
-        let responseMessage = "";
-        MessageHandler.sendRovMessage(msg_data, (response)=>{
-            const responseText = response["val"] || "";
-            responseMessage += responseText + "\n";
-            const status = response["status"];
-            if (status && callback) {
-                if (status == "done") callback(responseMessage);
-                else if (status == "error") callback("Error: " + responseMessage);
-            }
-        });
-    }
-    static startPingMessageSenderLoop() {
-        const intervalId = setInterval(()=>{
-            MessageHandler.sendRovMessage({
-                "action": "ping",
-                "val": Date.now()
-            });
-        }, 2000);
-        return ()=>{
-            clearInterval(intervalId);
-        } // return a cleanup function
-        ;
-    }
-    // ======= Actions ========
-    static moveRov(thrustVector, turnRate) {
-        MessageHandler.sendRovMessage({
-            "action": "move",
-            "val": {
-                thrustVector: thrustVector,
-                turnRate: turnRate
-            }
-        }, null);
-    }
-    static toggleLights() {
-        MessageHandler.sendRovMessage({
-            "action": "toggle_lights"
-        }, null);
-    }
-    static shutdownRov = ()=>{
-        if (confirm("Are you sure you want to shutdown the ROV?")) {
-            _ui.showToastMessage("Sending Shutdown Request...");
-            RovActions.sendActionAndWaitForDone({
-                "action": "shutdown_rov"
-            }, (doneMsg)=>{
-                _ui.showToastMessage("Please wait 20 seconds before unplugging");
-                _ui.showToastMessage("ROV:" + doneMsg);
-            });
-        }
-    };
-    static rebootRov = ()=>{
-        if (confirm("Are you sure you want to reboot the ROV?")) {
-            _ui.showToastMessage("Sending Reboot Request...");
-            RovActions.sendActionAndWaitForDone({
-                "action": "reboot_rov"
-            }, (doneMsg)=>{
-                _ui.showToastMessage("Press Connect again in ~30 seconds");
-                _ui.showToastMessage("ROV:" + doneMsg);
-            });
-        }
-    };
-    static restartRovServices = ()=>{
-        if (confirm("Are you sure you want to restart services? - The ROV will stop responding for about a minute and then you will need to re-connect.")) {
-            const addTextToPopup = _ui.showScrollableTextPopup("Restarting ROV Services...");
-            addTextToPopup("Sending Service Restart Request (Please Wait)...\n");
-            MessageHandler.sendRovMessage({
-                "action": "restart_rov_services"
-            }, (response)=>{
-                if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
-                else if (response['val']) addTextToPopup(response['val']);
-                else if (response['status'] == "done") addTextToPopup("\n\nDone");
-            });
-        }
-    };
-    static getRovStatusReport = ()=>{
-        const addTextToPopup = _ui.showScrollableTextPopup("ROV Status Report...");
-        addTextToPopup("Sending Status Request (Please Wait)...\n");
-        MessageHandler.sendRovMessage({
-            "action": "rov_status_report"
-        }, (response)=>{
-            if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
-            else if (response['val']) addTextToPopup(response['val']);
-            else if (response['status'] == "done") addTextToPopup("\n\nDone");
-        });
-    };
-    static getRovLogs = ()=>{
-        const addTextToPopup = _ui.showScrollableTextPopup("ROV Logs...");
-        addTextToPopup("Sending Logs Request (Please Wait)...\n");
-        MessageHandler.sendRovMessage({
-            "action": "rov_logs"
-        }, (response)=>{
-            if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
-            else if (response['val']) addTextToPopup(response['val']);
-            else if (response['status'] == "done") addTextToPopup("\n\nDone");
-        });
-    };
-    static rePullRovGithubCode = ()=>{
-        alert("Make sure to choose 'Restart ROV Services' from this menu after the pull completes.");
-        const addTextToPopup = _ui.showScrollableTextPopup("Pulling Updated Code...");
-        addTextToPopup("Sending Code Pull Request (Please Wait)...\n");
-        MessageHandler.sendRovMessage({
-            "action": "pull_rov_github_code"
-        }, (response)=>{
-            if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
-            else if (response['val']) addTextToPopup(response['val']);
-            else if (response['status'] == "done") {
-                addTextToPopup("\n\nDone");
-                addTextToPopup("Please run 'Restart ROV Services' from the same menu in ~30 seconds to fully apply any code changes.");
-            }
-        });
-    };
-    static enableRovWifi = ()=>{
-        _ui.showToastMessage("Sending Enable Wifi Command...");
-        RovActions.sendActionAndWaitForDone({
-            "action": "enable_wifi"
-        }, (doneMsg)=>{
-            _ui.showToastMessage("Wifi Enabled! " + doneMsg);
-        });
-    };
-    static disableRovWifi = ()=>{
-        if (confirm("Are you sure you want to disable rov wifi? If the ROV is connected via wifi, don't do this!")) {
-            _ui.showToastMessage("Sending Disable Wifi Command...");
-            RovActions.sendActionAndWaitForDone({
-                "action": "disable_wifi"
-            }, (doneMsg)=>{
-                _ui.showToastMessage("Wifi Disabled! " + doneMsg);
-            });
-        }
-    };
+function download(url, filename) {
+    const a = document.createElement('a') // Create <a> hyperlink element
+    ;
+    a.href = url // Set the hyperlink URL
+    ;
+    a.download = filename || "" // if left blank the browser will guess the filename for the downloaded file
+    ;
+    document.body.appendChild(a) // Append the hyperlink to the document body
+    ;
+    a.click() // Click the hyperlink
+    ;
+    document.body.removeChild(a) // Remove the hyperlink from the document body
+    ;
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./ui":"efi6n","uuid":"j4KJi"}],"efi6n":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"efi6n":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 // -------------------------------------------------------------
@@ -8955,17 +8875,17 @@ parcelHelpers.export(exports, "showChoiceDialog", ()=>showChoiceDialog
 );
 parcelHelpers.export(exports, "showROVDisconnectedUi", ()=>showROVDisconnectedUi
 );
-parcelHelpers.export(exports, "hideRovConnectionBar", ()=>hideRovConnectionBar
-);
-parcelHelpers.export(exports, "showRovConnectionBar", ()=>showRovConnectionBar
-);
 parcelHelpers.export(exports, "showROVConnectingUi", ()=>showROVConnectingUi
 );
 parcelHelpers.export(exports, "showROVConnectedUi", ()=>showROVConnectedUi
 );
-parcelHelpers.export(exports, "setCurrentRovName", ()=>setCurrentRovName
-);
 parcelHelpers.export(exports, "showReloadingWebsiteUi", ()=>showReloadingWebsiteUi
+);
+parcelHelpers.export(exports, "hideRovConnectionBar", ()=>hideRovConnectionBar
+);
+parcelHelpers.export(exports, "showRovConnectionBar", ()=>showRovConnectionBar
+);
+parcelHelpers.export(exports, "setCurrentRovName", ()=>setCurrentRovName
 );
 parcelHelpers.export(exports, "setupConnectBtnClickHandler", ()=>setupConnectBtnClickHandler
 );
@@ -9020,6 +8940,7 @@ parcelHelpers.export(exports, "setArtificialHorizonBackground", ()=>setArtificia
 var _toastifyJs = require("toastify-js");
 var _toastifyJsDefault = parcelHelpers.interopDefault(_toastifyJs);
 var _utils = require("xstate/lib/utils");
+var _consts = require("./consts");
 function createButtons(btnNames, callback) {
     return btnNames.map((btnName)=>{
         const btn = document.createElement("button");
@@ -9176,7 +9097,26 @@ const rovConnectionBar = document.getElementById('rov_connection_bar');
 function showROVDisconnectedUi() {
     connectBtn.style.display = 'block';
     disconnectBtn.style.display = 'none';
-    hideLoadingUi();
+    hideLoadingUi("all");
+    showRovConnectionBar();
+}
+function showROVConnectingUi(rovPeerId) {
+    connectBtn.style.display = 'none';
+    showLoadingUi("webrtc-connecting", "Searching for " + rovPeerId);
+    hideRovConnectionBar();
+}
+function showROVConnectedUi() {
+    connectBtn.style.display = 'none';
+    disconnectBtn.style.display = 'block';
+    hideLoadingUi("webrtc-connecting");
+    hideLoadingUi("webrtc-reconnecting");
+    showRovConnectionBar();
+}
+function showReloadingWebsiteUi() {
+    connectBtn.style.display = 'none';
+    disconnectBtn.style.display = 'none';
+    connectedRovLabel.parentElement.parentElement.classList.add('hidden');
+    showLoadingUi("reloading-site");
 }
 function hideRovConnectionBar() {
     rovConnectionBar.classList.add('hidden');
@@ -9184,24 +9124,9 @@ function hideRovConnectionBar() {
 function showRovConnectionBar() {
     rovConnectionBar.classList.remove('hidden');
 }
-function showROVConnectingUi() {
-    connectBtn.style.display = 'none';
-    showLoadingUi("Searching for ROV...");
-}
-function showROVConnectedUi() {
-    connectBtn.style.display = 'none';
-    disconnectBtn.style.display = 'block';
-    hideLoadingUi();
-}
 function setCurrentRovName(name) {
     connectBtn.innerText = "Connect to " + name;
     connectedRovLabel.innerText = name;
-}
-function showReloadingWebsiteUi() {
-    connectBtn.style.display = 'none';
-    disconnectBtn.style.display = 'none';
-    connectedRovLabel.parentElement.parentElement.classList.add('hidden');
-    showLoadingUi("Reloading Page...");
 }
 function setupConnectBtnClickHandler(callback) {
     connectBtn.addEventListener('click', callback);
@@ -9210,9 +9135,9 @@ function setupConnectBtnClickHandler(callback) {
     };
 }
 function setupDisconnectBtnClickHandler(callback) {
-    connectBtn.addEventListener('click', callback);
+    disconnectBtn.addEventListener('click', callback);
     return ()=>{
-        connectBtn.removeEventListener('click', callback);
+        disconnectBtn.removeEventListener('click', callback);
     };
 }
 const switchToPrevRovBtn = document.getElementById('switch_to_prev_rov_btn');
@@ -9233,12 +9158,25 @@ function hideScanIpButton() {
 }
 const loadingIndicator = document.getElementById("site_loading_indicator");
 const loadingIndicatorText = document.getElementById("site_loading_text");
-function showLoadingUi(loadingMessage) {
+let loadingStack = {};
+function showLoadingUi(loadingMsgId, loadingMessage) {
+    const message = loadingStack[loadingMsgId] = loadingMessage || _consts.LOADING_MESSAGES[loadingMsgId] || _consts.LOADING_MESSAGES["default"];
     loadingIndicator.style.display = 'block';
-    loadingIndicatorText.innerHTML = loadingMessage;
+    loadingIndicatorText.innerHTML = message;
 }
-function hideLoadingUi() {
-    loadingIndicator.style.display = 'none';
+function hideLoadingUi(loadingMsgId) {
+    // remove the loading message from the stack
+    delete loadingStack[loadingMsgId];
+    // if there are no more messages in the stack, hide the loading indicator, otherwise show the top message
+    const loadingStackIds = Object.keys(loadingStack);
+    if (loadingMsgId == "all" || loadingStackIds.length == 0) {
+        loadingIndicator.style.display = 'none';
+        loadingStack = {};
+        console.log("here", loadingMsgId);
+    } else {
+        const msg = loadingStack[loadingStackIds[loadingStackIds.length - 1]];
+        loadingIndicatorText.innerHTML = msg || _consts.LOADING_MESSAGES["default"];
+    }
 }
 const livestreamContainer = document.getElementById("livestream_container");
 function showLivestreamUi() {
@@ -9287,7 +9225,7 @@ function setArtificialHorizonBackground(roll, pitch) {
     gradientArtificialHorizonBackground.style.backgroundImage = `linear-gradient(${roll}deg, rgba(2,0,36,1) ${-100 + vShift}%, rgba(9,88,116,1) ${50 + vShift}%, rgba(10,109,140,1) ${50 + vShift}%, rgba(0,255,235,1) ${200 + vShift}%)`;
 }
 
-},{"toastify-js":"96k49","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","xstate/lib/utils":"8RFz3"}],"96k49":[function(require,module,exports) {
+},{"toastify-js":"96k49","xstate/lib/utils":"8RFz3","./consts":"2J0f1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"96k49":[function(require,module,exports) {
 /*!
  * Toastify js 1.11.2
  * https://github.com/apvarun/toastify-js
@@ -10198,7 +10136,764 @@ Object.defineProperty(exports, '__esModule', {
 var IS_PRODUCTION = false;
 exports.IS_PRODUCTION = IS_PRODUCTION;
 
-},{}],"j4KJi":[function(require,module,exports) {
+},{}],"8TXLV":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "runSiteInitMachine", ()=>runSiteInitMachine
+);
+var _xstate = require("xstate");
+var _util = require("./util");
+var _ui = require("./ui");
+var _consts = require("./consts");
+const runSiteInitMachine = (globalContext, sendParentCallback)=>{
+    const siteInitMachine = /** @xstate-layout N4IgpgJg5mDOIC5SwJYBcwEkB26B0AwgBZgDGA1itlAPo4YBO2YaNAgqaXLAMQCqAJQAydAMo0BAeQBqdAAqJQABwD2qNChXZFIAB6IATAFYADHgBsADhMBOACxGAzOYCMJgw-MAaEAE9ELgDslnhGdo5GLkYGLpZGToEGAL5JPupYuGiEJBRUtPRgTCzsnNw8mAByACoAogIVNVXs0myYQmwAQkI1OqrqmtpIeoaWdhbBdpaBto52NoE2Rj7+CEY2eIEuLnYm0Zb2Jnbmiylp6Bn4xGSU1HTYjMysHFywvJW19Y00kgBiP0KVHpDProAY6fQIAC0bkCeH2LnMBlGNkO5kCdjsy0MYTwzhsCKCNkcBhMpOSqRA6Rw+AA6gBDUG3H4qBg0PiwQo0USkOnYGgdACuaDQWhocgYZVEBDYFX5fCqVUksoIAIIAGkagARXpqUFacGIRwmELxayRAyOBEGFGBLEIRyBWGORyWIIOywWzaWU6U87UrLc3m4JksiQyeQ8KSyTByGg-SR8Cra4G6jT6oYQzYuXGuWbBSxoozmbx+Q2TOGLV2k2ymGzeilUzJ4QPYYO0ZmsqMRmNc6UVCqVADiNDqUgEOv66dAEMt5jhLiNro8RkSBnRduic5MrhcdecrsRjhSFOwKggcB0jcuORu+XuhUeJRe8BTk8G08QkJJjjhTncxhMS0rQMO04jwOwoniaZAIxI1zB9K8snpRl21DdlORbfkhRFPlxW4Cc9XfYYoRJMYkU2YxFxdBFHDtOxjFCAxEUCWYbCYlxjAQv0mxbNs41DLsYwItMiIhIwCw2dx0RibZLDkyw6OOPAEUmaJJg8XcbC4jB-TwARIBQCVSFYDoGBUAB3DlWSqFQw2jBRX0Ig0EHMSJcTWTYbCsUxZhLFYDCYvATAXSiPXCRwbCJbSLgDc4JDAOkIBWZRUzBDNEGLMZTECcTAlcgsLSWUsEHmPA2I9FcPGCIkjwbbj0GEtKPxIpE8HIji-0sajzFo4roR-YxHTy45xN3fZyRSIA */ _xstate.createMachine({
+        context: {
+            peerServerConfig: {},
+            rovIpAddr: null
+        },
+        id: "siteInit",
+        initial: "Checking_Internet_Access",
+        states: {
+            Checking_Internet_Access: {
+                invoke: {
+                    src: "checkInternetAvailable",
+                    id: "Check_Internet_Available"
+                },
+                on: {
+                    URL_IS_ROV_IP: {
+                        actions: [
+                            "setLocalPeerServerConfig",
+                            "showHttpGamepadSupportDisabledAlert", 
+                        ],
+                        target: "#siteInit.Site_Ready"
+                    },
+                    INTERNET_AVAILABLE: {
+                        actions: "setCloudPeerServerConfig",
+                        target: "#siteInit.Site_Ready"
+                    },
+                    INTERNET_OFFLINE: {
+                        actions: [
+                            "showIpScanButton",
+                            "hideLoadingUi"
+                        ],
+                        target: "#siteInit.Waiting_For_User_Scan_Button_Press"
+                    }
+                }
+            },
+            Waiting_For_User_Scan_Button_Press: {
+                description: "We need this because of browser popup blocking w/o user interaction",
+                invoke: {
+                    src: "setupWaitForUserScanButtonPress",
+                    id: "wait_for_scan_button_press"
+                },
+                on: {
+                    SCAN_BUTTON_CLICKED: {
+                        actions: [
+                            "showIpScanningUi",
+                            "hideIpScanButton"
+                        ],
+                        target: "#siteInit.Scanning_For_ROV_IP"
+                    }
+                }
+            },
+            Scanning_For_ROV_IP: {
+                invoke: {
+                    src: "scanForRovIP",
+                    id: "scan_for_rov_ip_addr"
+                },
+                on: {
+                    ROV_IP_FOUND: {
+                        actions: "setRovIpAddr",
+                        target: "#siteInit.Redirect_Browser_To_ROV_IP"
+                    },
+                    IP_SCANNING_ERROR: {
+                        actions: [
+                            "showIpScanButton",
+                            "hideLoadingUi"
+                        ],
+                        target: "#siteInit.Waiting_For_User_Scan_Button_Press"
+                    }
+                }
+            },
+            Redirect_Browser_To_ROV_IP: {
+                entry: "redirectBrowserToRovIp"
+            },
+            Site_Ready: {
+                entry: "siteReady",
+                type: "final"
+            }
+        }
+    }, {
+        actions: {
+            setCloudPeerServerConfig: ()=>{
+                globalContext.peerServerConfig = _consts.peerServerCloudOptions;
+            },
+            setLocalPeerServerConfig: ()=>{
+                globalContext.peerServerConfig = _consts.peerServerLocalOptions;
+            },
+            setRovIpAddr: (_, event)=>{
+                globalContext.rovIpAddr = event.data;
+            },
+            showIpScanButton: ()=>{
+                _ui.showToastMessage("Click scan to find the ROV locally.");
+                _ui.showToastMessage("No internet connection.");
+                _ui.showScanIpBtn();
+            },
+            hideIpScanButton: ()=>{
+                _ui.hideScanIpButton();
+            },
+            hideLoadingUi: ()=>{
+                _ui.hideLoadingUi("ip-scan");
+                _ui.hideLoadingUi("internet-check");
+            },
+            showIpScanningUi: ()=>{
+                _ui.showLoadingUi("ip-scan");
+            },
+            redirectBrowserToRovIp: (_, event)=>{
+                window.location = "http://" + event.data;
+            },
+            siteReady: ()=>{
+                sendParentCallback("SITE_READY");
+            }
+        },
+        services: {
+            checkInternetAvailable: ()=>{
+                _ui.showLoadingUi("internet-check");
+                return (callback)=>{
+                    const config = _consts.peerServerCloudOptions;
+                    _util.isInternetAvailable((config.secure ? "https://" : "http://") + config.host + ":" + config.port).then((internetOnline)=>{
+                        if (internetOnline) callback("INTERNET_AVAILABLE");
+                        else {
+                            // INTERNET OFFLINE
+                            // check if we are viewing this site at an IP ADDRESS or .local domain
+                            // indicating this page was served directly from the rov (presumably)
+                            const urlHostParts = window.location.host.split(".");
+                            if (urlHostParts.length == 4 && !isNaN(urlHostParts[3]) || urlHostParts.length == 2 && urlHostParts[1] == "local") // in which case we are viewing this site at the rov's ip (presumably)
+                            callback("URL_IS_ROV_IP");
+                            else // otherwise the internet is just offline
+                            callback("INTERNET_OFFLINE");
+                        }
+                    });
+                // }
+                };
+            },
+            setupWaitForUserScanButtonPress: ()=>{
+                return (callback)=>{
+                    _ui.showScanIpBtn();
+                    const onBtnClick = ()=>{
+                        callback("SCAN_BUTTON_CLICKED");
+                    };
+                    const btnElem = document.getElementById("scan_for_ip_btn");
+                    btnElem.addEventListener("click", onBtnClick);
+                    // cleanup function on state exit:
+                    return ()=>{
+                        btnElem.removeEventListener("click", onBtnClick);
+                    // hideBtnElem()
+                    };
+                };
+            },
+            scanForRovIP: ()=>{
+                return ()=>{
+                    _ui.showLoadingUi("ip-scan");
+                // setTimeout(() => {
+                // hideLoadingUi()
+                //   callback({
+                //     type: "ROV_IP_FOUND",
+                //     data: "UHhh the ip address man!",
+                //   });
+                // }, 3000);
+                };
+            }
+        },
+        guards: {}
+    });
+    const runningMachine = _xstate.interpret(siteInitMachine, {
+        devTools: globalContext.debugXstateMode
+    }).start();
+    return runningMachine;
+};
+
+},{"xstate":"2sk4t","./util":"doATT","./ui":"efi6n","./consts":"2J0f1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"aaTha":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "startRovConnectionMachine", ()=>startRovConnectionMachine
+);
+var _xstate = require("xstate");
+var _ui = require("./ui");
+var _util = require("./util");
+var _messageHandler = require("./messageHandler");
+var _consts = require("./consts");
+// FOR CONVERTING TEXT TO/FROM BINARY FOR SENDING OVER THE WEBRTC DATACHANNEL
+const messageEncoder = new TextEncoder(); // always utf-8
+const messageDecoder = new TextDecoder(); // always utf-8
+const startRovConnectionMachine = (globalContext, sendParentCallback)=>{
+    let eventHandlers = {};
+    const sendEventToSelf = (event)=>{
+        console.log("Sending event to self:", event);
+        if (runningMachine) runningMachine.send(event);
+    };
+    // create the machine
+    const rovConnectionMachine = /** @xstate-layout N4IgpgJg5mDOIC5QCcD2A3AwqgdjsAxgC4CWuAsgIYEAWJ+AdEXbAAphjICqO9JpAGxIAvSAGIAKgAkAkgGUA+qwCiygEoK1ygIIARAJqJQAB1Sx+ZHEZAAPRAEYAHADYALA1cBOAMyOADM4ArP7eAOwANCAAnogATPaeDG7egYHOoc5+3m7OsQC+eZFoWLj4xJZUtPRgTCzsnDx8giLiugDyCrrymG0Acr3KmBLWpuakuNZ2CE5uHj7+QSER0YiufonBrvaxsa6u2dveBUUY2HiE4ziVdIzMJGwcyDK8zaIQYiNmFhNItnGxfnsDD8fniflCnnWfkCrkiMQQ-iSQVimW89i8W1cxxAxTOZUu12qDAIpQu4mk8iUqg0umUcgkaja+mUuk+Y0sk0QjhcDFigUBkL5jlCQrhqyyDHs3k8nhRYUc3lcgSOhRxp1J5Qo1BuNRJ52I4j6nW0Em0mCk2n6ygAMp1un0BkMWWzvlZflNuc5efyEqDgiLgmKECKva4A-ZQjDvNlPI5sbiNQTtUS9fjWh0unIelahi7LpyETy+QK-cLRStC+4QbFQq4goDQo5PM54+r9UmqoxUxdLM8LEI3mIjboTWaLVbbW0VL08xz3XF0gwQj5Ywlo4FPLCK44NwxowFQiCd6Fa62Su2Ksmu4ney8SAPybJFCp1J06Qymc7fqNXQWUaElyyFdHDXFJNyDFF3HsZxoNiGVvDgnZ7DPPEey1TtdRvXA+1eQ1eipV91EZNRZx+UApn-QDpWlECfDArd4U8UJvAYfkRU3FIXB2FtVQTC90J1YksJwHD7xad52jtLMHUGYZvy+fN5wQSjlxo0CNwYhx7F3LYpUcPYUTcTcUOEwlr34kS7wfd4bFgIhKCIGpKAAM0c5AAAp+RBABKMQ+PxS8MKEizROs0i3XIhcANU1c6I0oNtjrPd0iY5iIy8YITIssyagAd0oCwcCgAAxVBkDUQhhKHfCR1Nc1LQGSdp3CgtmyBJVnGjBDQSbRwg06jZtNlOtAj5WJFSygKBKJfLCpKsqKu7TUcGqzRBhkoYZCNCQZHIZQ2i4OSTAUudIumTFJR3bw-D2CMT18INQmg4E0TWFxoTrdFJrQq4rzygrSCK0rysqizJCfAiaXfRlmVZeT2TIv5zvRS7lRurYT2YvqKxhWJJScHZYkccaMh3b7lpyhhZsB+aQaWy4xEkzNs0dI6QB-RSzvRFGnDR27MYeitckScFXBAwIns+rxyY7QSaEoARHIkjoWdklqlIBPZJVBCNnFlBI9mcBL7EBJJQRBNFnBgiM42xHBUAgOBrH8n7KbuB4Gl4KzxPVrnnCLE84ObHZsliINXHiBhGzSRVcghdJT14tspt+oL3fqJ5vbeX2kfG-2PClInYz1sNAiDJsANg2MZTrJtPBlwLBPpyAc6mCWgVXMW4IVdd7HLiWl1SflgnlMJ66T88U8p+nb37H34d-JSI4SlFHAYWNRoVTrpUNhvpsYan6FpxbhNbrSmI8G7-erEC+W8R7pVY8EiY+wE0T31O5YVpWz+U9YgXSHrbkTYboynLjKVicERq5H2E2ZCE9UIUz+r-Jwj0khtQjOCGEN0Eg8QKEAA */ _xstate.createMachine({
+        id: "rovConnectionMachine",
+        initial: "thisPeerUninitilized",
+        states: {
+            thisPeerUninitilized: {
+                on: {
+                    THIS_PEER_READY: {
+                        description: 'this event is sent by the parent when the "thisPeerSetupMachine" has just created the peer (but does not wait for peerjs "open" event)',
+                        target: "thisPeerInitilized"
+                    },
+                    DO_DISCONNECT: {
+                        actions: [
+                            "cleanupEventListeners",
+                            "showRovDisconnectedUi"
+                        ],
+                        target: "halted"
+                    }
+                }
+            },
+            thisPeerInitilized: {
+                always: {
+                    actions: "connectToRov",
+                    target: "connectionInitilized"
+                }
+            },
+            connected: {
+                entry: "sendParent_rovDatachannelOpen",
+                on: {
+                    THIS_PEER_DESTROYED: {
+                        actions: "cleanupEventListeners",
+                        target: "thisPeerUninitilized"
+                    },
+                    ON_DATACHANNEL_DISCONNECTED: {
+                        actions: "startReconnectCountdown",
+                        target: "waitingForReconnection"
+                    },
+                    DO_DISCONNECT: {
+                        actions: [
+                            "cleanupEventListeners",
+                            "showRovDisconnectedUi"
+                        ],
+                        target: "halted"
+                    }
+                }
+            },
+            connectionInitilized: {
+                exit: "clearRovConnectionTimeout",
+                on: {
+                    ON_DATACHANNEL_OPEN: {
+                        actions: [
+                            "addDatachannelEventHandlers",
+                            "debugReload"
+                        ],
+                        target: "connected"
+                    },
+                    THIS_PEER_DESTROYED: {
+                        actions: "cleanupEventListeners",
+                        target: "thisPeerUninitilized"
+                    },
+                    ON_PEER_ERROR: {
+                        actions: [
+                            "cleanupEventListeners",
+                            "sendParent_rovConnectionFailed",
+                            "showRovDisconnectedUi"
+                        ],
+                        cond: "peerErr=peer-unavailable",
+                        target: "halted"
+                    },
+                    DO_DISCONNECT: {
+                        actions: [
+                            "cleanupEventListeners",
+                            "showRovDisconnectedUi"
+                        ],
+                        target: "halted"
+                    },
+                    CONNECTION_TIMEOUT: {
+                        actions: "cleanupEventListeners",
+                        description: "(timeout)",
+                        target: "thisPeerInitilized"
+                    }
+                }
+            },
+            waitingForReconnection: {
+                on: {
+                    ON_DATACHANNEL_OPEN: {
+                        actions: "stopReconnectCountdown",
+                        target: "connected"
+                    },
+                    ON_RECONNECTION_TIMEOUT: {
+                        actions: [
+                            "cleanupEventListeners",
+                            "sendParent_rovConnectionFailed",
+                            "showRovDisconnectedUi"
+                        ],
+                        target: "halted"
+                    },
+                    THIS_PEER_DESTROYED: {
+                        actions: "cleanupEventListeners",
+                        target: "thisPeerUninitilized"
+                    },
+                    DO_DISCONNECT: {
+                        actions: "cleanupEventListeners",
+                        target: "halted"
+                    }
+                }
+            },
+            halted: {
+                on: {
+                    DO_CONNECT: [
+                        {
+                            cond: "thisPeerIsReady",
+                            target: "thisPeerInitilized"
+                        },
+                        {
+                            target: "thisPeerUninitilized"
+                        }, 
+                    ]
+                }
+            }
+        }
+    }, {
+        guards: {
+            'thisPeerIsReady': ()=>{
+                return !!globalContext.thisPeer;
+            },
+            'peerErr=peer-unavailable': (_, event)=>{
+                return event.data.type === "peer-unavailable";
+            }
+        },
+        actions: {
+            "showRovDisconnectedUi": ()=>{
+                _ui.showROVDisconnectedUi();
+            },
+            'sendParent_rovDatachannelOpen': ()=>{
+                sendParentCallback("ROV_DATACHANNEL_OPEN");
+            },
+            'sendParent_rovConnectionFailed': ()=>{
+                sendParentCallback("ROV_CONNECTION_FAILED");
+            },
+            'connectToRov': ()=>{
+                // get the rovPeerId string by combining the end number and rov peer id base
+                const rovPeerId = _consts.ROV_PEERID_BASE + globalContext.rovPeerIdEndNumber;
+                // connect to the rov
+                console.info("connecting to rov peer: " + rovPeerId);
+                _ui.showROVConnectingUi(rovPeerId);
+                const rovDataConnection = globalContext.rovDataConnection = globalContext.thisPeer.connect(rovPeerId, {
+                    reliable: true,
+                    serialization: 'none'
+                });
+                // setup the connection event listeners:
+                eventHandlers['onOpen'] = _util.generateStateChangeFunction(sendEventToSelf, 'ON_DATACHANNEL_OPEN', null, ()=>{
+                    _ui.showToastMessage("Rov datachannel Open!");
+                });
+                rovDataConnection.on('open', eventHandlers['onOpen']);
+                eventHandlers['onError'] = _util.generateStateChangeFunction(sendEventToSelf, 'ON_DATACHANNEL_ERROR', null, (err)=>{
+                    console.warn("!!!UNHANDLED!! DATACHANNEL_ERROR:", err);
+                });
+                rovDataConnection.on('error', eventHandlers['onError']);
+                eventHandlers['onClose'] = _util.generateStateChangeFunction(sendEventToSelf, 'ON_DATACHANNEL_CLOSE', null, (event)=>{
+                    console.warn("!!UNHANDLED!! DATACHANNEL_CLOSE:", event);
+                });
+                rovDataConnection.on('close', eventHandlers['onClose']);
+                eventHandlers['onPeerError'] = _util.generateStateChangeFunction(sendEventToSelf, 'ON_PEER_ERROR', null);
+                globalContext.thisPeer.on('error', eventHandlers['onPeerError']);
+                // setup a timeout in case the connection takes too long
+                globalContext.rovConnectionTimeout = setTimeout(()=>{
+                    sendEventToSelf('CONNECTION_TIMEOUT');
+                }, 8000); // 8 seconds
+            },
+            'cleanupEventListeners': ()=>{
+                _messageHandler.MessageHandler.setSendMessageCallback(null);
+                clearInterval(globalContext.datachannelDisconnectCheckIntervalId);
+                clearInterval(globalContext.datachannelReconnectCountdown);
+                if (globalContext.stopPingLoop) globalContext.stopPingLoop();
+                if (globalContext.thisPeer) globalContext.thisPeer.off('error', eventHandlers['onPeerError']);
+                globalContext.rovDataConnection.off('open', eventHandlers['onOpen']);
+                globalContext.rovDataConnection.off('close', eventHandlers['onClose']);
+                globalContext.rovDataConnection.off('error', eventHandlers['onError']);
+                globalContext.rovDataConnection.off('data', eventHandlers['onData']);
+                globalContext.rovDataConnection.close();
+                globalContext.rovDataConnection = null;
+            },
+            "clearRovConnectionTimeout": ()=>{
+                clearTimeout(globalContext.rovConnectionTimeout);
+            },
+            'addDatachannelEventHandlers': ()=>{
+                _ui.showToastMessage("Connected to ROV!");
+                _ui.showROVConnectedUi();
+                const rovDataConnection = globalContext.rovDataConnection;
+                // Handle sending messages to rov:
+                _messageHandler.MessageHandler.setSendMessageCallback((message)=>{
+                    const encodedMessage = messageEncoder.encode(message);
+                    rovDataConnection.send(encodedMessage);
+                });
+                // handle reciving messages from rov:
+                const dataMsgRecivedHandler = eventHandlers['onData'] = (encodedMessage)=>{
+                    const message = messageDecoder.decode(encodedMessage);
+                    console.log("ROV_DATA_CHANNEL_DATA", message);
+                    _messageHandler.MessageHandler.handleRecivedMessage(message);
+                };
+                rovDataConnection.on('data', dataMsgRecivedHandler);
+                // Keep checking if the datachannel goes offline: (every half second (interval 500) check if the datachannel peer connection state is "disconnected")
+                globalContext.datachannelDisconnectCheckIntervalId = setInterval(()=>{
+                    const connectionState = rovDataConnection.peerConnection ? globalContext.rovDataConnection.peerConnection.iceConnectionState : "disconnected";
+                    if (connectionState == "disconnected") sendEventToSelf("ON_DATACHANNEL_DISCONNECTED");
+                }, 500);
+                // finally tell the rov to begin sending us the video livestream:
+                _messageHandler.MessageHandler.sendRovMessage({
+                    action: "begin_livestream"
+                });
+                // start sending ping messages to the ROV (as a heartbeat signal & used for the net ping stat):
+                globalContext.stopPingLoop = _messageHandler.RovActions.startPingMessageSenderLoop();
+            },
+            'startReconnectCountdown': ()=>{
+                const rovDataConnection = globalContext.rovDataConnection;
+                var datachannelTimeoutCountdown = 10;
+                var lastIceConnectionState = "disconnected";
+                if (globalContext.stopPingLoop) globalContext.stopPingLoop();
+                // every second (interval 1000) check if the datachannel peer connection is still disconnected
+                // if it's disconnected: count down a timeout counter, if it's still not connected after the timeout, then fire the DATACHANNEL_TIMEOUT event
+                // if it connects: reset the countdown.
+                globalContext.datachannelReconnectCountdown = setInterval(()=>{
+                    const connectionState = rovDataConnection.peerConnection ? rovDataConnection.peerConnection.iceConnectionState : "disconnected";
+                    if (connectionState == "disconnected" && datachannelTimeoutCountdown > 0) {
+                        datachannelTimeoutCountdown--;
+                        _ui.showToastMessage("Waiting for ROV to Reconnect: " + datachannelTimeoutCountdown, 1000);
+                    } else if (connectionState == "connected" && lastIceConnectionState != "connected") {
+                        datachannelTimeoutCountdown = 10;
+                        _ui.showToastMessage("ROV Reconnected!", 2000);
+                        sendEventToSelf("ON_DATACHANNEL_OPEN");
+                    } else // If we have waited too long without the rov reconnecting
+                    sendEventToSelf("ON_RECONNECTION_TIMEOUT");
+                    lastIceConnectionState = connectionState;
+                }, 1000);
+            },
+            'stopReconnectCountdown': ()=>{
+                clearInterval(globalContext.datachannelReconnectCountdown);
+            },
+            // "showConnectingUi": showROVConnectingUi,
+            // "showRovConnectedUi": (_, event) => { showROVConnectedUi(event.data ? event.data.peer : null) },
+            // "showWaitingForMediaChannelNotice": () => { showLoadingUi("Waiting for ROV livestream...") },
+            // "showMediaChannelConnectedNotice": () => { showToastMessage("ROV Media Channel Connected!") },
+            // "showGotVideoStreamNotice": () => { showToastMessage("Got ROV Video Stream!"); showLivestreamUi(); console.info("Got Video Stream!") },
+            // "hideLivestreamUi": () => { hideLivestreamUi() },
+            "debugReload": ()=>{
+                // var reloadCount = localStorage.getItem("reloadCount") || 0;
+                // console.log("reloadCount: ", reloadCount, reloadCount == -1);
+                // if (reloadCount == -1 || reloadCount > 8) {
+                // setTimeout(() => { localStorage.setItem("reloadCount", 0); window.location.reload() }, 1000);
+                // } else {
+                // reloadCount++;
+                // localStorage.setItem("reloadCount", reloadCount);
+                setTimeout(()=>{
+                    window.location.reload();
+                }, 10);
+            // }
+            }
+        }
+    });
+    const runningMachine = _xstate.interpret(rovConnectionMachine, {
+        devTools: globalContext.debugXstateMode
+    }).start();
+    return runningMachine;
+} ///--- actions for media connection machine:
+ // 'cleanupEventListeners': () => {
+ //     return () => { // return a cleanup / stop function
+ //         context.thisPeer.off('call', callHandler);
+ //         if (context.mediaChannel) {
+ //             console.info("Closing media channel...");
+ //             context.mediaChannel.close();
+ //         }
+ // }
+ // "setMediaChannel": (_, event) => {
+ //     globalContext.mediaChannel = event.data;
+ // },
+ // "setVideoStream": (_, event) => {
+ //     const rovVideoStream = event.data
+ //     const videoElem = document.getElementById('video-livestream');
+ //     videoElem.srcObject = rovVideoStream;  // video.src = URL.createObjectURL(rovVideoStream);
+ //     videoElem.muted = true
+ //     videoElem.autoplay = true
+ //     videoElem.controls = false
+ //     videoElem.play();
+ //     globalContext.videoStream = rovVideoStream;
+ // },
+ // "awaitMediaCall": () => {
+ //     return (sendStateChange) => {
+ //         showLoadingUi("awaiting-video-call");
+ //         const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
+ //             showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
+ //             rovMediaConnection.answer(null, {
+ //                 // sdpTransform: function (sdp) {
+ //                 //     console.log('answer sdp: ', sdp);
+ //                 //     return sdp;
+ //                 // }
+ //             });
+ //         })
+ //         context.thisPeer.on('call', callHandler);
+ //         const timeoutId = setTimeout(() => {
+ //             sendStateChange({ type: "MEDIA_CHANNEL_TIMEOUT" });
+ //         }, 16000);
+ //         return () => {
+ //             clearTimeout(timeoutId);
+ //             context.thisPeer.off('call', callHandler);
+ //         }
+ //     };
+ // },
+ // "awaitVideoStream": () => {
+ //     return (sendStateChange) => {
+ //         console.log("Awaiting video stream from ROV...");
+ //         const videoReadyHandler = generateStateChangeFunction(sendStateChange, "VIDEO_STREAM_READY")
+ //         context.mediaChannel.on('stream', videoReadyHandler);
+ //         const timeoutId = setTimeout(() => {
+ //             sendStateChange({ type: "MEDIA_CHANNEL_TIMEOUT" });
+ //         }, 16000);
+ //         return () => {
+ //             clearTimeout(timeoutId);
+ //             context.mediaChannel.off('stream', videoReadyHandler);
+ //         }
+ //     };
+ // },
+ // const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
+ //     showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
+ //     rovMediaConnection.answer(null, {
+ //         // sdpTransform: function (sdp) {
+ //         //     console.log('answer sdp: ', sdp);
+ //         //     return sdp;
+ //         // }
+ //     });
+ // })
+ // context.thisPeer.on('call', callHandler);
+;
+
+},{"xstate":"2sk4t","./ui":"efi6n","./util":"doATT","./messageHandler":"at2SH","./consts":"2J0f1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"at2SH":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "MessageHandler", ()=>MessageHandler
+);
+parcelHelpers.export(exports, "RovActions", ()=>RovActions
+);
+var _ui = require("./ui");
+var _uuid = require("uuid");
+let lastTimeRecvdPong = NaN;
+class MessageHandler {
+    // replyContinuityCallbacks: keep track of functions to run when we get a reply to a message we sent with some "cid" aka continuityId
+    // object format: (key is the cid of the sent message): { '1234': { callback: function() {}, original_msg: "{action:'move'}" }, etc... }
+    static replyContinuityCallbacks = {};
+    // sendMessageCallback: Function that will send the message to the rov peer.
+    // This callback should be set in the constructor below.
+    static sendMessageCallback = ()=>{};
+    static setSendMessageCallback = (callback)=>{
+        MessageHandler.sendMessageCallback = callback;
+    };
+    // sendRovMessage: Send a message to the rov peer and setup reply callbacks based on a message cid if reply(ies) are expected.
+    static sendRovMessage = (msgObject, replyCallback)=>{
+        // setup the reply callback
+        let cid = msgObject["cid"];
+        if (!cid) cid = msgObject["cid"] = _uuid.v4().substring(0, 8); // generate a random cid if none is provided
+        if (!MessageHandler.replyContinuityCallbacks[cid]) MessageHandler.replyContinuityCallbacks[cid] = {
+            original_msg: msgObject
+        };
+        if (replyCallback) MessageHandler.replyContinuityCallbacks[cid].callback = replyCallback;
+        // send the message to the rov
+        const messageString = JSON.stringify(msgObject);
+        if (MessageHandler.sendMessageCallback) MessageHandler.sendMessageCallback(messageString);
+    };
+    static handlePasswordChallenge(msg_cid) {
+        _ui.showPasswordPrompt("Please enter the piloting password", (password)=>{
+            if (password) {
+                const msg_data = {
+                    "cid": msg_cid,
+                    "action": "password_attempt",
+                    "val": password
+                };
+                MessageHandler.sendRovMessage(msg_data, null);
+            } else // remove the reply callback if the user cancels the password prompt (empty password)
+            delete MessageHandler.replyContinuityCallbacks[msg_cid];
+        });
+    }
+    static handleReplyMsgRecived(msg_data, msg_cid) {
+        const msg_status = msg_data["status"];
+        const msg_value = msg_data["val"];
+        const replyContinuityCallback = MessageHandler.replyContinuityCallbacks[msg_cid].callback;
+        if (msg_status == "error") {
+            console.warn("Rov Action Error: " + msg_value);
+            _ui.showToastMessage(msg_value);
+        } else if (msg_status == "pong") {
+            console.log("Ping->Pong received");
+            lastTimeRecvdPong = Date.now();
+            const networkPingDelay = lastTimeRecvdPong - Number.parseFloat(msgData['pong']) // since the rpi replies with the ms time we sent in the ping in the pong message
+            ;
+            _ui.updatePingDisplay(networkPingDelay);
+        } else if (msg_status == "done") {
+            if (replyContinuityCallback) replyContinuityCallback(msg_data);
+            else _ui.showToastMessage(MessageHandler.replyContinuityCallbacks[msg_cid].originalMsgData.action + ": OK");
+        } else if (msg_status == "password-required") MessageHandler.handlePasswordChallenge(msg_cid);
+        else if (msg_status == "password-invalid") {
+            _ui.showToastMessage("Invalid password");
+            MessageHandler.handlePasswordChallenge(msg_cid);
+        } else if (msg_status == "password-accepted") {
+            _ui.showToastMessage("Password accepted");
+            const originalMsgData = MessageHandler.replyContinuityCallbacks[msg_cid].original_msg;
+            console.log("originalMsgData: ", originalMsgData);
+            MessageHandler.sendRovMessage(originalMsgData, null);
+        } else if (replyContinuityCallback) replyContinuityCallback(msg_data);
+    }
+    static handlePilotChange(newPilotId) {
+        _ui.showToastMessage("ROV Pilot has changed to " + newPilotId);
+    }
+    static handleBroadcastMsgRecived(msg_data) {
+        const msg_status = msg_data["status"];
+        const msg_value = msg_data["val"];
+        if (msg_status == "error") console.error("Rov Error: " + msg_value);
+        else if (msg_status == "sensor_update") _ui.updateDisplayedSensorValues(msg_value);
+        else if (msg_status == "pilotHasChanged") MessageHandler.handlePilotChange(msg_value);
+    }
+    static handleRecivedMessage(messageString) {
+        console.log("Recived message: " + messageString);
+        const msg_data = JSON.parse(messageString);
+        const msg_cid = msg_data["cid"];
+        if (msg_cid && msg_cid in MessageHandler.replyContinuityCallbacks) // --- this IS a reply to a message we sent ---
+        MessageHandler.handleReplyMsgRecived(msg_data, msg_cid);
+        else // --- this is NOT a reply to a message we sent ---
+        MessageHandler.handleBroadcastMsgRecived(msg_data);
+    }
+}
+class RovActions {
+    // ==== Helpers =====
+    static sendActionAndWaitForDone(msg_data, callback) {
+        let responseMessage = "";
+        MessageHandler.sendRovMessage(msg_data, (response)=>{
+            const responseText = response["val"] || "";
+            responseMessage += responseText + "\n";
+            const status = response["status"];
+            if (status && callback) {
+                if (status == "done") callback(responseMessage);
+                else if (status == "error") callback("Error: " + responseMessage);
+            }
+        });
+    }
+    static startPingMessageSenderLoop() {
+        const intervalId = setInterval(()=>{
+            MessageHandler.sendRovMessage({
+                "action": "ping",
+                "val": Date.now()
+            });
+        }, 2000);
+        return ()=>{
+            clearInterval(intervalId);
+        } // return a cleanup function
+        ;
+    }
+    // ======= Actions ========
+    static moveRov(thrustVector, turnRate) {
+        MessageHandler.sendRovMessage({
+            "action": "move",
+            "val": {
+                thrustVector: thrustVector,
+                turnRate: turnRate
+            }
+        }, null);
+    }
+    static toggleLights() {
+        MessageHandler.sendRovMessage({
+            "action": "toggle_lights"
+        }, null);
+    }
+    static shutdownRov = ()=>{
+        if (confirm("Are you sure you want to shutdown the ROV?")) {
+            _ui.showToastMessage("Sending Shutdown Request...");
+            RovActions.sendActionAndWaitForDone({
+                "action": "shutdown_rov"
+            }, (doneMsg)=>{
+                _ui.showToastMessage("Please wait 20 seconds before unplugging");
+                _ui.showToastMessage("ROV:" + doneMsg);
+            });
+        }
+    };
+    static rebootRov = ()=>{
+        if (confirm("Are you sure you want to reboot the ROV?")) {
+            _ui.showToastMessage("Sending Reboot Request...");
+            RovActions.sendActionAndWaitForDone({
+                "action": "reboot_rov"
+            }, (doneMsg)=>{
+                _ui.showToastMessage("Press Connect again in ~30 seconds");
+                _ui.showToastMessage("ROV:" + doneMsg);
+            });
+        }
+    };
+    static restartRovServices = ()=>{
+        if (confirm("Are you sure you want to restart services? - The ROV will stop responding for about a minute and then you will need to re-connect.")) {
+            const addTextToPopup = _ui.showScrollableTextPopup("Restarting ROV Services...");
+            addTextToPopup("Sending Service Restart Request (Please Wait)...\n");
+            MessageHandler.sendRovMessage({
+                "action": "restart_rov_services"
+            }, (response)=>{
+                if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
+                else if (response['val']) addTextToPopup(response['val']);
+                else if (response['status'] == "done") addTextToPopup("\n\nDone");
+            });
+        }
+    };
+    static getRovStatusReport = ()=>{
+        const addTextToPopup = _ui.showScrollableTextPopup("ROV Status Report...");
+        addTextToPopup("Sending Status Request (Please Wait)...\n");
+        MessageHandler.sendRovMessage({
+            "action": "rov_status_report"
+        }, (response)=>{
+            if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
+            else if (response['val']) addTextToPopup(response['val']);
+            else if (response['status'] == "done") addTextToPopup("\n\nDone");
+        });
+    };
+    static getRovLogs = ()=>{
+        const addTextToPopup = _ui.showScrollableTextPopup("ROV Logs...");
+        addTextToPopup("Sending Logs Request (Please Wait)...\n");
+        MessageHandler.sendRovMessage({
+            "action": "rov_logs"
+        }, (response)=>{
+            if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
+            else if (response['val']) addTextToPopup(response['val']);
+            else if (response['status'] == "done") addTextToPopup("\n\nDone");
+        });
+    };
+    static rePullRovGithubCode = ()=>{
+        alert("Make sure to choose 'Restart ROV Services' from this menu after the pull completes.");
+        const addTextToPopup = _ui.showScrollableTextPopup("Pulling Updated Code...");
+        addTextToPopup("Sending Code Pull Request (Please Wait)...\n");
+        MessageHandler.sendRovMessage({
+            "action": "pull_rov_github_code"
+        }, (response)=>{
+            if (response['status'] == "error") addTextToPopup("\nError:\n" + response['val']);
+            else if (response['val']) addTextToPopup(response['val']);
+            else if (response['status'] == "done") {
+                addTextToPopup("\n\nDone");
+                addTextToPopup("Please run 'Restart ROV Services' from the same menu in ~30 seconds to fully apply any code changes.");
+            }
+        });
+    };
+    static enableRovWifi = ()=>{
+        _ui.showToastMessage("Sending Enable Wifi Command...");
+        RovActions.sendActionAndWaitForDone({
+            "action": "enable_wifi"
+        }, (doneMsg)=>{
+            _ui.showToastMessage("Wifi Enabled! " + doneMsg);
+        });
+    };
+    static disableRovWifi = ()=>{
+        if (confirm("Are you sure you want to disable rov wifi? If the ROV is connected via wifi, don't do this!")) {
+            _ui.showToastMessage("Sending Disable Wifi Command...");
+            RovActions.sendActionAndWaitForDone({
+                "action": "disable_wifi"
+            }, (doneMsg)=>{
+                _ui.showToastMessage("Wifi Disabled! " + doneMsg);
+            });
+        }
+    };
+}
+window.RovActions = RovActions;
+
+},{"./ui":"efi6n","uuid":"j4KJi","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"j4KJi":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "v1", ()=>_v1JsDefault.default
@@ -10318,948 +11013,10 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 exports.default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"doATT":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2lhJt":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "clamp", ()=>clamp
-);
-/* generateStateChangeFunction is a function generator for an xstate machine that will return a function that will run a callback and send the named state transition with the data or event from the calling transition */ parcelHelpers.export(exports, "generateStateChangeFunction", ()=>generateStateChangeFunction
-);
-parcelHelpers.export(exports, "calculateDesiredMotion", ()=>calculateDesiredMotion
-);
-/*
-* Gets just the passed name parameter from the query string the curent url:
-* Example: if the url is: https://example.com/abc?some-variable-name=somevalue&someotherthing=someothervalue
-* then getURLQueryStringVariable("some-variable-name") will return "somevalue"
-*/ parcelHelpers.export(exports, "getURLQueryStringVariable", ()=>getURLQueryStringVariable
-);
-parcelHelpers.export(exports, "isInternetAvailable", ()=>isInternetAvailable
-);
-parcelHelpers.export(exports, "toggleFullscreen", ()=>toggleFullscreen
-);
-// Downloads the given link, with an optional filename for the download
-parcelHelpers.export(exports, "download", ()=>download
-);
-function clamp(number, max, min) {
-    return Math.max(Math.min(number, max), min);
-}
-function generateStateChangeFunction(sendStateChange, stateTransition, data, additionalCallback) {
-    const func = function(evt) {
-        if (additionalCallback) additionalCallback(evt);
-        sendStateChange({
-            type: stateTransition,
-            data: data || evt
-        });
-    };
-    return func;
-}
-function calculateDesiredMotion(axes) {
-    var turn = axes[0].toFixed(3);
-    var forward = -1 * axes[1].toFixed(3);
-    var strafe = axes[2].toFixed(3);
-    var vertical = -1 * axes[3].toFixed(3);
-    return {
-        thrustVector: [
-            strafe,
-            forward,
-            vertical
-        ],
-        turnRate: turn
-    };
-}
-function getURLQueryStringVariable(variable) {
-    var query = window.location.search.substring(1);
-    var vars = query.split('&');
-    for(var i = 0; i < vars.length; i++){
-        var pair = vars[i].split('=');
-        if (decodeURIComponent(pair[0]) == variable) return decodeURIComponent(pair[1]);
-    }
-// console.log('Query variable %s not found', variable);
-}
-function isInternetAvailable(urlToCheck) {
-    return new Promise((resolve)=>{
-        console.info("checkingUrl", urlToCheck);
-        try {
-            fetch(urlToCheck).then(()=>{
-                resolve(true);
-            }).catch((e)=>{
-                console.warn("Internet Offline, starting switch to local mode", e);
-                resolve(false);
-            });
-        // setTimeout(() => {
-        //     resolve(false)
-        // }, 10000)
-        } catch (e) {
-            console.warn("Error Checking internet, starting switch to local mode", e);
-            resolve(false);
-        }
-    });
-}
-window.closeFullscreen = ()=>{
-    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-    if (fullscreenElement) {
-        const removeFullscreenUi = ()=>{
-            fullscreenElement.classList.remove('fullscreen-open');
-        };
-        if (document.exitFullscreen) document.exitFullscreen().then(removeFullscreenUi);
-        else if (document.msExitFullscreen) document.msExitFullscreen().then(removeFullscreenUi);
-        else if (document.mozCancelFullScreen) document.mozCancelFullScreen().then(removeFullscreenUi);
-        else if (document.webkitExitFullscreen) document.webkitExitFullscreen().then(removeFullscreenUi);
-    }
-};
-/* When the toggleFullscreen() export function is executed, open the passed element in fullscreen.
-Note that we must include prefixes for different browsers, as they don't support the requestFullscreen method yet */ window.toggleFullscreen = (e, elem)=>{
-    elem = elem || document.documentElement;
-    if (e && e.initialTarget) e.initialTarget.classList.toggle('fullscreen-open');
-    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-    const addFullscreenUi = ()=>{
-        elem.classList.add('fullscreen-open');
-    };
-    const removeFullscreenUi = ()=>{
-        fullscreenElement.classList.remove('fullscreen-open');
-        if (elem !== fullscreenElement) {
-            if (elem.requestFullscreen) elem.requestFullscreen().then(addFullscreenUi);
-            else if (elem.msRequestFullscreen) elem.msRequestFullscreen().then(addFullscreenUi);
-            else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen().then(addFullscreenUi);
-            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT).then(addFullscreenUi);
-        }
-    };
-    if (fullscreenElement) {
-        if (document.exitFullscreen) document.exitFullscreen().then(removeFullscreenUi);
-        else if (document.msExitFullscreen) document.msExitFullscreen().then(removeFullscreenUi);
-        else if (document.mozCancelFullScreen) document.mozCancelFullScreen().then(removeFullscreenUi);
-        else if (document.webkitExitFullscreen) document.webkitExitFullscreen().then(removeFullscreenUi);
-    } else {
-        if (elem.requestFullscreen) elem.requestFullscreen().then(addFullscreenUi);
-        else if (elem.msRequestFullscreen) elem.msRequestFullscreen().then(addFullscreenUi);
-        else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen().then(addFullscreenUi);
-        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT).then(addFullscreenUi);
-    }
-};
-function toggleFullscreen(event, elem) {
-    elem = elem || document.documentElement;
-    var fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-    if (!fullscreenElement || elem !== fullscreenElement) {
-        const requestFullscreenFunc = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.mozRequestFullScreen || elem.msRequestFullscreen;
-        console.log(requestFullscreenFunc);
-        requestFullscreenFunc(Element.ALLOW_KEYBOARD_INPUT);
-    } else {
-        const exitFullscreenFunc = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
-        exitFullscreenFunc().then(()=>{
-            fullscreenElement.classList.remove('fullscreen-open');
-        });
-    }
-}
-function download(url, filename) {
-    const a = document.createElement('a') // Create <a> hyperlink element
-    ;
-    a.href = url // Set the hyperlink URL
-    ;
-    a.download = filename || "" // if left blank the browser will guess the filename for the downloaded file
-    ;
-    document.body.appendChild(a) // Append the hyperlink to the document body
-    ;
-    a.click() // Click the hyperlink
-    ;
-    document.body.removeChild(a) // Remove the hyperlink from the document body
-    ;
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"b9dCp":[function(require,module,exports) {
-'use strict';
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-var _tslib = require('./_virtual/_tslib.js');
-var types = require('./types.js');
-var actionTypes = require('./actionTypes.js');
-var utils = require('./utils.js');
-var environment = require('./environment.js');
-var initEvent = /*#__PURE__*/ utils.toSCXMLEvent({
-    type: actionTypes.init
-});
-function getActionFunction(actionType, actionFunctionMap) {
-    return actionFunctionMap ? actionFunctionMap[actionType] || undefined : undefined;
-}
-function toActionObject(action, actionFunctionMap) {
-    var actionObject;
-    if (utils.isString(action) || typeof action === 'number') {
-        var exec = getActionFunction(action, actionFunctionMap);
-        if (utils.isFunction(exec)) actionObject = {
-            type: action,
-            exec: exec
-        };
-        else if (exec) actionObject = exec;
-        else actionObject = {
-            type: action,
-            exec: undefined
-        };
-    } else if (utils.isFunction(action)) actionObject = {
-        // Convert action to string if unnamed
-        type: action.name || action.toString(),
-        exec: action
-    };
-    else {
-        var exec = getActionFunction(action.type, actionFunctionMap);
-        if (utils.isFunction(exec)) actionObject = _tslib.__assign(_tslib.__assign({}, action), {
-            exec: exec
-        });
-        else if (exec) {
-            var actionType = exec.type || action.type;
-            actionObject = _tslib.__assign(_tslib.__assign(_tslib.__assign({}, exec), action), {
-                type: actionType
-            });
-        } else actionObject = action;
-    }
-    return actionObject;
-}
-var toActionObjects = function(action, actionFunctionMap) {
-    if (!action) return [];
-    var actions = utils.isArray(action) ? action : [
-        action
-    ];
-    return actions.map(function(subAction) {
-        return toActionObject(subAction, actionFunctionMap);
-    });
-};
-function toActivityDefinition(action) {
-    var actionObject = toActionObject(action);
-    return _tslib.__assign(_tslib.__assign({
-        id: utils.isString(action) ? action : actionObject.id
-    }, actionObject), {
-        type: actionObject.type
-    });
-}
-/**
- * Raises an event. This places the event in the internal event queue, so that
- * the event is immediately consumed by the machine in the current step.
- *
- * @param eventType The event to raise.
- */ function raise(event) {
-    if (!utils.isString(event)) return send(event, {
-        to: types.SpecialTargets.Internal
-    });
-    return {
-        type: actionTypes.raise,
-        event: event
-    };
-}
-function resolveRaise(action) {
-    return {
-        type: actionTypes.raise,
-        _event: utils.toSCXMLEvent(action.event)
-    };
-}
-/**
- * Sends an event. This returns an action that will be read by an interpreter to
- * send the event in the next step, after the current step is finished executing.
- *
- * @param event The event to send.
- * @param options Options to pass into the send event:
- *  - `id` - The unique send event identifier (used with `cancel()`).
- *  - `delay` - The number of milliseconds to delay the sending of the event.
- *  - `to` - The target of this event (by default, the machine the event was sent from).
- */ function send(event, options) {
-    return {
-        to: options ? options.to : undefined,
-        type: actionTypes.send,
-        event: utils.isFunction(event) ? event : utils.toEventObject(event),
-        delay: options ? options.delay : undefined,
-        id: options && options.id !== undefined ? options.id : utils.isFunction(event) ? event.name : utils.getEventType(event)
-    };
-}
-function resolveSend(action, ctx, _event, delaysMap) {
-    var meta = {
-        _event: _event
-    }; // TODO: helper function for resolving Expr
-    var resolvedEvent = utils.toSCXMLEvent(utils.isFunction(action.event) ? action.event(ctx, _event.data, meta) : action.event);
-    var resolvedDelay;
-    if (utils.isString(action.delay)) {
-        var configDelay = delaysMap && delaysMap[action.delay];
-        resolvedDelay = utils.isFunction(configDelay) ? configDelay(ctx, _event.data, meta) : configDelay;
-    } else resolvedDelay = utils.isFunction(action.delay) ? action.delay(ctx, _event.data, meta) : action.delay;
-    var resolvedTarget = utils.isFunction(action.to) ? action.to(ctx, _event.data, meta) : action.to;
-    return _tslib.__assign(_tslib.__assign({}, action), {
-        to: resolvedTarget,
-        _event: resolvedEvent,
-        event: resolvedEvent.data,
-        delay: resolvedDelay
-    });
-}
-/**
- * Sends an event to this machine's parent.
- *
- * @param event The event to send to the parent machine.
- * @param options Options to pass into the send event.
- */ function sendParent(event, options) {
-    return send(event, _tslib.__assign(_tslib.__assign({}, options), {
-        to: types.SpecialTargets.Parent
-    }));
-}
-/**
- * Sends an event to an actor.
- *
- * @param actor The `ActorRef` to send the event to.
- * @param event The event to send, or an expression that evaluates to the event to send
- * @param options Send action options
- * @returns An XState send action object
- */ function sendTo(actor, event, options) {
-    return send(event, _tslib.__assign(_tslib.__assign({}, options), {
-        to: actor
-    }));
-}
-/**
- * Sends an update event to this machine's parent.
- */ function sendUpdate() {
-    return sendParent(actionTypes.update);
-}
-/**
- * Sends an event back to the sender of the original event.
- *
- * @param event The event to send back to the sender
- * @param options Options to pass into the send event
- */ function respond(event, options) {
-    return send(event, _tslib.__assign(_tslib.__assign({}, options), {
-        to: function(_, __, _a) {
-            var _event = _a._event;
-            return _event.origin; // TODO: handle when _event.origin is undefined
-        }
-    }));
-}
-var defaultLogExpr = function(context, event) {
-    return {
-        context: context,
-        event: event
-    };
-};
-/**
- *
- * @param expr The expression function to evaluate which will be logged.
- *  Takes in 2 arguments:
- *  - `ctx` - the current state context
- *  - `event` - the event that caused this action to be executed.
- * @param label The label to give to the logged expression.
- */ function log(expr, label) {
-    if (expr === void 0) expr = defaultLogExpr;
-    return {
-        type: actionTypes.log,
-        label: label,
-        expr: expr
-    };
-}
-var resolveLog = function(action, ctx, _event) {
-    return _tslib.__assign(_tslib.__assign({}, action), {
-        value: utils.isString(action.expr) ? action.expr : action.expr(ctx, _event.data, {
-            _event: _event
-        })
-    });
-};
-/**
- * Cancels an in-flight `send(...)` action. A canceled sent action will not
- * be executed, nor will its event be sent, unless it has already been sent
- * (e.g., if `cancel(...)` is called after the `send(...)` action's `delay`).
- *
- * @param sendId The `id` of the `send(...)` action to cancel.
- */ var cancel = function(sendId) {
-    return {
-        type: actionTypes.cancel,
-        sendId: sendId
-    };
-};
-/**
- * Starts an activity.
- *
- * @param activity The activity to start.
- */ function start(activity) {
-    var activityDef = toActivityDefinition(activity);
-    return {
-        type: types.ActionTypes.Start,
-        activity: activityDef,
-        exec: undefined
-    };
-}
-/**
- * Stops an activity.
- *
- * @param actorRef The activity to stop.
- */ function stop(actorRef) {
-    var activity = utils.isFunction(actorRef) ? actorRef : toActivityDefinition(actorRef);
-    return {
-        type: types.ActionTypes.Stop,
-        activity: activity,
-        exec: undefined
-    };
-}
-function resolveStop(action, context, _event) {
-    var actorRefOrString = utils.isFunction(action.activity) ? action.activity(context, _event.data) : action.activity;
-    var resolvedActorRef = typeof actorRefOrString === 'string' ? {
-        id: actorRefOrString
-    } : actorRefOrString;
-    var actionObject = {
-        type: types.ActionTypes.Stop,
-        activity: resolvedActorRef
-    };
-    return actionObject;
-}
-/**
- * Updates the current context of the machine.
- *
- * @param assignment An object that represents the partial context to update.
- */ var assign = function(assignment) {
-    return {
-        type: actionTypes.assign,
-        assignment: assignment
-    };
-};
-function isActionObject(action) {
-    return typeof action === 'object' && 'type' in action;
-}
-/**
- * Returns an event type that represents an implicit event that
- * is sent after the specified `delay`.
- *
- * @param delayRef The delay in milliseconds
- * @param id The state node ID where this event is handled
- */ function after(delayRef, id) {
-    var idSuffix = id ? "#".concat(id) : '';
-    return "".concat(types.ActionTypes.After, "(").concat(delayRef, ")").concat(idSuffix);
-}
-/**
- * Returns an event that represents that a final state node
- * has been reached in the parent state node.
- *
- * @param id The final state node's parent state node `id`
- * @param data The data to pass into the event
- */ function done(id, data) {
-    var type = "".concat(types.ActionTypes.DoneState, ".").concat(id);
-    var eventObject = {
-        type: type,
-        data: data
-    };
-    eventObject.toString = function() {
-        return type;
-    };
-    return eventObject;
-}
-/**
- * Returns an event that represents that an invoked service has terminated.
- *
- * An invoked service is terminated when it has reached a top-level final state node,
- * but not when it is canceled.
- *
- * @param id The final state node ID
- * @param data The data to pass into the event
- */ function doneInvoke(id, data) {
-    var type = "".concat(types.ActionTypes.DoneInvoke, ".").concat(id);
-    var eventObject = {
-        type: type,
-        data: data
-    };
-    eventObject.toString = function() {
-        return type;
-    };
-    return eventObject;
-}
-function error(id, data) {
-    var type = "".concat(types.ActionTypes.ErrorPlatform, ".").concat(id);
-    var eventObject = {
-        type: type,
-        data: data
-    };
-    eventObject.toString = function() {
-        return type;
-    };
-    return eventObject;
-}
-function pure(getActions) {
-    return {
-        type: types.ActionTypes.Pure,
-        get: getActions
-    };
-}
-/**
- * Forwards (sends) an event to a specified service.
- *
- * @param target The target service to forward the event to.
- * @param options Options to pass into the send action creator.
- */ function forwardTo(target, options) {
-    return send(function(_, event) {
-        return event;
-    }, _tslib.__assign(_tslib.__assign({}, options), {
-        to: target
-    }));
-}
-/**
- * Escalates an error by sending it as an event to this machine's parent.
- *
- * @param errorData The error data to send, or the expression function that
- * takes in the `context`, `event`, and `meta`, and returns the error data to send.
- * @param options Options to pass into the send action creator.
- */ function escalate(errorData, options) {
-    return sendParent(function(context, event, meta) {
-        return {
-            type: actionTypes.error,
-            data: utils.isFunction(errorData) ? errorData(context, event, meta) : errorData
-        };
-    }, _tslib.__assign(_tslib.__assign({}, options), {
-        to: types.SpecialTargets.Parent
-    }));
-}
-function choose(conds) {
-    return {
-        type: types.ActionTypes.Choose,
-        conds: conds
-    };
-}
-function resolveActions(machine, currentState, currentContext, _event, actions, preserveActionOrder) {
-    if (preserveActionOrder === void 0) preserveActionOrder = false;
-    var _a1 = _tslib.__read(preserveActionOrder ? [
-        [],
-        actions
-    ] : utils.partition(actions, function(action) {
-        return action.type === actionTypes.assign;
-    }), 2), assignActions = _a1[0], otherActions = _a1[1];
-    var updatedContext = assignActions.length ? utils.updateContext(currentContext, _event, assignActions, currentState) : currentContext;
-    var preservedContexts = preserveActionOrder ? [
-        currentContext
-    ] : undefined;
-    var resolvedActions = utils.flatten(otherActions.map(function(actionObject) {
-        var _a;
-        switch(actionObject.type){
-            case actionTypes.raise:
-                return resolveRaise(actionObject);
-            case actionTypes.send:
-                var sendAction = resolveSend(actionObject, updatedContext, _event, machine.options.delays); // TODO: fix ActionTypes.Init
-                if (!environment.IS_PRODUCTION) // warn after resolving as we can create better contextual message here
-                utils.warn(!utils.isString(actionObject.delay) || typeof sendAction.delay === 'number', "No delay reference for delay expression '".concat(actionObject.delay, "' was found on machine '").concat(machine.id, "'"));
-                return sendAction;
-            case actionTypes.log:
-                return resolveLog(actionObject, updatedContext, _event);
-            case actionTypes.choose:
-                var chooseAction = actionObject;
-                var matchedActions = (_a = chooseAction.conds.find(function(condition) {
-                    var guard = utils.toGuard(condition.cond, machine.options.guards);
-                    return !guard || utils.evaluateGuard(machine, guard, updatedContext, _event, currentState);
-                })) === null || _a === void 0 ? void 0 : _a.actions;
-                if (!matchedActions) return [];
-                var _b = _tslib.__read(resolveActions(machine, currentState, updatedContext, _event, toActionObjects(utils.toArray(matchedActions), machine.options.actions), preserveActionOrder), 2), resolvedActionsFromChoose = _b[0], resolvedContextFromChoose = _b[1];
-                updatedContext = resolvedContextFromChoose;
-                preservedContexts === null || preservedContexts === void 0 || preservedContexts.push(updatedContext);
-                return resolvedActionsFromChoose;
-            case actionTypes.pure:
-                var matchedActions = actionObject.get(updatedContext, _event.data);
-                if (!matchedActions) return [];
-                var _c = _tslib.__read(resolveActions(machine, currentState, updatedContext, _event, toActionObjects(utils.toArray(matchedActions), machine.options.actions), preserveActionOrder), 2), resolvedActionsFromPure = _c[0], resolvedContext = _c[1];
-                updatedContext = resolvedContext;
-                preservedContexts === null || preservedContexts === void 0 || preservedContexts.push(updatedContext);
-                return resolvedActionsFromPure;
-            case actionTypes.stop:
-                return resolveStop(actionObject, updatedContext, _event);
-            case actionTypes.assign:
-                updatedContext = utils.updateContext(updatedContext, _event, [
-                    actionObject
-                ], currentState);
-                preservedContexts === null || preservedContexts === void 0 || preservedContexts.push(updatedContext);
-                break;
-            default:
-                var resolvedActionObject = toActionObject(actionObject, machine.options.actions);
-                var exec_1 = resolvedActionObject.exec;
-                if (exec_1 && preservedContexts) {
-                    var contextIndex_1 = preservedContexts.length - 1;
-                    resolvedActionObject = _tslib.__assign(_tslib.__assign({}, resolvedActionObject), {
-                        exec: function(_ctx) {
-                            var args = [];
-                            for(var _i = 1; _i < arguments.length; _i++)args[_i - 1] = arguments[_i];
-                            exec_1.apply(void 0, _tslib.__spreadArray([
-                                preservedContexts[contextIndex_1]
-                            ], _tslib.__read(args), false));
-                        }
-                    });
-                }
-                return resolvedActionObject;
-        }
-    }).filter(function(a) {
-        return !!a;
-    }));
-    return [
-        resolvedActions,
-        updatedContext
-    ];
-}
-exports.actionTypes = actionTypes;
-exports.after = after;
-exports.assign = assign;
-exports.cancel = cancel;
-exports.choose = choose;
-exports.done = done;
-exports.doneInvoke = doneInvoke;
-exports.error = error;
-exports.escalate = escalate;
-exports.forwardTo = forwardTo;
-exports.getActionFunction = getActionFunction;
-exports.initEvent = initEvent;
-exports.isActionObject = isActionObject;
-exports.log = log;
-exports.pure = pure;
-exports.raise = raise;
-exports.resolveActions = resolveActions;
-exports.resolveLog = resolveLog;
-exports.resolveRaise = resolveRaise;
-exports.resolveSend = resolveSend;
-exports.resolveStop = resolveStop;
-exports.respond = respond;
-exports.send = send;
-exports.sendParent = sendParent;
-exports.sendTo = sendTo;
-exports.sendUpdate = sendUpdate;
-exports.start = start;
-exports.stop = stop;
-exports.toActionObject = toActionObject;
-exports.toActionObjects = toActionObjects;
-exports.toActivityDefinition = toActivityDefinition;
-
-},{"./_virtual/_tslib.js":"3Bp7b","./types.js":"84cIp","./actionTypes.js":"kEepo","./utils.js":"8RFz3","./environment.js":"7oZy5"}],"84cIp":[function(require,module,exports) {
-'use strict';
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-exports.ActionTypes = void 0;
-(function(ActionTypes) {
-    ActionTypes["Start"] = "xstate.start";
-    ActionTypes["Stop"] = "xstate.stop";
-    ActionTypes["Raise"] = "xstate.raise";
-    ActionTypes["Send"] = "xstate.send";
-    ActionTypes["Cancel"] = "xstate.cancel";
-    ActionTypes["NullEvent"] = "";
-    ActionTypes["Assign"] = "xstate.assign";
-    ActionTypes["After"] = "xstate.after";
-    ActionTypes["DoneState"] = "done.state";
-    ActionTypes["DoneInvoke"] = "done.invoke";
-    ActionTypes["Log"] = "xstate.log";
-    ActionTypes["Init"] = "xstate.init";
-    ActionTypes["Invoke"] = "xstate.invoke";
-    ActionTypes["ErrorExecution"] = "error.execution";
-    ActionTypes["ErrorCommunication"] = "error.communication";
-    ActionTypes["ErrorPlatform"] = "error.platform";
-    ActionTypes["ErrorCustom"] = "xstate.error";
-    ActionTypes["Update"] = "xstate.update";
-    ActionTypes["Pure"] = "xstate.pure";
-    ActionTypes["Choose"] = "xstate.choose";
-})(exports.ActionTypes || (exports.ActionTypes = {}));
-exports.SpecialTargets = void 0;
-(function(SpecialTargets) {
-    SpecialTargets["Parent"] = "#_parent";
-    SpecialTargets["Internal"] = "#_internal";
-})(exports.SpecialTargets || (exports.SpecialTargets = {}));
-
-},{}],"kEepo":[function(require,module,exports) {
-'use strict';
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-var types = require('./types.js');
-var start = types.ActionTypes.Start;
-var stop = types.ActionTypes.Stop;
-var raise = types.ActionTypes.Raise;
-var send = types.ActionTypes.Send;
-var cancel = types.ActionTypes.Cancel;
-var nullEvent = types.ActionTypes.NullEvent;
-var assign = types.ActionTypes.Assign;
-var after = types.ActionTypes.After;
-var doneState = types.ActionTypes.DoneState;
-var log = types.ActionTypes.Log;
-var init = types.ActionTypes.Init;
-var invoke = types.ActionTypes.Invoke;
-var errorExecution = types.ActionTypes.ErrorExecution;
-var errorPlatform = types.ActionTypes.ErrorPlatform;
-var error = types.ActionTypes.ErrorCustom;
-var update = types.ActionTypes.Update;
-var choose = types.ActionTypes.Choose;
-var pure = types.ActionTypes.Pure;
-exports.after = after;
-exports.assign = assign;
-exports.cancel = cancel;
-exports.choose = choose;
-exports.doneState = doneState;
-exports.error = error;
-exports.errorExecution = errorExecution;
-exports.errorPlatform = errorPlatform;
-exports.init = init;
-exports.invoke = invoke;
-exports.log = log;
-exports.nullEvent = nullEvent;
-exports.pure = pure;
-exports.raise = raise;
-exports.send = send;
-exports.start = start;
-exports.stop = stop;
-exports.update = update;
-
-},{"./types.js":"84cIp"}],"8TXLV":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "siteInitMachine", ()=>siteInitMachine
-);
-var _xstate = require("xstate");
-var _util = require("./util");
-var _ui = require("./ui");
-var _consts = require("./consts");
-const siteInitMachine = /** @xstate-layout N4IgpgJg5mDOIC5SwJYBcwEkB26B0AwgBZgDGA1itlAPo4YBO2YaNAgqaXLAMQCqAJQAydAMo0BAeQBqdAAqJQABwD2qNChXZFIAB6IATAFYADHgBsADhMBOACxGAzOYCMJgw-MAaEAE9ELgDslnhGdo5GLkYGLpZGToEGAL5JPupYuGiEJBRUtPRgTCzsnNw8mAByACoAogIVNVXs0myYQmwAQkI1OqrqmtpIeoaWdhbBdpaBto52NoE2Rj7+CEY2eIEuLnYm0Zb2Jnbmiylp6Bn4xGSU1HTYjMysHFywvJW19Y00kgBiP0KVHpDProAY6fQIAC0bkCeH2LnMBlGNkO5kCdjsy0MYTwzhsCKCNkcBhMpOSqRA6Rw+AA6gBDUG3H4qBg0PiwQo0USkOnYGgdACuaDQWhocgYZVEBDYFX5fCqVUksoIAIIAGkagARXpqUFacGIRwmELxayRAyOBEGFGBLEIRyBWGORyWIIOywWzaWU6U87UrLc3m4JksiQyeQ8KSyTByGg-SR8Cra4G6jT6oYQzYuXGuWbBSxoozmbx+Q2TOGLV2k2ymGzeilUzJ4QPYYO0ZmsqMRmNc6UVCqVADiNDqUgEOv66dAEMt5jhLiNro8RkSBnRduic5MrhcdecrsRjhSFOwKggcB0jcuORu+XuhUeJRe8BTk8G08QkJJjjhTncxhMS0rQMO04jwOwoniaZAIxI1zB9K8snpRl21DdlORbfkhRFPlxW4Cc9XfYYoRJMYkU2YxFxdBFHDtOxjFCAxEUCWYbCYlxjAQv0mxbNs41DLsYwItMiIhIwCw2dx0RibZLDkyw6OOPAEUmaJJg8XcbC4jB-TwARIBQCVSFYDoGBUAB3DlWSqFQw2jBRX0Ig0EHMSJcTWTYbCsUxZhLFYDCYvATAXSiPXCRwbCJbSLgDc4JDAOkIBWZRUzBDNEGLMZTECcTAlcgsLSWUsEHmPA2I9FcPGCIkjwbbj0GEtKPxIpE8HIji-0sajzFo4roR-YxHTy45xN3fZyRSIA */ _xstate.createMachine({
-    context: {
-        peerServerConfig: {},
-        rovIpAddr: null
-    },
-    id: "siteInit",
-    initial: "Checking_Internet_Access",
-    states: {
-        Checking_Internet_Access: {
-            invoke: {
-                src: "checkInternetAvailable",
-                id: "Check_Internet_Available"
-            },
-            on: {
-                URL_IS_ROV_IP: {
-                    actions: [
-                        "setLocalPeerServerConfig",
-                        "showHttpGamepadSupportDisabledAlert", 
-                    ],
-                    target: "#siteInit.Site_Ready"
-                },
-                INTERNET_AVAILABLE: {
-                    actions: "setCloudPeerServerConfig",
-                    target: "#siteInit.Site_Ready"
-                },
-                INTERNET_OFFLINE: {
-                    actions: [
-                        "showIpScanButton",
-                        "hideLoadingUi"
-                    ],
-                    target: "#siteInit.Waiting_For_User_Scan_Button_Press"
-                }
-            }
-        },
-        Waiting_For_User_Scan_Button_Press: {
-            description: "We need this because of browser popup blocking w/o user interaction",
-            invoke: {
-                src: "setupWaitForUserScanButtonPress",
-                id: "wait_for_scan_button_press"
-            },
-            on: {
-                SCAN_BUTTON_CLICKED: {
-                    actions: [
-                        "showIpScanningUi",
-                        "hideIpScanButton"
-                    ],
-                    target: "#siteInit.Scanning_For_ROV_IP"
-                }
-            }
-        },
-        Scanning_For_ROV_IP: {
-            invoke: {
-                src: "scanForRovIP",
-                id: "scan_for_rov_ip_addr"
-            },
-            on: {
-                ROV_IP_FOUND: {
-                    actions: "setRovIpAddr",
-                    target: "#siteInit.Redirect_Browser_To_ROV_IP"
-                },
-                IP_SCANNING_ERROR: {
-                    actions: [
-                        "showIpScanButton",
-                        "hideLoadingUi"
-                    ],
-                    target: "#siteInit.Waiting_For_User_Scan_Button_Press"
-                }
-            }
-        },
-        Redirect_Browser_To_ROV_IP: {
-            entry: "redirectBrowserToRovIp"
-        },
-        Site_Ready: {
-            entry: "siteReady",
-            type: "final"
-        }
-    }
-}, {
-    actions: {
-        setCloudPeerServerConfig: _xstate.assign({
-            peerServerConfig: _consts.peerServerCloudOptions
-        }),
-        setLocalPeerServerConfig: _xstate.assign({
-            peerServerConfig: _consts.peerServerLocalOptions
-        }),
-        setRovIpAddr: _xstate.assign({
-            rovIpAddr: (context, event)=>{
-                console.log(event);
-                return event.data;
-            }
-        }),
-        showIpScanButton: ()=>{
-            _ui.showToastMessage("Click scan to find the ROV locally.");
-            _ui.showToastMessage("No internet connection.");
-            _ui.showScanIpBtn();
-        },
-        hideIpScanButton: ()=>{
-            _ui.hideScanIpButton();
-        },
-        hideLoadingUi: ()=>{
-            _ui.hideLoadingUi();
-        },
-        showIpScanningUi: ()=>{
-            _ui.showLoadingUi("Scanning for ROV IP address...");
-        },
-        redirectBrowserToRovIp: (context, event)=>{
-            window.location = "http://" + event.data;
-        },
-        siteReady: _xstate.sendParent((context)=>{
-            return {
-                type: "SITE_READY",
-                data: context
-            };
-        })
-    },
-    services: {
-        checkInternetAvailable: ()=>{
-            _ui.showLoadingUi("Checking internet connection...");
-            return (callback)=>{
-                _util.isInternetAvailable("https://" + _consts.peerServerCloudOptions.host).then((internetOnline)=>{
-                    if (internetOnline) callback("INTERNET_AVAILABLE");
-                    else {
-                        // INTERNET OFFLINE
-                        // check if we are viewing this site at an IP ADDRESS or .local domain
-                        // indicating this page was served directly from the rov (presumably)
-                        const urlHostParts = window.location.host.split(".");
-                        if (urlHostParts.length == 4 && !isNaN(urlHostParts[3]) || urlHostParts.length == 2 && urlHostParts[1] == "local") // in which case we are viewing this site at the rov's ip (presumably)
-                        callback("URL_IS_ROV_IP");
-                        else // otherwise the internet is just offline
-                        callback("INTERNET_OFFLINE");
-                    }
-                });
-            // }
-            };
-        },
-        setupWaitForUserScanButtonPress: ()=>{
-            return (callback)=>{
-                _ui.showScanIpBtn();
-                const onBtnClick = ()=>{
-                    callback("SCAN_BUTTON_CLICKED");
-                };
-                const btnElem = document.getElementById("scan_for_ip_btn");
-                btnElem.addEventListener("click", onBtnClick);
-                // cleanup function on state exit:
-                return ()=>{
-                    btnElem.removeEventListener("click", onBtnClick);
-                // hideBtnElem()
-                };
-            };
-        },
-        scanForRovIP: ()=>{
-            return ()=>{
-                _ui.showLoadingUi("Scanning for ROV IP address...");
-            // setTimeout(() => {
-            // hideLoadingUi()
-            //   callback({
-            //     type: "ROV_IP_FOUND",
-            //     data: "UHhh the ip address man!",
-            //   });
-            // }, 3000);
-            };
-        }
-    },
-    guards: {}
-}); // const machineFunctionsMock = {
- //   actions: {
- //     setCloudPeerServerConfig: assign({
- //       peerServerConfig: {
- //         hi: "clound",
- //       },
- //     }),
- //     setLocalPeerServerConfig: assign({
- //       peerServerConfig: {
- //         hi: "local",
- //       },
- //     }),
- //     setRovIpAddr: assign({
- //       rovIpAddr: (context, event) => {
- //         console.log(event);
- //         return "192.168.1.1.11.1";
- //       },
- //     }),
- //     setGamepadOnscreenFallback: () => { },
- //     redirectBrowserToRovIp: (context, event) => {
- //       // window.location = "http://" + event.data
- //     },
- //   },
- //   services: {
- //     checkInternetAvailable: (context, event) => {
- //       return (callback, onReceive) => {
- //         // // check if we are viewing this site at an IP ADDRESS or .local domain
- //         // // indicating this page was served directly from the rov (presumably)
- //         // const urlHostParts = window.location.host.split(".");
- //         // if (
- //         //   (urlHostParts.length == 4 && parseInt(urlHostParts[3]) != NaN) ||
- //         //   (urlHostParts.length == 2 && urlHostParts[1] == "local")
- //         // ) {
- //         //   callback("URL_IS_ROV_IP");
- //         // } else {
- //         // checkInternetAvailable().then(()=>{
- //         //   callback("INTERNET_AVAILABLE");
- //         // }).catch((e)=>{
- //         //   console.warn("Internet Offline, starting switch to local mode", e)
- //         //   callback("INTERNET_OFFLINE");
- //         // })
- //         // }
- //         setTimeout(() => {
- //           callback("URL_IS_ROV_IP");
- //           // INTERNET_OFFLINE
- //           // URL_IS_ROV_IP
- //         }, 3000);
- //       };
- //     },
- //     setupWaitForUserScanButtonPress: (context, event) => {
- //       return (callback, onReceive) => {
- //         const onBtnClick = () => {
- //           callback("SCAN_BUTTON_CLICKED");
- //         };
- //         // btnElem = makeButtonElem()
- //         // btnElem.addEventListener("click",onBtnClick)
- //         setTimeout(() => {
- //           onBtnClick();
- //         }, 3000);
- //         // cleanup function on state exit:
- //         return () => {
- //           // btnElem.removeEventListener("click",onBtnClick)
- //           // hideBtnElem()
- //         };
- //       };
- //     },
- //     scanForRovIP: (context, event) => {
- //       return (callback, onReceive) => {
- //         setTimeout(() => {
- //           callback({
- //             type: "ROV_IP_FOUND",
- //             data: "hids",
- //           });
- //         }, 3000);
- //       };
- //     },
- //     createGamepadHttpsIframe: (context, event) => {
- //       return (callback, onReceive) => {
- //         setTimeout(() => {
- //           // callback("GAMEPAD_IFRAME_LOADED");
- //           callback("GAMEPAD_IFRAME_LOAD_ERROR");
- //         }, 3000);
- //       };
- //     },
- //   },
- //   guards: {},
- // }
-
-},{"xstate":"2sk4t","./util":"doATT","./ui":"efi6n","./consts":"2J0f1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3YceA":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "peerServerConnMachine", ()=>peerServerConnMachine
+parcelHelpers.export(exports, "startThisPeerSetupMachine", ()=>startThisPeerSetupMachine
 );
 var _xstate = require("xstate");
 var _peerjs = require("peerjs/dist/peerjs");
@@ -11268,7 +11025,6 @@ var _uuid = require("uuid");
 // import * as consts from "./consts";
 var _util = require("./util");
 var _ui = require("./ui");
-var _actions = require("xstate/lib/actions");
 const FATAL_PEER_ERROR_TYPES = [
     "network",
     "unavailable-id",
@@ -11281,209 +11037,218 @@ const FATAL_PEER_ERROR_TYPES = [
     "socket-error",
     "socket-closed"
 ];
-const peerServerConnMachine = _xstate.createMachine({
-    context: {
-        /* NOTE that the context is really set by the parent machine, not here */ peerServerConfig: null,
-        peerConnectionTimeout: 0,
-        thisPeer: null,
-        peerServerEventsHandler: null
-    },
-    id: "peerServerConnection",
-    initial: "Not_Connected_To_Peer_Server",
-    exit: [
-        "cleanupPeerServerConnection"
-    ],
-    states: {
-        Not_Connected_To_Peer_Server: {
-            entry: [
-                "setupPeerAndStartPeerServerEventsHandler"
-            ],
-            on: {
-                SERVER_CONNECTION_ESTABLISHED: {
-                    target: "#peerServerConnection.Connected_To_Peer_Server",
-                    actions: [
-                        "notifyParentOfPeerServerConnection",
-                        "showPeerServerConnectedNotice"
-                    ]
-                },
-                PEERJS_ERROR: {
-                    target: "#peerServerConnection.Handling_Error"
+const startThisPeerSetupMachine = (globalContext, sendParentCallback)=>{
+    let eventHandlers = {};
+    const sendEventToSelf = (event)=>{
+        if (runningMachine) runningMachine.send(event);
+    };
+    const thisPeerSetupMachine = /** @xstate-layout N4IgpgJg5mDOIC5QBcAWBLWAFMYBOAymMgK4AOAsgIYDGGAdmAHQn3pvLoA26AXpAGJEoMgHtY6TqPrCQAD0QA2AEzKmABkUBOZQFZ1AFi0B2YwGZFADgA0IAJ6JV6psstvl645YCM63bq1FAF8g2zRMHHwiUkpaBmZ2SW4+QQB5ADkAfVSsAFF02TEJKRkkeURLXUsmbwtAswMPA2bdWwcEYwNnM10G40VFY10Dcy0QsIxsXEJicmo6dgSOZP4IAQzM3IAlLdStwvEk6VkFBBU1TR19I1MLG3tEM08XA2Geg3dLYNCQcKmo2axBaMJiJTg8VYCOSwZBUZDMKgAM3heAAFJZ1JiAJQCP6RGYxebxUHLCGQA7FdDHMqnHwGFy1MydCzqZRdRRtRCBJgNJzeKreLRmNzeca-Sb46JzOKLJiiMhgejrLLbXb7MpFI6lUCnbwfJgBYwmAaWV7GdRmTkIZS+DSWVzaAK+DzfCYRaZSoHE+WK5WZADCABlUgRchStSdEHrqobjVYzRard5lGYasoVMM3EytH5LGK8R7AUTZT6lRsACIASQI-oy6Vy-oAKuGSpGELpk0wRf5et5BublFa2boeV5BYZBgZ48Z8xLC4SZSDUFQuPC1nhiHh2iJDq2aVH9bH+vHdObLQ8OiP+SpDKoLGZXKKxfRRBA4LICwCF8DmKwwStyQ1XcqW1coECMbpvEsHNjG8TotHtLQk2aA10yndRk38aCoNnd0v2lH8SSSMkIBbEC2xMLQakUZNoJ0HojXPdo2Xpa5FCnFobS8AxcP+AkCO9BVQM1PcdSjbxR1cDEtCMEYaOMIczFTVw9GFSxzX5QVeMlItF2YZdV0AndKWpMSEAAWjMKj7SzbwoPjOyFIvKwmEUXQBinJStDs3pdG0+cBMWMjTLA8zFFTGzLDMOyvlNRyrXM+lor0LpEMaLQhT8kIgiAA */ _xstate.createMachine({
+        id: "thisPeerSetupMachine",
+        initial: "uninitilized",
+        states: {
+            uninitilized: {
+                always: {
+                    actions: "InitThisPeer",
+                    target: "initilized"
                 }
             },
-            after: {
-                5000: {
-                    target: "#peerServerConnection.Handling_Error"
-                }
-            }
-        },
-        Connected_To_Peer_Server: {
-            invoke: {
-                src: "handlePeerSeverEvents",
-                id: "handlePeerSeverEvents"
-            },
-            on: {
-                PEERJS_ERROR: {
-                    target: "#peerServerConnection.Handling_Error"
-                },
-                PEER_SERVER_DISCONNECTED: {
-                    actions: "showPeerServerDisconnectedNotice",
-                    target: "#peerServerConnection.Reconnecting_to_Peer_Server"
-                }
-            }
-        },
-        Reconnecting_to_Peer_Server: {
-            invoke: {
-                src: "reconnectToPeerServer",
-                id: "reconnectToPeerServer"
-            },
-            on: {
-                SERVER_CONNECTION_ESTABLISHED: {
-                    target: "#peerServerConnection.Connected_To_Peer_Server",
-                    actions: [
-                        "notifyParentOfPeerServerConnection",
-                        "showPeerServerConnectedNotice"
-                    ]
-                },
-                PEERJS_ERROR: {
-                    target: "#peerServerConnection.Handling_Error"
-                }
-            },
-            after: {
-                6000: {
-                    target: "Handling_Error"
-                }
-            }
-        },
-        Handling_Error: {
-            entry: "handlePeerServerError",
-            on: {
-                PEER_SERVER_CONNECTION_CLOSED: {
-                    actions: [
-                        "cleanupPeerServerConnection"
+            initilized: {
+                exit: "clearThisPeerConnectionTimeout",
+                on: {
+                    ON_OPEN: {
+                        actions: "hideServerConnectLoadingMsg",
+                        target: "open"
+                    },
+                    ON_ERROR: [
+                        {
+                            actions: [
+                                "showBrowserIncompatibleErrorUi",
+                                "destroyPeer"
+                            ],
+                            cond: "peerErr=browser-incompatible",
+                            target: "halted"
+                        },
+                        {
+                            actions: [
+                                "destroyPeer",
+                                "clearSavedThisPeerId"
+                            ],
+                            cond: "peerErr=unavailable-id",
+                            target: "uninitilized"
+                        },
+                        {
+                            actions: "destroyPeer",
+                            cond: "peerErr!=peer-unavailable",
+                            target: "halted"
+                        },
+                        {
+                            actions: [
+                                "destroyPeer",
+                                "showFatalErrorUi"
+                            ],
+                            cond: "peerErr_IsAutoRecoverable",
+                            target: "uninitilized"
+                        }, 
                     ],
-                    target: "#peerServerConnection.Not_Connected_To_Peer_Server"
-                },
-                PEER_SERVER_CONNECTION_OK: {
-                    target: "#peerServerConnection.Connected_To_Peer_Server",
-                    internal: true
+                    CONNECTION_TIMEOUT: {
+                        actions: "destroyPeer",
+                        target: "uninitilized"
+                    }
+                }
+            },
+            open: {
+                on: {
+                    ON_ERROR: [
+                        {
+                            actions: [
+                                "showWebrtcErrorUi",
+                                "destroyPeer"
+                            ],
+                            cond: "peerErr=webrtc",
+                            target: "halted"
+                        },
+                        {
+                            actions: [
+                                "destroyPeer",
+                                "clearSavedThisPeerId"
+                            ],
+                            cond: "peerErr=unavailable-id",
+                            target: "uninitilized"
+                        },
+                        {
+                            actions: "destroyPeer",
+                            cond: "peerErr!=peer-unavailable",
+                            target: "halted"
+                        },
+                        {
+                            actions: [
+                                "destroyPeer",
+                                "showFatalErrorUi"
+                            ],
+                            cond: "peerErr_IsAutoRecoverable",
+                            target: "uninitilized"
+                        }, 
+                    ],
+                    ON_CLOSE: {
+                        actions: "destroyPeer",
+                        target: "uninitilized"
+                    },
+                    ON_DISCONNECT: {
+                        actions: "reconnect",
+                        target: "initilized"
+                    }
+                }
+            },
+            halted: {
+                on: {
+                    retry: {
+                        target: "uninitilized"
+                    }
                 }
             }
         }
-    }
-}, {
-    actions: {
-        "showPeerServerConnectedNotice": ()=>{
-            _ui.showToastMessage("Connected to Peerjs Server!");
-        },
-        "showPeerServerDisconnectedNotice": ()=>{
-            _ui.showToastMessage("Peerjs Server Disconnected");
-        },
-        "notifyParentOfPeerServerConnection": _actions.sendParent((context)=>{
-            return {
-                type: "PEER_SERVER_CONNECTION_ESTABLISHED",
-                data: context.thisPeer
-            };
-        }),
-        "handlePeerServerError": _actions.pure((context, event)=>{
-            const err = event.data;
-            console.log("handlePeerServerError: ", err);
-            if (err.type == 'browser-incompatible') {
+    }, {
+        actions: {
+            "InitThisPeer": ()=>{
+                _ui.showLoadingUi("server-connecting");
+                // get our saved peer id or make a new one if one isn't saved:
+                var ourPeerId = localStorage.getItem('thisPeerId');
+                if (!ourPeerId) {
+                    ourPeerId = "iROV_Pilot_" + _uuid.v4().slice(0, 8);
+                    localStorage.setItem('thisPeerId', ourPeerId); // save for future runs
+                }
+                _ui.setClientPeerIdDisplay(ourPeerId);
+                // setup the peer object and event listeners:
+                globalContext.thisPeer = new _peerjsDefault.default(ourPeerId, globalContext.peerServerConfig);
+                eventHandlers['onOpen'] = _util.generateStateChangeFunction(sendEventToSelf, 'ON_OPEN', null, ()=>{
+                    _ui.showToastMessage("Connected to Peerjs Server!");
+                });
+                globalContext.thisPeer.on('open', eventHandlers['onOpen']);
+                eventHandlers['onError'] = _util.generateStateChangeFunction(sendEventToSelf, 'ON_ERROR', null);
+                globalContext.thisPeer.on('error', eventHandlers['onError']);
+                eventHandlers['onClose'] = _util.generateStateChangeFunction(sendEventToSelf, 'ON_CLOSE', null, ()=>{
+                    _ui.showToastMessage("Peerjs Server Connection Closed!");
+                });
+                globalContext.thisPeer.on('close', eventHandlers['onClose']);
+                eventHandlers['onDisconnected'] = _util.generateStateChangeFunction(sendEventToSelf, 'ON_DISCONNECT', ()=>{
+                    _ui.showToastMessage("Peerjs Server Disconnected!");
+                });
+                globalContext.thisPeer.on('disconnected', eventHandlers['onDisconnected']);
+                // tell the main ui that the thisPeer object is ready enough to use:
+                sendParentCallback("THIS_PEER_READY");
+                // setup a timeout in case the connection takes too long
+                globalContext.thisPeerConnectionTimeout = setTimeout(()=>{
+                    sendEventToSelf('CONNECTION_TIMEOUT');
+                }, 8000); // 8 seconds
+            },
+            "clearThisPeerConnectionTimeout": ()=>{
+                clearTimeout(globalContext.thisPeerConnectionTimeout);
+            },
+            'hideServerConnectLoadingMsg': ()=>{
+                _ui.hideLoadingUi("server-connecting");
+                _ui.hideLoadingUi("server-reconnecting");
+            },
+            "destroyPeer": ()=>{
+                globalContext.thisPeer.off('open', eventHandlers['onOpen']);
+                globalContext.thisPeer.off('error', eventHandlers['onError']);
+                globalContext.thisPeer.off('close', eventHandlers['onClose']);
+                globalContext.thisPeer.off('disconnected', eventHandlers['onDisconnected']);
+                globalContext.thisPeer.destroy();
+                globalContext.thisPeer = null;
+                sendParentCallback("THIS_PEER_DESTROYED");
+            },
+            'clearSavedThisPeerId': ()=>{
+                localStorage.removeItem('thisPeerId');
+            },
+            'reconnect': ()=>{
+                globalContext.thisPeer.reconnect();
+                _ui.showLoadingUi("server-reconnecting");
+            },
+            "showFatalErrorUi": (_, event)=>{
+                _ui.showToastMessage("Peerjs Server Fatal Error: " + event.data.type + " Restarting...");
+                console.dir("Peerjs Server Error: ", event.data);
+            },
+            "showBrowserIncompatibleErrorUi": ()=>{
                 alert('Your web browser does not support some WebRTC features. Please use a newer or different browser.');
-                return _actions.sendParent({
-                    type: "WEBRTC_FATAL_ERROR"
-                });
-            } else if (err.type == "webrtc") {
+            },
+            "showWebrtcErrorUi": ()=>{
                 _ui.showToastMessage("WebRTC protocol error! Reloading website now...");
-                localStorage.setItem("reloadCount", -1); //for debug
-                return _actions.sendParent({
-                    type: "WEBRTC_FATAL_ERROR"
-                });
-            } else if (err.type == "peer-unavailable") return [
-                _actions.send("PEER_SERVER_CONNECTION_OK"),
-                _actions.sendParent({
-                    type: "PEER_UNAVAILABLE",
-                    data: err
-                })
-            ];
-            else if (err.type == "unavailable-id") {
-                localStorage.removeItem('thisClientPeerId') // discard our saved peer id so we will use a fresh one next time we connect
-                ;
-                return _actions.send("PEER_SERVER_CONNECTION_CLOSED"); // will cause a reconnection attempt
-            } else if (FATAL_PEER_ERROR_TYPES.includes(err.type)) {
-                _ui.showToastMessage("Peerjs Server Fatal Error: " + err.type + " Restarting...");
-                return [
-                    _actions.send("PEER_SERVER_CONNECTION_CLOSED"),
-                    _actions.sendParent({
-                        type: "PEER_SERVER_FATAL_ERROR"
-                    })
-                ];
-            } else {
-                _ui.showToastMessage("Peerjs Server Error: " + err.type + " Restarting...");
-                console.dir("Peerjs Server Error: ", err);
-                return [
-                    _actions.send({
-                        type: "PEER_SERVER_CONNECTION_CLOSED"
-                    }),
-                    _actions.sendParent({
-                        type: "PEER_SERVER_FATAL_ERROR"
-                    })
-                ];
+                if (globalContext.stressTest) localStorage.setItem("reloadCount", -1); //for debug
+                _ui.showReloadingWebsiteUi();
+                setTimeout(()=>{
+                    location.reload();
+                }, globalContext.stressTest || 3000);
             }
-        }),
-        "setThisPeer": _actions.assign({
-            thisPeer: (_, event)=>event.data
-        }),
-        "cleanupPeerServerConnection": (context)=>{
-            console.log("cleanupPeerServerConnection: ", context.thisPeer);
-            if (context.thisPeer) context.thisPeer.destroy();
         },
-        "setupPeerAndStartPeerServerEventsHandler": _actions.assign((context)=>{
-            var ourPeerId = localStorage.getItem('thisClientPeerId');
-            if (!ourPeerId) {
-                ourPeerId = "iROV_Pilot_" + _uuid.v4().slice(0, 8);
-                localStorage.setItem('thisClientPeerId', ourPeerId); // save for future runs
+        guards: {
+            "peerErr_IsAutoRecoverable": (_, event)=>{
+                const err = event.data;
+                return FATAL_PEER_ERROR_TYPES.includes(err.type);
+            },
+            "peerErr=unavailable-id": (_, event)=>{
+                const err = event.data;
+                return err.type === "unavailable-id";
+            },
+            "peerErr!=peer-unavailable": (_, event)=>{
+                const err = event.data;
+                return err.type !== "peer-unavailable";
+            },
+            "peerErr=webrtc": (_, event)=>{
+                const err = event.data;
+                return err.type === "webrtc";
+            },
+            "peerErr=browser-incompatible": (_, event)=>{
+                return event.data === "browser-incompatible";
             }
-            _ui.setClientPeerIdDisplay(ourPeerId);
-            const thisPeer = window.thisPeerjsPeer = new _peerjsDefault.default(ourPeerId, context.peerServerConfig);
-            return {
-                thisPeer: thisPeer,
-                peerServerEventsHandler: _xstate.spawn((sendStateChange)=>{
-                    const openHandler = _util.generateStateChangeFunction(sendStateChange, "SERVER_CONNECTION_ESTABLISHED", thisPeer);
-                    const errHandler = _util.generateStateChangeFunction(sendStateChange, "PEERJS_ERROR", null, console.log);
-                    thisPeer.on("open", openHandler);
-                    thisPeer.on("error", errHandler);
-                    return ()=>{
-                        thisPeer.off("open", openHandler);
-                        thisPeer.off("error", errHandler);
-                    };
-                }, "peerServerEventsHandler")
-            };
-        })
-    },
-    services: {
-        handlePeerSeverEvents: (context)=>{
-            return (sendStateChange)=>{
-                const errorHandler = _util.generateStateChangeFunction(sendStateChange, "PEERJS_ERROR");
-                const disconnectedHandler = _util.generateStateChangeFunction(sendStateChange, "PEER_SERVER_DISCONNECTED");
-                context.thisPeer.on("disconnected", disconnectedHandler);
-                context.thisPeer.on("error", errorHandler);
-                return ()=>{
-                    context.thisPeer.off("disconnected", disconnectedHandler);
-                    context.thisPeer.off("error", errorHandler);
-                };
-            };
-        },
-        reconnectToPeerServer: (context)=>{
-            return ()=>{
-                _ui.showLoadingUi("Reconnecting to peer server...");
-                context.thisPeer.reconnect();
-            };
         }
-    }
-});
-console.log("Peerjs Server Connection Machine: ", peerServerConnMachine.options.actions);
+    });
+    const runningMachine = _xstate.interpret(thisPeerSetupMachine, {
+        devTools: globalContext.debugXstateMode
+    }).start();
+    return runningMachine;
+};
 
-},{"xstate":"2sk4t","peerjs/dist/peerjs":"k0vf3","uuid":"j4KJi","./util":"doATT","./ui":"efi6n","xstate/lib/actions":"b9dCp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"k0vf3":[function(require,module,exports) {
+},{"xstate":"2sk4t","peerjs/dist/peerjs":"k0vf3","uuid":"j4KJi","./util":"doATT","./ui":"efi6n","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"k0vf3":[function(require,module,exports) {
 // modules are defined as an array
 // [ module function, map of requires ]
 //
@@ -19465,357 +19230,6 @@ Prints log messages depending on the debug level passed in. Defaults to 0.
 ], null) //# sourceMappingURL=/peerjs.js.map
 ;
 
-},{}],"j5PiZ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "peerConnMachine", ()=>peerConnMachine
-);
-var _xstate = require("xstate");
-var _ui = require("./ui");
-var _util = require("./util");
-var _actions = require("xstate/lib/actions");
-var _messageHandler = require("./messageHandler");
-// FOR CONVERTING TEXT TO/FROM BINARY FOR SENDING OVER THE WEBRTC DATACHANNEL
-const messageEncoder = new TextEncoder(); // always utf-8
-const messageDecoder = new TextDecoder(); // always utf-8
-const peerConnMachine = /** @xstate-layout N4IgpgJg5mDOIC5QAcxgE4GED2A7XYAxgC4CWeAdAHLbED6O+RxkdAKtnQErYBuAxFwDyANQZCqVAKKY2ASQl0pAZTYBBAEIAZOcoASUgCKIU2WKTJ4TIAB6IAtAEYArACYKAdgBsX194AcAAwejq7+AJyuADQgAJ6IjoEALBT+Po5JzgDMXuEe-q6uWQC+xTGoGIwEJOS41LQMeNUsEOycPALCYgAKUlJc4pIy8or9wlzWyGYWtdZ2CPYRKV7OkUX+jv5JXln+MfEImx6pWW5ZgYFnroE5peVoWE3MtRRVzKwc3HwUhgCGxL9MAALX5MAA2P3+vwYIPBdEMpFghCeJEg-EManUmD0aiGWiUqk0On0Rkm00suDmiCyHnc-n8qx2DOy2w8SX2iA8zkCFBp4XONM2WSSlzuIAqjyYNUob1RrU+HUhAOBoIIEL+AJhqrAYPhiORUpa6MxamxuOk+PkAFkpEIAKpsMnmClUhAeEIURz88KBNIRRKudlxRCrCjhVbh5JJRxs-wlMrih6yimvFEtNpfXhKwGwtXZrVwoSoXDGrE4vHw3SYCTSWROmZWJC2am0ijOEKB9uFVyhLIct3hfy8pKRZxbLLhFbhMUS5MvZMfdrfDU57XqqEFtV0ItgEvKKRUQx0G3KZRqADiUnYQm4onrLqb8ycPdSDK9eW2gRc-g8-a8FwoJItiSIp-x-NwvBnJM03nNNF0zbMVXBfMkK3HcS3PIQ2GPFQz0vOgADFhCtW8RHvWZHwcUJwlSEcvEcGMbmcdsGX7ZxHCyNs-DZL0LjCLJXCgyoYJlOD5SXLMrUgUhV2Qmh6HQ-gbUMOQ1AYcsLQJdRtF0AxjCbKZnQo0B5j8RwKECVxwjyQJJ1CLwkj7YNDi9dxHPDNZuX-bIhMlZpYMNeDFSkiAZNQnUKBCmTNx1RpAogfgRDkQxbToVQuCkNQSIytRDAATXIxsTMQGyKFcXJbMuLZgjjfsGMiQCJ1WQovMueN7mEw0AuaILvii2S1SUoxVPU80pEtOQbXtR0DPJYzmwQQVeXKoCMiyIV6LYmiPJ9bwQI8G5yt8udRPijMOkEUQ6F6fpBlrEYqCULhxkKylKIWEIhy8fJvF8crnCZftypopIOzSZJbJjJJSgTXBsAgOBJmgrrKHkuKevEzNXtdexViHHsvCCMcuTcEJ+3sdwLjjdiRSKTsMmhhNZxEuoF0xxUV3C9dNS5vUkTE7H3sJ5xPRcCcLg8XZQkcftaTc4Gf1CVxmJA46WdTM6FWXKEuZQ3NYvQwXioWUJjj8SJfCCZWBPYv8GqSaNEmyGNu3axNOv806MfO7XlX1sEjYWpxslouzGNOFjnH7XYaOauMewZcNlbVlHWbEn3JOkgaIrRw3ZqMoqg4YziIgFc45fDBi6pcFJwzHBzTYcyCmeRz2081iTIqz3X+pi3U2cD+YAc4sJ6NpDiIi2aJnPqlIHdyCJInOSGU7bjXva1zPQuziERFIBHOGUYh0DAX4AFtt2LQeEh7TiJ3ycJQfWopvDqnttqs910gE-JV+eL33jsz6t3f218TY0lSPyG45dCiV37NZEWENgig3yF+DIf9pTtw3hJMBTh3Sh3ouHZi+Qo7OX+hQFYHgfSDiCIkGMGCHymALm9Y29hwibAoc1dYmxti7HJqEEWj8BLrWyOGHYDsYbFCAA */ _xstate.createMachine({
-    context: {
-        /* NOTE that the context is really set by the parent machine, not here */ thisPeer: null,
-        rovPeerId: null,
-        rovDataConnection: null,
-        mediaChannel: null
-    },
-    exit: "stopPeerConnectionEventHandler",
-    id: "peerConnection",
-    initial: "Not_Connected_To_Rov",
-    states: {
-        Not_Connected_To_Rov: {
-            entry: [
-                "showConnectingUi",
-                "connectToRovPeerAndStartPeerConnectionEventHandler", 
-            ],
-            on: {
-                ROV_CONNECTION_ESTABLISHED: {
-                    target: "Connected_To_Rov"
-                },
-                ROV_PEER_CONNECTION_ERROR: {
-                    actions: "stopPeerConnectionEventHandler",
-                    target: "Not_Connected_To_Rov",
-                    internal: false
-                }
-            },
-            after: {
-                8000: {
-                    target: "Not_Connected_To_Rov",
-                    internal: false
-                }
-            }
-        },
-        Connected_To_Rov: {
-            entry: [
-                "showRovConnectedUi",
-                "debugReload"
-            ],
-            type: "parallel",
-            states: {
-                DataChannel: {
-                    initial: "Data_Channel_Open",
-                    states: {
-                        Data_Channel_Disconnected: {
-                            // entry: "showConnectingUi",
-                            invoke: {
-                                src: "watchForRovReconnect",
-                                id: "watchForRovReconnect"
-                            },
-                            on: {
-                                DATACHANNEL_ESTABLISHED: {
-                                    target: "Data_Channel_Open"
-                                }
-                            },
-                            after: {
-                                10000: {
-                                    actions: "stopPeerConnectionEventHandler",
-                                    target: "#peerConnection.Not_Connected_To_Rov"
-                                }
-                            }
-                        },
-                        Data_Channel_Open: {
-                            entry: [
-                                "showRovConnectedUi",
-                                "showWaitingForMediaChannelNotice"
-                            ],
-                            invoke: [
-                                {
-                                    src: "handleDataChannelEvents",
-                                    id: "handleDataChannelEvents"
-                                }, 
-                            ],
-                            on: {
-                                DATACHANNEL_DISCONNECT: {
-                                    target: "Data_Channel_Disconnected"
-                                }
-                            }
-                        }
-                    }
-                },
-                MediaChannel: {
-                    exit: [
-                        "hideLivestreamUi"
-                    ],
-                    initial: "Not_Open",
-                    states: {
-                        Not_Open: {
-                            description: 'ROV Will "Video Call" this browser, and that is hooked up to trigger the MEDIA_CHANNEL_ESTABLISHED transition',
-                            on: {
-                                MEDIA_CHANNEL_ESTABLISHED: {
-                                    actions: [
-                                        "setMediaChannel",
-                                        "showMediaChannelConnectedNotice", 
-                                    ],
-                                    target: "Media_Channel_Connected"
-                                }
-                            },
-                            after: {
-                                16000: {
-                                    actions: "stopPeerConnectionEventHandler",
-                                    target: "#peerConnection.Not_Connected_To_Rov"
-                                }
-                            }
-                        },
-                        Media_Channel_Connected: {
-                            invoke: {
-                                src: "awaitVideoStream",
-                                id: "awaitVideoStream"
-                            },
-                            on: {
-                                VIDEO_STREAM_READY: {
-                                    actions: [
-                                        "setVideoStream",
-                                        "showGotVideoStreamNotice"
-                                    ],
-                                    target: "Video_Stream_Open"
-                                }
-                            }
-                        },
-                        Video_Stream_Open: {}
-                    }
-                }
-            },
-            on: {
-                ROV_PEER_CONNECTION_ERROR: {
-                    actions: "stopPeerConnectionEventHandler",
-                    target: "Not_Connected_To_Rov"
-                }
-            }
-        }
-    }
-}, {
-    actions: {
-        "showConnectingUi": _ui.showROVConnectingUi,
-        "showRovConnectedUi": (context, event)=>{
-            _ui.showROVConnectedUi(event.data ? event.data.peer : null);
-        },
-        "showWaitingForMediaChannelNotice": ()=>{
-            _ui.showLoadingUi("Waiting for ROV livestream...");
-        },
-        "showMediaChannelConnectedNotice": ()=>{
-            _ui.showToastMessage("ROV Media Channel Connected!");
-        },
-        "showGotVideoStreamNotice": ()=>{
-            _ui.showToastMessage("Got ROV Video Stream!");
-            _ui.hideLoadingUi();
-            _ui.showLivestreamUi();
-            console.info("Got Video Stream!");
-        },
-        "hideLivestreamUi": ()=>{
-            _ui.hideLivestreamUi();
-        },
-        "connectToRovPeerAndStartPeerConnectionEventHandler": _xstate.assign((context)=>{
-            console.log("Connecting to ROV:" + context.rovPeerId);
-            const rovDataConnection = context.thisPeer.connect(context.rovPeerId, {
-                reliable: true,
-                serialization: 'none'
-            });
-            return {
-                rovDataConnection: rovDataConnection,
-                peerConnectionEventHandler: _xstate.spawn((sendStateChange)=>{
-                    const openHandler = _util.generateStateChangeFunction(sendStateChange, "ROV_CONNECTION_ESTABLISHED", rovDataConnection);
-                    const errorHandler = _util.generateStateChangeFunction(sendStateChange, "ROV_PEER_CONNECTION_ERROR", null, (err)=>console.log("ROV_PEER_CONNECTION_ERROR:", err)
-                    );
-                    const callHandler = _util.generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection)=>{
-                        _ui.showToastMessage('Got media call from peer: ' + rovMediaConnection.peer);
-                        rovMediaConnection.answer(null, {
-                        });
-                    });
-                    rovDataConnection.on("open", openHandler);
-                    rovDataConnection.on("error", errorHandler);
-                    context.thisPeer.on('call', callHandler);
-                    return ()=>{
-                        console.log("Stopping PeerConnectionEventHandler");
-                        rovDataConnection.off("open", openHandler);
-                        rovDataConnection.off("error", errorHandler);
-                        context.thisPeer.off('call', callHandler);
-                        console.log(context);
-                        if (context.mediaChannel) {
-                            console.info("Closing media channel...");
-                            context.mediaChannel.close();
-                        }
-                        if (context.rovDataConnection) {
-                            console.info("Closing data channel...");
-                            context.rovDataConnection.close();
-                        }
-                        console.log("Done Stopping PeerConnectionEventHandler");
-                    };
-                }, "peerConnectionEventHandler")
-            };
-        }),
-        "setMediaChannel": _xstate.assign({
-            mediaChannel: (context, event)=>event.data
-        }),
-        "setVideoStream": _xstate.assign({
-            videoStream: (context, event)=>{
-                const rovVideoStream = event.data;
-                const videoElem = document.getElementById('video-livestream');
-                videoElem.srcObject = rovVideoStream; // video.src = URL.createObjectURL(rovVideoStream);
-                videoElem.muted = true;
-                videoElem.autoplay = true;
-                videoElem.controls = false;
-                videoElem.play();
-                return rovVideoStream;
-            }
-        }),
-        // "closeDownMediaChannel": (context) => {
-        //     if (context.mediaChannel) {
-        //         console.info("Closing media channel...");
-        //         context.mediaChannel.close();
-        //     }
-        // },
-        // "closeDownDataChannel": (context) => {
-        //     if (context.rovDataConnection) {
-        //         console.info("Closing data channel...");
-        //         context.rovDataConnection.close();
-        //     }
-        // },
-        "stopPeerConnectionEventHandler": _actions.stop("peerConnectionEventHandler"),
-        // "rovPeerConnectionEstablished": sendParent("ROV_CONNECTION_ESTABLISHED"),
-        "debugReload": ()=>{
-            var reloadCount = localStorage.getItem("reloadCount") || 0;
-            console.log("reloadCount: ", reloadCount, reloadCount == -1);
-            // if (reloadCount == -1 || reloadCount > 8) {
-            //     setTimeout(() => { localStorage.setItem("reloadCount", 0); window.location.reload() }, 10000);
-            // } else {
-            reloadCount++;
-            localStorage.setItem("reloadCount", reloadCount);
-        // window.location.reload()
-        // }
-        }
-    },
-    services: {
-        "awaitMediaCall": (context)=>{
-            return (sendStateChange)=>{
-                _ui.showLoadingUi("Waiting for ROV Media Call...");
-                const callHandler = _util.generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection)=>{
-                    _ui.showToastMessage('Got media call from peer: ' + rovMediaConnection.peer);
-                    rovMediaConnection.answer(null, {
-                    });
-                });
-                context.thisPeer.on('call', callHandler);
-                const timeoutId = setTimeout(()=>{
-                    sendStateChange({
-                        type: "MEDIA_CHANNEL_TIMEOUT"
-                    });
-                }, 16000);
-                return ()=>{
-                    clearTimeout(timeoutId);
-                    context.thisPeer.off('call', callHandler);
-                };
-            };
-        },
-        "awaitVideoStream": (context)=>{
-            return (sendStateChange)=>{
-                console.log("Awaiting video stream from ROV...");
-                const videoReadyHandler = _util.generateStateChangeFunction(sendStateChange, "VIDEO_STREAM_READY");
-                context.mediaChannel.on('stream', videoReadyHandler);
-                const timeoutId = setTimeout(()=>{
-                    sendStateChange({
-                        type: "MEDIA_CHANNEL_TIMEOUT"
-                    });
-                }, 16000);
-                return ()=>{
-                    clearTimeout(timeoutId);
-                    context.mediaChannel.off('stream', videoReadyHandler);
-                };
-            };
-        },
-        "handleDataChannelEvents": (context)=>{
-            return (sendStateChange)=>{
-                _ui.showToastMessage("Connected to ROV!");
-                const rovDataConnection = context.rovDataConnection;
-                // Handle sending messages to rov:
-                _messageHandler.MessageHandler.setSendMessageCallback((message)=>{
-                    const encodedMessage = messageEncoder.encode(message);
-                    rovDataConnection.send(encodedMessage);
-                });
-                // handle reciving messages from rov:
-                const dataMsgRecivedHandler = (encodedMessage)=>{
-                    const message = messageDecoder.decode(encodedMessage);
-                    _messageHandler.MessageHandler.handleRecivedMessage(message);
-                };
-                rovDataConnection.on('data', dataMsgRecivedHandler);
-                // Keep checking if the datachannel goes offline: (every half second (interval 500) check if the datachannel peer connection state is "disconnected")
-                const intervalId = setInterval(()=>{
-                    const connectionState = context.rovDataConnection.peerConnection ? context.rovDataConnection.peerConnection.iceConnectionState : "disconnected";
-                    if (connectionState == "disconnected") sendStateChange("DATACHANNEL_DISCONNECT");
-                }, 500);
-                // finally tell the rov to begin sending us the video livestream:
-                _messageHandler.MessageHandler.sendRovMessage({
-                    action: "begin_livestream"
-                });
-                // start sending ping messages to the ROV (as a heartbeat signal & used for the net ping stat):
-                const stopPingLoop = _messageHandler.RovActions.startPingMessageSenderLoop();
-                // cleanup event listeners when the state machine state is exited:
-                return ()=>{
-                    rovDataConnection.off("data", dataMsgRecivedHandler);
-                    stopPingLoop();
-                    _messageHandler.MessageHandler.setSendMessageCallback(null);
-                    // cleanup the check interval when the state is exited
-                    clearInterval(intervalId);
-                };
-            };
-        },
-        watchForRovReconnect: (context)=>{
-            return (sendStateChange)=>{
-                const rovDataConnection = context.rovDataConnection;
-                var datachannelTimeoutCountdown = 10;
-                var lastIceConnectionState = "disconnected";
-                // every second (interval 1000) check if the datachannel peer connection is still disconnected
-                // if it's disconnected: count down a timeout counter, if it's still not connected after the timeout, then fire the DATACHANNEL_TIMEOUT event
-                // if it connects: reset the countdown.
-                const intervalId = setInterval(()=>{
-                    const connectionState = rovDataConnection.peerConnection ? rovDataConnection.peerConnection.iceConnectionState : "disconnected";
-                    if (connectionState == "disconnected" && datachannelTimeoutCountdown > 0) {
-                        datachannelTimeoutCountdown--;
-                        _ui.showToastMessage("Waiting for ROV to Reconnect: " + datachannelTimeoutCountdown, 1000);
-                    } else if (connectionState == "connected" && lastIceConnectionState != "connected") {
-                        datachannelTimeoutCountdown = 10;
-                        _ui.showToastMessage("ROV Reconnected!", 2000);
-                        sendStateChange("DATACHANNEL_ESTABLISHED");
-                    } else // If we have waited too long without the rov reconnecting
-                    sendStateChange({
-                        type: "DATACHANNEL_TIMEOUT"
-                    });
-                    lastIceConnectionState = connectionState;
-                }, 1000);
-                return ()=>{
-                    // cleanup the check interval when the state is exited
-                    clearInterval(intervalId);
-                };
-            };
-        }
-    }
-});
-console.log("Peerjs rov Connection Machine: ", peerConnMachine.options);
-
-},{"xstate":"2sk4t","./ui":"efi6n","./util":"doATT","xstate/lib/actions":"b9dCp","./messageHandler":"at2SH","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["g9TDx","1SICI"], "1SICI", "parcelRequire8802")
+},{}]},["g9TDx","1SICI"], "1SICI", "parcelRequire8802")
 
 //# sourceMappingURL=index.18dbc454.js.map

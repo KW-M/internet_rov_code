@@ -170,6 +170,8 @@ libcamera-vid --width 960 --height 720 --codec yuv420 --framerate 20 --flush 1 -
 
 "ffmpeg","-hide_banner","-f","lavfi","-i","testsrc","-vcodec","h264_v4l2m2m","-preset","ultrafast","-tune","zerolatency","-b:v","200k","-f","h264","-y","pipe:1" > /tmp/webrtc-relay/vido.pipe
 
+# youtube recomended ffmpeg settings:
+# https://gist.github.com/mikoim/27e4e0dc64e384adbcb91ff10a2d3678
 
 ## --- Failed attempts to use udp / tcp streaming:------
 ffmpeg -hide_banner -f lavfi -rtbufsize 5m -use_wallclock_as_timestamps 1 -i "testsrc=size=1280x720:rate=30" -r 30 -vf "settb=AVTB,setpts='trunc(PTS/1K)*1K+st(1,trunc(RTCTIME/1K))-1K*trunc(ld(1)/1K)',drawtext=text='%{localtime}.%{eif\:1M*t-1K*trunc(t*1K)\:d}':fontcolor=black@1:fontsize=(h/10):x=(w-text_w)/2:y=10" -vcodec h264_v4l2m2m -preset "ultrafast" -tune zerolatency  -use_wallclock_as_timestamps 1 -fflags nobuffer -b:v 500k -f rtp_mpegts "udp://localhost:5004"

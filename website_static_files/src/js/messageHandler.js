@@ -1,5 +1,7 @@
-import { showPasswordPrompt, showScrollableTextPopup, showToastMessage } from "./ui";
+import { showPasswordPrompt, showScrollableTextPopup, showToastMessage, updateDisplayedSensorValues, updatePingDisplay } from "./ui";
 import { v4 as uuidV4 } from "uuid"
+
+let lastTimeRecvdPong = NaN;
 
 export class MessageHandler {
 
@@ -10,7 +12,6 @@ export class MessageHandler {
     // sendMessageCallback: Function that will send the message to the rov peer.
     // This callback should be set in the constructor below.
     static sendMessageCallback = () => { };
-
     static setSendMessageCallback = (callback) => {
         MessageHandler.sendMessageCallback = callback;
     }
@@ -56,6 +57,12 @@ export class MessageHandler {
             console.warn("Rov Action Error: " + msg_value);
             showToastMessage(msg_value);
 
+        } else if (msg_status == "pong") {
+            console.log("Ping->Pong received");
+            lastTimeRecvdPong = Date.now();
+            const networkPingDelay = lastTimeRecvdPong - Number.parseFloat(msgData['pong']) // since the rpi replies with the ms time we sent in the ping in the pong message
+            updatePingDisplay(networkPingDelay);
+
         } else if (msg_status == "done") {
             if (replyContinuityCallback) replyContinuityCallback(msg_data);
             else showToastMessage(MessageHandler.replyContinuityCallbacks[msg_cid].originalMsgData.action + ": OK");
@@ -88,6 +95,9 @@ export class MessageHandler {
 
         if (msg_status == "error") {
             console.error("Rov Error: " + msg_value);
+
+        } else if (msg_status == "sensor_update") {
+            updateDisplayedSensorValues(msg_value);
 
         } else if (msg_status == "pilotHasChanged") {
             MessageHandler.handlePilotChange(msg_value);
@@ -238,3 +248,4 @@ export class RovActions {
     }
 
 }
+window.RovActions = RovActions;
