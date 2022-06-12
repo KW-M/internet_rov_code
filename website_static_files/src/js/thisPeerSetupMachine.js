@@ -137,7 +137,7 @@ export const startThisPeerSetupMachine = (globalContext, sendParentCallback) => 
                     // setup a timeout in case the connection takes too long
                     globalContext.thisPeerConnectionTimeout = setTimeout(() => {
                         sendEventToSelf('CONNECTION_TIMEOUT');
-                    }, 8000); // 8 seconds
+                    }, 10000); // 10 seconds
                 },
                 "clearThisPeerConnectionTimeout": () => {
                     clearTimeout(globalContext.thisPeerConnectionTimeout);

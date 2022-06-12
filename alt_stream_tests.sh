@@ -171,6 +171,7 @@ libcamera-vid --width 960 --height 720 --codec yuv420 --framerate 20 --flush 1 -
 "ffmpeg","-hide_banner","-f","lavfi","-i","testsrc","-vcodec","h264_v4l2m2m","-preset","ultrafast","-tune","zerolatency","-b:v","200k","-f","h264","-y","pipe:1" > /tmp/webrtc-relay/vido.pipe
 
 # youtube recomended ffmpeg settings:
+# NOTE THAT WEBRTC DOESN"T SUPPORT B-FRAMES
 # https://gist.github.com/mikoim/27e4e0dc64e384adbcb91ff10a2d3678
 
 ## --- Failed attempts to use udp / tcp streaming:------
@@ -188,3 +189,11 @@ https://trac.ffmpeg.org/ticket/1417
 https://trac.ffmpeg.org/wiki/FancyFilteringExamples
 https://trac.ffmpeg.org/wiki/DirectShow
 https://trac.ffmpeg.org/wiki/Capture/Webcam
+https://github.com/yihui/animation/issues/74
+
+
+# working udp send and recive combo:
+# send
+ffmpeg -hide_banner -f lavfi -re  -rtbufsize 1M -use_wallclock_as_timestamps 1 -i "testsrc=size=1280x720:rate=30" -pix_fmt yuv420p -framerate 30  -vcodec libx264  -use_wallclock_as_timestamps 1 -preset ultrafast  -profile:v high  -fflags nobuffer -b:v 900k -f mpegts udp://localhost:1254
+# recive
+ ffplay -probesize 32 -sync ext udp://localhost:1254

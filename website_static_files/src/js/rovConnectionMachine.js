@@ -29,8 +29,7 @@ export const startRovConnectionMachine = (globalContext, sendParentCallback) => 
                     thisPeerUninitilized: {
                         on: {
                             THIS_PEER_READY: {
-                                description:
-                                    'this event is sent by the parent when the "thisPeerSetupMachine" has just created the peer (but does not wait for peerjs "open" event)',
+                                description: 'this event is sent by the parent when the "thisPeerSetupMachine" has just created the peer (but does not wait for peerjs "open" event)',
                                 target: "thisPeerInitilized",
                             },
                             DO_DISCONNECT: {
@@ -254,7 +253,7 @@ export const startRovConnectionMachine = (globalContext, sendParentCallback) => 
                         // } else {
                         // reloadCount++;
                         // localStorage.setItem("reloadCount", reloadCount);
-                        setTimeout(() => { window.location.reload() }, 10);
+                        // setTimeout(() => { window.location.reload() }, 10);
                         // }
                     },
                 },

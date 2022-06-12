@@ -46,7 +46,7 @@ runSiteInitMachine(globalContext, (eventName) => {
 
     const ThisPeerSetupMachine = startThisPeerSetupMachine(globalContext, (eventName) => {
         console.log("ThisPeerSetupMachine: ", eventName);
-        RovConnectionMachine.send(eventName); // OPTIONS: "THIS_PEER_DESTROYED", "THIS_PEER_READY";
+        RovConnectionMachine.send(eventName); // EventName WILL BE EITHER: "THIS_PEER_DESTROYED", "THIS_PEER_READY";
     });
 
     setupConnectBtnClickHandler(() => {

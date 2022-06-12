@@ -1,8 +1,8 @@
-export const ROV_PEERID_BASE = "go-robot-";
+export const ROV_PEERID_BASE = "go-relay-";
 
 // FOR A PEERJS SERVER RUNNING IN THE CLOUD (Heroku, but could be changed to connect to the peerjs cloud or elsewhere)
 export const peerServerCloudOptions = {
-    host: "ssrov-peerjs-server.herokuapp.com",//"0.peerjs.com",//
+    host: "0.peerjs.com",//
     secure: true,
     path: '/',
     port: 443,

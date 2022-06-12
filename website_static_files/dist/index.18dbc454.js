@@ -550,7 +550,7 @@ _siteInit.runSiteInitMachine(globalContext, (eventName1)=>{
     });
     const ThisPeerSetupMachine = _thisPeerSetupMachineJs.startThisPeerSetupMachine(globalContext, (eventName)=>{
         console.log("ThisPeerSetupMachine: ", eventName);
-        RovConnectionMachine.send(eventName); // OPTIONS: "THIS_PEER_DESTROYED", "THIS_PEER_READY";
+        RovConnectionMachine.send(eventName); // EventName WILL BE EITHER: "THIS_PEER_DESTROYED", "THIS_PEER_READY";
     });
     _uiJs.setupConnectBtnClickHandler(()=>{
         RovConnectionMachine.send("DO_CONNECT");
@@ -949,9 +949,9 @@ parcelHelpers.export(exports, "ONSCREEN_GPAD_BUTTON_TOUCHED_CLASS", ()=>ONSCREEN
 );
 parcelHelpers.export(exports, "ONSCREEN_GPAD_BUTTON_PRESSED_CLASS", ()=>ONSCREEN_GPAD_BUTTON_PRESSED_CLASS
 );
-const ROV_PEERID_BASE = "go-robot-";
+const ROV_PEERID_BASE = "go-relay-";
 const peerServerCloudOptions = {
-    host: "ssrov-peerjs-server.herokuapp.com",
+    host: "0.peerjs.com",
     secure: true,
     path: '/',
     port: 443
@@ -10578,16 +10578,14 @@ const startRovConnectionMachine = (globalContext, sendParentCallback)=>{
             // "showGotVideoStreamNotice": () => { showToastMessage("Got ROV Video Stream!"); showLivestreamUi(); console.info("Got Video Stream!") },
             // "hideLivestreamUi": () => { hideLivestreamUi() },
             "debugReload": ()=>{
-                // var reloadCount = localStorage.getItem("reloadCount") || 0;
-                // console.log("reloadCount: ", reloadCount, reloadCount == -1);
-                // if (reloadCount == -1 || reloadCount > 8) {
-                // setTimeout(() => { localStorage.setItem("reloadCount", 0); window.location.reload() }, 1000);
-                // } else {
-                // reloadCount++;
-                // localStorage.setItem("reloadCount", reloadCount);
-                setTimeout(()=>{
-                    window.location.reload();
-                }, 10);
+            // var reloadCount = localStorage.getItem("reloadCount") || 0;
+            // console.log("reloadCount: ", reloadCount, reloadCount == -1);
+            // if (reloadCount == -1 || reloadCount > 8) {
+            // setTimeout(() => { localStorage.setItem("reloadCount", 0); window.location.reload() }, 1000);
+            // } else {
+            // reloadCount++;
+            // localStorage.setItem("reloadCount", reloadCount);
+            // setTimeout(() => { window.location.reload() }, 10);
             // }
             }
         }
@@ -11179,7 +11177,7 @@ const startThisPeerSetupMachine = (globalContext, sendParentCallback)=>{
                 // setup a timeout in case the connection takes too long
                 globalContext.thisPeerConnectionTimeout = setTimeout(()=>{
                     sendEventToSelf('CONNECTION_TIMEOUT');
-                }, 8000); // 8 seconds
+                }, 10000); // 10 seconds
             },
             "clearThisPeerConnectionTimeout": ()=>{
                 clearTimeout(globalContext.thisPeerConnectionTimeout);
