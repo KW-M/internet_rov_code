@@ -30,17 +30,22 @@ if (globalContext.debugXstateMode) {
 import { runSiteInitMachine } from "./siteInit";
 import { startRovConnectionMachine } from "./rovConnectionMachine";
 import { startThisPeerSetupMachine } from "./thisPeerSetupMachine.js";
+import { startRovMediaChannelMachine } from "./rovMediaChannelMachine";
 
 
 runSiteInitMachine(globalContext, (eventName) => {
     hideLoadingUi("internet-check");
     console.log("siteInit: ", eventName);
 
+    const RovMediaChannelMachine = startRovMediaChannelMachine(globalContext);
+
     const RovConnectionMachine = startRovConnectionMachine(globalContext, (eventName) => {
         console.log("rovConnectionMachine: ", eventName);
         if (eventName === "ROV_CONNECTION_FAILED") {
             showToastMessage("ROV Connection Failed");
             showROVDisconnectedUi();
+        } else if (eventName === "ROV_DATACHANNEL_OPEN") {
+            RovMediaChannelMachine.send("ROV_CONNECTION_READY");
         }
     })
 
@@ -55,6 +60,8 @@ runSiteInitMachine(globalContext, (eventName) => {
 
     setupDisconnectBtnClickHandler(() => {
         RovConnectionMachine.send("DO_DISCONNECT");
+        RovMediaChannelMachine.send("DO_DISCONNECT");
+
     });
 
     const switchToNextRovPeerId = () => {
@@ -62,6 +69,7 @@ runSiteInitMachine(globalContext, (eventName) => {
         setCurrentRovName(ROV_PEERID_BASE + globalContext.rovPeerIdEndNumber);
         localStorage.setItem("rovPeerIdEndNumber", globalContext.rovPeerIdEndNumber);
         RovConnectionMachine.send("DO_DISCONNECT");
+        RovMediaChannelMachine.send("DO_DISCONNECT");
         // RovConnectionMachine.send("DO_CONNECT");
     }
     const switchToPrevRovPeerId = () => {
@@ -69,6 +77,7 @@ runSiteInitMachine(globalContext, (eventName) => {
         setCurrentRovName(ROV_PEERID_BASE + globalContext.rovPeerIdEndNumber);
         localStorage.setItem("rovPeerIdEndNumber", globalContext.rovPeerIdEndNumber);
         RovConnectionMachine.send("DO_DISCONNECT");
+        RovMediaChannelMachine.send("DO_DISCONNECT");
         // RovConnectionMachine.send("DO_CONNECT");
     }
     setupSwitchRovBtnClickHandlers(switchToPrevRovPeerId, switchToNextRovPeerId);

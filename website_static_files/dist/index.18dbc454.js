@@ -523,6 +523,7 @@ var _uiJs = require("./ui.js");
 var _siteInit = require("./siteInit");
 var _rovConnectionMachine = require("./rovConnectionMachine");
 var _thisPeerSetupMachineJs = require("./thisPeerSetupMachine.js");
+var _rovMediaChannelMachine = require("./rovMediaChannelMachine");
 let globalContext = {
     debugXstateMode: !!_utilJs.getURLQueryStringVariable("debug"),
     peerServerConfig: {},
@@ -541,12 +542,13 @@ if (globalContext.debugXstateMode) _inspect.inspect({
 _siteInit.runSiteInitMachine(globalContext, (eventName1)=>{
     _uiJs.hideLoadingUi("internet-check");
     console.log("siteInit: ", eventName1);
+    const RovMediaChannelMachine = _rovMediaChannelMachine.startRovMediaChannelMachine(globalContext);
     const RovConnectionMachine = _rovConnectionMachine.startRovConnectionMachine(globalContext, (eventName)=>{
         console.log("rovConnectionMachine: ", eventName);
         if (eventName === "ROV_CONNECTION_FAILED") {
             _uiJs.showToastMessage("ROV Connection Failed");
             _uiJs.showROVDisconnectedUi();
-        }
+        } else if (eventName === "ROV_DATACHANNEL_OPEN") RovMediaChannelMachine.send("ROV_CONNECTION_READY");
     });
     const ThisPeerSetupMachine = _thisPeerSetupMachineJs.startThisPeerSetupMachine(globalContext, (eventName)=>{
         console.log("ThisPeerSetupMachine: ", eventName);
@@ -557,12 +559,14 @@ _siteInit.runSiteInitMachine(globalContext, (eventName1)=>{
     });
     _uiJs.setupDisconnectBtnClickHandler(()=>{
         RovConnectionMachine.send("DO_DISCONNECT");
+        RovMediaChannelMachine.send("DO_DISCONNECT");
     });
     const switchToNextRovPeerId = ()=>{
         globalContext.rovPeerIdEndNumber++;
         _uiJs.setCurrentRovName(_constsJs.ROV_PEERID_BASE + globalContext.rovPeerIdEndNumber);
         localStorage.setItem("rovPeerIdEndNumber", globalContext.rovPeerIdEndNumber);
         RovConnectionMachine.send("DO_DISCONNECT");
+        RovMediaChannelMachine.send("DO_DISCONNECT");
     // RovConnectionMachine.send("DO_CONNECT");
     };
     const switchToPrevRovPeerId = ()=>{
@@ -570,6 +574,7 @@ _siteInit.runSiteInitMachine(globalContext, (eventName1)=>{
         _uiJs.setCurrentRovName(_constsJs.ROV_PEERID_BASE + globalContext.rovPeerIdEndNumber);
         localStorage.setItem("rovPeerIdEndNumber", globalContext.rovPeerIdEndNumber);
         RovConnectionMachine.send("DO_DISCONNECT");
+        RovMediaChannelMachine.send("DO_DISCONNECT");
     // RovConnectionMachine.send("DO_CONNECT");
     };
     _uiJs.setupSwitchRovBtnClickHandlers(switchToPrevRovPeerId, switchToNextRovPeerId);
@@ -930,7 +935,7 @@ _siteInit.runSiteInitMachine(globalContext, (eventName1)=>{
  // }
 ;
 
-},{"./consts.js":"2J0f1","@xstate/inspect":"39FuP","./gamepad.js":"2YxSr","./util.js":"doATT","./ui.js":"efi6n","./siteInit":"8TXLV","./rovConnectionMachine":"aaTha","./thisPeerSetupMachine.js":"2lhJt"}],"2J0f1":[function(require,module,exports) {
+},{"./consts.js":"2J0f1","@xstate/inspect":"39FuP","./gamepad.js":"2YxSr","./util.js":"doATT","./ui.js":"efi6n","./siteInit":"8TXLV","./rovConnectionMachine":"aaTha","./thisPeerSetupMachine.js":"2lhJt","./rovMediaChannelMachine":"jNZ32"}],"2J0f1":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "ROV_PEERID_BASE", ()=>ROV_PEERID_BASE
@@ -9225,7 +9230,7 @@ function setArtificialHorizonBackground(roll, pitch) {
     gradientArtificialHorizonBackground.style.backgroundImage = `linear-gradient(${roll}deg, rgba(2,0,36,1) ${-100 + vShift}%, rgba(9,88,116,1) ${50 + vShift}%, rgba(10,109,140,1) ${50 + vShift}%, rgba(0,255,235,1) ${200 + vShift}%)`;
 }
 
-},{"toastify-js":"96k49","xstate/lib/utils":"8RFz3","./consts":"2J0f1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"96k49":[function(require,module,exports) {
+},{"toastify-js":"96k49","xstate/lib/utils":"8RFz3","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./consts":"2J0f1"}],"96k49":[function(require,module,exports) {
 /*!
  * Toastify js 1.11.2
  * https://github.com/apvarun/toastify-js
@@ -10383,8 +10388,7 @@ const startRovConnectionMachine = (globalContext, sendParentCallback)=>{
                 on: {
                     ON_DATACHANNEL_OPEN: {
                         actions: [
-                            "addDatachannelEventHandlers",
-                            "debugReload"
+                            "addDatachannelEventHandlers", 
                         ],
                         target: "connected"
                     },
@@ -10571,21 +10575,17 @@ const startRovConnectionMachine = (globalContext, sendParentCallback)=>{
             'stopReconnectCountdown': ()=>{
                 clearInterval(globalContext.datachannelReconnectCountdown);
             },
-            // "showConnectingUi": showROVConnectingUi,
-            // "showRovConnectedUi": (_, event) => { showROVConnectedUi(event.data ? event.data.peer : null) },
-            // "showWaitingForMediaChannelNotice": () => { showLoadingUi("Waiting for ROV livestream...") },
-            // "showMediaChannelConnectedNotice": () => { showToastMessage("ROV Media Channel Connected!") },
-            // "showGotVideoStreamNotice": () => { showToastMessage("Got ROV Video Stream!"); showLivestreamUi(); console.info("Got Video Stream!") },
-            // "hideLivestreamUi": () => { hideLivestreamUi() },
             "debugReload": ()=>{
-            // var reloadCount = localStorage.getItem("reloadCount") || 0;
-            // console.log("reloadCount: ", reloadCount, reloadCount == -1);
-            // if (reloadCount == -1 || reloadCount > 8) {
-            // setTimeout(() => { localStorage.setItem("reloadCount", 0); window.location.reload() }, 1000);
-            // } else {
-            // reloadCount++;
-            // localStorage.setItem("reloadCount", reloadCount);
-            // setTimeout(() => { window.location.reload() }, 10);
+                // var reloadCount = localStorage.getItem("reloadCount") || 0;
+                // console.log("reloadCount: ", reloadCount, reloadCount == -1);
+                // if (reloadCount == -1 || reloadCount > 8) {
+                // setTimeout(() => { localStorage.setItem("reloadCount", 0); window.location.reload() }, 1000);
+                // } else {
+                // reloadCount++;
+                // localStorage.setItem("reloadCount", reloadCount);
+                setTimeout(()=>{
+                    window.location.reload();
+                }, 10);
             // }
             }
         }
@@ -10594,75 +10594,7 @@ const startRovConnectionMachine = (globalContext, sendParentCallback)=>{
         devTools: globalContext.debugXstateMode
     }).start();
     return runningMachine;
-} ///--- actions for media connection machine:
- // 'cleanupEventListeners': () => {
- //     return () => { // return a cleanup / stop function
- //         context.thisPeer.off('call', callHandler);
- //         if (context.mediaChannel) {
- //             console.info("Closing media channel...");
- //             context.mediaChannel.close();
- //         }
- // }
- // "setMediaChannel": (_, event) => {
- //     globalContext.mediaChannel = event.data;
- // },
- // "setVideoStream": (_, event) => {
- //     const rovVideoStream = event.data
- //     const videoElem = document.getElementById('video-livestream');
- //     videoElem.srcObject = rovVideoStream;  // video.src = URL.createObjectURL(rovVideoStream);
- //     videoElem.muted = true
- //     videoElem.autoplay = true
- //     videoElem.controls = false
- //     videoElem.play();
- //     globalContext.videoStream = rovVideoStream;
- // },
- // "awaitMediaCall": () => {
- //     return (sendStateChange) => {
- //         showLoadingUi("awaiting-video-call");
- //         const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
- //             showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
- //             rovMediaConnection.answer(null, {
- //                 // sdpTransform: function (sdp) {
- //                 //     console.log('answer sdp: ', sdp);
- //                 //     return sdp;
- //                 // }
- //             });
- //         })
- //         context.thisPeer.on('call', callHandler);
- //         const timeoutId = setTimeout(() => {
- //             sendStateChange({ type: "MEDIA_CHANNEL_TIMEOUT" });
- //         }, 16000);
- //         return () => {
- //             clearTimeout(timeoutId);
- //             context.thisPeer.off('call', callHandler);
- //         }
- //     };
- // },
- // "awaitVideoStream": () => {
- //     return (sendStateChange) => {
- //         console.log("Awaiting video stream from ROV...");
- //         const videoReadyHandler = generateStateChangeFunction(sendStateChange, "VIDEO_STREAM_READY")
- //         context.mediaChannel.on('stream', videoReadyHandler);
- //         const timeoutId = setTimeout(() => {
- //             sendStateChange({ type: "MEDIA_CHANNEL_TIMEOUT" });
- //         }, 16000);
- //         return () => {
- //             clearTimeout(timeoutId);
- //             context.mediaChannel.off('stream', videoReadyHandler);
- //         }
- //     };
- // },
- // const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
- //     showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
- //     rovMediaConnection.answer(null, {
- //         // sdpTransform: function (sdp) {
- //         //     console.log('answer sdp: ', sdp);
- //         //     return sdp;
- //         // }
- //     });
- // })
- // context.thisPeer.on('call', callHandler);
-;
+};
 
 },{"xstate":"2sk4t","./ui":"efi6n","./util":"doATT","./messageHandler":"at2SH","./consts":"2J0f1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"at2SH":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -11160,6 +11092,8 @@ const startThisPeerSetupMachine = (globalContext, sendParentCallback)=>{
                 globalContext.thisPeer = new _peerjsDefault.default(ourPeerId, globalContext.peerServerConfig);
                 eventHandlers['onOpen'] = _util.generateStateChangeFunction(sendEventToSelf, 'ON_OPEN', null, ()=>{
                     _ui.showToastMessage("Connected to Peerjs Server!");
+                    // tell the main ui that the thisPeer object is ready to use:
+                    sendParentCallback("THIS_PEER_READY");
                 });
                 globalContext.thisPeer.on('open', eventHandlers['onOpen']);
                 eventHandlers['onError'] = _util.generateStateChangeFunction(sendEventToSelf, 'ON_ERROR', null);
@@ -11172,8 +11106,6 @@ const startThisPeerSetupMachine = (globalContext, sendParentCallback)=>{
                     _ui.showToastMessage("Peerjs Server Disconnected!");
                 });
                 globalContext.thisPeer.on('disconnected', eventHandlers['onDisconnected']);
-                // tell the main ui that the thisPeer object is ready enough to use:
-                sendParentCallback("THIS_PEER_READY");
                 // setup a timeout in case the connection takes too long
                 globalContext.thisPeerConnectionTimeout = setTimeout(()=>{
                     sendEventToSelf('CONNECTION_TIMEOUT');
@@ -19228,6 +19160,211 @@ Prints log messages depending on the debug level passed in. Defaults to 0.
 ], null) //# sourceMappingURL=/peerjs.js.map
 ;
 
-},{}]},["g9TDx","1SICI"], "1SICI", "parcelRequire8802")
+},{}],"jNZ32":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "startRovMediaChannelMachine", ()=>startRovMediaChannelMachine
+);
+var _xstate = require("xstate");
+var _ui = require("./ui");
+var _util = require("./util");
+const startRovMediaChannelMachine = (globalContext)=>{
+    let eventHandlers = {};
+    const sendEventToSelf = (event)=>{
+        if (runningMachine) runningMachine.send(event);
+    };
+    // create the machine
+    const rovMediaChannelMachine = /** @xstate-layout N4IgpgJg5mDOIC5QCcD2A3AspAlgQwGEALPAO1LABtM8BjInCgOgBcHYAFMMZAVVMY4WOSjgBekAMQAVABIBJAMoB9DgFE1AJWWa1AQQAiATUSgADqlhCcqUqZAAPRAEYA7ADYmAZgCs7gBwADMGuAJxeACw+rgA0IACeiABMSZ7+oa7OSc7+Pl5Jof7uzgC+JXFoWLiEJORUNPSMYKzsXDz8gsKiEhCSBgDyygZKBP0AcmNqBNL2FlbCtvZOCG6evgHBgWGR0XGJCAU+TIFerq4RAXkFRWUVGNgQ+MRkFNR0DMxsOJzcyPICXXEUlmlmsiyQjhcmWOSX8ES8gXC-lcSS2e0QkUCTGczlCsMKKUCERu5RAlQeT1qrwaH2atFsFFoLCkciUqg02gMakU0k0-SMagMIPmNjsEOWzncWPc8IKoWcgSSrn8+XRCC8uSYqMCKqVoS2hXctzJ92qzzqb0azHpdSZUnGQz00j0BFkegmagAMkMRuNJtNBcKwWLQBKpUwZflQvLFcrVQlEPCsbCkqdoj5Qj5iUbSeSzVT6u8mkwbYzmb0Bj7FKMPdMgwsQ5CVuHI3KFUrdWqIq4jl53F55ciU4bjXnHjUXoWrXSGWAmaL-tZuvaxo7na73ZNvf11GN66KlslFUx-LkUe48ciFaEImqUmkMlkcldDaVc6bx+bqUXrbP57ZF0BHoZAUFR1C0IZuV5flAwhOZg0PA5j1PaJUkvTJEVvBMDmhDIihlfxCWzUcP0pSdLVpEs-wbQCRCBXoHXA7QtD5TR93BUMjySE8zzQ2EMJvNUvDcY4pVRM59TCEk7iqT8Cwo4tSznGiATo4DK2Gas-SmGY4NBBtENRbiUPPdDryw-Ysy8JhM1cKMZQiREURI2SyItGlFOohdVOXXoa39aR5AdQLMDUfpeF08x9IPcUuJ41CL348y1QAWmJFyKQndyf2aAB3PBrFIKAADFUGQTQ5y82xJAdAwnRdN0PW3Xd2MbCUiiYPJnHWfwcR8VMIgsxAM1cbFwklHsggiQofAy-NyI85h8sKkqyoqpT-1IGrV10fydKC1cQrCiLWsQnJPC6nq+oGoaEBlbilW7BUszxYlZvfVysu-acmGW4QitK8rKttBsQLZJjIJ5PkBSFPSRQ4ptzs64SrucfrIlu1wTgjAju1SMIZrmuSFpy36Cv+1agY20GNN9WtIpAeCDNilYOsuvxerRm7UtCHMZMyr8p0okhKHLPpBj2us4YQlm0ecE9VjRnxEROeN9nOfwmHOft9VTdwNfe0lSFQCA4HsMc3O+yivh+doBB8+jTpZlL3FTTqIlSPtU16wj-FSlVjkCV35Sxuy-B7InLaF4sbbaP4HZ6J3OIQQI1RyeWziSHxCMCLNup9yOvuj38QcgJOm1T7DslCd2fElCIFUIjxTkLwWFJLstvKXR3peZ5PK-2LPRuEs4LklJIG6id7+fm7Kfr+xhKfWqrGyZmL+6ExEmA9wavFOHVcURVv5MW5oRfLcvlgHjFuzGrG0Y8VMCjfGfibn2lL8QF3b6zT3XY1HIsJUqSk1rzEOod04DTKGUIAA */ _xstate.createMachine({
+        id: "rovMediaChannelMachine",
+        initial: "rovNotConnected",
+        states: {
+            rovNotConnected: {
+                on: {
+                    ROV_CONNECTION_READY: {
+                        description: 'this event is sent by the parent when the "rovConnectionMachine" has connected to the ROV',
+                        target: "rovConnectionOpen"
+                    }
+                }
+            },
+            rovConnectionOpen: {
+                always: {
+                    actions: "addMediaChannelEventHandlers",
+                    target: "awaitingVideoStream"
+                }
+            },
+            awaitingVideoStream: {
+                on: {
+                    VIDEO_LIVESTREAM_READY: {
+                        actions: [
+                            "setVideoStream",
+                            "showGotVideoStreamNotice",
+                            "clearMediaChannelConnectionTimeout"
+                        ],
+                        target: "videoStreamReady"
+                    },
+                    DO_DISCONNECT: {
+                        actions: [
+                            "cleanupEventListeners"
+                        ],
+                        target: "rovNotConnected"
+                    },
+                    MEDIA_CHANNEL_TIMEOUT: {
+                        actions: "cleanupEventListeners",
+                        description: "(timeout)",
+                        target: "rovConnectionOpen"
+                    }
+                }
+            },
+            videoStreamReady: {
+                on: {
+                    // ON_VIDEO_DISCONNECTED: {
+                    //     actions: "startReconnectCountdown",
+                    //     target: "waitingForReconnection",
+                    // },
+                    DO_DISCONNECT: {
+                        actions: [
+                            "cleanupEventListeners",
+                            "hideLivestreamUi"
+                        ],
+                        target: "rovNotConnected"
+                    }
+                }
+            }
+        }
+    }, {
+        actions: {
+            // "showWaitingForMediaChannelNotice": () => { showLoadingUi("Waiting for ROV livestream...") },
+            // "showMediaChannelConnectedNotice": () => { showToastMessage("ROV Media Channel Connected!") },
+            "showGotVideoStreamNotice": ()=>{
+                _ui.showToastMessage("Got ROV Video Stream!");
+                _ui.showLivestreamUi();
+                console.info("Got Video Stream!");
+            },
+            "hideLivestreamUi": ()=>{
+                _ui.hideLivestreamUi();
+            },
+            'cleanupEventListeners': ()=>{
+                globalContext.thisPeer.off('call', eventHandlers["callHandler"]);
+                if (globalContext.mediaChannel) {
+                    globalContext.mediaChannel.off('stream', eventHandlers["videoReadyHandler"]);
+                    // globalContext.mediaChannel.off('close', eventHandlers["videoCloseHandler"]);
+                    console.info("Closing media channel...");
+                    globalContext.mediaChannel.close();
+                    globalContext.mediaChannel = null;
+                }
+            },
+            "clearMediaChannelConnectionTimeout": ()=>{
+                clearTimeout(globalContext.mediaChannelTimeout);
+            // clearInterval(globalContext.datachannelDisconnectCheckIntervalId);
+            // clearInterval(globalContext.datachannelReconnectCountdown);
+            },
+            "setVideoStream": (_, event)=>{
+                const rovVideoStream = event.data;
+                const videoElem = document.getElementById('video-livestream');
+                videoElem.srcObject = rovVideoStream; // video.src = URL.createObjectURL(rovVideoStream);
+                videoElem.muted = true;
+                videoElem.autoplay = true;
+                videoElem.controls = false;
+                videoElem.play();
+                globalContext.videoStream = rovVideoStream;
+            },
+            'addMediaChannelEventHandlers': ()=>{
+                _ui.showLoadingUi("awaiting-video-call");
+                const callHandler = eventHandlers["callHandler"] = _util.generateStateChangeFunction(sendEventToSelf, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection)=>{
+                    _ui.showToastMessage('Got media call from peer: ' + rovMediaConnection.peer);
+                    globalContext.mediaChannel = rovMediaConnection;
+                    const videoReadyHandler = eventHandlers['videoReadyHandler'] = _util.generateStateChangeFunction(sendEventToSelf, "VIDEO_STREAM_READY");
+                    globalContext.mediaChannel.on('stream', videoReadyHandler);
+                    rovMediaConnection.answer(null);
+                });
+                globalContext.thisPeer.on('call', callHandler);
+                globalContext.mediaChannelTimeout = setTimeout(()=>{
+                    sendEventToSelf({
+                        type: "MEDIA_CHANNEL_TIMEOUT"
+                    });
+                }, 16000);
+            // // Keep checking if the datachannel goes offline: (every half second (interval 500) check if the datachannel peer connection state is "disconnected")
+            // globalContext.datachannelDisconnectCheckIntervalId = setInterval(() => {
+            //     const connectionState = rovDataConnection.peerConnection ? globalContext.rovDataConnection.peerConnection.iceConnectionState : "disconnected";
+            //     if (connectionState == "disconnected") sendEventToSelf("ON_DATACHANNEL_DISCONNECTED");
+            // }, 500);
+            }
+        }
+    });
+    const runningMachine = _xstate.interpret(rovMediaChannelMachine, {
+        devTools: globalContext.debugXstateMode
+    }).start();
+    return runningMachine;
+} ///--- actions for media connection machine:
+ // 'cleanupEventListeners': () => {
+ //     return () => { // return a cleanup / stop function
+ //         context.thisPeer.off('call', callHandler);
+ //         if (context.mediaChannel) {
+ //             console.info("Closing media channel...");
+ //             context.mediaChannel.close();
+ //         }
+ // }
+ // "setMediaChannel": (_, event) => {
+ //     globalContext.mediaChannel = event.data;
+ // },
+ // "setVideoStream": (_, event) => {
+ //     const rovVideoStream = event.data
+ //     const videoElem = document.getElementById('video-livestream');
+ //     videoElem.srcObject = rovVideoStream;  // video.src = URL.createObjectURL(rovVideoStream);
+ //     videoElem.muted = true
+ //     videoElem.autoplay = true
+ //     videoElem.controls = false
+ //     videoElem.play();
+ //     globalContext.videoStream = rovVideoStream;
+ // },
+ // "awaitMediaCall": () => {
+ //     return (sendStateChange) => {
+ //         showLoadingUi("awaiting-video-call");
+ //         const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
+ //             showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
+ //             rovMediaConnection.answer(null, {
+ //                 // sdpTransform: function (sdp) {
+ //                 //     console.log('answer sdp: ', sdp);
+ //                 //     return sdp;
+ //                 // }
+ //             });
+ //         })
+ //         context.thisPeer.on('call', callHandler);
+ //         const timeoutId = setTimeout(() => {
+ //             sendStateChange({ type: "MEDIA_CHANNEL_TIMEOUT" });
+ //         }, 16000);
+ //         return () => {
+ //             clearTimeout(timeoutId);
+ //             context.thisPeer.off('call', callHandler);
+ //         }
+ //     };
+ // },
+ // "awaitVideoStream": () => {
+ //     return (sendStateChange) => {
+ //         console.log("Awaiting video stream from ROV...");
+ //         const videoReadyHandler = generateStateChangeFunction(sendStateChange, "VIDEO_STREAM_READY")
+ //         context.mediaChannel.on('stream', videoReadyHandler);
+ //         const timeoutId = setTimeout(() => {
+ //             sendStateChange({ type: "MEDIA_CHANNEL_TIMEOUT" });
+ //         }, 16000);
+ //         return () => {
+ //             clearTimeout(timeoutId);
+ //             context.mediaChannel.off('stream', videoReadyHandler);
+ //         }
+ //     };
+ // },
+ // const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
+ //     showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
+ //     rovMediaConnection.answer(null, {
+ //         // sdpTransform: function (sdp) {
+ //         //     console.log('answer sdp: ', sdp);
+ //         //     return sdp;
+ //         // }
+ //     });
+ // })
+ // context.thisPeer.on('call', callHandler);
+;
+
+},{"xstate":"2sk4t","./ui":"efi6n","./util":"doATT","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["g9TDx","1SICI"], "1SICI", "parcelRequire8802")
 
 //# sourceMappingURL=index.18dbc454.js.map

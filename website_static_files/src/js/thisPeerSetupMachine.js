@@ -121,7 +121,11 @@ export const startThisPeerSetupMachine = (globalContext, sendParentCallback) => 
 
                     // setup the peer object and event listeners:
                     globalContext.thisPeer = new Peer(ourPeerId, globalContext.peerServerConfig);
-                    eventHandlers['onOpen'] = generateStateChangeFunction(sendEventToSelf, 'ON_OPEN', null, () => { showToastMessage("Connected to Peerjs Server!"); });
+                    eventHandlers['onOpen'] = generateStateChangeFunction(sendEventToSelf, 'ON_OPEN', null, () => {
+                        showToastMessage("Connected to Peerjs Server!");
+                        // tell the main ui that the thisPeer object is ready to use:
+                        sendParentCallback("THIS_PEER_READY");
+                    });
                     globalContext.thisPeer.on('open', eventHandlers['onOpen']);
                     eventHandlers['onError'] = generateStateChangeFunction(sendEventToSelf, 'ON_ERROR', null);
                     globalContext.thisPeer.on('error', eventHandlers['onError']);
@@ -129,10 +133,6 @@ export const startThisPeerSetupMachine = (globalContext, sendParentCallback) => 
                     globalContext.thisPeer.on('close', eventHandlers['onClose']);
                     eventHandlers['onDisconnected'] = generateStateChangeFunction(sendEventToSelf, 'ON_DISCONNECT', () => { showToastMessage("Peerjs Server Disconnected!") });
                     globalContext.thisPeer.on('disconnected', eventHandlers['onDisconnected']);
-
-                    // tell the main ui that the thisPeer object is ready enough to use:
-                    sendParentCallback("THIS_PEER_READY");
-
 
                     // setup a timeout in case the connection takes too long
                     globalContext.thisPeerConnectionTimeout = setTimeout(() => {

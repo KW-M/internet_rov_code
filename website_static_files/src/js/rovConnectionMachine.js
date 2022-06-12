@@ -65,7 +65,7 @@ export const startRovConnectionMachine = (globalContext, sendParentCallback) => 
                         exit: "clearRovConnectionTimeout",
                         on: {
                             ON_DATACHANNEL_OPEN: {
-                                actions: ["addDatachannelEventHandlers", "debugReload"],
+                                actions: ["addDatachannelEventHandlers",],// "debugReload"
                                 target: "connected",
                             },
                             THIS_PEER_DESTROYED: {
@@ -239,12 +239,6 @@ export const startRovConnectionMachine = (globalContext, sendParentCallback) => 
                     'stopReconnectCountdown': () => {
                         clearInterval(globalContext.datachannelReconnectCountdown)
                     },
-                    // "showConnectingUi": showROVConnectingUi,
-                    // "showRovConnectedUi": (_, event) => { showROVConnectedUi(event.data ? event.data.peer : null) },
-                    // "showWaitingForMediaChannelNotice": () => { showLoadingUi("Waiting for ROV livestream...") },
-                    // "showMediaChannelConnectedNotice": () => { showToastMessage("ROV Media Channel Connected!") },
-                    // "showGotVideoStreamNotice": () => { showToastMessage("Got ROV Video Stream!"); showLivestreamUi(); console.info("Got Video Stream!") },
-                    // "hideLivestreamUi": () => { hideLivestreamUi() },
                     "debugReload": () => {
                         // var reloadCount = localStorage.getItem("reloadCount") || 0;
                         // console.log("reloadCount: ", reloadCount, reloadCount == -1);
@@ -253,7 +247,7 @@ export const startRovConnectionMachine = (globalContext, sendParentCallback) => 
                         // } else {
                         // reloadCount++;
                         // localStorage.setItem("reloadCount", reloadCount);
-                        // setTimeout(() => { window.location.reload() }, 10);
+                        setTimeout(() => { window.location.reload() }, 10);
                         // }
                     },
                 },
@@ -262,79 +256,3 @@ export const startRovConnectionMachine = (globalContext, sendParentCallback) => 
     const runningMachine = interpret(rovConnectionMachine, { devTools: globalContext.debugXstateMode }).start();
     return runningMachine;
 }
-
-
-
-
-///--- actions for media connection machine:
-
-// 'cleanupEventListeners': () => {
-    //     return () => { // return a cleanup / stop function
-    //         context.thisPeer.off('call', callHandler);
-    //         if (context.mediaChannel) {
-    //             console.info("Closing media channel...");
-    //             context.mediaChannel.close();
-    //         }
-// }
-// "setMediaChannel": (_, event) => {
-//     globalContext.mediaChannel = event.data;
-// },
-// "setVideoStream": (_, event) => {
-//     const rovVideoStream = event.data
-//     const videoElem = document.getElementById('video-livestream');
-//     videoElem.srcObject = rovVideoStream;  // video.src = URL.createObjectURL(rovVideoStream);
-//     videoElem.muted = true
-//     videoElem.autoplay = true
-//     videoElem.controls = false
-//     videoElem.play();
-//     globalContext.videoStream = rovVideoStream;
-// },
-
-// "awaitMediaCall": () => {
-//     return (sendStateChange) => {
-//         showLoadingUi("awaiting-video-call");
-//         const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
-//             showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
-//             rovMediaConnection.answer(null, {
-//                 // sdpTransform: function (sdp) {
-//                 //     console.log('answer sdp: ', sdp);
-//                 //     return sdp;
-//                 // }
-//             });
-//         })
-//         context.thisPeer.on('call', callHandler);
-
-//         const timeoutId = setTimeout(() => {
-//             sendStateChange({ type: "MEDIA_CHANNEL_TIMEOUT" });
-//         }, 16000);
-//         return () => {
-//             clearTimeout(timeoutId);
-//             context.thisPeer.off('call', callHandler);
-//         }
-//     };
-// },
-// "awaitVideoStream": () => {
-//     return (sendStateChange) => {
-//         console.log("Awaiting video stream from ROV...");
-//         const videoReadyHandler = generateStateChangeFunction(sendStateChange, "VIDEO_STREAM_READY")
-//         context.mediaChannel.on('stream', videoReadyHandler);
-
-//         const timeoutId = setTimeout(() => {
-//             sendStateChange({ type: "MEDIA_CHANNEL_TIMEOUT" });
-//         }, 16000);
-//         return () => {
-//             clearTimeout(timeoutId);
-//             context.mediaChannel.off('stream', videoReadyHandler);
-//         }
-//     };
-// },
-// const callHandler = generateStateChangeFunction(sendStateChange, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
-//     showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
-//     rovMediaConnection.answer(null, {
-//         // sdpTransform: function (sdp) {
-//         //     console.log('answer sdp: ', sdp);
-//         //     return sdp;
-//         // }
-//     });
-// })
- // context.thisPeer.on('call', callHandler);
