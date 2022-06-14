@@ -56,7 +56,7 @@ RAMP_STEPS = 40
 def motorRamp(motor):
     for i in range(-RAMP_STEPS, RAMP_STEPS):
         print('Speed: {}%'.format((i / RAMP_STEPS) * 100))
-        motor.set_speed(i / RAMP_STEPS)
+        motor.set_speed(i / RAMP_STEPS / 4)
         time.sleep(.5)
 
 
