@@ -29,11 +29,6 @@ backup_then_overwrite_file(){
 	sudo cp -f -T "$REPLACEMENT_FILE" "$ORIGINAL_FILE_PATH"
 };
 
-echo "Building GO code..."
-cd ./go/
-go build -o ~/GOROV
-cd ../
-
 # echo "Compiling Arduino code..."
 # ./arduino_cpp/compile_arduino_code.sh
 
@@ -48,6 +43,12 @@ cd ../
 
 # echo "Copying over ngrok startup service file..."
 # backup_then_overwrite_file "/lib/systemd/system/ngrok.service" "./new_config_files/ngrok.service"
+
+# install any updates to webrtc-relay
+pushd ~/webrtc-relay
+git pull
+go install .
+popd
 
 echo "Copying over rov_go_code startup service file..."
 backup_then_overwrite_file "/lib/systemd/system/rov_go_code.service" "./new_config_files/rov_go_code.service"

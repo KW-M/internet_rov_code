@@ -232,6 +232,7 @@ if grep "GOPATH=" ~/.profile; then
 	# ^checks if we have already added words "GOPATH=" to the  ~/.profile file:
 	echo -e "$Green Go path already setup in ~/.profile $Color_Off"
 else
+	pushd ~/
     # https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/
     echo -e "$Cyan Installing GO and adding GOPATH to ~/.profile $Color_Off"
     sudo rm -r /usr/local/go | true # remove any old version of go
@@ -243,16 +244,16 @@ else
     echo 'PATH=$PATH:/usr/local/go/bin' | sudo tee -a ~/.profile
     echo 'GOPATH=$HOME/golang' | sudo tee -a ~/.profile
     source ~/.profile
+	popd
 fi
 
-# UV4L ALTERNATIVE
-# https://github.com/dwoja22/ffmpeg-webrtc
-# sudo apt install v4l-utils -y
-# sudo apt install ffmpeg -y
-# git clone https://github.com/KW-M/ffmpeg-webrtc.git
-# cd ffmpeg-webrtc/
-# go build
-# ./ffmpeg-webrtc
+
+# ---- INSTALL GO WEBRTC-RELAY ----
+pushd ~/
+git clone https://github.com/kw-m/webrtc-relay.git
+cd webrtc-relay
+go install .
+popd
 
 # From: https://www.youtube.com/watch?v=Q-m4i7LFxLA
 echo -e "$Cyan Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils $Color_Off"
@@ -276,12 +277,14 @@ sudo apt install -y usbmuxd ipheth-utils libimobiledevice-utils
 # ----------------------------------------------------------------------------------------------------------------------
 # from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
 if ! command -v libcamera-hello &> /dev/null || ! dmesg | grep arducam; then
+	pushd ~/
 	echo -e "$Cyan Installing arducam pivariety camera driver $Color_Off"
 	wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
 	chmod +x install_pivariety_pkgs.sh
 	echo "n" | ./install_pivariety_pkgs.sh -p kernel_driver
 	./install_pivariety_pkgs.sh -p libcamera_dev
 	./install_pivariety_pkgs.sh -p libcamera_apps
+	popd
 fi
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -295,6 +298,9 @@ fi
 
 # clean up any packages that were installed to aid installing anything else, but are no longer needed
 sudo apt autoremove -y
+
+# make sure the shell profile is still available to the pi:
+source ~/.profile
 
 # ----------------------------------------------------------------------------------------------------------------------
 
