@@ -1,5 +1,5 @@
 import { createMachine, interpret } from "xstate";
-import { showToastMessage, showLivestreamUi, hideLivestreamUi, showLoadingUi } from "./ui"
+import { showToastMessage, showLivestreamUi, hideLivestreamUi, showLoadingUi, hideLoadingUi } from "./ui"
 import { generateStateChangeFunction } from "./util";
 
 // main machine function
@@ -69,7 +69,7 @@ export const startRovMediaChannelMachine = (globalContext) => {
                 actions: {
                     // "showWaitingForMediaChannelNotice": () => { showLoadingUi("Waiting for ROV livestream...") },
                     // "showMediaChannelConnectedNotice": () => { showToastMessage("ROV Media Channel Connected!") },
-                    "showGotVideoStreamNotice": () => { showToastMessage("Got ROV Video Stream!"); showLivestreamUi(); console.info("Got Video Stream!") },
+                    "showGotVideoStreamNotice": () => { showToastMessage("Got ROV Video Stream!"); hideLoadingUi("awaiting-video-call"); showLivestreamUi(); console.info("Got Video Stream!") },
                     "hideLivestreamUi": () => { hideLivestreamUi() },
                     'cleanupEventListeners': () => {
                         globalContext.thisPeer.off('call', eventHandlers["callHandler"]);
@@ -88,6 +88,7 @@ export const startRovMediaChannelMachine = (globalContext) => {
                     },
                     "setVideoStream": (_, event) => {
                         const rovVideoStream = event.data
+
                         const videoElem = document.getElementById('video-livestream');
                         videoElem.srcObject = rovVideoStream;  // video.src = URL.createObjectURL(rovVideoStream);
                         videoElem.muted = true
@@ -95,15 +96,18 @@ export const startRovMediaChannelMachine = (globalContext) => {
                         videoElem.controls = false
                         videoElem.play();
                         globalContext.videoStream = rovVideoStream;
+                        console.info("Got Video Streasm!", rovVideoStream)
                     },
                     'addMediaChannelEventHandlers': () => {
                         showLoadingUi("awaiting-video-call");
                         const callHandler = eventHandlers["callHandler"] = generateStateChangeFunction(sendEventToSelf, "MEDIA_CHANNEL_ESTABLISHED", null, (rovMediaConnection) => {
-                            showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
+                            // showToastMessage('Got media call from peer: ' + rovMediaConnection.peer)
                             globalContext.mediaChannel = rovMediaConnection;
-                            const videoReadyHandler = eventHandlers['videoReadyHandler'] = generateStateChangeFunction(sendEventToSelf, "VIDEO_STREAM_READY")
-                            globalContext.mediaChannel.on('stream', videoReadyHandler);
+                            console.log("Got media call: ", rovMediaConnection);
+                            const videoReadyHandler = eventHandlers['videoReadyHandler'] = generateStateChangeFunction(sendEventToSelf, "VIDEO_LIVESTREAM_READY")
                             rovMediaConnection.answer(null);
+                            rovMediaConnection.on('stream', (a) => { console.log("Got stream: ", a); videoReadyHandler(a) });
+
                         })
                         globalContext.thisPeer.on('call', callHandler);
 

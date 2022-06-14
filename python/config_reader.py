@@ -15,7 +15,7 @@ default_config = {
     "MessageMetadataSeparator": "|\"|",
     "PilotControlPassword":
     "Change this password in the secrets_config.json file",
-    "PilotDisconnectedPaswordTimeout": 180,
+    "DisconnectedPilotAuthTimeout": 180,
 }
 
 
@@ -29,14 +29,11 @@ def read_config_file():
 
     # parse the command line arguments
     programArgsParser = argparse.ArgumentParser()
-    programArgsParser.add_argument(
-        '--config-file',
-        metavar='FILE_PATH',
-        type=str,
-        default=defualt_config_file_path,
-        required=False,
-        help='Path to the config file. Defaults to ' +
-        defualt_config_file_path)
+    programArgsParser.add_argument('--config-file',
+                                   metavar='FILE_PATH',
+                                   type=str,
+                                   required=True,
+                                   help='Path to the config file.')
     args = programArgsParser.parse_args(sys.argv[1:])
 
     print(args)

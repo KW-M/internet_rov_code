@@ -4,10 +4,20 @@
 
 1. Connect the PI to the internet via Ethernet or Wifi.
 2. Clone this repo to the rasberry pi desktop by running `cd ~/Desktop` Then `git clone https://github.com/KW-M/internet_rov_code.git` in a terminal (cmd prompt) or ssh session.
-2. `cd internet_rov_code` to get into the cloned folder.
-3. Run `sudo chmod +x ./setup_internet_rov_pi.sh` to mark the setup script as executable.
-4. Run the setup with `./setup_internet_rov_pi.sh`
-5. Reboot. You might need to run the script again to make the adafruit circuit python installer happy.
+3. `cd internet_rov_code` to get into the cloned folder.
+4. Run `sudo chmod +x ./setup_internet_rov_pi.sh` to mark the setup script as executable.
+5. Run the setup with `./setup_internet_rov_pi.sh`
+6. Reboot. You might need to run the script again to make the adafruit circuit python installer happy.
+
+## running/testing locally
+
+run each below command in a sepearate terminal window.
+
+```sh
+python3 ./python/main.py --config-file ./webrtc-relay-config.json
+webrtc-relay -config-file ./webrtc-relay-config.json
+cd ./website_static_files; npm run start
+```
 
 ### My development workflow
 
@@ -54,6 +64,7 @@
 > Recives and sends messages with the remote browser through a "socket" "file" that the UV4l Program opens (Creates?) when it receives a connection,
 
 > The frontend sends updates as json encoded objects ("dicts" in python parlance) whenever the pilot moves the game controller joysticks with the calculated desired speed of each motor between 1 and -1. The python then calls the motor conroller library to do that. If any exceptions are raised in the python code it stops all motors and retries the connection.
+
 - TODO: implement watchdog ping on frontend to ping the python
 - TODO: implement sending only motor speed changes in JSON not JSON representation of all motor states.
 
@@ -80,4 +91,3 @@ It sounds like the mini pi's won't be powerful enough to handle video compressio
 the little motor controllers fit nicely on the
 
 - the Power over eithernet pins are broken out on the rasberry pi, so we could use them easilly.
-

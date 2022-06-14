@@ -247,12 +247,12 @@ fi
 
 # UV4L ALTERNATIVE
 # https://github.com/dwoja22/ffmpeg-webrtc
-sudo apt install v4l-utils -y
-sudo apt install ffmpeg -y
-git clone https://github.com/KW-M/ffmpeg-webrtc.git
-cd ffmpeg-webrtc/
-go build
-./ffmpeg-webrtc
+# sudo apt install v4l-utils -y
+# sudo apt install ffmpeg -y
+# git clone https://github.com/KW-M/ffmpeg-webrtc.git
+# cd ffmpeg-webrtc/
+# go build
+# ./ffmpeg-webrtc
 
 # From: https://www.youtube.com/watch?v=Q-m4i7LFxLA
 echo -e "$Cyan Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils $Color_Off"
@@ -261,17 +261,17 @@ sudo apt install -y usbmuxd ipheth-utils libimobiledevice-utils
 
 # ----------------------------------------------------------------------------------------------------------------------
 # From: https://ngrok.com/docs
-echo -e "$Cyan Downloading and updating Ngrok $Color_Off"
-echo -e "$Green This download url might break, so if it does just get the latest from https://ngrok.com/download, unzip it and put it in the home folder - might need to mark it as executable with chmod +x too. $Color_Off"
-cd ~/
-curl https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm.zip --output ~/ngrok_download.zip
-unzip -o ~/ngrok_download.zip
-rm ~/ngrok_download.zip
-echo -e "$Green Marking ngrok as executable with command 'chmod +x ~/ngrok' $Color_Off"
-chmod +x ~/ngrok
-echo -e "$Green Updating ngrok $Color_Off"
-~/ngrok update
-cd "$FOLDER_CONTAINING_THIS_SCRIPT"
+# echo -e "$Cyan Downloading and updating Ngrok $Color_Off"
+# echo -e "$Green This download url might break, so if it does just get the latest from https://ngrok.com/download, unzip it and put it in the home folder - might need to mark it as executable with chmod +x too. $Color_Off"
+# cd ~/
+# curl https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm.zip --output ~/ngrok_download.zip
+# unzip -o ~/ngrok_download.zip
+# rm ~/ngrok_download.zip
+# echo -e "$Green Marking ngrok as executable with command 'chmod +x ~/ngrok' $Color_Off"
+# chmod +x ~/ngrok
+# echo -e "$Green Updating ngrok $Color_Off"
+# ~/ngrok update
+# cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 
 # ----------------------------------------------------------------------------------------------------------------------
 # from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection

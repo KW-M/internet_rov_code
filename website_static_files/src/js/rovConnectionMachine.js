@@ -1,5 +1,5 @@
 import { createMachine, interpret } from "xstate";
-import { showToastMessage, showROVConnectingUi, showROVConnectedUi, hideLoadingUi, showLivestreamUi, hideLivestreamUi, showLoadingUi, showRovConnectionBar, hideRovConnectionBar, showROVDisconnectedUi } from "./ui"
+import { showToastMessage, showROVConnectingUi, showROVConnectedUi, showROVDisconnectedUi } from "./ui"
 import { generateStateChangeFunction } from "./util";
 import { MessageHandler, RovActions } from "./messageHandler";
 import { ROV_PEERID_BASE } from "./consts";
@@ -203,7 +203,7 @@ export const startRovConnectionMachine = (globalContext, sendParentCallback) => 
                         }, 500);
 
                         // finally tell the rov to begin sending us the video livestream:
-                        MessageHandler.sendRovMessage({ action: "begin_livestream" })
+                        MessageHandler.sendRovMessage({ action: "begin_video_stream" })
 
                         // start sending ping messages to the ROV (as a heartbeat signal & used for the net ping stat):
                         globalContext.stopPingLoop = RovActions.startPingMessageSenderLoop();

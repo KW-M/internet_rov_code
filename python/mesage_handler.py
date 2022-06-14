@@ -29,7 +29,7 @@ class MessageHandler:
         self.MESSAGE_METADATA_SEPARATOR = program_config.get(
             'MessageMetadataSeparator', '|"|')
         self.PASSWORD_INACTIVITY_TIMEOUT = self.program_config.get(
-            'PilotDisconnectedPaswordTimeout', 180)
+            'DisconnectedPilotAuthTimeout', 180)
 
     def parse_socket_message(self, message):
         """
@@ -69,7 +69,7 @@ class MessageHandler:
         src_peer_id = None
 
         # handle the metadata:
-        if "SrcPeerId" in metadata:
+        if metadata is not None and "SrcPeerId" in metadata:
             src_peer_id = metadata["SrcPeerId"]
 
             # check if a connected or disconnected event happened:
@@ -174,15 +174,16 @@ class MessageHandler:
                 await self.send_msg(msg_data, {}, [src_peer_id])
 
         # -- golang relay commands:
-        elif action == "begin_livestream":
-            # send the *golang* code (note the action is in reply_metadata) the begin_livestream command
-            startVideo, pipePath = await self.media_controller.get_video_pipe()
+        elif action == "begin_video_stream":
+            # send the *golang* code (note the action is in reply_metadata) the begin_video_stream command
+            startVideo, streamUrl = await self.media_controller.get_video_stream(
+            )
             await self.send_msg({}, {
                 "Action": "Media_Call_Peer",
-                "Params": ["FRONTCALL", "video/h264", pipePath]
+                "Params": ["FRONTCAM", "video/h264", streamUrl]
             }, [src_peer_id])
             # await startVideo
-            print("begin_livestream: " + pipePath)
+            print("begin_video_stream: " + streamUrl)
 
     async def handle_authenticated_actions(self, src_peer_id, action,
                                            actionValue, msg_cid):
@@ -310,7 +311,7 @@ class MessageHandler:
 
             # These actions can be done by any peer
             if action in [
-                    "ping", "begin_livestream", "rov_status_report",
+                    "ping", "begin_video_stream", "rov_status_report",
                     "password_attempt"
             ]:
                 await self.handle_normal_actions(src_peer_id, action,

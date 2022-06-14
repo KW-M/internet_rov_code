@@ -60,7 +60,7 @@ export class MessageHandler {
         } else if (msg_status == "pong") {
             console.log("Ping->Pong received");
             lastTimeRecvdPong = Date.now();
-            const networkPingDelay = lastTimeRecvdPong - Number.parseFloat(msgData['pong']) // since the rpi replies with the ms time we sent in the ping in the pong message
+            const networkPingDelay = lastTimeRecvdPong - Number.parseFloat(msg_value) // since the rpi replies with the ms time we sent in the ping in the pong message
             updatePingDisplay(networkPingDelay);
 
         } else if (msg_status == "done") {
