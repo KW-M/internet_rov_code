@@ -110,13 +110,17 @@ class Motion_Controller:
         while True:
             self.gpio_issue_flag.clear()
             self.init_motor_controllers()
+            log.debug('init_motor_controllers done')
             if self.gpio_issue_flag.is_set():
+                log.debug('motor_setup_loop: flag set')
                 self.cleanup_gpio()
                 await asyncio.sleep(3)
                 continue
+
+            log.debug('motor_setup_loop: waiting for gpio_issue_flag')
+            # pause this loop until a problem occurs with the gpio (like set motion) which will set this flag.
             await self.gpio_issue_flag.wait()
             self.cleanup_gpio()
-            # pause this loop until a problem occurs with the gpio (like set motion) which will set this flag.
 
     def init_motor_controllers(self):
         # Initilize the library for adafruit I2C 4 motor controller pi hat:

@@ -150,6 +150,7 @@ class Duplex_Named_Pipe_Relay:
         if asyncLoop is None:
             asyncLoop = asyncio.get_event_loop()
 
+        log.debug('Starting duplex relay loops')
         await asyncio.gather(self.incoming_pipe.read_loop(asyncLoop),
                              self.outgoing_pipe.write_loop(asyncLoop))
 
