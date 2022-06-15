@@ -532,7 +532,7 @@ let globalContext = {
     attemptingNewRovPeerId: false,
     thisPeer: null
 };
-/* init gamepad support */ new _gamepadJs.GamepadController();
+/* init gamepad support */ globalContext.gpadCtrl = new _gamepadJs.GamepadController();
 // Show the rov name in the ui:
 _uiJs.setCurrentRovName(_constsJs.ROV_PEERID_BASE + globalContext.rovPeerIdEndNumber);
 // Show the xstate inspector if the debug query string is present
@@ -5958,7 +5958,7 @@ var _gamepadUi = require("./gamepad-ui");
 var _gamepadInterface = require("./libraries/gamepadInterface");
 var _consts = require("./consts");
 class GamepadController {
-    constructor(buttonHandlers, axisChangedHandler){
+    constructor(){
         this.touchedGpadButtonCount = 0;
         this.buttonHighlightElements = _gamepadUi.getButtonHighlightElements();
         // override the default browser gamepad api with the gamepad emulator before setting up the events,
@@ -5997,8 +5997,17 @@ class GamepadController {
         _gamepadUi.showGamepadStatus(connectedGamepadCount);
         if (connectedGamepadCount > 1) console.log("WARNING: More than one gamepad connected!", gamepads);
     }
+    setupExternalEventListenerCallbacks(onButtonChange, onAxisChange) {
+        this.onButtonChange = onButtonChange;
+        this.onAxisChange = onAxisChange;
+    }
+    clearExternalEventListenerCallbacks() {
+        this.onButtonChange = null;
+        this.onAxisChange = null;
+    }
     handleButtonChange(gpadIndex, gamepad, buttonsChangedMask) {
         if (gpadIndex != 0 || !gamepad || !gamepad.buttons) return;
+        if (this.onButtonChange) this.onButtonChange(gamepad, buttonsChangedMask);
         _gamepadUi.handleGamepadVisualFeedbackButtonEvents(gamepad.buttons);
         if (buttonsChangedMask[6] || buttonsChangedMask[7]) _gamepadUi.handleGamepadVisualFeedbackVariableTriggerButtonEvents(gamepad.buttons, [
             {
@@ -6025,6 +6034,7 @@ class GamepadController {
     handleAxisChange(gpadIndex, gamepad) {
         // console.log("handleAxisChange", gpadIndex, gamepad, axiesChangedMask)
         if (gpadIndex != 0 || !gamepad || !gamepad.axes) return;
+        if (this.onAxisChange) this.onAxisChange(gamepad);
         const axisStates = [
             {
                 axisRange: 14,
@@ -10153,6 +10163,7 @@ const startRovConnectionMachine = (globalContext, sendParentCallback)=>{
             },
             'cleanupEventListeners': ()=>{
                 _messageHandler.MessageHandler.setSendMessageCallback(null);
+                globalContext.gpadCtrl.clearExternalEventListenerCallbacks();
                 clearInterval(globalContext.datachannelDisconnectCheckIntervalId);
                 clearInterval(globalContext.datachannelReconnectCountdown);
                 if (globalContext.stopPingLoop) globalContext.stopPingLoop();
@@ -10176,6 +10187,12 @@ const startRovConnectionMachine = (globalContext, sendParentCallback)=>{
                 _messageHandler.MessageHandler.setSendMessageCallback((message)=>{
                     const encodedMessage = messageEncoder.encode(message);
                     rovDataConnection.send(encodedMessage);
+                });
+                // Handle gamepad events
+                console.log(globalContext.gpadCtrl);
+                globalContext.gpadCtrl.setupExternalEventListenerCallbacks((gamepad, buttonsChangedMask)=>{}, (gamepad)=>{
+                    var { thrustVector , turnRate  } = _util.calculateDesiredMotion(gamepad.axes);
+                    _messageHandler.RovActions.moveRov(thrustVector, turnRate);
                 });
                 // handle reciving messages from rov:
                 const dataMsgRecivedHandler = eventHandlers['onData'] = (encodedMessage)=>{

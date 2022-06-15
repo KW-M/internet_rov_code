@@ -14,7 +14,7 @@ let globalContext = {
 }
 
 /* init gamepad support */
-new GamepadController();
+globalContext.gpadCtrl = new GamepadController();
 
 // Show the rov name in the ui:
 setCurrentRovName(ROV_PEERID_BASE + globalContext.rovPeerIdEndNumber);
@@ -61,7 +61,6 @@ runSiteInitMachine(globalContext, (eventName) => {
     setupDisconnectBtnClickHandler(() => {
         RovConnectionMachine.send("DO_DISCONNECT");
         RovMediaChannelMachine.send("DO_DISCONNECT");
-
     });
 
     const switchToNextRovPeerId = () => {

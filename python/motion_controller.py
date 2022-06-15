@@ -189,10 +189,11 @@ class Motion_Controller:
         forward_right_thrust_amt = forward_amt + turn_rate
         # https://www.desmos.com/calculator/64b6jlzsk4
 
-        log.debug("ThrustVec ", thrust_vector, "TurnRate ", turn_rate,
-                  " -> Motors ", forward_left_thrust_amt,
-                  forward_right_thrust_amt, up_left_thrust_amt,
-                  up_right_thrust_amt)
+        log.debug(
+            "ThrustVec (" + ','.join(thrust_vector) + ") TurnRate " +
+            str(turn_rate), " -> Motors " + str(forward_left_thrust_amt),
+            str(forward_right_thrust_amt) + str(up_left_thrust_amt),
+            str(up_right_thrust_amt))
 
         try:
             # self.UP_LEFT_MOTOR.set_speed(up_left_thrust_amt)

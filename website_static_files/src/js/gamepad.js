@@ -5,10 +5,8 @@ import { getButtonHighlightElements, handleGamepadVisualFeedbackAxisEvents, hand
 import { GamepadInterface } from "./libraries/gamepadInterface";
 import { GAME_CONTROLLER_BUTTON_CONFIG } from "./consts";
 
-
-
 export class GamepadController {
-    constructor(buttonHandlers, axisChangedHandler) {
+    constructor() {
         this.touchedGpadButtonCount = 0
         this.buttonHighlightElements = getButtonHighlightElements();
 
@@ -48,8 +46,20 @@ export class GamepadController {
         if (connectedGamepadCount > 1) console.log("WARNING: More than one gamepad connected!", gamepads);
     }
 
+    setupExternalEventListenerCallbacks(onButtonChange, onAxisChange) {
+        this.onButtonChange = onButtonChange;
+        this.onAxisChange = onAxisChange;
+    }
+
+    clearExternalEventListenerCallbacks() {
+        this.onButtonChange = null;
+        this.onAxisChange = null;
+    }
+
     handleButtonChange(gpadIndex, gamepad, buttonsChangedMask) {
         if (gpadIndex != 0 || !gamepad || !gamepad.buttons) return;
+
+        if (this.onButtonChange) this.onButtonChange(gamepad, buttonsChangedMask);
 
         handleGamepadVisualFeedbackButtonEvents(gamepad.buttons);
 
@@ -89,6 +99,8 @@ export class GamepadController {
 
         // console.log("handleAxisChange", gpadIndex, gamepad, axiesChangedMask)
         if (gpadIndex != 0 || !gamepad || !gamepad.axes) return;
+
+        if (this.onAxisChange) this.onAxisChange(gamepad);
 
         const axisStates = [{
             axisRange: 14,

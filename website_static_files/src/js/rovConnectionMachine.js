@@ -1,6 +1,6 @@
 import { createMachine, interpret } from "xstate";
 import { showToastMessage, showROVConnectingUi, showROVConnectedUi, showROVDisconnectedUi } from "./ui"
-import { generateStateChangeFunction } from "./util";
+import { calculateDesiredMotion, generateStateChangeFunction } from "./util";
 import { MessageHandler, RovActions } from "./messageHandler";
 import { ROV_PEERID_BASE } from "./consts";
 
@@ -163,6 +163,7 @@ export const startRovConnectionMachine = (globalContext, sendParentCallback) => 
                     },
                     'cleanupEventListeners': () => {
                         MessageHandler.setSendMessageCallback(null);
+                        globalContext.gpadCtrl.clearExternalEventListenerCallbacks();
                         clearInterval(globalContext.datachannelDisconnectCheckIntervalId);
                         clearInterval(globalContext.datachannelReconnectCountdown);
                         if (globalContext.stopPingLoop) globalContext.stopPingLoop();
@@ -188,6 +189,13 @@ export const startRovConnectionMachine = (globalContext, sendParentCallback) => 
                         MessageHandler.setSendMessageCallback((message) => {
                             const encodedMessage = messageEncoder.encode(message);
                             rovDataConnection.send(encodedMessage);
+                        });
+
+                        // Handle gamepad events
+                        console.log(globalContext.gpadCtrl);
+                        globalContext.gpadCtrl.setupExternalEventListenerCallbacks((gamepad, buttonsChangedMask) => { }, (gamepad) => {
+                            var { thrustVector, turnRate } = calculateDesiredMotion(gamepad.axes);
+                            RovActions.moveRov(thrustVector, turnRate);
                         });
 
                         // handle reciving messages from rov:

@@ -58,6 +58,10 @@ button {
   font-weight: bold;
 }
 
+button.hidden {
+  display: none;
+}
+
 button:focus {
   border: 3px solid black;
   background-image: linear-gradient(135deg, #0a57c2, #5b1996);
