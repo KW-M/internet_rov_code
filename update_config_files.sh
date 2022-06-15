@@ -50,6 +50,8 @@ git pull
 go install .
 popd
 
+cp webrtc-relay-config.json ~/
+
 echo "Copying over rov_go_code startup service file..."
 backup_then_overwrite_file "/lib/systemd/system/rov_go_code.service" "./new_config_files/rov_go_code.service"
 

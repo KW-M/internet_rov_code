@@ -1,4 +1,4 @@
-import { showPasswordPrompt, showScrollableTextPopup, showToastMessage, updateDisplayedSensorValues, updatePingDisplay } from "./ui";
+import { showPasswordPrompt, showScrollableTextPopup, showToastMessage, updateDisplayedSensorValues, updatePingDisplay, updateRoleDisplay } from "./ui";
 import { v4 as uuidV4 } from "uuid"
 
 let lastTimeRecvdPong = NaN;
@@ -8,6 +8,9 @@ export class MessageHandler {
     // replyContinuityCallbacks: keep track of functions to run when we get a reply to a message we sent with some "cid" aka continuityId
     // object format: (key is the cid of the sent message): { '1234': { callback: function() {}, original_msg: "{action:'move'}" }, etc... }
     static replyContinuityCallbacks = {};
+
+    // refrence to the global context object from main.js
+    static globalContext;
 
     // sendMessageCallback: Function that will send the message to the rov peer.
     // This callback should be set in the constructor below.
@@ -86,7 +89,13 @@ export class MessageHandler {
     }
 
     static handlePilotChange(newPilotId) {
-        showToastMessage("ROV Pilot has changed to " + newPilotId);
+        if (MessageHandler.globalContext.thisPeer && newPilotId == MessageHandler.globalContext.thisPeer.id) {
+            showToastMessage("You are now the pilot");
+            updateRoleDisplay(true);
+        } else {
+            showToastMessage("ROV Pilot has changed to " + newPilotId);
+            updateRoleDisplay(false);
+        }
     }
 
     static handleBroadcastMsgRecived(msg_data) {
@@ -99,7 +108,7 @@ export class MessageHandler {
         } else if (msg_status == "sensor_update") {
             updateDisplayedSensorValues(msg_value);
 
-        } else if (msg_status == "pilotHasChanged") {
+        } else if (msg_status == "pilot-changed") {
             MessageHandler.handlePilotChange(msg_value);
         }
 
@@ -155,6 +164,11 @@ export class RovActions {
 
     // ======= Actions ========
 
+    static takeControl() {
+        // attempt to become the designated pilot for this rov, rov will send a passowrd prompt response if not already authorized
+        MessageHandler.sendRovMessage({ "action": "take_control" }, null);
+    }
+
     static moveRov(thrustVector, turnRate) {
         MessageHandler.sendRovMessage({ "action": "move", "val": { thrustVector: thrustVector, turnRate: turnRate } }, null);
     }
@@ -162,7 +176,6 @@ export class RovActions {
     static toggleLights() {
         MessageHandler.sendRovMessage({ "action": "toggle_lights" }, null);
     }
-
 
 
     static shutdownRov = () => {
@@ -179,14 +192,14 @@ export class RovActions {
         if (confirm("Are you sure you want to reboot the ROV?")) {
             showToastMessage("Sending Reboot Request...")
             RovActions.sendActionAndWaitForDone({ "action": "reboot_rov" }, (doneMsg) => {
-                showToastMessage("Press Connect again in ~30 seconds")
+                showToastMessage("Press Connect again in about 30 seconds")
                 showToastMessage("ROV:" + doneMsg)
             })
         }
     }
 
     static restartRovServices = () => {
-        if (confirm("Are you sure you want to restart services? - The ROV will stop responding for about a minute and then you will need to re-connect.")) {
+        if (confirm("Are you sure you want to restart services? - The ROV will stop responding for about a minute and then you can re-connect.")) {
             const addTextToPopup = showScrollableTextPopup("Restarting ROV Services...")
             addTextToPopup("Sending Service Restart Request (Please Wait)...\n")
             MessageHandler.sendRovMessage({ "action": "restart_rov_services" }, (response) => {

@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 ###################################################
 ############### Motor / GPIO Stuff ################
 
+
 class Drok_Pwm_Motor:
     """ For the Drok 7A dual DC motor driver (Product SKU: 200206)
     pin_ena: the raspberry pi pin going to the ENA1 pin on the motor driver (ENA2 if driving the second motor)
@@ -127,24 +128,24 @@ class Motion_Controller:
             # initilize the motor controllers
             # Motor Controller 1A (forward right)
             self.FORWARD_RIGHT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
-                                                      pin_ena=16,
+                                                      pin_ena=21,
                                                       pin_in1=20,
-                                                      pin_in2=21)
+                                                      pin_in2=16)
             # Motor Controller 1B (forward left)
             self.FORWARD_LEFT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
                                                      pin_ena=13,
-                                                     pin_in1=19,
-                                                     pin_in2=26)
+                                                     pin_in1=6,
+                                                     pin_in2=5)
             # Motor Controller 2A (up right)
             self.UP_LEFT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
-                                                pin_ena=17,
+                                                pin_ena=22,
                                                 pin_in1=27,
-                                                pin_in2=22)
+                                                pin_in2=17)
             # Motor Controller 2B (up left)
             self.UP_RIGHT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
-                                                 pin_ena=23,
+                                                 pin_ena=25,
                                                  pin_in1=24,
-                                                 pin_in2=25)
+                                                 pin_in2=23)
             # Motor Controller 5 (claw)
             # self.CLAW_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance,
             #                             pin_in1=11,
@@ -184,10 +185,10 @@ class Motion_Controller:
         forward_right_thrust_amt = forward_amt + turn_rate
         # https://www.desmos.com/calculator/64b6jlzsk4
 
-        # log.debug("ThrustVec ", thrust_vector, "TurnRate ", turn_rate,
-        #           " -> Motors ", forward_left_thrust_amt,
-        #           forward_right_thrust_amt, up_left_thrust_amt,
-        #           up_right_thrust_amt)
+        log.debug("ThrustVec ", thrust_vector, "TurnRate ", turn_rate,
+                  " -> Motors ", forward_left_thrust_amt,
+                  forward_right_thrust_amt, up_left_thrust_amt,
+                  up_right_thrust_amt)
 
         try:
             # self.UP_LEFT_MOTOR.set_speed(up_left_thrust_amt)

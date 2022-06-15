@@ -58,6 +58,8 @@ def motorRamp(motor):
         print('Speed: {}%'.format((i / RAMP_STEPS) * 100))
         motor.set_speed(i / RAMP_STEPS / 4)
         time.sleep(.5)
+        motor.set_speed(0)
+        time.sleep(1)
 
 
 if __name__ == "__main__":
@@ -65,7 +67,7 @@ if __name__ == "__main__":
     pi_gpio = pigpio.pi()
 
     # Main Loop runs each set of motors one after the other
-    forward_left_motor = Drok_Pwm_Motor(pi_gpio, 17, 27, 22)
+    forward_left_motor = Drok_Pwm_Motor(pi_gpio, 22, 27, 17)
 
     while (True):
         print("Forward left:")

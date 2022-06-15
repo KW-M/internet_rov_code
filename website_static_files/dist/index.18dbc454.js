@@ -10172,6 +10172,7 @@ const startRovConnectionMachine = (globalContext, sendParentCallback)=>{
                 _ui.showROVConnectedUi();
                 const rovDataConnection = globalContext.rovDataConnection;
                 // Handle sending messages to rov:
+                _messageHandler.MessageHandler.globalContext = globalContext;
                 _messageHandler.MessageHandler.setSendMessageCallback((message)=>{
                     const encodedMessage = messageEncoder.encode(message);
                     rovDataConnection.send(encodedMessage);
@@ -10255,6 +10256,8 @@ class MessageHandler {
     // replyContinuityCallbacks: keep track of functions to run when we get a reply to a message we sent with some "cid" aka continuityId
     // object format: (key is the cid of the sent message): { '1234': { callback: function() {}, original_msg: "{action:'move'}" }, etc... }
     static replyContinuityCallbacks = {};
+    // refrence to the global context object from main.js
+    static globalContext;
     // sendMessageCallback: Function that will send the message to the rov peer.
     // This callback should be set in the constructor below.
     static sendMessageCallback = ()=>{};
@@ -10315,14 +10318,20 @@ class MessageHandler {
         } else if (replyContinuityCallback) replyContinuityCallback(msg_data);
     }
     static handlePilotChange(newPilotId) {
-        _ui.showToastMessage("ROV Pilot has changed to " + newPilotId);
+        if (MessageHandler.globalContext.thisPeer && newPilotId == MessageHandler.globalContext.thisPeer.id) {
+            _ui.showToastMessage("You are now the pilot");
+            _ui.updateRoleDisplay(true);
+        } else {
+            _ui.showToastMessage("ROV Pilot has changed to " + newPilotId);
+            _ui.updateRoleDisplay(false);
+        }
     }
     static handleBroadcastMsgRecived(msg_data) {
         const msg_status = msg_data["status"];
         const msg_value = msg_data["val"];
         if (msg_status == "error") console.error("Rov Error: " + msg_value);
         else if (msg_status == "sensor_update") _ui.updateDisplayedSensorValues(msg_value);
-        else if (msg_status == "pilotHasChanged") MessageHandler.handlePilotChange(msg_value);
+        else if (msg_status == "pilot-changed") MessageHandler.handlePilotChange(msg_value);
     }
     static handleRecivedMessage(messageString) {
         console.log("Recived message: " + messageString);
@@ -10361,6 +10370,12 @@ class RovActions {
         ;
     }
     // ======= Actions ========
+    static takeControl() {
+        // attempt to become the designated pilot for this rov, rov will send a passowrd prompt response if not already authorized
+        MessageHandler.sendRovMessage({
+            "action": "take_control"
+        }, null);
+    }
     static moveRov(thrustVector, turnRate) {
         MessageHandler.sendRovMessage({
             "action": "move",
@@ -10392,13 +10407,13 @@ class RovActions {
             RovActions.sendActionAndWaitForDone({
                 "action": "reboot_rov"
             }, (doneMsg)=>{
-                _ui.showToastMessage("Press Connect again in ~30 seconds");
+                _ui.showToastMessage("Press Connect again in about 30 seconds");
                 _ui.showToastMessage("ROV:" + doneMsg);
             });
         }
     };
     static restartRovServices = ()=>{
-        if (confirm("Are you sure you want to restart services? - The ROV will stop responding for about a minute and then you will need to re-connect.")) {
+        if (confirm("Are you sure you want to restart services? - The ROV will stop responding for about a minute and then you can re-connect.")) {
             const addTextToPopup = _ui.showScrollableTextPopup("Restarting ROV Services...");
             addTextToPopup("Sending Service Restart Request (Please Wait)...\n");
             MessageHandler.sendRovMessage({

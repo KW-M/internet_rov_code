@@ -239,9 +239,8 @@ if __name__ == '__main__':
 
     async def main():
 
-        duplex_relay = Duplex_Named_Pipe_Relay(
-            '/tmp/from_datachannel_relay.pipe',
-            '/tmp/to_datachannel_relay.pipe')
+        duplex_relay = Duplex_Named_Pipe_Relay('/tmp/from_webrtc_relay.pipe',
+                                               '/tmp/to_webrtc_relay.pipe')
 
         pipe_task = asyncio.create_task(duplex_relay.start_loops())
         read_queue_task = asyncio.create_task(read_msgs(duplex_relay))

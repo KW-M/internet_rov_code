@@ -184,6 +184,7 @@ export const startRovConnectionMachine = (globalContext, sendParentCallback) => 
                         const rovDataConnection = globalContext.rovDataConnection
 
                         // Handle sending messages to rov:
+                        MessageHandler.globalContext = globalContext;
                         MessageHandler.setSendMessageCallback((message) => {
                             const encodedMessage = messageEncoder.encode(message);
                             rovDataConnection.send(encodedMessage);

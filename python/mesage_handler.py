@@ -207,7 +207,6 @@ class MessageHandler:
                 {
                     'status': 'pilot-changed',
                     'val': src_peer_id,
-                    'cid': msg_cid
                 }, {}, [])
 
         elif action == 'take_photo':

@@ -241,7 +241,7 @@ else
 
     sudo tar -C /usr/local -xzf go1.18.linux-armv6l.tar.gz
     rm go1.18.linux-armv6l.tar.gz
-    echo 'PATH=$PATH:/usr/local/go/bin' | sudo tee -a ~/.profile
+    echo 'PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' | sudo tee -a ~/.profile
     echo 'GOPATH=$HOME/golang' | sudo tee -a ~/.profile
     source ~/.profile
 	popd

@@ -3,7 +3,7 @@
     "BasePeerId": "go-relay-",
     "PilotControlPassword": "CHANGE THIS PASSWORD",
     "DisconnectedPilotAuthTimeout": 180,
-    "NamedPipeFolder": "/users/ky/Downloads/relay/",
+    "NamedPipeFolder": "~/relay-pipes/",
     "MessageMetadataSeparator": "|\"|",
     "AddMetadataToMessages": true,
     "PeerInitConfigs": [
