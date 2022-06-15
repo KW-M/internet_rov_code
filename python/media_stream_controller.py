@@ -65,7 +65,7 @@ class Media_Stream_Controller:
     async def get_video_stream(self, port=1820):
         ip = "127.0.0.1:" + str(port)
         start_cmd = self.run_cmd_string(
-            "ffmpeg -re -f lavfi -i testsrc=size=640x480:rate=30 -pix_fmt yuv420p -c:v libx264 -g 10 -preset ultrafast -tune zerolatency -f rtp 'rtp://"
+            "ffmpeg -hide_banner -re -f lavfi -i testsrc=size=640x480:rate=30 -pix_fmt yuv420p -c:v libx264 -g 10 -preset ultrafast -tune zerolatency -f rtp 'rtp://"
             + ip + "?pkt_size=1200'")
         return start_cmd, "udp://" + ip
 
