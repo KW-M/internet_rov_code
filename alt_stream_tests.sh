@@ -195,5 +195,7 @@ https://github.com/yihui/animation/issues/74
 # working udp send and recive combo:
 # send
 ffmpeg -hide_banner -f lavfi -re  -rtbufsize 1M -use_wallclock_as_timestamps 1 -i "testsrc=size=1280x720:rate=30" -pix_fmt yuv420p -framerate 30  -vcodec libx264  -use_wallclock_as_timestamps 1 -preset ultrafast  -profile:v high  -fflags nobuffer -b:v 900k -f mpegts udp://localhost:1254
+ffmpeg -hide_banner -f lavfi -re  -rtbufsize 1M -use_wallclock_as_timestamps 1 -i "testsrc=size=1280x720:rate=30" -pix_fmt yuv420p -framerate 30  -vcodec libx264  -use_wallclock_as_timestamps 1 -preset ultrafast  -profile:v high  -fflags nobuffer -b:v 900k -f mpegts udp://localhost:1254
 # recive
  ffplay -probesize 32 -sync ext udp://localhost:1254
+  ffplay -probesize 32 -sync ext udp://raspberrypi.local:1254
