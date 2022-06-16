@@ -81,7 +81,11 @@ export function showToastDialog(htmlElements, options, exraClassNames) {
     return toast;
 }
 
+let passwordPromptOpen = false
 export function showPasswordPrompt(message, callback) {
+    console.log("showPasswordPrompt", passwordPromptOpen)
+    if (passwordPromptOpen) return;
+    passwordPromptOpen = true;
     let toast = null
     const title = createTitle(message)
     const input = document.createElement("input")
@@ -90,6 +94,7 @@ export function showPasswordPrompt(message, callback) {
     const btns = createButtons(["Ok", "Cancel"], (chosenButton) => {
         hideBackdrop()
         toast.hideToast()
+        passwordPromptOpen = false;
         if (callback && chosenButton == "Ok") callback(input.value)
         else if (callback) callback(null)
     })
@@ -97,6 +102,7 @@ export function showPasswordPrompt(message, callback) {
     showBackdrop(() => {
         toast.hideToast()
         hideBackdrop()
+        passwordPromptOpen = false;
         if (callback) callback(null)
     })
     return toast

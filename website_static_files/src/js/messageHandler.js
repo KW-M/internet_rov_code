@@ -165,7 +165,7 @@ export class RovActions {
     // ======= Actions ========
 
     static takeControl() {
-        // attempt to become the designated pilot for this rov, rov will send a passowrd prompt response if not already authorized
+        // attempt to become the designated pilot for this rov, rov will send a password prompt response if not already authorized
         MessageHandler.sendRovMessage({ "action": "take_control" }, null);
     }
 

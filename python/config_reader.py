@@ -14,7 +14,7 @@ default_config = {
     "NamedPipeFolder": "/tmp/webtrc-relay-pipes/",
     "MessageMetadataSeparator": "|\"|",
     "PilotControlPassword":
-    "Change this password in the secrets_config.json file",
+    "Change this password in the webrtc-relay-config.json file",
     "DisconnectedPilotAuthTimeout": 180,
 }
 

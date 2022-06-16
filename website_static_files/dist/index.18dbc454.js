@@ -8665,7 +8665,11 @@ function showToastDialog(htmlElements, options, exraClassNames) {
     });
     return toast;
 }
+let passwordPromptOpen = false;
 function showPasswordPrompt(message, callback) {
+    console.log("showPasswordPrompt", passwordPromptOpen);
+    if (passwordPromptOpen) return;
+    passwordPromptOpen = true;
     let toast = null;
     const title = createTitle(message);
     const input = document.createElement("input");
@@ -8677,6 +8681,7 @@ function showPasswordPrompt(message, callback) {
     ], (chosenButton)=>{
         hideBackdrop();
         toast.hideToast();
+        passwordPromptOpen = false;
         if (callback && chosenButton == "Ok") callback(input.value);
         else if (callback) callback(null);
     });
@@ -8692,6 +8697,7 @@ function showPasswordPrompt(message, callback) {
     showBackdrop(()=>{
         toast.hideToast();
         hideBackdrop();
+        passwordPromptOpen = false;
         if (callback) callback(null);
     });
     return toast;
@@ -10388,7 +10394,7 @@ class RovActions {
     }
     // ======= Actions ========
     static takeControl() {
-        // attempt to become the designated pilot for this rov, rov will send a passowrd prompt response if not already authorized
+        // attempt to become the designated pilot for this rov, rov will send a password prompt response if not already authorized
         MessageHandler.sendRovMessage({
             "action": "take_control"
         }, null);

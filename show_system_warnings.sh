@@ -44,7 +44,7 @@ if [[ $throttle_state_bin =~ $binpattern ]]; then
   #
   # Since Boot          Now
   #  |                   |
-  # 0101 0000 0000 0000 0101‬
+  # 0101 0000 0000 0000 0101
   # ||||                ||||_ [19] throttled
   # ||||                |||_ [18] arm frequency capped
   # ||||                ||_ [17] under-voltage
