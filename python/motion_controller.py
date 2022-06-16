@@ -190,8 +190,9 @@ class Motion_Controller:
         # https://www.desmos.com/calculator/64b6jlzsk4
 
         log.debug(
-            "ThrustVec (" + ','.join(thrust_vector) + ") TurnRate " +
-            str(turn_rate), " -> Motors " + str(forward_left_thrust_amt),
+            "ThrustVec (" + ','.join(str(x) for x in thrust_vector) +
+            ") TurnRate " + str(turn_rate),
+            " -> Motors " + str(forward_left_thrust_amt),
             str(forward_right_thrust_amt) + str(up_left_thrust_amt),
             str(up_right_thrust_amt))
 
