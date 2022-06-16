@@ -38,7 +38,7 @@ log = logging.getLogger(__name__)
 ######## Main Program Loop ###########
 ######################################
 async def main():
-    global duplex_relay, sensors, motion_ctrl, message_handler
+    global duplex_relay, sensors, motion_ctrl, message_handler, media_ctrl
 
     ##### Setup Variables #####
     ############################
@@ -75,6 +75,7 @@ finally:
     # sensors.cleanup()
     # motion_ctrl.cleanup_gpio()
     duplex_relay.cleanup()
+    media_ctrl.cleanup()
     pass
 
 # while True:

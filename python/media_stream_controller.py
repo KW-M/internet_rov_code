@@ -14,6 +14,7 @@ class Media_Stream_Controller:
     def __init__(self, named_pipe_folder):
         self.open_video_stream_map = {}
         self.named_pipe_folder = named_pipe_folder
+        self.runningSubprocesses = []
 
         # https://stackoverflow.com/questions/295459/how-do-i-use-subprocess-popen-to-connect-multiple-processes-by-pipes
 
@@ -67,7 +68,12 @@ class Media_Stream_Controller:
         start_cmd = self.run_cmd_string(
             "ffmpeg -hide_banner -re -f lavfi -i testsrc=size=640x480:rate=30 -pix_fmt yuv420p -c:v libx264 -g 10 -preset ultrafast -tune zerolatency -f rtp 'rtp://"
             + ip + "?pkt_size=1200'")
+        self.runningSubprocesses.append(start_cmd)
         return start_cmd, "udp://" + ip
+
+    def cleanup(self):
+        for subprocess in self.runningSubprocesses:
+            subprocess.kill()
 
 
 # ["ffmpeg", "-f", "avfoundation", "-pix_fmt", "nv12", "-video_size", "640x480", "-use_wallclock_as_timestamps", "1", "-framerate", "30", "-i", "default", "-f", "h264", "pipe:1"]
