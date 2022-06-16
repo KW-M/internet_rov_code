@@ -65,10 +65,13 @@ class Media_Stream_Controller:
 
     async def get_video_stream(self, port=1820):
         ip = "127.0.0.1:" + str(port)
-        start_cmd = self.run_cmd_string(
-            # "ffmpeg -hide_banner -re -f lavfi -i testsrc=size=640x480:rate=30 -pix_fmt yuv420p -c:v libx264 -g 10 -preset ultrafast -tune zerolatency -f rtp 'rtp://"
-            "libcamera-vid --width 960 --height 720 --codec yuv420 --framerate 20 --flush 1 --timeout 0 --nopreview 1 --output - | ffmpeg -hide_banner -f rawvideo  -pix_fmt yuv420p -re -s 960x720 -framerate 20 -use_wallclock_as_timestamps 1 -i pipe: -vf \"settb=AVTB,setpts='trunc(PTS/1K)*1K+st(1,trunc(RTCTIME/1K))-1K*trunc(ld(1)/1K)',drawtext=text='%{localtime}.%{eif\:1M*t-1K*trunc(t\*1K)\:d}':fontcolor=black@1:fontsize=(h/10):x=(w-text_w)/2:y=10\" -vcodec h264_v4l2m2m -b:v 400k -fflags nobuffer -g 10 -preset ultrafast -tune zerolatency -f rtp 'rtp://"
-            + ip + "?pkt_size=1200'")
+        # start_cmd = self.run_cmd_string(
+        # "ffmpeg -hide_banner -re -f lavfi -i testsrc=size=640x480:rate=30 -pix_fmt yuv420p -c:v libx264 -g 10 -preset ultrafast -tune zerolatency -f rtp 'rtp://"
+        # "libcamera-vid --width 960 --height 720 --codec yuv420 --framerate 20 --flush 1 --timeout 0 --nopreview 1 --output - | ffmpeg -hide_banner -f rawvideo  -pix_fmt yuv420p -re -s 960x720 -framerate 20 -use_wallclock_as_timestamps 1 -i pipe: -vf settb=AVTB,setpts='trunc(PTS/1K)*1K+st(1,trunc(RTCTIME/1K))-1K*trunc(ld(1)/1K)',drawtext=text='%{localtime}.%{eif\:1M*t-1K*trunc(t\*1K)\:d}':fontcolor=black@1:fontsize=(h/10):x=(w-text_w)/2:y=10 -vcodec h264_v4l2m2m -b:v 400k -fflags nobuffer -g 10 -preset ultrafast -tune zerolatency -f rtp 'rtp://"
+        start_cmd = subprocess.Popen(
+            "libcamera-vid --width 960 --height 720 --codec yuv420 --framerate 20 --flush 1 --timeout 0 --nopreview 1 --output - | ffmpeg -hide_banner -f rawvideo  -pix_fmt yuv420p -re -s 960x720 -framerate 20 -use_wallclock_as_timestamps 1 -i pipe: -vcodec h264_v4l2m2m -b:v 400k -fflags nobuffer -g 10 -preset ultrafast -tune zerolatency  -use_wallclock_as_timestamps 1 -f rtp 'rtp://"
+            + ip + "?pkt_size=1200'",
+            shell=True)
         self.runningSubprocesses.append(start_cmd)
         return start_cmd, "udp://" + ip
 
