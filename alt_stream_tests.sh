@@ -193,9 +193,28 @@ https://github.com/yihui/animation/issues/74
 
 
 # working udp send and recive combo:
+# send (replace with ip of reciever)
+ffmpeg -hide_banner -f lavfi -re  -rtbufsize 1M -use_wallclock_as_timestamps 1 -i "testsrc=size=1280x720:rate=30" -pix_fmt yuv420p -framerate 30  -vcodec libx264  -use_wallclock_as_timestamps 1 -preset ultrafast  -profile:v high  -fflags nobuffer -b:v 900k -f mpegts udp://Kyles-MBP:1254
+# recive (replace with ip of sender)
+ffplay -sync ext -an -fast -framedrop -probesize 32 udp://raspberrypi.local:1254
+
 # send
-ffmpeg -hide_banner -f lavfi -re  -rtbufsize 1M -use_wallclock_as_timestamps 1 -i "testsrc=size=1280x720:rate=30" -pix_fmt yuv420p -framerate 30  -vcodec libx264  -use_wallclock_as_timestamps 1 -preset ultrafast  -profile:v high  -fflags nobuffer -b:v 900k -f mpegts udp://localhost:1254
-ffmpeg -hide_banner -f lavfi -re  -rtbufsize 1M -use_wallclock_as_timestamps 1 -i "testsrc=size=1280x720:rate=30" -pix_fmt yuv420p -framerate 30  -vcodec libx264  -use_wallclock_as_timestamps 1 -preset ultrafast  -profile:v high  -fflags nobuffer -b:v 900k -f mpegts udp://localhost:1254
+libcamera-vid --width 960 --height 720 --codec h264 --profile high --level 4.2 --bitrate 800000 --framerate 30 --inline 1 --flush 1 --timeout 0 --nopreview 1 --inline --listen -o tcp://0.0.0.0:8778
 # recive
- ffplay -probesize 32 -sync ext udp://localhost:1254
-  ffplay -probesize 32 -sync ext udp://raspberrypi.local:1254
+ffplay -sync ext -an -fast -framedrop -probesize 32 -window_title picam02 tcp://raspberrypi.local:8778
+
+
+# send (replace with ip of reciever)
+ffmpeg -hide_banner -f lavfi -re  -rtbufsize 1M -use_wallclock_as_timestamps 1 -i "testsrc=size=1280x720:rate=30" -pix_fmt yuv420p -framerate 30  -vcodec libx264  -use_wallclock_as_timestamps 1 -preset ultrafast  -profile:v high  -fflags nobuffer -b:v 900k -f mpegts udp://Kyles-MBP:1254
+libcamera-vid --width 1920 --height 1080 --codec yuv420 --framerate 20 --flush 1 --timeout 0 --nopreview 1 --output - | ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -re -s 1920x1080 -framerate 20 -use_wallclock_as_timestamps 1 -i pipe:0 -vf "settb=AVTB,setpts='trunc(PTS/1K)*1K+st(1,trunc(RTCTIME/1K))-1K*trunc(ld(1)/1K)',drawtext=text='%{localtime}.%{eif\:1M*t-1K*trunc(t\*1K)\:d}':fontcolor=black@1:fontsize=(h/10):x=(w-text_w)/2:y=10" -vcodec libx264 -b:v 900k -g 10 -fflags nobuffer -preset ultrafast -tune zerolatency -f mpegts udp://Kyles-MBP:1254
+libcamera-vid --width 1920 --height 1080 --codec yuv420 --framerate 20 --flush 1 --timeout 0 --nopreview 1 --output - | ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -re -s 1920x1080 -framerate 20 -fflags +genpts -fflags nobuffer -i pipe:0 -vf "settb=AVTB,setpts='trunc(PTS/1K)*1K+st(1,trunc(RTCTIME/1K))-1K*trunc(ld(1)/1K)',drawtext=text='%{localtime}.%{eif\:1M*t-1K*trunc(t\*1K)\:d}':fontcolor=black@1:fontsize=(h/10):x=(w-text_w)/2:y=10"  -vcodec h264_v4l2m2m -b:v 900k -g 10 -fflags +genpts -fflags nobuffer -f mpegts udp://Kyles-MBP:1254
+# recive (replace with ip of sender)
+ffplay -sync ext -an -fast -framedrop -probesize 32 udp://raspberrypi.local:1254
+
+
+libcamera-vid --width 1920 --height 1080 --codec yuv420 --framerate 20 --flush 1 --timeout 0 --nopreview 1 --output - | ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -re -s 1920x1080 -framerate 20 -fflags +genpts -fflags nobuffer -i pipe:0 -vf "settb=AVTB,setpts='trunc(PTS/1K)*1K+st(1,trunc(RTCTIME/1K))-1K*trunc(ld(1)/1K)',drawtext=text='%{localtime}.%{eif\:1M*t-1K*trunc(t\*1K)\:d}':fontcolor=black@1:fontsize=(h/10):x=(w-text_w)/2:y=10"  -vcodec h264_v4l2m2m -b:v 900k -g 10 -fflags +genpts -fflags nobuffer -f mpegts udp://Kyles-MBP:1254
+
+
+ffmpeg -hide_banner -f v4l2 -input_format raw -pix_fmt yuv420p -video_size 1920x1080 -framerate 30 -i /dev/video0 -vcodec copy -b:v 900k -g 10 -fflags +genpts -fflags nobuffer -f mpegts udp://Kyles-MBP:1254
+ffmpeg -hide_banner -f video4linux2 -input_format yuyv422 -i /dev/video0 -c:v libx264 -vf format=yuv420p -f mpegts udp://Kyles-MBP:1254
+ffmpeg -f video4linux2 -input_format mjpeg -i /dev/video0
