@@ -1,4 +1,5 @@
 import asyncio
+import errno
 import logging
 import os
 import shlex
@@ -33,14 +34,26 @@ class Named_Pipe:
             try:
 
                 if mode == 'r':
-                    self.pipe_file = os.open(self.pipe_file_path,
-                                             os.O_RDONLY | os.O_NONBLOCK)
-                    return self.pipe_file
+                    try:
+                        self.pipe_file = os.open(self.pipe_file_path,
+                                                 os.O_RDWR | os.O_NONBLOCK)
+                        return self.pipe_file
+                    except OSError as ex:
+                        if ex.errno == errno.ENXIO:
+                            print(
+                                "Err opening pipe file: Pipe is not yet readable."
+                                + self.pipe_file_path)
 
                 elif mode == 'w':
-                    self.pipe_file = os.open(self.pipe_file_path,
-                                             os.O_WRONLY | os.O_NONBLOCK)
-                    return self.pipe_file
+                    try:
+                        self.pipe_file = os.open(self.pipe_file_path,
+                                                 os.O_RDWR | os.O_NONBLOCK)
+                        return self.pipe_file
+                    except OSError as ex:
+                        if ex.errno == errno.ENXIO:
+                            print(
+                                "Err opening pipe file: Pipe is not yet writeable."
+                                + self.pipe_file_path)
 
                 else:
                     raise ValueError('mode must be "r" or "w"')
