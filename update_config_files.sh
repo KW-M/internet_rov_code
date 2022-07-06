@@ -2,7 +2,6 @@
 
 PATH_TO_THIS_SCRIPT=$0
 FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
-cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 
 # This function is used in the main body of this script:
 backup_then_overwrite_file(){
@@ -29,6 +28,25 @@ backup_then_overwrite_file(){
 	sudo cp -f -T "$REPLACEMENT_FILE" "$ORIGINAL_FILE_PATH"
 };
 
+
+# install any updates to webrtc-relay
+pushd ~/webrtc-relay
+git pull
+go install .
+popd
+
+# pull any changes to the rov static web page
+pushd ~/rov-web
+git restore .
+git checkout gh-pages
+git pull
+popd
+
+# pull
+pushd "$FOLDER_CONTAINING_THIS_SCRIPT"
+git restore .
+git pull
+
 # echo "Compiling Arduino code..."
 # ./arduino_cpp/compile_arduino_code.sh
 
@@ -44,13 +62,8 @@ backup_then_overwrite_file(){
 # echo "Copying over ngrok startup service file..."
 # backup_then_overwrite_file "/lib/systemd/system/ngrok.service" "./new_config_files/ngrok.service"
 
-# install any updates to webrtc-relay
-pushd ~/webrtc-relay
-git pull
-go install .
-popd
 
-cp webrtc-relay-config.json ~/
+# cp webrtc-relay-config.json ~/
 
 echo "Copying over rov_go_code startup service file..."
 backup_then_overwrite_file "/lib/systemd/system/rov_go_code.service" "./new_config_files/rov_go_code.service"
@@ -125,3 +138,5 @@ sudo systemctl restart nginx.service
 
 ### to check if a service is running and show logs / status:
 # sudo systemctl status the_service_name
+
+popd

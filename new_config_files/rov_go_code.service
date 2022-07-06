@@ -6,7 +6,7 @@ After=network.target
 
 [Service]
 User=pi
-ExecStart=webrtc-relay -config-file ~/webrtc-relay-config.json
+ExecStart=webrtc-relay -config-file /home/pi/webrtc-relay-config.json
 Restart=always
 TimeoutStopSec=10s
 RestartSec=5s

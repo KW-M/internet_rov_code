@@ -255,6 +255,11 @@ cd webrtc-relay
 go install .
 popd
 
+# ---- DOWNLOAD STATIC ROV FRONTEND WEB PAGE ----
+pushd ~/
+git clone -b gh-pages --single-branch https://github.com/kw-m/rov-web.git
+popd
+
 # From: https://www.youtube.com/watch?v=Q-m4i7LFxLA
 echo -e "$Cyan Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils $Color_Off"
 echo -e "$Green These packages enable the pi to do usb internet teathering with an iphone... $Color_Off"
