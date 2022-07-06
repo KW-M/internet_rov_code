@@ -28,24 +28,27 @@ backup_then_overwrite_file(){
 	sudo cp -f -T "$REPLACEMENT_FILE" "$ORIGINAL_FILE_PATH"
 };
 
+# pull
+echo "Pulling any changes to the rov backend componets from github"
+pushd "$FOLDER_CONTAINING_THIS_SCRIPT"
+git restore .
+git pull --rebase
 
-# install any updates to webrtc-relay
+echo "Pulling any updates to webrtc-relay from github"
 pushd ~/webrtc-relay
-git pull
+git restore .
+git pull --rebase
 go install .
 popd
 
-# pull any changes to the rov static web page
+echo "Pulling any changes to the rov static web page from github"
 pushd ~/rov-web
 git restore .
 git checkout gh-pages
-git pull
+git pull --rebase
 popd
 
-# pull
-pushd "$FOLDER_CONTAINING_THIS_SCRIPT"
-git restore .
-git pull
+
 
 # echo "Compiling Arduino code..."
 # ./arduino_cpp/compile_arduino_code.sh

@@ -5,11 +5,9 @@ Requires=rov_go_code.service
 After=rov_go_code.service
 
 [Service]
-User=pi
+# User=pi
 # PYTHONUNBUFFERED=1 is so python will spit out print messages to the system log instantly instead of waiting to in batches
 Environment=PYTHONUNBUFFERED=1
-# sometimes python will spit out a LOT of log / print messages, which can fill up the sd card, so we call logrotate to trim the system log before python starts.
-# ExecStartPre=logrotate -f -v /etc/logrotate.conf
 ExecStart=python3 /home/pi/internet_rov_code/python/main.py --config-file  /home/pi/webrtc-relay-config.json
 KillMode=process
 Restart=always
