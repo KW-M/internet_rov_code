@@ -176,7 +176,7 @@ class MessageHandler:
         # -- golang relay commands:
         elif action == "begin_video_stream":
             # send the *golang* code (note the action is in reply_metadata) the begin_video_stream command
-            startVideo, streamUrl = await self.media_controller.get_video_stream(
+            startVideo, streamUrl = await self.media_controller.start_source_stream(
             )
             await self.send_msg({}, {
                 "Action": "Media_Call_Peer",
