@@ -369,5 +369,9 @@ class MessageHandler:
         while True:
             sensorUpdates = self.sensor_ctrl.get_sensor_update_dict()
             # send to all connected peers (empty list at end)
-            await self.send_msg(sensorUpdates, {}, [])
-            await asyncio.sleep(1)
+            await self.send_msg(
+                {
+                    "status": "sensor-update",
+                    "val": sensorUpdates
+                }, {}, [])
+            await asyncio.sleep(2)
