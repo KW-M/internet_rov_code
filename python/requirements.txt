@@ -1,5 +1,6 @@
 aiohttp==3.8.1
-pigpio==1.78
-ms5803py==1.0.0
 aiostream==0.4.4
 async-timeout==4.0.2
+pigpio==1.78
+ms5803py==1.0.0
+sparkfun-qwiic-icm20948==0.0.1
