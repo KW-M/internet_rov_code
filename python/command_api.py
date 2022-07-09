@@ -32,8 +32,9 @@ async def readBashCommandOutputAsync(bashCommand, Timeout=None):
                 yield str(line, 'utf-8').rstrip()
                 #str(line).encode('utf-8')
     except TimeoutError:
+        if (sp.returncode == None):
+            sp.kill()
         pass
-    sp.kill()
 
 
 # def generateJson(statusCode, outputMessage):
