@@ -2,13 +2,12 @@ from array import array
 import asyncio
 from cmath import nan
 import logging
-# import ms5803py
+import ms5803py
 
 from utilities import *
 
 ###### setup logging #######
 log = logging.getLogger(__name__)
-
 
 class Generic_Sensor:
     def __init__(self, name: str, sensor_read_interval: float,
