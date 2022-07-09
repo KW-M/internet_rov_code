@@ -86,9 +86,6 @@ backup_then_overwrite_file "/etc/nginx/nginx.conf" "./new_config_files/nginx.con
 echo "Copying over add_fixed_ip.service startup service file..."
 backup_then_overwrite_file "/etc/systemd/system/add_fixed_ip.service" "./new_config_files/add_fixed_ip.service"
 
-# echo "Copying over rov_uwsgi_server startup service file..."
-# backup_then_overwrite_file "/etc/systemd/system/rov_uwsgi_server.service" "./new_config_files/rov_uwsgi_server.service"
-
 # echo "Copying over rov_bluetooth_terminal startup service file (TO ENABLE BLUETOOTH SERIAL TERMINAL CONNECTIONS)..."
 # backup_then_overwrite_file "/etc/systemd/system/rov_bluetooth_terminal.service" "./new_config_files/rov_bluetooth_terminal.service"
 
@@ -121,8 +118,6 @@ echo "restarting add_fixed_ip.service..."
 sudo systemctl restart add_fixed_ip.service
 echo "restarting nginx.service..."
 sudo systemctl restart nginx.service
-# echo "restarting rov_uwsgi_server.service..."
-# sudo systemctl restart rov_uwsgi_server.service
 
 # The above lines restart systemd "services" running when this rasberry pi boots.
 # for more about these files: https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files

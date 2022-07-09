@@ -53,12 +53,6 @@ else
     systemctl status --no-pager nginx.service
 fi
 echo "------------------------"
-if systemctl -q is-active rov_uwsgi_server.service; then
-    echo "ACTIVE | rov_uwsgi_server.service"
-else
-    systemctl status --no-pager rov_uwsgi_server.service
-fi
-echo "------------------------"
 if systemctl -q is-active add_fixed_ip.service; then
     echo "ACTIVE | add_fixed_ip.service"
 else
