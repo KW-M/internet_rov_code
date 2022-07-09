@@ -3,6 +3,7 @@ import json
 import asyncio
 from types import AsyncGeneratorType
 from aiohttp import web  # fallback for these api functions over plain http for when the webrtc datachannel or unix socket fail.
+from async_timeout import timeout
 
 
 async def runBashCommand(bashCommand):
@@ -20,14 +21,19 @@ async def readFullBashCommandOutput(bashCommand):
     return (stdout, stderr, sp.returncode)
 
 
-async def readBashCommandOutputAsync(bashCommand):
+async def readBashCommandOutputAsync(bashCommand, Timeout=None):
     sp = await runBashCommand(bashCommand)
-    while True:
-        line = await sp.stdout.readline()
-        if not line:
-            break
-        yield str(line, 'utf-8').rstrip()
-        #str(line).encode('utf-8')
+    try:
+        async with timeout(Timeout):
+            while True:
+                line = await sp.stdout.readline()
+                if not line:
+                    break
+                yield str(line, 'utf-8').rstrip()
+                #str(line).encode('utf-8')
+    except TimeoutError:
+        pass
+    sp.kill()
 
 
 # def generateJson(statusCode, outputMessage):
@@ -51,28 +57,29 @@ async def readBashCommandOutputAsync(bashCommand):
 async def handleActionCommand(action):
 
     if action == 'disable_wifi':
-        return readBashCommandOutputAsync("rfkill block wlan")
+        return readBashCommandOutputAsync("rfkill block wlan", Timeout=5)
 
     elif action == 'enable_wifi':
-        return readBashCommandOutputAsync("sudo rfkill unblock wlan")
+        return readBashCommandOutputAsync("sudo rfkill unblock wlan",
+                                          Timeout=5)
 
     elif action == 'rov_status_report':
         return readBashCommandOutputAsync(
-            "/home/pi/internet_rov_code/rov_status_report.sh")
+            "/home/pi/internet_rov_code/rov_status_report.sh", Timeout=20)
 
     elif action == 'restart_rov_services':
         return readBashCommandOutputAsync(
-            "/home/pi/internet_rov_code/update_config_files.sh")
+            "/home/pi/internet_rov_code/update_config_files.sh", Timeout=20)
 
     elif action == 'pull_rov_github_code':
         return readBashCommandOutputAsync(
-            "GIT_HTTP_CONNECT_TIMEOUT=4 cd /home/pi/internet_rov_code/; git add .; git stash; git pull"
-        )
+            "GIT_HTTP_CONNECT_TIMEOUT=4 cd /home/pi/internet_rov_code/; git add .; git stash; git pull",
+            Timeout=20)
 
     elif action == 'rov_logs':
         return readBashCommandOutputAsync(
-            "journalctl --unit=rov_python_code --unit=rov_go_code --unit=add_fixed_ip --unit=nginx --no-pager --follow -n 500"
-        )
+            "journalctl --unit=rov_python_code --unit=rov_go_code --unit=add_fixed_ip --unit=nginx --no-pager --follow -n 500",
+            Timeout=20)
 
     elif action == 'shutdown_rov':
         await runBashCommand(
