@@ -13,9 +13,9 @@ default_config = {
     "BasePeerId": "go-robot-",
     "NamedPipeFolder": "/tmp/webtrc-relay-pipes/",
     "MessageMetadataSeparator": "|\"|",
-    "PilotControlPassword":
+    "DriverControlPassword":
     "Change this password in the webrtc-relay-config.json file",
-    "DisconnectedPilotAuthTimeout": 180,
+    "DisconnectedDriverAuthTimeout": 180,
 }
 
 

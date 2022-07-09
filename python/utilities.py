@@ -24,7 +24,7 @@ def get_rounded_string(value):
 #             traceback.print_exc()
 #             err_msg = traceback.format_exc()
 #             if msg_socket:
-#                 try:  # try to send the full traceback to the pilot's web browser
+#                 try:  # try to send the full traceback to the clients's web browser
 #                     msg_socket.send_socket_message(
 #                         json.dumps({'error': err_msg}))
 #                 except:

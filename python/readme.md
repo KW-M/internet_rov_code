@@ -10,7 +10,7 @@ When the python code RECIVES a message from the unix datachannel:
 
 example message:
 
-`{ SrcPeerId: "rov_pilot_23B1" }|"|{ action: "ping", val:1234 }`
+`{ SrcPeerId: "rov_driver_23B1" }|"|{ action: "ping", val:1234 }`
 
 - **`message_metadata_json`**: This is the metadata that gets passed to / from _ONLY_ the golang datachannel message relay. The browser side javascript will only recive the `message_data_json` with metadata & separator stripped, hovever the python code on the other end can and does use it and should include it in messages passed back to the go code.
 
@@ -55,7 +55,7 @@ Available actions:
   - val: unix epoch timestamp (int)
   - value will be echoed back w status "pong"
 - password:
-  - val: The pilot conroll password attempt (string)
+  - val: The driver control password attempt (string)
   - if correct, the sending peer's id will be added to the list of authenticated peers with a status, if wrong sat
 
 ### python code SENDS a reply message (will be RECIVED by browser clients):

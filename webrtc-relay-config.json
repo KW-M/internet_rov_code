@@ -1,8 +1,8 @@
 {
     "LogLevel": "debug",
     "BasePeerId": "go-relay-",
-    "PilotControlPassword": "CHANGE THIS PASSWORD",
-    "DisconnectedPilotAuthTimeout": 180,
+    "DriverControlPassword": "CHANGE THIS PASSWORD",
+    "DisconnectedDriverAuthTimeout": 180,
     "NamedPipeFolder": "~/relay-pipes/",
     "MessageMetadataSeparator": "|\"|",
     "AddMetadataToMessages": true,

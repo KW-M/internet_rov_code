@@ -34,13 +34,13 @@ cd ./website_static_files; npm run start
 
 > Script to run all the commands to install everything and put it in the right places. After first successful run, it puts a marker file on the desktop, so that subsequent runs of the script will only update changed config files from the /new-config-files folder in the rov code folder and restart all the systemd services, instead of downloading everything again. I tried to comment it well so please see the links for more info about each part inside the script.
 
-**UV4l**
+**webrtc-relay**
 
-> Streaming server that handles sending the video and two way data over the wire using the webRTC protocol.
+> Relay that handles sending the video and two way data over the wire using the webRTC protocol.
 >
 > \- UV4L is configured using the uv4l-raspicam.config file.
 >
-> It initially opens a "web socket" (which must go through the ngrok tunneling server) that allow the remote pilot's computer and the raspberry pi locate and talk to each other over the internet. Then it opens a webRTC video channel and a data channel that go directly between the pilot’s computer and the raspberry pi. UV4l handles all of this pretty much for us, but there is the webRTC signalling library in the website javascript code that handles all the web socket handshakes and stuff.
+> It initially opens a "web socket" (which must go through the ngrok tunneling server) that allow the remote driver's computer and the raspberry pi locate and talk to each other over the internet. Then it opens a webRTC video channel and a data channel that go directly between the driver’s computer and the raspberry pi. UV4l handles all of this pretty much for us, but there is the webRTC signalling library in the website javascript code that handles all the web socket handshakes and stuff.
 
 **nginx**
 
@@ -50,7 +50,7 @@ cd ./website_static_files; npm run start
 >
 > We are using it to:
 >
-> 1. "serve" or send all of the static website html/css/javascript to the pilot’s web browser so they get a nice user interface that handles getting the video feed and and sending game controller data back data.
+> 1. "serve" or send all of the static website html/css/javascript to the driver’s web browser so they get a nice user interface that handles getting the video feed and and sending game controller data back data.
 >
 > 2. Show various logs/debugging stuff/the dashboards for ngrok and uv4l on convenient url paths.
 >
@@ -63,7 +63,7 @@ cd ./website_static_files; npm run start
 
 > Recives and sends messages with the remote browser through a "socket" "file" that the UV4l Program opens (Creates?) when it receives a connection,
 
-> The frontend sends updates as json encoded objects ("dicts" in python parlance) whenever the pilot moves the game controller joysticks with the calculated desired speed of each motor between 1 and -1. The python then calls the motor conroller library to do that. If any exceptions are raised in the python code it stops all motors and retries the connection.
+> The frontend sends updates as json encoded objects ("dicts" in python parlance) whenever the driver moves the game controller joysticks with the calculated desired speed of each motor between 1 and -1. The python then calls the motor conroller library to do that. If any exceptions are raised in the python code it stops all motors and retries the connection.
 
 - TODO: implement watchdog ping on frontend to ping the python
 - TODO: implement sending only motor speed changes in JSON not JSON representation of all motor states.
@@ -78,7 +78,7 @@ Each service is supossed to be restarted by systemd if it crashes.
 
 - TODO: The python code is also starts the systemd "watchdog" feature which will kill and restart the python code if it fails to send a message to the watchdog for x seconds. See watchdog.py
 
-- - In tern the python code watches uv4l (which has a habit of sort of crashing if random internet lapses happen) by expecting to receive a ping from the pilot’s laptop through uv4l webrtc datachanel every 2 seconds. If that ping isn’t heard by the python code, it force kills the uv4l process and starts the uv4l systemd service again (maybe also should kill nginx, but not ngrok, because it will get a new url).
+- - In tern the python code watches uv4l (which has a habit of sort of crashing if random internet lapses happen) by expecting to receive a ping from the driver’s laptop through uv4l webrtc datachanel every 2 seconds. If that ping isn’t heard by the python code, it force kills the uv4l process and starts the uv4l systemd service again (maybe also should kill nginx, but not ngrok, because it will get a new url).
 
 ### BUILD
 

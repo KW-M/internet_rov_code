@@ -21,7 +21,7 @@ class MessageHandler:
         self.program_config = program_config
 
         # --- Variables to keep track of who is allowed to drive the rov & who can take over / send debug commands and which client peers to send replys to: ---
-        self.current_pilot_peerid = None
+        self.current_driver_peerid = None
         self.connected_peerids = []
         self.authenticated_peerids = {}
 
@@ -29,7 +29,7 @@ class MessageHandler:
         self.MESSAGE_METADATA_SEPARATOR = program_config.get(
             'MessageMetadataSeparator', '|"|')
         self.PASSWORD_INACTIVITY_TIMEOUT = self.program_config.get(
-            'DisconnectedPilotAuthTimeout', 180)
+            'DisconnectedDriverAuthTimeout', 180)
 
     def parse_socket_message(self, message):
         """
@@ -40,32 +40,34 @@ class MessageHandler:
 
         message_metadata_separator_index = message.find(
             self.MESSAGE_METADATA_SEPARATOR)
-        if message_metadata_separator_index == -1:
-            log.error(
-                "Could not find message metadata separator in socket message: "
-                + message)
-            return (None, None)
 
         try:
-            message_metadata = json.loads(
-                message[:message_metadata_separator_index])
-            message_data = json.loads(
-                message[message_metadata_separator_index +
-                        len(self.MESSAGE_METADATA_SEPARATOR):])
-            return (message_metadata, message_data)
+            if message_metadata_separator_index == -1:
+                # No message metadata sepearator in message (assume it is metadata only)
+                message_metadata = json.loads(message)
+                return (message_metadata, None)
+            else:
+                # Load metadata and message data as two json strings.
+                message_metadata = json.loads(
+                    message[:message_metadata_separator_index])
+                message_data = json.loads(
+                    message[message_metadata_separator_index +
+                            len(self.MESSAGE_METADATA_SEPARATOR):])
+                return (message_metadata, message_data)
 
         except json.JSONDecodeError:
             log.warning(
                 'Received unix socket message with invalid JSON format: ' +
                 message)
             return (None, None)
+
         except Exception as error:
             log.error(error, exc_info=True)
             return (None, None)
 
     async def handle_messsage_metadata(self, metadata):
 
-        pilot_has_changed = False
+        driver_has_changed = False
         src_peer_id = None
 
         # handle the metadata:
@@ -76,27 +78,35 @@ class MessageHandler:
             if "Event" in metadata:
                 if metadata["Event"] == "Connected":
                     self.connected_peerids.append(src_peer_id)
+
                 elif metadata["Event"] == "Disconnected":
                     self.connected_peerids.remove(src_peer_id)
                     if src_peer_id in self.authenticated_peerids:
                         self.authenticated_peerids[src_peer_id] = time.time()
-                    if src_peer_id == self.current_pilot_peerid:
-                        self.current_pilot_peerid = None  # reset the current pilot peerid
+                    if src_peer_id == self.current_driver_peerid:
+                        self.current_driver_peerid = None  # reset the current driver peerid
 
-            # handle the case when there is no current pilot peerid:
-            if self.current_pilot_peerid == None and len(
+            # handle the case when there is no current driver peerid:
+            if self.current_driver_peerid == None and len(
                     self.connected_peerids) > 0:
-                self.current_pilot_peerid = self.connected_peerids[
-                    0]  # set the current pilot peerid
-                pilot_has_changed = True
+                self.current_driver_peerid = self.connected_peerids[
+                    0]  # set the current driver peerid
+                driver_has_changed = True
 
-        if pilot_has_changed:
-            # Let all connected peers know that the designated pilot peer has changed: (empty list at end = send to all connected peers)
+        if driver_has_changed:
+            # Let all connected peers know that the designated driver peer has changed: (empty list at end = send to all connected peers)
             await self.send_msg(
                 {
-                    "status": 'pilot-changed',
-                    'val': self.current_pilot_peerid
+                    "status": 'driver-changed',
+                    'val': self.current_driver_peerid
                 }, {}, [])
+        elif "Event" in metadata and metadata["Event"] == "Connected":
+            # Let any new connected peers know who the designated driver peer is.
+            await self.send_msg(
+                {
+                    "status": 'driver-changed',
+                    'val': self.current_driver_peerid
+                }, {}, [src_peer_id])
 
         return src_peer_id
 
@@ -117,7 +127,7 @@ class MessageHandler:
 
     def password_challenge(self, password, src_peer_id):
         correct_password = self.program_config.get(
-            'PilotControlPassword', 'You Should Set This In The Config File')
+            'DriverControlPassword', 'You Should Set This In The Config File')
         print("Password: " + password, "Correct Password: " + correct_password)
         if password == correct_password:
             self.authenticated_peerids[src_peer_id] = True
@@ -199,12 +209,12 @@ class MessageHandler:
             }, {}, [src_peer_id])
 
         elif action == "take_control":
-            # if the authenticated peer is trying to take control of the ROV, set their peer id to be the designated pilot peer id "curent_pilot_peerid"
-            self.current_pilot_peerid = src_peer_id
-            # Let all connected peers know that the designated pilot has changed (empty list at end = send to all connected peers)
+            # if the authenticated peer is trying to take control of the ROV, set their peer id to be the designated driver peer id "curent_driver_peerid"
+            self.current_driver_peerid = src_peer_id
+            # Let all connected peers know that the designated driver has changed (empty list at end = send to all connected peers)
             await self.send_msg(
                 {
-                    'status': 'pilot-changed',
+                    'status': 'driver-changed',
                     'val': src_peer_id,
                 }, {}, [])
 
@@ -243,16 +253,16 @@ class MessageHandler:
             async for msg_data in msgGenerator:
                 await self.send_msg(msg_data, {}, [src_peer_id])
 
-    async def handle_pilot_only_actions(self, src_peer_id, action,
-                                        action_value, msg_cid):
+    async def handle_driver_only_actions(self, src_peer_id, action,
+                                         action_value, msg_cid):
         """
-        Handle actions that only the designated rov pilot can do.
-        The pilot must also be an authenticated peer (one who as previously entered the correct password):
+        Handle actions that only the designated rov driver can do.
+        The driver must also be an authenticated peer (one who as previously entered the correct password):
         """
 
         sending_peer_is_authenticated = self.check_if_peer_is_authenticated(
             src_peer_id)
-        sending_peer_is_pilot = (src_peer_id == self.current_pilot_peerid)
+        sending_peer_is_driver = (src_peer_id == self.current_driver_peerid)
 
         if (not sending_peer_is_authenticated):
             # if the sender is not authenticated, send back the password-required message
@@ -261,9 +271,9 @@ class MessageHandler:
                 'cid': msg_cid
             }, {}, [src_peer_id])
 
-        elif (not sending_peer_is_pilot):
-            # if the sender is not the pilot, send back the not a pilot error message
-            error_msg = 'You must be the ROV pilot before using the ' + action + ' action'
+        elif (not sending_peer_is_driver):
+            # if the sender is not the driver, send back the not a driver error message
+            error_msg = 'You must be the ROV driver before using the ' + action + ' action'
             await self.send_msg(
                 {
                     'status': 'error',
@@ -332,10 +342,10 @@ class MessageHandler:
                 await self.handle_authenticated_actions(
                     src_peer_id, action, action_value, msg_cid)
 
-            # These actions require the peer that sent the message to be the designated pilot and be authenticated (have correctly done password challenge before)
+            # These actions require the peer that sent the message to be the designated driver and be authenticated (have correctly done password challenge before)
             elif action in ["move", "toggle_lights"]:
-                await self.handle_pilot_only_actions(src_peer_id, action,
-                                                     action_value, msg_cid)
+                await self.handle_driver_only_actions(src_peer_id, action,
+                                                      action_value, msg_cid)
 
             # handle action requests that are invalid (do not contain the required action parameter):
             elif action == None:
