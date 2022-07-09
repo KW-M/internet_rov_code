@@ -23,11 +23,14 @@ async def read_compass_coro():
 
     # read all axis and temp from sensor, note this also updates all instance variables
     compass_IMU.getAgmt()
-    return (compass_IMU.axRaw, compass_IMU.ayRaw,
-            compass_IMU.azRaw), (compass_IMU.gxRaw, compass_IMU.gyRaw,
-                                 compass_IMU.gzRaw), (compass_IMU.mxRaw,
-                                                      compass_IMU.myRaw,
-                                                      compass_IMU.mzRaw)
+    return (compass_IMU.axRaw, compass_IMU.ayRaw, compass_IMU.azRaw), (
+        compass_IMU.gxRaw, compass_IMU.gyRaw,
+        compass_IMU.gzRaw), (compass_IMU.mxRaw, compass_IMU.myRaw,
+                             compass_IMU.mzRaw), time.time()
+
+
+def TimeDiff(start, end):  # Timestamps here are in seconds
+    return (start - end)  # Scale to seconds
 
 
 async def setup_compass_sensor():
@@ -38,7 +41,7 @@ async def setup_compass_sensor():
         raise Exception("Compass (Sparkfun ICM20948) isn't connected.")
 
     compass_IMU.begin()
-    compass_fused = Fusion(read_compass_coro)
+    compass_fused = Fusion(read_compass_coro, timediff=TimeDiff)
     await compass_fused.start()  # Start the update task
     return compass_fused
 
