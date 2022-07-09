@@ -9,8 +9,6 @@ from utilities import *
 ###### setup logging #######
 log = logging.getLogger(__name__)
 
-# arduino_sensors_interface = Generic_Sensor('arduino_interface_sensors', 1, ['yaw', 'pitch', 'roll'], ['deg', 'deg','deg'], setup_pressure_sensor,read_pressure_sensor),
-
 
 class Sensor_Controller:
     all_sensors = [pressure_temp_sensor]

@@ -1,8 +1,8 @@
-from generic_sensor import Generic_Sensor
 import logging
 import ms5803py
 
 from utilities import *
+from sensors.generic_sensor import Generic_Sensor
 
 ###### setup logging #######
 log = logging.getLogger(__name__)

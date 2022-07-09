@@ -17,7 +17,7 @@
 
 import asyncio
 from math import sqrt, atan2, asin, degrees, radians
-from deltat import DeltaT
+from sensors.deltat import DeltaT
 
 
 class Fusion(object):
