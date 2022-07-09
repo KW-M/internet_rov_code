@@ -1,9 +1,13 @@
 # from urllib.parse import parse_qs # for parsing url query string
 import json
 import asyncio
+import logging
 from types import AsyncGeneratorType
 from aiohttp import web  # fallback for these api functions over plain http for when the webrtc datachannel or unix socket fail.
 from async_timeout import timeout
+
+###### setup logging #######
+log = logging.getLogger(__name__)
 
 
 async def runBashCommand(bashCommand):
@@ -31,10 +35,13 @@ async def readBashCommandOutputAsync(bashCommand, Timeout=None):
                     break
                 yield str(line, 'utf-8').rstrip()
                 #str(line).encode('utf-8')
-    except TimeoutError:
+    except asyncio.exceptions.TimeoutError:
+        pass
+    except Exception as e:
+        log.Error(e)
+    finally:
         if (sp.returncode == None):
             sp.kill()
-        pass
 
 
 # def generateJson(statusCode, outputMessage):
