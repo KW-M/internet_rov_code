@@ -47,7 +47,7 @@ async def read_compass_sensor(compass_fused):
     return [compass_fused.heading, compass_fused.pitch, compass_fused.roll]
 
 
-pressure_temp_sensor = Generic_Sensor('ICM20948_fused_compass', 1,
+fused_compass_sensor = Generic_Sensor('ICM20948_fused_compass', 1,
                                       ['yaw', 'pitch', 'roll'],
                                       ['deg', 'deg', 'deg'],
                                       setup_compass_sensor,

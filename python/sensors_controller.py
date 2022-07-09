@@ -3,6 +3,7 @@ import asyncio
 from cmath import nan
 import logging
 from sensors.pressure import pressure_temp_sensor
+from sensors.compass import fused_compass_sensor
 
 from utilities import *
 
@@ -11,7 +12,7 @@ log = logging.getLogger(__name__)
 
 
 class Sensor_Controller:
-    all_sensors = [pressure_temp_sensor]
+    all_sensors = [pressure_temp_sensor, fused_compass_sensor]
 
     async def sensor_setup_loop(self):
         log.info("Setting Up Sensors...")
