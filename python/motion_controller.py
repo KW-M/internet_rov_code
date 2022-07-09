@@ -189,18 +189,17 @@ class Motion_Controller:
         forward_right_thrust_amt = -forward_amt + turn_rate
         # https://www.desmos.com/calculator/64b6jlzsk4
 
-        log.debug(
-            "ThrustVec (" + ','.join(str(x) for x in thrust_vector) +
-            ") TurnRate " + str(turn_rate),
-            " -> Motors " + str(forward_left_thrust_amt),
-            str(forward_right_thrust_amt) + str(up_left_thrust_amt),
-            str(up_right_thrust_amt))
+        log.debug("ThrustVec (" + ','.join(str(x) for x in thrust_vector) +
+                  ") TurnRate " + str(turn_rate) + " -> Motors " +
+                  str(forward_left_thrust_amt) + " " +
+                  str(forward_right_thrust_amt) + " " +
+                  str(up_left_thrust_amt) + " " + str(up_right_thrust_amt))
 
         try:
-            self.UP_LEFT_MOTOR.set_speed(up_left_thrust_amt / 10)
-            self.UP_RIGHT_MOTOR.set_speed(up_right_thrust_amt / 10)
-            self.FORWARD_LEFT_MOTOR.set_speed(forward_left_thrust_amt / 10)
-            self.FORWARD_RIGHT_MOTOR.set_speed(forward_right_thrust_amt / 10)
+            self.UP_LEFT_MOTOR.set_speed(up_left_thrust_amt / 5)
+            self.UP_RIGHT_MOTOR.set_speed(up_right_thrust_amt / 5)
+            self.FORWARD_LEFT_MOTOR.set_speed(forward_left_thrust_amt / 5)
+            self.FORWARD_RIGHT_MOTOR.set_speed(forward_right_thrust_amt / 5)
         except Exception as e:
             log.warning("Error setting motor speed!", exc_info=e)
             self.gpio_issue_flag.set()
