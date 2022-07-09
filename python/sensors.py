@@ -78,26 +78,25 @@ class Generic_Sensor:
             await asyncio.sleep(self.sensor_read_interval)
 
 
-# async def setup_pressure_sensor():
-#     return ms5803py.MS5803()
+async def setup_pressure_sensor():
+    return ms5803py.MS5803()
 
 
 async def read_pressure_sensor(sensor_connection):
     pressure, temp = sensor_connection.read(pressure_osr=4096)
-    # print("Sensors: pressure={} mBar, temperature={} C".format(pressure, temp))
     return [pressure, temp]
 
 
-# pressure_temp_sensor = Generic_Sensor('ms5803_pressure_temp', 1,
-#                                       ['pressure', 'temperature'],
-#                                       ['mPa', 'C'], setup_pressure_sensor,
-#                                       read_pressure_sensor)
+pressure_temp_sensor = Generic_Sensor('ms5803_pressure_temp', 1,
+                                      ['pressure', 'temperature'],
+                                      ['mPa', 'C'], setup_pressure_sensor,
+                                      read_pressure_sensor)
 
 # arduino_sensors_interface = Generic_Sensor('arduino_interface_sensors', 1, ['yaw', 'pitch', 'roll'], ['deg', 'deg','deg'], setup_pressure_sensor,read_pressure_sensor),
 
 
 class Sensor_Controller:
-    all_sensors = []  # [pressure_temp_sensor]
+    all_sensors = [pressure_temp_sensor]
 
     async def sensor_setup_loop(self):
         log.info("Setting Up Sensors...")

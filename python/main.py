@@ -56,11 +56,11 @@ async def main():
 
     # setup the asyncio loop to run each of these async functions aka "tasks" aka "coroutines" concurently
     await asyncio.gather(
-        # sensors.sensor_setup_loop(),
+        sensors.sensor_setup_loop(),
         motion_ctrl.motor_setup_loop(),
         duplex_relay.start_loops(),
         message_handler.socket_incoming_message_handler_loop(),
-        # message_handler.socket_update_message_sender_loop(),
+        message_handler.socket_update_message_sender_loop(),
         # start_aiohttp_api_server()
     )
 

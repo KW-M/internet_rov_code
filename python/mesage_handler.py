@@ -367,7 +367,6 @@ class MessageHandler:
 
     async def socket_update_message_sender_loop(self):
         while True:
-
             sensorUpdates = self.sensor_ctrl.get_sensor_update_dict()
             # send to all connected peers (empty list at end)
             await self.send_msg(sensorUpdates, {}, [])
