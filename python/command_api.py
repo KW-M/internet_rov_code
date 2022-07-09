@@ -36,7 +36,7 @@ async def readBashCommandOutputAsync(bashCommand, Timeout=None):
                 yield str(line, 'utf-8').rstrip()
                 #str(line).encode('utf-8')
     except asyncio.exceptions.TimeoutError:
-        yield str("Command timeout. No new messages will be printed", 'utf-8')
+        yield "Command timeout. No new messages will be printed."
     except Exception as e:
         log.Error(e)
     finally:
