@@ -19,12 +19,10 @@ from motion_controller import Motion_Controller
 from media_stream_controller import Media_Stream_Controller
 
 # from sensor_log import Sensor_Log
-from sensors import Sensor_Controller
+from sensors_controller import Sensor_Controller
 from mesage_handler import MessageHandler
 from utilities import *
 # import logging_formatter
-
-
 
 config = read_config_file()
 print(config)
