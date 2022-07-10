@@ -19,7 +19,8 @@ async def read_compass_coro():
     global compass_IMU
     while not compass_IMU or not compass_IMU.connected or not compass_IMU.dataReady(
     ):
-        await asyncio.sleep_ms(30)  # Plenty of time for mag to be ready
+        await asyncio.sleep(0.03)  # Plenty of time for mag to be ready
+        return (0, 0, 0), (0, 0, 0), (0, 0, 0), time.time()
 
     # read all axis and temp from sensor, note this also updates all instance variables
     compass_IMU.getAgmt()
