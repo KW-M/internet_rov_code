@@ -22,14 +22,16 @@ async def read_compass_coro():
     ):
         await asyncio.sleep(0.03)  # Plenty of time for mag to be ready
         print("compass data not yet ready")
-        # return (0, 0, 0), (0, 0, 0), (0, 0, 0), time.time()
 
     # read all axis and temp from sensor, note this also updates all instance variables
     compass_IMU.getAgmt()
-    return (compass_IMU.axRaw, compass_IMU.ayRaw, compass_IMU.azRaw), (
-        compass_IMU.gxRaw, compass_IMU.gyRaw,
-        compass_IMU.gzRaw), (compass_IMU.mxRaw, compass_IMU.myRaw,
-                             compass_IMU.mzRaw), time.time()
+    await asyncio.sleep(0.03)  # Plenty of time for mag to be ready
+    output = ((compass_IMU.axRaw, compass_IMU.ayRaw, compass_IMU.azRaw),
+              (compass_IMU.gxRaw, compass_IMU.gyRaw, compass_IMU.gzRaw),
+              (compass_IMU.mxRaw, compass_IMU.myRaw, compass_IMU.mzRaw),
+              time.time())
+    print(str(output))
+    return output
 
 
 def TimeDiff(start, end):  # Timestamps here are in seconds

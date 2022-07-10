@@ -139,9 +139,7 @@ class Fusion(object):
     async def _update_mag(self, slow_platform):
         while True:
             if self.expect_ts:
-                print("reading coro")
                 accel, gyro, mag, ts = await self.read_coro()
-                print("got coro")
             else:
                 accel, gyro, mag = await self.read_coro()
                 ts = None
