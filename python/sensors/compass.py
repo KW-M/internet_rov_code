@@ -52,7 +52,7 @@ async def setup_compass_sensor():
 
     compass_IMU.begin()
     compass_fused = Fusion(read_compass_coro, timediff=TimeDiff)
-    await compass_fused.start(slow_platform=True
+    await compass_fused.start(slow_platform=False
                               )  # Start the fusion update task
     return compass_fused
 
