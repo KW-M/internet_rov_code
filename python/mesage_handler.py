@@ -287,7 +287,7 @@ class MessageHandler:
             self.motion_ctrl.set_rov_motion(
                 thrust_vector=action_value['thrustVector'],
                 turn_rate=action_value['turnRate'])
-            self.self.last_move_message_time = time.time()
+            self.last_move_message_time = time.time()
 
         elif action == "toggle_lights":
             print("TODO: Toggle lights")
