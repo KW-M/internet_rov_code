@@ -17,20 +17,19 @@ compass_IMU = None
 # For 9DOF sensors returns three 3-tuples (x, y, z) for accel, gyro and mag
 async def read_compass_coro():
     global compass_IMU
-    await asyncio.sleep(0.03)  # Plenty of time for mag to be ready
+    await asyncio.sleep(0.02)  # Plenty of time for mag to be ready
     while not compass_IMU or not compass_IMU.connected or not compass_IMU.dataReady(
     ):
-        await asyncio.sleep(0.03)  # Plenty of time for mag to be ready
+        await asyncio.sleep(0.01)
         print("compass data not yet ready")
 
     # read all axis and temp from sensor, note this also updates all instance variables
     compass_IMU.getAgmt()
-    await asyncio.sleep(0.03)  # Plenty of time for mag to be ready
     output = ((compass_IMU.axRaw, compass_IMU.ayRaw, compass_IMU.azRaw),
               (compass_IMU.gxRaw, compass_IMU.gyRaw, compass_IMU.gzRaw),
               (compass_IMU.mxRaw, compass_IMU.myRaw, compass_IMU.mzRaw),
               time.time())
-    print(str(output))
+    # print(str(output))
     return output
 
 
@@ -43,12 +42,8 @@ async def setup_compass_sensor():
     if not compass_IMU:
         compass_IMU = qwiic_icm20948.QwiicIcm20948()
 
-    print("setting up compass...")
-
     if compass_IMU.connected == False:
         raise Exception("Compass (Sparkfun ICM20948) isn't connected.")
-
-    print("compass connected.")
 
     compass_IMU.begin()
     compass_fused = Fusion(read_compass_coro, timediff=TimeDiff)
@@ -58,12 +53,6 @@ async def setup_compass_sensor():
 
 
 async def read_compass_sensor(compass_fused):
-    print("reading compass: ")
-    print(",".join([
-        str(compass_fused.heading),
-        str(compass_fused.pitch),
-        str(compass_fused.roll)
-    ]))
     return [compass_fused.heading, compass_fused.pitch, compass_fused.roll]
 
 
