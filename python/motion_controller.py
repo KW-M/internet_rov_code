@@ -196,10 +196,10 @@ class Motion_Controller:
                   str(up_left_thrust_amt) + " " + str(up_right_thrust_amt))
 
         try:
-            self.UP_LEFT_MOTOR.set_speed(up_left_thrust_amt / 5)
-            self.UP_RIGHT_MOTOR.set_speed(up_right_thrust_amt / 5)
-            self.FORWARD_LEFT_MOTOR.set_speed(forward_left_thrust_amt / 5)
-            self.FORWARD_RIGHT_MOTOR.set_speed(forward_right_thrust_amt / 5)
+            self.UP_LEFT_MOTOR.set_speed(up_left_thrust_amt)
+            self.UP_RIGHT_MOTOR.set_speed(up_right_thrust_amt)
+            self.FORWARD_LEFT_MOTOR.set_speed(forward_left_thrust_amt)
+            self.FORWARD_RIGHT_MOTOR.set_speed(forward_right_thrust_amt)
         except Exception as e:
             log.warning("Error setting motor speed!", exc_info=e)
             self.gpio_issue_flag.set()
