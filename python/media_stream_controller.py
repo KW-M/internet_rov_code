@@ -70,14 +70,14 @@ class Media_Stream_Controller:
     def start_source_stream(self, port=1820):
         ip = "127.0.0.1:" + str(port)
         vidSrc = self.start_video_source(
-            "libcamera-vid --width 1024 --height 576 --framerate 15 --codec yuv420 --flush 1 --timeout 0 --nopreview 1 --output - "
+            "libcamera-vid --width 960 --height 576 --framerate 15 --codec yuv420 --flush 1 --timeout 0 --nopreview 1 --output - "
         )
         # --width 1024 --height 576 --framerate 15
         # --width 1920 --height 1080 --framerate 20
         vidOutput = self.start_piped_input_command(
             inputPipe=vidSrc.stdout,
             cmd_str=
-            "ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -re -s 1024x576 -framerate 15 -use_wallclock_as_timestamps 1 -i pipe:0 -vcodec libx264 -b:v 900k -g 10 -fflags nobuffer -preset ultrafast -tune zerolatency -f rtp 'rtp://"
+            "ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -re -s 960x576 -framerate 15 -use_wallclock_as_timestamps 1 -i pipe:0 -vcodec libx264 -b:v 700k -g 10 -fflags nobuffer -preset ultrafast -tune zerolatency -f rtp 'rtp://"
             + ip + "?pkt_size=1200'",
         )
         # -s 1024x576 -framerate 15
