@@ -35,7 +35,8 @@ def TimeDiff(start, end):  # Timestamps here are in seconds
 
 async def setup_compass_sensor():
     global compass_IMU
-    compass_IMU = qwiic_icm20948.QwiicIcm20948()
+    if not compass_IMU:
+        compass_IMU = qwiic_icm20948.QwiicIcm20948()
 
     print("setting up compass...")
 
@@ -51,7 +52,9 @@ async def setup_compass_sensor():
 
 
 async def read_compass_sensor(compass_fused):
-    print("reading compass: " + str(compass_fused))
+    print("reading compass: ")
+    print(",".join(
+        [compass_fused.heading, compass_fused.pitch, compass_fused.roll]))
     return [compass_fused.heading, compass_fused.pitch, compass_fused.roll]
 
 
