@@ -46,7 +46,7 @@ apt-get update \
 # sudo wget https://raw.githubusercontent.com/RPi-Distro/rpi-source/master/rpi-source -O /usr/local/bin/rpi-source && sudo chmod +x /usr/local/bin/rpi-source && /usr/local/bin/rpi-source -q --tag-update
 # mkdir -p /home/pi/$(uname -r)
 # rpi-source -d $(uname -r)
-# # Compile driver
+# # Compile
 # cd ~
 # git clone https://github.com/umlaeute/v4l2loopback.git
 # cd v4l2loopback
