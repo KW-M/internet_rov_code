@@ -19,6 +19,7 @@ class MessageHandler:
         self.motion_ctrl = motion_controller
         self.sensor_ctrl = sensor_controller
         self.program_config = program_config
+        self.last_move_message_time = 0
 
         # --- Variables to keep track of who is allowed to drive the rov & who can take over / send debug commands and which client peers to send replys to: ---
         self.current_driver_peerid = None
@@ -286,6 +287,7 @@ class MessageHandler:
             self.motion_ctrl.set_rov_motion(
                 thrust_vector=action_value['thrustVector'],
                 turn_rate=action_value['turnRate'])
+            self.self.last_move_message_time = time.time()
 
         elif action == "toggle_lights":
             print("TODO: Toggle lights")
@@ -368,10 +370,16 @@ class MessageHandler:
     async def socket_update_message_sender_loop(self):
         while True:
             sensorUpdates = self.sensor_ctrl.get_sensor_update_dict()
-            # send to all connected peers (empty list at end)
+            # send sensor update to all connected peers (empty list at end)
             await self.send_msg(
                 {
                     "status": "sensor-update",
                     "val": sensorUpdates
                 }, {}, [])
+
+            # cut motors if we haven't recieved a move message recently (safety feature):
+            if (time.time() - self.last_move_message_time > 0.8):
+                self.motion_ctrl.set_rov_motion(thrust_vector=[0, 0, 0],
+                                                turn_rate=0)
+
             await asyncio.sleep(1)
