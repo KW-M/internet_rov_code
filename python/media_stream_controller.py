@@ -69,18 +69,19 @@ class Media_Stream_Controller:
 
     def start_source_stream(self, port=1820):
         ip = "127.0.0.1:" + str(port)
-        # vidSrc = self.start_video_source(
-        #     "libcamera-vid --width 640 --height 480 --framerate 15 --codec yuv420 --flush 1 --timeout 0 --nopreview 1 --output - "
-        # )
+        vidSrc = self.start_video_source(
+            # "libcamera-vid --width 640 --height 480 --framerate 15 --codec h264  --profile high --level 4.2 --bitrate 800000 --inline 1  --flush 1 --timeout 0 --nopreview 1 --output - "
+            "libcamera-vid --width 1024 --height 576 --framerate 15 --codec yuv420 --flush 1 --timeout 0 --nopreview 1 --output - "
+        )
         # # --width 1024 --height 576 --framerate 15
         # # --width 1920 --height 1080 --framerate 20
-        # vidOutput = self.start_piped_input_command(
-        #     inputPipe=vidSrc.stdout,
-        #     cmd_str=
-        #     "ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -re -s 640x480 -framerate 15 -use_wallclock_as_timestamps 1 -i pipe:0 -vcodec libx264 -b:v 700k -g 10 -fflags nobuffer -preset ultrafast -tune zerolatency -f rtp 'rtp://"
-        #     + ip + "?pkt_size=1200'",
-        # )
-        vidOutput = self.start_video_source("echo 'hi'")
+        vidOutput = self.start_piped_input_command(
+            inputPipe=vidSrc.stdout,
+            cmd_str=
+            "ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -use_wallclock_as_timestamps 1 -s 1024x576 -framerate 15 -i pipe:0 -vcodec libx264 -b:v 700k -g 10 -fflags nobuffer -preset ultrafast -tune zerolatency -f rtp 'rtp://"
+            + ip + "?pkt_size=1200'",
+        )
+        # works latecy free with freezes: libcamera-vid --width 640 --height 480 --framerate 15 --codec h264  --profile high --level 4.2 --bitrate 800000 --inline 1  --flush 1 --timeout 0 --nopreview 1 --output - | ffmpeg -hide_banner -f h264 -re -framerate 15 -i pipe:0 -vcodec copy -fflags nobuffer -f rtp 'rtp://127.0.0.1:1820?pkt_size=1200'
         # ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -re -s 960x576 -framerate 15 -use_wallclock_as_timestamps 1 -i pipe:0 -r 15 -vcodec h264_v4l2m2m -preset "ultrafast" -tune zerolatency -b:v 700k -fflags nobuffer -f rtp 'rtp://
         # ffmpeg -hide_banner -f lavfi -pix_fmt yuv420p -use_wallclock_as_timestamps 1 -i "testsrc=size=1280x720:rate=30" -r 30 -vcodec h264_v4l2m2m -preset "ultrafast" -tune zerolatency  -use_wallclock_as_timestamps 1 -fflags nobuffer -b:v 200k -f h264
         # -s 1024x576 -framerate 15
