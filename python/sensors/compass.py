@@ -10,6 +10,8 @@ from sensors.generic_sensor import Generic_Sensor
 ###### setup logging #######
 log = logging.getLogger(__name__)
 
+compass_IMU = None
+
 
 # User coro returns data and determines update rate.
 # For 9DOF sensors returns three 3-tuples (x, y, z) for accel, gyro and mag
