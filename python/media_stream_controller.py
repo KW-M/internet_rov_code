@@ -80,6 +80,7 @@ class Media_Stream_Controller:
         #     "ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -re -s 640x480 -framerate 15 -use_wallclock_as_timestamps 1 -i pipe:0 -vcodec libx264 -b:v 700k -g 10 -fflags nobuffer -preset ultrafast -tune zerolatency -f rtp 'rtp://"
         #     + ip + "?pkt_size=1200'",
         # )
+        vidOutput = self.start_video_source("echo 'hi'")
         # ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -re -s 960x576 -framerate 15 -use_wallclock_as_timestamps 1 -i pipe:0 -r 15 -vcodec h264_v4l2m2m -preset "ultrafast" -tune zerolatency -b:v 700k -fflags nobuffer -f rtp 'rtp://
         # ffmpeg -hide_banner -f lavfi -pix_fmt yuv420p -use_wallclock_as_timestamps 1 -i "testsrc=size=1280x720:rate=30" -r 30 -vcodec h264_v4l2m2m -preset "ultrafast" -tune zerolatency  -use_wallclock_as_timestamps 1 -fflags nobuffer -b:v 200k -f h264
         # -s 1024x576 -framerate 15
