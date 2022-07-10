@@ -73,4 +73,4 @@ class DeltaT():
 
         dt = self.timediff(ts, self.start_time)
         self.start_time = ts
-        return
+        return dt
