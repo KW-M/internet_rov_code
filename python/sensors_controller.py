@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 
 
 class Sensor_Controller:
-    all_sensors = [pressure_temp_sensor, fused_compass_sensor]
+    all_sensors = [pressure_temp_sensor]  #, fused_compass_sensor]
 
     async def sensor_setup_loop(self):
         log.info("Setting Up Sensors...")

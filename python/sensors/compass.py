@@ -17,10 +17,10 @@ compass_IMU = None
 # For 9DOF sensors returns three 3-tuples (x, y, z) for accel, gyro and mag
 async def read_compass_coro():
     global compass_IMU
-    await asyncio.sleep(0.02)  # Plenty of time for mag to be ready
+    await asyncio.sleep(0.005)  # Plenty of time for mag to be ready
     while not compass_IMU or not compass_IMU.connected or not compass_IMU.dataReady(
     ):
-        await asyncio.sleep(0.01)
+        await asyncio.sleep(0.005)
         print("compass data not yet ready")
 
     # read all axis and temp from sensor, note this also updates all instance variables
@@ -49,6 +49,7 @@ async def setup_compass_sensor():
     compass_fused = Fusion(read_compass_coro, timediff=TimeDiff)
     await compass_fused.start(slow_platform=False
                               )  # Start the fusion update task
+
     return compass_fused
 
 
