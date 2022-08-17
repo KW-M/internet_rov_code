@@ -33,25 +33,25 @@ read -p "Press [Enter] key to continue (or [Control] + [c] keys to exit - this w
 echo -e "$Cyan Setting Locale (Language to English US utf8)... $Color_Off"
 # https://www.jaredwolff.com/raspberry-pi-setting-your-locale/
 # check if the loaded locales contains US english utf-8:
-if ! locale -a | grep -i -q 'en_US.utf8' || locale -a | grep -i -q 'en_US.utf-8'; then
+LANGUAGE=en_US.UTF-8
+LANG=en_US.UTF-8
+LC_ALL=en_US.UTF-8
+LC_CTYPE=en_US.UTF-8
+if ! locale -a | grep -i -q 'en_US.utf8' || ! locale -a | grep -i -q 'en_US.utf-8'; then
  	echo -e "$Green en_US.utf8 local not generated, loading it now ... $Color_Off"
-	export LANGUAGE=en_US.UTF-8
-	export LC_ALL=en_US.UTF-8
-	export LANG=en_US.UTF-8
-	export LC_CTYPE=en_US.UTF-8
 	sudo perl -pi -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
 	sudo perl -pi -e 's/en_GB.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/g' /etc/locale.gen
 	sudo touch /etc/default/locale
-	sudo /bin/bash -c 'echo "LANG=en_US.UTF-8" > /etc/default/locale'
-	sudo /bin/bash -c 'echo "LANGUAGE=en_US.UTF-8" >> /etc/default/locale'
-	sudo /bin/bash -c 'echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale'
-	sudo /bin/bash -c 'echo "LC_CTYPE=en_US.UTF-8" >> /etc/default/locale'
+	echo "LANG=en_US.UTF-8" | sudo tee /etc/default/locale
+	echo "LANGUAGE=en_US.UTF-8" | sudo tee --append /etc/default/locale
+	echo "LC_ALL=en_US.UTF-8" | sudo tee --append /etc/default/locale
+	echo "LC_CTYPE=en_US.UTF-8" | sudo tee --append /etc/default/locale
 	sudo dpkg-reconfigure -f noninteractive locales
 fi
 
 echo -e "$Cyan Setting Timezone to America/Los_Angeles ... $Color_Off"
 sudo rm -f /etc/localtime
-sudo /bin/bash -c 'echo "America/Los_Angeles" >/etc/timezone'
+echo "America/Los_Angeles" | sudo tee /etc/timezone
 sudo dpkg-reconfigure -f noninteractive tzdata
 sudo timedatectl set-timezone America/Los_Angeles
 sudo timedatectl set-ntp true # enable network time sync
