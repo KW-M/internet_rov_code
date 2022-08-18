@@ -7,7 +7,7 @@ After=network.target
 
 [Service]
 ExecStart=/home/pi/ngrok http 80
-KillMode=process
+KillMode=mixed
 IgnoreSIGPIPE=true
 Restart=always
 TimeoutStopSec=10s

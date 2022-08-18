@@ -1,12 +1,19 @@
+# secrets stuff (paswords, etc)
+/secret_config.json
 
+# npm & parcel
+.parcel-cache
 node_modules
 
-.vscode/*
+.vscode/
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
+
+# go output
+/go/peerjs-webrtc-robot
 
 # Local History for Visual Studio Code
 .history/

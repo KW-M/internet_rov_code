@@ -3,108 +3,137 @@
 # based on:
 # https://raspberrypigpi.stackexchange.com/questions/29480/how-to-use-pigpio-to-control-a-servo-motor-with-a-keyboard
 # public domain
-
 # https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
 
 import time
 import json
-from datalog import sensor_datalog
+import logging
+import asyncio
 
 # import our python files from the same directory
-from socket_datachanel import socket_datachanel
+from config_reader import read_config_file, get_log_level
+from command_api import start_aiohttp_api_server
+from named_pipe import Duplex_Named_Pipe_Relay
+# from unix_socket import Unix_Socket
 from motion_controller import Motion_Controller
-from sensors import sensor_ctrl
-from utilities import *
+from media_stream_controller import Media_Stream_Controller
 
-msg_socket = socket_datachanel()
-sensors = sensor_ctrl()
-# datalog = sensor_datalog()
-motors = Motion_Controller()
+# from sensor_log import Sensor_Log
+from sensors_controller import Sensor_Controller
+from mesage_handler import MessageHandler
+from utilities import *
+# import logging_formatter
+
+config = read_config_file()
+print(config)
+
+###### Setup Logging #######
+############################
+
+# set the Loglevel is from command line argument or config file. Use either --LogLevel=DEBUG or --LogLevel=debug
+logging.basicConfig(level=get_log_level(config['LogLevel']))
+log = logging.getLogger(__name__)
+
 
 ######## Main Program Loop ###########
-while True:
-    try:
-        # MOTORS
-        try:
-            motors.init_motor_controllers()
-            motors.stop_gpio_and_motors()
-            # ^ Keeps motors off while disconnected.
-        except Exception as e:
-            is_important = type(e) != ValueError
-            pretty_print_exception(e,
-                                   show_traceback=is_important,
-                                   msg_socket=None)
-            time.sleep(3)
-            continue
+######################################
+async def main():
+    global duplex_relay, sensors, motion_ctrl, message_handler, media_ctrl
 
-        # SENSORS
-        # try:
-        #     sensors.setup_sensors()
-        # except Exception as e:
-        #     pretty_print_exception(e,
-        #                            show_traceback=is_important,
-        #                            msg_socket=None)
-        # datalog.setup_datalog(sensors.get_connected_sensor_column_names())
+    ##### Setup Variables #####
+    ############################
 
-        # SOCKET DATACHANEL
-        try:
-            print('Awaiting connection...')
-            msg_socket.setup_socket(socket_path='/tmp/uv4l.socket',
-                                    socket_timeout=5)
-        except Exception as e:
-            is_important = type(e) != TimeoutError and type(
-                e) != FileNotFoundError
-            pretty_print_exception(e,
-                                   show_traceback=is_important,
-                                   msg_socket=msg_socket)
-            msg_socket.close_socket()
-            time.sleep(3)
-            continue  # Go back to start of loop
-        else:
-            print('Connected!')
+    named_pipe_folder = config['NamedPipeFolder']
+    duplex_relay = Duplex_Named_Pipe_Relay(
+        named_pipe_folder + 'from_webrtc_relay.pipe',
+        named_pipe_folder + 'to_webrtc_relay.pipe')
+    sensors = Sensor_Controller()
+    # sensor_log = Sensor_Log(sensors.all_sensors)
+    motion_ctrl = Motion_Controller()
+    media_ctrl = Media_Stream_Controller(named_pipe_folder)
+    message_handler = MessageHandler(duplex_relay, media_ctrl, motion_ctrl,
+                                     sensors, config)
 
-        while True:
+    # setup the asyncio loop to run each of these async functions aka "tasks" aka "coroutines" concurently
+    await asyncio.gather(
+        sensors.sensor_setup_loop(),
+        motion_ctrl.motor_setup_loop(),
+        duplex_relay.start_loops(),
+        message_handler.socket_incoming_message_handler_loop(),
+        message_handler.socket_update_message_sender_loop(),
+        # start_aiohttp_api_server()
+    )
 
-            reply_data = {}
 
-            recived_message = str(msg_socket.recieve_socket_message())
-            if (recived_message != None):
-                print('Received message: {}'.format(recived_message))
+##### run the main program loop, and exit quietly if ctrl-c is pressed  #####
+try:
+    asyncio.run(main())
+except KeyboardInterrupt:
+    pass
+finally:
+    # cleanup that will always run no matter what
+    # sensors.cleanup()
+    # motion_ctrl.cleanup_gpio()
+    duplex_relay.cleanup()
+    media_ctrl.cleanup()
+    pass
 
-                # parse the message data as a JSON formatted string.
-                recived_data = json.loads(recived_message)
+# while True:
 
-                print(recived_data)
+#     try:
+#         ######## SETUP #########
 
-                if 'ping' in recived_data:
-                    reply_data['pong'] = recived_data['ping']
+#         # ----- SOCKET CONNECTION ----
+#         success = msg_socket.setup_socket(socket_path='/tmp/go_robot.socket',
+#                                           socket_timeout=5)
+#         if not success:
+#             log.warning(
+#                 'Unix socket connection not open. Retrying in 3 seconds...')
+#             time.sleep(3)
+#             continue
 
-                if 'move' in recived_data:
-                    motors.set_rov_motion(
-                        thrust_vector=recived_data['move']['thrustVector'],
-                        turn_rate=recived_data['move']['turnRate'])
+#         # # ----- MOTORS -----
+#         motors.init_motor_controllers()
+#         motors.stop_gpio_and_motors()  # Keep motors off while disconnected:
 
-                if 'toggleLights' in recived_data:
-                    pass
+#         # # ----- SENSORS -----
+#         # sensors.setup_sensors()
 
-            # sensor_values_did_change = sensors.update_all_sensors()
-            # if sensor_values_did_change:
-            #     reply_data[
-            #         "sensor_update"] = sensors.get_changed_sensor_values()
+#         # # ----- SENSOR_LOG -----
+#         # sensr_log.setup_sensor_log(sensors.get_connected_sensor_column_names())
 
-            # finally, send the reply_data as a json string if it has any data in it.
-            if len(reply_data) > 0:
-                reply_message = json.dumps(reply_data)
-                print('Sending message: {}'.format(reply_message))
-                msg_socket.send_socket_message(reply_message)
+#         ######## MESSAGE LOOP #########
+#         while True:
 
-    except Exception as error:
-        pretty_print_exception(error,
-                               show_traceback=True,
-                               msg_socket=msg_socket)
-        # Clean up the connection
-        print('Closing connection...')
-        motors.stop_gpio_and_motors()
-        motors.cleanup_gpio()
-        msg_socket.close_socket()
-        time.sleep(3)
+#             # Wait for a message to arrive (or timeout)
+#             # - Note the timeout effectively sets how frequently reply messages can go out when no messages come in.
+#             recived_message = msg_socket.recieve_socket_message()
+
+#             # Handle the message and generate a response message (if needed)
+#             reply_message = handle_socket_message(recived_message, motors,
+#                                                   sensors, sensr_log)
+
+#             # Send the response message
+#             if reply_message != None:
+#                 success = msg_socket.send_socket_message(reply_message)
+#                 # log.debug('Sending reply message: ' + str(reply_message) +
+#                 #           " Successful?: " + str(success))
+
+#     except Exception as error:
+
+#         if hasattr(error,
+#                    "suppress_traceback") and error.suppress_traceback == True:
+#             log.error(str(error))
+#         else:
+#             log.error(error, exc_info=True)
+
+#         try:
+#             # motors.stop_gpio_and_motors()
+#             # motors.cleanup_gpio()
+#             # errorMessage = json.dumps({'error': str(error)})
+#             # msg_socket.send_socket_message(errorMessage)
+#             msg_socket.close_socket()
+#         except:
+#             pass
+
+#         time.sleep(3)

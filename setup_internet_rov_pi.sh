@@ -9,10 +9,12 @@ FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 FOLDER_CONTAINING_THIS_SCRIPT="$(pwd)"
 
+# ----- RPi Model Details ------------------------------------------------------
 # from https://raspberrypi.stackexchange.com/questions/100076/what-revisions-does-cat-proc-cpuinfo-return-on-the-new-pi-4-1-2-4gb
 # PI_CPU_MODEL=$(cat /proc/cpuinfo | grep 'Hardware' | awk '{print $3}')
 PI_CPU_ARCHITECTURE=$(arch)
 
+# ----- terminal text colors ----------------------------------------------------
 Green="\033[1;32m"  # Green color code for console text
 Cyan="\033[1;36m"   # Cyan color code for console text
 Color_Off="\033[0m" # Text color Reset code for console text
@@ -23,7 +25,8 @@ echo -e "$Cyan This scripts sets up a raspberry pi as an internet rov, (ideally 
 echo -e "$Green - It should be fine if this script gets run twice or more."
 echo -e "$Green - Make sure the pi has a good power source & internet connection."
 echo -e "$Green - It will take ~ 1 hour to run."
-read -p "Press [Enter] key to continue (or [Control] + [c] keys to exit - this works on any terminal command)..."
+read -p "Press [Enter] key to continue (press [Control] + [c] keys to stop the script <- FYI: This works on any terminal command)..."
+source ~/.profile || true
 
 # ------------------------------------------------------------------------------
 # ---- Configuring System Settings ---------------------------------------------
@@ -31,25 +34,25 @@ read -p "Press [Enter] key to continue (or [Control] + [c] keys to exit - this w
 echo -e "$Cyan Setting Locale (Language to English US utf8)... $Color_Off"
 # https://www.jaredwolff.com/raspberry-pi-setting-your-locale/
 # check if the loaded locales contains US english utf-8:
-if ! locale -a | grep -i -q 'en_US.utf8' || locale -a | grep -i -q 'en_US.utf-8'; then
+LANGUAGE=en_US.UTF-8
+LANG=en_US.UTF-8
+LC_ALL=en_US.UTF-8
+LC_CTYPE=en_US.UTF-8
+if ! locale -a | grep -i -q 'en_US.utf8' || ! locale -a | grep -i -q 'en_US.utf-8'; then
  	echo -e "$Green en_US.utf8 local not generated, loading it now ... $Color_Off"
-	export LANGUAGE=en_US.UTF-8
-	export LC_ALL=en_US.UTF-8
-	export LANG=en_US.UTF-8
-	export LC_CTYPE=en_US.UTF-8
 	sudo perl -pi -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
 	sudo perl -pi -e 's/en_GB.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/g' /etc/locale.gen
 	sudo touch /etc/default/locale
-	sudo /bin/bash -c 'echo "LANG=en_US.UTF-8" > /etc/default/locale'
-	sudo /bin/bash -c 'echo "LANGUAGE=en_US.UTF-8" >> /etc/default/locale'
-	sudo /bin/bash -c 'echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale'
-	sudo /bin/bash -c 'echo "LC_CTYPE=en_US.UTF-8" >> /etc/default/locale'
+	echo "LANG=en_US.UTF-8" | sudo tee /etc/default/locale
+	echo "LANGUAGE=en_US.UTF-8" | sudo tee --append /etc/default/locale
+	echo "LC_ALL=en_US.UTF-8" | sudo tee --append /etc/default/locale
+	echo "LC_CTYPE=en_US.UTF-8" | sudo tee --append /etc/default/locale
 	sudo dpkg-reconfigure -f noninteractive locales
 fi
 
 echo -e "$Cyan Setting Timezone to America/Los_Angeles ... $Color_Off"
 sudo rm -f /etc/localtime
-sudo /bin/bash -c 'echo "America/Los_Angeles" >/etc/timezone'
+echo "America/Los_Angeles" | sudo tee /etc/timezone
 sudo dpkg-reconfigure -f noninteractive tzdata
 sudo timedatectl set-timezone America/Los_Angeles
 sudo timedatectl set-ntp true # enable network time sync
@@ -103,12 +106,12 @@ fi
 sudo sed -i 's|/#dtoverlay=vc4-fkms-v3d|/dtoverlay=vc4-fkms-v3d|g' /boot/config.txt
 
 # ----------------------------------------------------------------------------------------------------------------------
-if grep "rov_status_message.sh" ~/.profile; then
-	echo -e "$Green rov_status_message already set to run every time a terminal/cmd prompt is opened in ~/.profile $Color_Off"
+if grep "rov_status_report.sh" ~/.profile; then
+	echo -e "$Green rov_status_report already set to run every time a terminal/cmd prompt is opened in ~/.profile $Color_Off"
 else
-	echo -e "$Cyan Adding command to run rov_status_message.sh whenever a terminal is oppened by adding it to the .profile file $Color_Off"
+	echo -e "$Cyan Adding command to run rov_status_report.sh whenever a terminal is oppened by adding it to the .profile file $Color_Off"
 	# the .profile file is the file that gets run to setup the default terminal/command shell whenever you open a terminal or ssh session
-	echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_message.sh" >> ~/.profile
+	echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_report.sh" | tee -a ~/.profile
 fi
 # ----------------------------------------------------------------------------------------------------------------------
 # ----- Bluetooth Serial Setup -----------------------------------------------------------------------------------------
@@ -173,15 +176,15 @@ fi
 # --------- Setup nginx to log to the file nginx_error.log ---------
 sudo apt install -y nginx
 sudo apt autoremove -y
-# # this solves the problem of missing the nginx log folder when the temp filesystem first starts up.
-# if grep "/var/log/nginx" "/lib/systemd/system/nginx.service"; then
-# 	# ^checks if we have already added words " -e '/var/log/nginx_error.log'" to the nginx.service file:
-# 	echo -e "$Green nginx.service already has the nginx error log folder '/var/log/nginx' already added in /lib/systemd/system/nginx.service$Color_Off"
-# else
-# 	echo -e "$Cyan Adding nginx error log folder '/var/log/nginx' in /lib/systemd/system/nginx.service $Color_Off"
-# 	# https://stackoverflow.com/questions/148451/how-to-use-sed-to-replace-only-the-first-occurrence-in-a-file
-# 	sudo sed -i '0,/ExecStartPre=/s//ExecStartPre=mkdir -p "\/var\/log\/nginx\/"\nExecStartPre=/' /lib/systemd/system/nginx.service
-# fi
+# this solves the problem of missing the nginx log folder when the temp filesystem first starts up.
+if grep "/var/log/nginx" "/lib/systemd/system/nginx.service"; then
+	# ^checks if we have already added words " -e '/var/log/nginx_error.log'" to the nginx.service file:
+	echo -e "$Green nginx.service already has the nginx error log folder '/var/log/nginx' already added in /lib/systemd/system/nginx.service$Color_Off"
+else
+	echo -e "$Cyan Adding nginx error log folder '/var/log/nginx' in /lib/systemd/system/nginx.service $Color_Off"
+	# https://stackoverflow.com/questions/148451/how-to-use-sed-to-replace-only-the-first-occurrence-in-a-file
+	sudo sed -i '0,/ExecStartPre=/s//ExecStartPre=mkdir -p "\/var\/log\/nginx\/"\nExecStartPre=/' /lib/systemd/system/nginx.service
+fi
 
 # --------- generate ssl certificate --------------------------------
 # From: https://raspberrypi.stackexchange.com/a/66939
@@ -230,27 +233,34 @@ if grep "GOPATH=" ~/.profile; then
 	# ^checks if we have already added words "GOPATH=" to the  ~/.profile file:
 	echo -e "$Green Go path already setup in ~/.profile $Color_Off"
 else
-# https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/
+	pushd ~/
+    # https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/
     echo -e "$Cyan Installing GO and adding GOPATH to ~/.profile $Color_Off"
     sudo rm -r /usr/local/go | true # remove any old version of go
     sudo apt install -y git wget
-    wget https://dl.google.com/go/go1.17.6.linux-armv6l.tar.gz
+    wget https://go.dev/dl/go1.18.linux-armv6l.tar.gz
 
-    sudo tar -C /usr/local -xzf go1.17.6.linux-armv6l.tar.gz
-    rm go1.17.6.linux-armv6l.tar.gz
-    echo 'PATH=$PATH:/usr/local/go/bin' | sudo tee -a ~/.profile
+    sudo tar -C /usr/local -xzf go1.18.linux-armv6l.tar.gz
+    rm go1.18.linux-armv6l.tar.gz
+    echo 'PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' | sudo tee -a ~/.profile
     echo 'GOPATH=$HOME/golang' | sudo tee -a ~/.profile
-    source ~/.profile
+	source ~/.profile
+	popd
 fi
 
-# UV4L ALTERNATIVE
-# https://github.com/dwoja22/ffmpeg-webrtc
-sudo apt install v4l-utils -y
-sudo apt install ffmpeg -y
-git clone https://github.com/KW-M/ffmpeg-webrtc.git
-cd ffmpeg-webrtc/
-go build
-./ffmpeg-webrtc
+# ---- INSTALL GO WEBRTC-RELAY ----
+pushd ~/
+rm -rf webrtc-relay || true
+git clone https://github.com/kw-m/webrtc-relay.git
+cd webrtc-relay
+go install .
+popd
+
+# ---- DOWNLOAD STATIC ROV FRONTEND WEB PAGE ----
+pushd ~/
+rm -rf rov-web || true
+git clone -b gh-pages --single-branch https://github.com/kw-m/rov-web.git
+popd
 
 # From: https://www.youtube.com/watch?v=Q-m4i7LFxLA
 echo -e "$Cyan Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils $Color_Off"
@@ -259,27 +269,29 @@ sudo apt install -y usbmuxd ipheth-utils libimobiledevice-utils
 
 # ----------------------------------------------------------------------------------------------------------------------
 # From: https://ngrok.com/docs
-echo -e "$Cyan Downloading and updating Ngrok $Color_Off"
-echo -e "$Green This download url might break, so if it does just get the latest from https://ngrok.com/download, unzip it and put it in the home folder - might need to mark it as executable with chmod +x too. $Color_Off"
-cd ~/
-curl https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm.zip --output ~/ngrok_download.zip
-unzip -o ~/ngrok_download.zip
-rm ~/ngrok_download.zip
-echo -e "$Green Marking ngrok as executable with command 'chmod +x ~/ngrok' $Color_Off"
-chmod +x ~/ngrok
-echo -e "$Green Updating ngrok $Color_Off"
-~/ngrok update
-cd "$FOLDER_CONTAINING_THIS_SCRIPT"
+# echo -e "$Cyan Downloading and updating Ngrok $Color_Off"
+# echo -e "$Green This download url might break, so if it does just get the latest from https://ngrok.com/download, unzip it and put it in the home folder - might need to mark it as executable with chmod +x too. $Color_Off"
+# cd ~/
+# curl https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm.zip --output ~/ngrok_download.zip
+# unzip -o ~/ngrok_download.zip
+# rm ~/ngrok_download.zip
+# echo -e "$Green Marking ngrok as executable with command 'chmod +x ~/ngrok' $Color_Off"
+# chmod +x ~/ngrok
+# echo -e "$Green Updating ngrok $Color_Off"
+# ~/ngrok update
+# cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 
 # ----------------------------------------------------------------------------------------------------------------------
 # from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
 if ! command -v libcamera-hello &> /dev/null || ! dmesg | grep arducam; then
+	pushd ~/
 	echo -e "$Cyan Installing arducam pivariety camera driver $Color_Off"
 	wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
 	chmod +x install_pivariety_pkgs.sh
 	echo "n" | ./install_pivariety_pkgs.sh -p kernel_driver
 	./install_pivariety_pkgs.sh -p libcamera_dev
 	./install_pivariety_pkgs.sh -p libcamera_apps
+	popd
 fi
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -294,6 +306,9 @@ fi
 # clean up any packages that were installed to aid installing anything else, but are no longer needed
 sudo apt autoremove -y
 
+# make sure the shell profile is still available to the pi:
+source ~/.profile
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_Off"
@@ -305,18 +320,21 @@ echo -e "$Green enabling pigpiod.service ... $Color_Off"
 sudo systemctl enable pigpiod.service
 echo -e "$Green enabling rov_python_code.service ... $Color_Off"
 sudo systemctl enable rov_python_code.service # enable the new rov_python_code service
-echo -e "$Green enabling rov_bluetooth_terminal.service ... $Color_Off"
-sudo systemctl enable rov_bluetooth_terminal.service # enable the new rfcomm service
-echo -e "$Green enabling ngrok.service ... $Color_Off"
-sudo systemctl enable ngrok.service # enable the new ngrok service
-echo -e "$Green enabling uv4l_raspicam.service ... $Color_Off"
-sudo systemctl enable uv4l_raspicam.service
+echo -e "$Green enabling rov_go_code.service ... $Color_Off"
+sudo systemctl enable rov_go_code.service # enable the new rov_python_code service
 echo -e "$Green enabling nginx.service ... $Color_Off"
 sudo systemctl enable nginx.service
-echo -e "$Green enabling rov_uwsgi_server.service ... $Color_Off"
-sudo systemctl enable rov_uwsgi_server.service
 echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
 sudo systemctl enable add_fixed_ip.service
+# echo -e "$Green enabling rov_bluetooth_terminal.service ... $Color_Off"
+# sudo systemctl enable rov_bluetooth_terminal.service # enable the new rfcomm service
+# echo -e "$Green enabling ngrok.service ... $Color_Off"
+# sudo systemctl enable ngrok.service # enable the new ngrok service
+# echo -e "$Green enabling uv4l_raspicam.service ... $Color_Off"
+# sudo systemctl enable uv4l_raspicam.service
+# echo -e "$Green enabling rov_uwsgi_server.service ... $Color_Off"
+# sudo systemctl enable rov_uwsgi_server.service
+
 
 # --------------------------------------------------------------------------
 # ----- Python Library Setup -------------------------------------------------------
@@ -325,27 +343,30 @@ sudo systemctl enable add_fixed_ip.service
 echo -e "$Cyan Installing python3 pip $Color_Off"
 sudo apt install -y python3-pip
 
-# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
-echo -e "$Cyan Downloading Adafruit circuit python $Color_Off"
-sudo python3 -m pip install --upgrade setuptools
-sudo python3 -m pip install --upgrade adafruit-python-shell
+echo -e "$Cyan Installing python packages $Color_Off"
+sudo python3 -m pip install -r ./python/requirements.txt
 
-# from: https://learn.adafruit.com/adafruit-dc-and-stepper-motor-hat-for-raspberry-pi/installing-software
-echo -e "$Cyan Downloading Adafruit motor controller python libraries... $Color_Off"
-sudo python3 -m pip install --upgrade adafruit-circuitpython-motorkit
+# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+# echo -e "$Cyan Downloading Adafruit circuit python $Color_Off"
+# sudo python3 -m pip install --upgrade setuptools
+# sudo python3 -m pip install --upgrade adafruit-python-shell
+
+# # from: https://learn.adafruit.com/adafruit-dc-and-stepper-motor-hat-for-raspberry-pi/installing-software
+# echo -e "$Cyan Downloading Adafruit motor controller python libraries... $Color_Off"
+# sudo python3 -m pip install --upgrade adafruit-circuitpython-motorkit
 
 # from: https://github.com/NickCrews/ms5803py
-echo -e "$Cyan Downloading pressure sensor python libraries... $Color_Off"
-sudo python3 -m pip install --upgrade ms5803py
+# echo -e "$Cyan Downloading pressure sensor python libraries... $Color_Off"
+# sudo python3 -m pip install --upgrade ms5803py
 
 # From: https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html
-echo -e "$Cyan Installing uWSGI python3 library (tiny server handler) and python c bindings for it $Color_Off"
-sudo apt install -y build-essential python-dev
-sudo python3 -m pip install --upgrade uwsgi
+# echo -e "$Cyan Installing uWSGI python3 library (tiny server handler) and python c bindings for it $Color_Off"
+# sudo apt install -y build-essential python-dev
+# sudo python3 -m pip install --upgrade uwsgi
 
 # ----------------------------------------------------------------------------------------------------------------------
 # from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
-cd ~/ # go to home directory
-echo -e "$Cyan Installing Adafruit circuit python (May ask to reboot, say yes) $Color_Off"
-wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
-sudo python3 raspi-blinka.py
+# cd ~/ # go to home directory
+# echo -e "$Cyan Installing Adafruit circuit python (May ask to reboot, say yes) $Color_Off"
+# wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
+# sudo python3 raspi-blinka.py

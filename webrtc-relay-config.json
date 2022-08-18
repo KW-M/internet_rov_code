@@ -1,0 +1,37 @@
+{
+    "LogLevel": "debug",
+    "BasePeerId": "go-relay-",
+    "DriverControlPassword": "CHANGE THIS PASSWORD",
+    "DisconnectedDriverAuthTimeout": 180,
+    "NamedPipeFolder": "~/relay-pipes/",
+    "MessageMetadataSeparator": "|\"|",
+    "AddMetadataToMessages": true,
+    "PeerInitConfigs": [
+        {
+            "Host": "0.peerjs.com",
+            "Port": 443,
+            "Path": "/",
+            "Key": "peerjs",
+            "Secure": true,
+            "PingInterval": 3000,
+            "RetryCount": 2,
+            "StartLocalServer": false
+        },
+        {
+            "Host": "localhost",
+            "Port": 9000,
+            "Path": "/",
+            "Key": "peerjs",
+            "Secure": false,
+            "PingInterval": 3000,
+            "RetryCount": 2,
+            "StartLocalServer": true,
+            "ServerLogLevel": "info",
+            "AllowDiscovery": true,
+            "Configuration": {
+                "iceServers": [],
+                "sdpSemantics": "unified-plan"
+            }
+        }
+    ]
+}
