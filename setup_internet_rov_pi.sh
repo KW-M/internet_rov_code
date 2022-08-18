@@ -342,13 +342,15 @@ sudo systemctl enable add_fixed_ip.service
 
 echo -e "$Cyan Installing python3 pip $Color_Off"
 sudo apt install -y python3-pip
+sudo python3 -m pip install --upgrade setuptools
 
 echo -e "$Cyan Installing python packages $Color_Off"
 sudo python3 -m pip install -r ./python/requirements.txt
 
+echo "YAY! Internet ROV Install Script has Finished Successfully!"
+
 # from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 # echo -e "$Cyan Downloading Adafruit circuit python $Color_Off"
-# sudo python3 -m pip install --upgrade setuptools
 # sudo python3 -m pip install --upgrade adafruit-python-shell
 
 # # from: https://learn.adafruit.com/adafruit-dc-and-stepper-motor-hat-for-raspberry-pi/installing-software
