@@ -25,7 +25,8 @@ echo -e "$Cyan This scripts sets up a raspberry pi as an internet rov, (ideally 
 echo -e "$Green - It should be fine if this script gets run twice or more."
 echo -e "$Green - Make sure the pi has a good power source & internet connection."
 echo -e "$Green - It will take ~ 1 hour to run."
-read -p "Press [Enter] key to continue (or [Control] + [c] keys to exit - this works on any terminal command)..."
+read -p "Press [Enter] key to continue (press [Control] + [c] keys to stop the script <- FYI: This works on any terminal command)..."
+source ~/.profile || true
 
 # ------------------------------------------------------------------------------
 # ---- Configuring System Settings ---------------------------------------------
@@ -110,7 +111,7 @@ if grep "rov_status_report.sh" ~/.profile; then
 else
 	echo -e "$Cyan Adding command to run rov_status_report.sh whenever a terminal is oppened by adding it to the .profile file $Color_Off"
 	# the .profile file is the file that gets run to setup the default terminal/command shell whenever you open a terminal or ssh session
-	echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_report.sh" >> ~/.profile
+	echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_report.sh" | tee -a ~/.profile
 fi
 # ----------------------------------------------------------------------------------------------------------------------
 # ----- Bluetooth Serial Setup -----------------------------------------------------------------------------------------
@@ -243,13 +244,13 @@ else
     rm go1.18.linux-armv6l.tar.gz
     echo 'PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' | sudo tee -a ~/.profile
     echo 'GOPATH=$HOME/golang' | sudo tee -a ~/.profile
-    source ~/.profile
+	source ~/.profile
 	popd
 fi
 
-
 # ---- INSTALL GO WEBRTC-RELAY ----
 pushd ~/
+rm -rf webrtc-relay || true
 git clone https://github.com/kw-m/webrtc-relay.git
 cd webrtc-relay
 go install .
@@ -257,6 +258,7 @@ popd
 
 # ---- DOWNLOAD STATIC ROV FRONTEND WEB PAGE ----
 pushd ~/
+rm -rf rov-web || true
 git clone -b gh-pages --single-branch https://github.com/kw-m/rov-web.git
 popd
 
