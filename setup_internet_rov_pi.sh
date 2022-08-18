@@ -285,6 +285,8 @@ sudo apt install -y usbmuxd ipheth-utils libimobiledevice-utils
 # from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
 if ! command -v libcamera-hello &> /dev/null || ! dmesg | grep arducam; then
 	pushd ~/
+	mkdir arducam_install;
+	cd arducam_install;
 	echo -e "$Cyan Installing arducam pivariety camera driver $Color_Off"
 	wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
 	chmod +x install_pivariety_pkgs.sh
