@@ -19,5 +19,5 @@ async def read_pressure_sensor(sensor_connection):
 
 pressure_temp_sensor = Generic_Sensor('ms5803_pressure_temp', 1,
                                       ['pressure', 'temperature'],
-                                      ['mPa', 'C'], setup_pressure_sensor,
+                                      ['mBar', 'C'], setup_pressure_sensor,
                                       read_pressure_sensor)

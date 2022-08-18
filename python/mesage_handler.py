@@ -265,14 +265,7 @@ class MessageHandler:
             src_peer_id)
         sending_peer_is_driver = (src_peer_id == self.current_driver_peerid)
 
-        if (not sending_peer_is_authenticated):
-            # if the sender is not authenticated, send back the password-required message
-            await self.send_msg({
-                'status': 'password-required',
-                'cid': msg_cid
-            }, {}, [src_peer_id])
-
-        elif (not sending_peer_is_driver):
+        if (not sending_peer_is_driver):
             # if the sender is not the driver, send back the not a driver error message
             error_msg = 'You must be the ROV driver before using the ' + action + ' action'
             await self.send_msg(
@@ -280,8 +273,14 @@ class MessageHandler:
                     'status': 'error',
                     'val': error_msg,
                     'cid': msg_cid
-                }, {}, []
-            )  # send to all connected peers (empty list at end = send to all connected peers)
+                }, {}, [src_peer_id])
+
+        elif (not sending_peer_is_authenticated):
+            # if the sender is not authenticated, send back the password-required message
+            await self.send_msg({
+                'status': 'password-required',
+                'cid': msg_cid
+            }, {}, [src_peer_id])
 
         elif action == "move":
             self.motion_ctrl.set_rov_motion(
