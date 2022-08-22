@@ -66,6 +66,10 @@ git pull --rebase
 
 
 # cp webrtc-relay-config.json ~/
+if [ ! -e "$HOME/webrtc-relay-config.json" ]; then
+echo "Copying over webrtc-relay-config.json file..."
+backup_then_overwrite_file "$HOME/webrtc-relay-config.json" "./new_config_files/webrtc-relay-config.json"
+fi;
 
 echo "Copying over rov_go_code startup service file..."
 backup_then_overwrite_file "/lib/systemd/system/rov_go_code.service" "./new_config_files/rov_go_code.service"
