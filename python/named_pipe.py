@@ -126,7 +126,6 @@ class Named_Pipe_Relay:
 
                     while True:
                         msg = await self.pipe_message_queue.get()
-                        print("sending: " + msg)
                         if msg:
                             stream.write(msg + '\n')
                             stream.flush()

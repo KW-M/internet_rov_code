@@ -87,28 +87,33 @@ class MessageHandler:
                     if src_peer_id == self.current_driver_peerid:
                         self.current_driver_peerid = None  # reset the current driver peerid
 
-            # handle the case when there is no current driver peerid:
-            if self.current_driver_peerid == None and len(
-                    self.connected_peerids) > 0:
-                self.current_driver_peerid = self.connected_peerids[
-                    0]  # set the current driver peerid
-                driver_has_changed = True
+                # handle the case when there is no current driver peerid:
+                if self.current_driver_peerid == None and len(
+                        self.connected_peerids) > 0:
+                    self.current_driver_peerid = src_peer_id  # set the current driver peerid to the one that just connected
 
-        if driver_has_changed:
-            # Let all connected peers know that the designated driver peer has changed: (empty list at end = send to all connected peers)
-            await self.send_msg(
-                {
-                    "status": 'driver-changed',
-                    'val': self.current_driver_peerid
-                }, {}, [])
+                # if driver_has_changed:
+                #     # Let all connected peers know that the designated driver peer has changed: (empty list at end = send to all connected peers)
+                await self.send_msg(
+                    {
+                        "status": "driver-changed",
+                        'val': self.current_driver_peerid
+                    }, {}, [])
+                # else:
+                #     # Let the connecting peer know who the designated driver is:
+                #     await self.send_msg(
+                #         {
+                #             "status": 'driver-changed',
+                #             'val': self.current_driver_peerid
+                #         }, {}, [src_peer_id])
 
-        elif "Event" in metadata and metadata["Event"] == "Connected":
-            # Let any new connected peers know who the designated driver peer is.
-            await self.send_msg(
-                {
-                    "status": 'driver-changed',
-                    'val': self.current_driver_peerid
-                }, {}, [src_peer_id])
+                # elif "Event" in metadata and metadata["Event"] == "Connected":
+                # # Let any new connected peers know who the designated driver peer is.
+                # await self.send_msg(
+                #     {
+                #         "status": 'driver-changed',
+                #         'val': self.current_driver_peerid
+                #     }, {}, [src_peer_id])
 
         return src_peer_id
 
