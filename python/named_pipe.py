@@ -293,7 +293,7 @@ if __name__ == '__main__':
     #     # print(contents)
     # except Exception as e:
     #     log.error(f'Failed to read from pipe: {e}')
-    #     asyncio.sleep(3)
+    #     await asyncio.sleep(3)
 
     # while True:
     #     try:
@@ -304,7 +304,7 @@ if __name__ == '__main__':
     #             await asyncio.sleep(0.1)
     #     except Exception as e:
     #         log.error(f'Failed to read from pipe: {e}')
-    #         asyncio.sleep(3)
+    #         await asyncio.sleep(3)
 
     # await asyncio.to_thread(self.read_loop,
     #                         async_loop=asyncLoop)\

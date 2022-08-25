@@ -376,7 +376,7 @@ class MessageHandler:
                    ) == 0 or time.time() - self.last_ping_recived_time > 1.2:
                 self.motion_ctrl.set_rov_motion(thrust_vector=[0, 0, 0],
                                                 turn_rate=0)
-                asyncio.sleep(0.5)
+                await asyncio.sleep(0.5)
                 continue
 
             # get sensor updates from all sensors:
