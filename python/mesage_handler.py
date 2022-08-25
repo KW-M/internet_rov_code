@@ -76,11 +76,13 @@ class MessageHandler:
             src_peer_id = metadata["SrcPeerId"]
 
             # check if a connected or disconnected event happened:
-            if "Event" in metadata:
-                if metadata["Event"] == "Connected":
+            if "PeerEvent" in metadata:
+                if metadata["PeerEvent"] == "Connected":
                     self.connected_peerids.append(src_peer_id)
+                    log.info("A client peer has connected: " + src_peer_id)
 
-                elif metadata["Event"] == "Disconnected":
+                elif metadata["PeerEvent"] == "Disconnected":
+                    log.info("A client peer has DISconnected: " + src_peer_id)
                     self.connected_peerids.remove(src_peer_id)
                     if src_peer_id in self.authenticated_peerids:
                         self.authenticated_peerids[src_peer_id] = time.time()
@@ -107,7 +109,7 @@ class MessageHandler:
                 #             'val': self.current_driver_peerid
                 #         }, {}, [src_peer_id])
 
-                # elif "Event" in metadata and metadata["Event"] == "Connected":
+                # elif "PeerEvent" in metadata and metadata["PeerEvent"] == "Connected":
                 # # Let any new connected peers know who the designated driver peer is.
                 # await self.send_msg(
                 #     {

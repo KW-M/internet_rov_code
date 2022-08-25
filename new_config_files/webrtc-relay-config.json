@@ -2,7 +2,7 @@
     "LogLevel": "debug",
     "BasePeerId": "iROV-",
     "NamedPipeFolder": "/tmp/relay-pipes/",
-    "AddMetadataToMessages": true,
+    "AddMetadataToPipeMessages": true,
     "MessageMetadataSeparator": "|\"|",
     "PeerInitConfigs": [
         {
