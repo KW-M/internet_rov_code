@@ -105,6 +105,9 @@ class Motion_Controller:
     #     'claw': 0,
     #     # 'lights': 0,
     # }
+    last_thrust_vector = [0, 0, 0]
+    last_turn_rate = 0
+
     async def motor_setup_loop(self):
         self.gpio_issue_flag = asyncio.Event()
         while True:
@@ -174,6 +177,10 @@ class Motion_Controller:
         if self.gpio_issue_flag.is_set():
             return
 
+        if (turn_rate == self.last_turn_rate
+                and thrust_vector == self.last_thrust_vector):
+            return
+
         turn_rate = float(turn_rate)  # make sure it's a float
         strafe_amt = float(thrust_vector[0])
         forward_amt = float(thrust_vector[1])
@@ -204,6 +211,8 @@ class Motion_Controller:
             self.UP_RIGHT_MOTOR.set_speed(up_right_thrust_amt)
             self.FORWARD_LEFT_MOTOR.set_speed(forward_left_thrust_amt)
             self.FORWARD_RIGHT_MOTOR.set_speed(forward_right_thrust_amt)
+            self.last_thrust_vector = thrust_vector
+            self.last_turn_rate = turn_rate
         except Exception as e:
             log.warning("Error setting motor speed!", exc_info=e)
             self.gpio_issue_flag.set()
