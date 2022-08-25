@@ -10,20 +10,28 @@ from utilities import *
 ###### setup logging #######
 log = logging.getLogger(__name__)
 
+all_possible_sensors = [pressure_temp_sensor, fused_compass_sensor]
+
 
 class Sensor_Controller:
-    all_sensors = [pressure_temp_sensor]  #, fused_compass_sensor]
+    connected_sensors = []
+
+    def __init__(self, config):
+        self.enabledSensors = config.enabledSensors
 
     async def sensor_setup_loop(self):
         log.info("Setting Up Sensors...")
+        self.connected_sensors = filter(
+            lambda sensor: sensor.sensor_name in self.enabledSensors,
+            all_possible_sensors)
         sensor_tasks = [
-            sensor.start_sensor_loop() for sensor in self.all_sensors
+            sensor.start_sensor_loop() for sensor in self.connected_sensors
         ]
         await asyncio.gather(*sensor_tasks)
 
     def get_sensor_update_dict(self):
         sensor_dict = {}
-        for sensor in self.all_sensors:
+        for sensor in self.connected_sensors:
             if sensor.sensor_value_changed_flag.is_set():
                 sensor.sensor_value_changed_flag.clear()
                 for i in range(len(sensor.measurement_names)):
@@ -34,7 +42,7 @@ class Sensor_Controller:
         return sensor_dict
 
     def cleanup(self):
-        for sensor in self.all_sensors:
+        for sensor in self.connected_sensors:
             # sensor.sensor_connection.close()
             pass
 

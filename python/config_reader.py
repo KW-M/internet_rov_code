@@ -16,6 +16,7 @@ default_config = {
     "DriverControlPassword":
     "Change this password in the webrtc-relay-config.json file",
     "DisconnectedDriverAuthTimeout": 180,
+    "enabledSensors": []
 }
 
 
@@ -35,8 +36,6 @@ def read_config_file():
                                    required=True,
                                    help='Path to the config file.')
     args = programArgsParser.parse_args(sys.argv[1:])
-
-    print(args)
 
     # get the config file path from the program arguments or use the default
     config_file_path = args.config_file

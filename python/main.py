@@ -46,7 +46,7 @@ async def main():
     duplex_relay = Duplex_Named_Pipe_Relay(
         named_pipe_folder + 'from_webrtc_relay.pipe',
         named_pipe_folder + 'to_webrtc_relay.pipe')
-    sensors = Sensor_Controller()
+    sensors = Sensor_Controller(config)
     # sensor_log = Sensor_Log(sensors.all_sensors)
     motion_ctrl = Motion_Controller()
     media_ctrl = Media_Stream_Controller(named_pipe_folder)

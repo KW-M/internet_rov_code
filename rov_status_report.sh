@@ -25,6 +25,7 @@ echo "========================="
 echo "";
 echo " * Networking Status: *";
 echo "`ip addr list`";
+echo "-------------------------"
 echo "Bluetooth status: `rfkill list bluetooth`"
 echo "WIFI status: `rfkill list wlan`"
 echo "NOTE: Run 'rfkill unblock wlan' to enable wifi or 'rfkill block wlan' to disable wifi"
