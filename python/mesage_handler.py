@@ -19,7 +19,7 @@ class MessageHandler:
         self.motion_ctrl = motion_controller
         self.sensor_ctrl = sensor_controller
         self.program_config = program_config
-        self.last_move_message_time = 0
+        self.last_ping_recived_time = 0
 
         # --- Variables to keep track of who is allowed to drive the rov & who can take over / send debug commands and which client peers to send replys to: ---
         self.current_driver_peerid = None
@@ -101,6 +101,7 @@ class MessageHandler:
                     "status": 'driver-changed',
                     'val': self.current_driver_peerid
                 }, {}, [])
+
         elif "Event" in metadata and metadata["Event"] == "Connected":
             # Let any new connected peers know who the designated driver peer is.
             await self.send_msg(
@@ -159,6 +160,7 @@ class MessageHandler:
                                     msg_cid):
 
         if action == "ping":
+            self.last_ping_recived_time = time.time()
             # send back the same timestamp from the ping with the status "pong"
             await self.send_msg(
                 {
@@ -368,17 +370,24 @@ class MessageHandler:
 
     async def socket_update_message_sender_loop(self):
         while True:
-            sensorUpdates = self.sensor_ctrl.get_sensor_update_dict()
-            # send sensor update to all connected peers (empty list at end)
-            await self.send_msg(
-                {
-                    "status": "sensor-update",
-                    "val": sensorUpdates
-                }, {}, [])
 
-            # cut motors if we haven't recieved a move message recently (safety feature):
-            if (time.time() - self.last_move_message_time > 0.8):
+            # cut motors & keep looping if no one is connected to the rov or we haven't recieved ping message recently (safety feature):
+            if len(self.connected_peerids
+                   ) == 0 or time.time() - self.last_ping_recived_time > 1.2:
                 self.motion_ctrl.set_rov_motion(thrust_vector=[0, 0, 0],
                                                 turn_rate=0)
+                asyncio.sleep(0.5)
+                continue
+
+            # get sensor updates from all sensors:
+            sensorUpdates = self.sensor_ctrl.get_sensor_update_dict()
+
+            # send sensor update (unless it is empty) to all connected peers
+            if (sensorUpdates.__len__() != 0):
+                await self.send_msg(
+                    {
+                        "status": "sensor-update",
+                        "val": sensorUpdates
+                    }, {}, ["all"])
 
             await asyncio.sleep(1)
