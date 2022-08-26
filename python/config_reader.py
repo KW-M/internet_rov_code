@@ -16,7 +16,7 @@ default_config = {
     "DriverControlPassword":
     "Change this password in the webrtc-relay-config.json file",
     "DisconnectedDriverAuthTimeout": 180,
-    "enabledSensors": []
+    "EnabledSensors": []
 }
 
 
