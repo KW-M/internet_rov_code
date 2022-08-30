@@ -57,7 +57,7 @@ def readAuthStateFromDisk():
                                              "./rov-auth-state.json")
     if exists(authStorageFilepath):
         with open(authStorageFilepath, "r") as f:
-            state = json.load(authTokens, f)
+            state = json.load(f)
             authTokens = state.get("authTokens", {})
             rovUUID = state.get("rovUUID", None)
         removeExpiredTokens()

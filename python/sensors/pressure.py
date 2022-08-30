@@ -1,5 +1,4 @@
 import logging
-import ms5803py
 
 from utilities import *
 from sensors.generic_sensor import Generic_Sensor
@@ -9,6 +8,7 @@ log = logging.getLogger(__name__)
 
 
 async def setup_pressure_sensor():
+    import ms5803py
     return ms5803py.MS5803()
 
 
