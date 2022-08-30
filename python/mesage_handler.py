@@ -264,12 +264,12 @@ class MessageHandler:
         handle actions that require an authenticated peer (one who as previously entered thec correct password):
         """
 
-        if not (action_value in [
+        if action_value not in [
                 "take_control", "take_photo", "start_video_rec",
                 "stop_video_rec", "shutdown_rov", "reboot_rov", "enable_wifi",
                 "disable_wifi", "rov_logs", "pull_rov_github_code",
-                "restart_rov_services", "cancel_action"
-        ]):
+                "restart_rov_services"
+        ]:
             log.debug("NOT Authed Action")
             return False
 
@@ -327,7 +327,7 @@ class MessageHandler:
         To to take control hovever, a peer must be authenticated
         """
 
-        if not (action_value in ["move", "toogle_lights"]):
+        if action_value not in ["move", "toogle_lights"]:
             log.debug("NOT Driver Action")
             return False
 
