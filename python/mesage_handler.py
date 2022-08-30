@@ -96,7 +96,7 @@ class MessageHandler:
     async def handle_messsage_metadata(self, metadata):
 
         # exit if the message metadata doesn't have the SrcPeerId field
-        if metadata is not None and "SrcPeerId" in metadata:
+        if metadata is None or not "SrcPeerId" in metadata:
             return None
 
         driver_has_changed = False
@@ -369,8 +369,11 @@ class MessageHandler:
             action_value = msg_dict.get('val', None)
             msg_cid = msg_dict.get('cid', None)
 
+            if (action == None):
+                continue
+
             #Debug
-            print("src_peerid: " + src_peer_id, "action: " + action,
+            print("src_peerid: " + src_peer_id, "action: " + str(action),
                   "action_value: " + str(action_value),
                   "msg_cid: " + str(msg_cid))
 

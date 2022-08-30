@@ -1,6 +1,7 @@
 {
     "LogLevel": "debug",
     "BasePeerId": "ROV-",
+    "UseMemorablePeerIds": true,
     "NamedPipeFolder": "/tmp/relay-pipes/",
     "AddMetadataToBackendMessages": true,
     "MessageMetadataSeparator": "|\"|",

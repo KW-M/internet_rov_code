@@ -48,6 +48,7 @@ pushd "$FOLDER_CONTAINING_THIS_SCRIPT"
 git restore .
 git pull --rebase
 
+python3 -m pip install -r ./python/requirements.txt
 
 # echo "Compiling Arduino code..."
 # ./arduino_cpp/compile_arduino_code.sh
