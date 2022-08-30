@@ -106,7 +106,7 @@ class MessageHandler:
         peerEvent = metadata.get("PeerEvent", None)
 
         # update the last recived message time for this peer
-        if (self.known_peers.has_key(src_peer_id)):
+        if src_peer_id in self.known_peers:
             self.known_peers[src_peer_id]["lastRecivedMsgTime"] = time.time(),
 
         # --------------- handle the peer event (if present)
@@ -116,7 +116,7 @@ class MessageHandler:
 
         elif peerEvent == "Connected":
             log.info("A client peer has connected: " + src_peer_id)
-            if (self.known_peers.has_key(src_peer_id)):
+            if src_peer_id in self.known_peers:
                 self.known_peers[src_peer_id]["connected"] = True
             else:
                 self.known_peers[src_peer_id] = {
@@ -137,7 +137,7 @@ class MessageHandler:
                 driver_has_changed = True  # ^ could be None
 
             #
-            if (self.known_peers.has_key(src_peer_id)):
+            if src_peer_id in self.known_peers:
                 self.known_peers[src_peer_id]["authToken"] = None
                 self.known_peers[src_peer_id]["connected"] = False
 
