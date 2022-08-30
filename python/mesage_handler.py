@@ -223,13 +223,6 @@ class MessageHandler:
                                 cid=msg_cid,
                                 recipient_peers=[src_peer_id])
 
-        elif action == "prove_trusted_rov":
-            signature = signTrustedRovChallenge(action_value)
-            await self.send_msg(status="done",
-                                val=signature,
-                                cid=msg_cid,
-                                recipient_peers=[src_peer_id])
-
         # -- golang relay commands:
         elif action == "begin_video_stream":
             # send the *golang* code (note the action is in reply_metadata) the begin_video_stream command
@@ -264,7 +257,7 @@ class MessageHandler:
         handle actions that require an authenticated peer (one who as previously entered thec correct password):
         """
 
-        if action_value not in [
+        if action not in [
                 "take_control", "take_photo", "start_video_rec",
                 "stop_video_rec", "shutdown_rov", "reboot_rov", "enable_wifi",
                 "disable_wifi", "rov_logs", "pull_rov_github_code",
@@ -327,7 +320,7 @@ class MessageHandler:
         To to take control hovever, a peer must be authenticated
         """
 
-        if action_value not in ["move", "toogle_lights"]:
+        if action not in ["move", "toogle_lights"]:
             log.debug("NOT Driver Action")
             return False
 
@@ -372,13 +365,11 @@ class MessageHandler:
             action_value = msg_dict.get('val', None)
             msg_cid = msg_dict.get('cid', None)
 
-            if (action == None):
-                continue
-
             #Debug
-            print("src_peerid: " + src_peer_id, "action: " + str(action),
-                  "action_value: " + str(action_value),
-                  "msg_cid: " + str(msg_cid))
+            print(
+                "src_peerid:" + src_peer_id,
+                "| action:" + str(action) + "| action_value:" +
+                str(action_value) + "| msg_cid:" + str(msg_cid))
 
             # These actions can be done by any peer
             if await self.handle_normal_actions(src_peer_id, action,
