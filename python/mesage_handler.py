@@ -5,8 +5,8 @@ import asyncio
 
 from command_api import generate_webrtc_format_response
 from config_reader import program_config
-from python.rovSecurity.userAuth import generateAuthToken, getRovUUID
-from rovSecurity.userAuth import checkTokenValidty
+from rovSecurity.userAuth import generateAuthToken, getRovUUID, checkTokenValidty
+from rovSecurity.trustedRovProof import signTrustedRovChallenge
 
 ############################
 ###### setup logging #######
@@ -220,6 +220,13 @@ class MessageHandler:
             challenge_result = self.auth_token_challenge(
                 action_value, src_peer_id)
             await self.send_msg(status=challenge_result,
+                                cid=msg_cid,
+                                recipient_peers=[src_peer_id])
+
+        elif action == "prove_trusted_rov":
+            signature = signTrustedRovChallenge(action_value)
+            await self.send_msg(status="done",
+                                val=signature,
                                 cid=msg_cid,
                                 recipient_peers=[src_peer_id])
 
