@@ -46,7 +46,7 @@ def checkTokenValidty(authToken):
 def getRovUUID():
     global rovUUID
     if rovUUID == None:
-        rovUUID = uuid4()
+        rovUUID = uuid4().hex
         saveAuthStateToDisk()
     return rovUUID
 
