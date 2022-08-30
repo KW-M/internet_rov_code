@@ -14,8 +14,8 @@
 run each below command in a sepearate terminal window.
 
 ```sh
-python3 ./python/main.py --config-file ./webrtc-relay-config.json
-webrtc-relay -config-file ./webrtc-relay-config.json
+python3 ./python/main.py --config-file ./rov-config.json
+webrtc-relay -config-file ./rov-config.json
 cd ./website_static_files; npm run start
 ```
 

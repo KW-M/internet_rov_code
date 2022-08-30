@@ -1,12 +1,12 @@
 {
     "LogLevel": "debug",
-    "BasePeerId": "iROV-",
+    "BasePeerId": "ROV-",
     "NamedPipeFolder": "/tmp/relay-pipes/",
-    "AddMetadataToPipeMessages": true,
+    "AddMetadataToBackendMessages": true,
     "MessageMetadataSeparator": "|\"|",
     "PeerInitConfigs": [
         {
-            "Host": "ssrov-peerjs-server.herokuapp.com",
+            "Host": "0.peerjs.com",
             "Port": 443,
             "Path": "/",
             "Key": "peerjs",
@@ -32,6 +32,9 @@
             }
         }
     ],
-    "DriverControlPassword": "Change This Password",
-    "DisconnectedPilotAuthTimeout": 180
+    "RovControlPassword": "Change This Password",
+    "AuthTokenTimeout": 86400,
+    "AuthStateStorageFilepath": "/home/pi/rov-auth-state.json",
+    "RovAttestationPrivateKey": "-- Put RSA Private Key Here. No whitespace --",
+    "EnabledSensors": []
 }

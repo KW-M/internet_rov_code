@@ -65,10 +65,10 @@ git pull --rebase
 # backup_then_overwrite_file "/lib/systemd/system/ngrok.service" "./new_config_files/ngrok.service"
 
 
-# cp webrtc-relay-config.json ~/
-if [ ! -e "$HOME/webrtc-relay-config.json" ]; then
-echo "Copying over webrtc-relay-config.json file..."
-backup_then_overwrite_file "$HOME/webrtc-relay-config.json" "./new_config_files/webrtc-relay-config.json"
+# cp rov-config.json ~/
+if [ ! -e "$HOME/rov-config.json" ]; then
+echo "Copying over rov-config.json file..."
+backup_then_overwrite_file "$HOME/rov-config.json" "./new_config_files/rov-config.json"
 fi;
 
 echo "Copying over rov_go_code startup service file..."

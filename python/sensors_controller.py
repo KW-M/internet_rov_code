@@ -4,6 +4,7 @@ from cmath import nan
 import logging
 from sensors.pressure import pressure_temp_sensor
 from sensors.compass import fused_compass_sensor
+from config_reader import program_config
 
 from utilities import *
 
@@ -17,7 +18,7 @@ class Sensor_Controller:
     connected_sensors = []
     EnabledSensors = []
 
-    def __init__(self, program_config):
+    def __init__(self):
         self.EnabledSensors = program_config.get("EnabledSensors", [])
 
     async def sensor_setup_loop(self):

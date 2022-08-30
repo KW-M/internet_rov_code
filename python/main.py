@@ -46,12 +46,12 @@ async def main():
     duplex_relay = Duplex_Named_Pipe_Relay(
         named_pipe_folder + 'from_webrtc_relay.pipe',
         named_pipe_folder + 'to_webrtc_relay.pipe')
-    sensors = Sensor_Controller(config)
+    sensors = Sensor_Controller()
     # sensor_log = Sensor_Log(sensors.all_sensors)
     motion_ctrl = Motion_Controller()
     media_ctrl = Media_Stream_Controller(named_pipe_folder)
     message_handler = MessageHandler(duplex_relay, media_ctrl, motion_ctrl,
-                                     sensors, config)
+                                     sensors)
 
     # setup the asyncio loop to run each of these async functions aka "tasks" aka "coroutines" concurently
     await asyncio.gather(
