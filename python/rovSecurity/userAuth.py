@@ -48,6 +48,7 @@ def getRovUUID():
     if rovUUID == None:
         rovUUID = uuid4()
         saveAuthStateToDisk()
+    return rovUUID
 
 
 def readAuthStateFromDisk():
@@ -57,10 +58,14 @@ def readAuthStateFromDisk():
                                              "./rov-auth-state.json")
     if exists(authStorageFilepath):
         with open(authStorageFilepath, "r") as f:
-            state = json.load(f)
-            authTokens = state.get("authTokens", {})
-            rovUUID = state.get("rovUUID", None)
-        removeExpiredTokens()
+            try:
+                state = json.load(f)
+                authTokens = state.get("authTokens", {})
+                rovUUID = state.get("rovUUID", getRovUUID())
+                removeExpiredTokens()
+            except json.JSONDecodeError:
+                print("Invalid JSON in " + authStorageFilepath +
+                      ", ignoring...")
 
 
 def saveAuthStateToDisk():
