@@ -2,7 +2,7 @@ from logging import log
 import logging
 from Cryptodome.PublicKey import RSA
 from Cryptodome.Signature import PKCS1_v1_5
-from ..config_reader import program_config
+from config_reader import program_config
 
 ###### setup logging #######
 log = logging.getLogger(__name__)
