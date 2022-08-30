@@ -13,6 +13,7 @@ def generateAuthToken():
     generates a new auth token, saves it to the authTokens dict and writes the authTokens to disk as json
     Returns: (string) the new auth token
     """
+    global authTokens
     authToken = binascii.hexlify(os.urandom(20)).decode(
     )  # https://stackoverflow.com/questions/41354205/how-to-generate-a-unique-auth-token-in-python
     authTokens[authToken] = math.floor(
@@ -23,6 +24,7 @@ def generateAuthToken():
 
 
 def removeExpiredTokens():
+    global authTokens
     initalTokenCount = len(authTokens)
     for token in authTokens:
         checkTokenValidty(token)
@@ -31,6 +33,7 @@ def removeExpiredTokens():
 
 
 def checkTokenValidty(authToken):
+    global authTokens
     tokenExpiration = authTokens.get(authToken, None)
     if tokenExpiration != None:
         if time.time() < tokenExpiration:
@@ -41,6 +44,7 @@ def checkTokenValidty(authToken):
 
 
 def getRovUUID():
+    global rovUUID
     if rovUUID == None:
         rovUUID = uuid4()
         saveAuthStateToDisk()
@@ -48,6 +52,7 @@ def getRovUUID():
 
 def readAuthStateFromDisk():
     """Reads the program_config as json and puts it in authTokens dict"""
+    global authTokens, rovUUID
     authStorageFilepath = program_config.get("AuthStateStorageFilepath",
                                              "./rov-auth-state.json")
     if exists(authStorageFilepath):
