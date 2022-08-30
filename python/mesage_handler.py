@@ -187,13 +187,13 @@ class MessageHandler:
         return await self.send_webrtc_msg(msgDict,
                                           {'TargetPeerIds': recipient_peers})
 
-    async def send_metadata_msg(self, msg_metadata, recipient_peer_ids):
+    async def send_metadata_msg(self, msg_metadata, recipient_peers):
         """
         send a metadata message to the golang relay.
         msg_metadata: and sends the message to the unix socket
         """
         # add the target peer ids to the outgoing message metadata:
-        msg_metadata.setdefault('TargetPeerIds', recipient_peer_ids)
+        msg_metadata.setdefault('TargetPeerIds', recipient_peers)
         return await self.send_webrtc_msg({}, msg_metadata)
 
     async def handle_normal_actions(self, src_peer_id, action, action_value,
