@@ -17,6 +17,7 @@ from named_pipe import Duplex_Named_Pipe_Relay
 # from unix_socket import Unix_Socket
 from motion_controller import Motion_Controller
 from media_stream_controller import Media_Stream_Controller
+from python.rovSecurity.userAuth import readAuthStateFromDisk
 
 # from sensor_log import Sensor_Log
 from sensors_controller import Sensor_Controller
@@ -25,6 +26,7 @@ from utilities import *
 # import logging_formatter
 
 config = read_config_file()
+readAuthStateFromDisk()
 
 ###### Setup Logging #######
 ############################

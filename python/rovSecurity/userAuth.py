@@ -5,7 +5,7 @@ from uuid import uuid4
 from config_reader import program_config, SECONDS_PER_DAY
 
 authTokens = {}
-rovUUID = ""
+rovUUID = None
 
 
 def generateAuthToken():
