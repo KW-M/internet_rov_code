@@ -253,6 +253,7 @@ class MessageHandler:
                 await self.send_webrtc_msg(msg_data, {})
 
         else:
+            log.debug("NOT Normal Action")
             return False
 
         return True
@@ -263,12 +264,13 @@ class MessageHandler:
         handle actions that require an authenticated peer (one who as previously entered thec correct password):
         """
 
-        if not action_value in [
+        if not (action_value in [
                 "take_control", "take_photo", "start_video_rec",
                 "stop_video_rec", "shutdown_rov", "reboot_rov", "enable_wifi",
                 "disable_wifi", "rov_logs", "pull_rov_github_code",
                 "restart_rov_services", "cancel_action"
-        ]:
+        ]):
+            log.debug("NOT Authed Action")
             return False
 
         elif (not self.check_if_peer_is_authenticated(src_peer_id)):
@@ -325,7 +327,8 @@ class MessageHandler:
         To to take control hovever, a peer must be authenticated
         """
 
-        if not action_value in ["move", "toogle_lights"]:
+        if not (action_value in ["move", "toogle_lights"]):
+            log.debug("NOT Driver Action")
             return False
 
         elif (not self.current_driver_peerid == src_peer_id):
@@ -378,17 +381,17 @@ class MessageHandler:
                   "msg_cid: " + str(msg_cid))
 
             # These actions can be done by any peer
-            if True == await self.handle_normal_actions(
-                    src_peer_id, action, action_value, msg_cid):
+            if await self.handle_normal_actions(src_peer_id, action,
+                                                action_value, msg_cid):
                 continue
 
             # These actions require that the peer that sent the message is the designated driver:
-            elif True == await self.handle_driver_only_actions(
-                    src_peer_id, action, action_value, msg_cid):
+            elif await self.handle_driver_only_actions(src_peer_id, action,
+                                                       action_value, msg_cid):
                 continue
 
             # All following actions require the peer that sent the message to be authenticated (have correctly done password challenge before)
-            elif True == await self.handle_authenticated_actions(
+            elif await self.handle_authenticated_actions(
                     src_peer_id, action, action_value, msg_cid):
                 continue
 
