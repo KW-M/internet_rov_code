@@ -77,19 +77,19 @@ pushd "$FOLDER_CONTAINING_THIS_SCRIPT"
 git restore .
 git pull --rebase
 
-if was_file_recently_modified ./python/requirements.txt 20; then
+if was_file_recently_modified ./python/requirements.txt 60; then
 	echo "Installing python dependencies"
 	# install python dependencies
 	python3 -m pip install -r ./python/requirements.txt
-file
+fi
 
 # cp rov-config.json ~/
 if [ ! -e "$HOME/rov-config.json" ]; then
-echo "Copying over rov-config.json file..."
-backup_then_overwrite_file "$HOME/rov-config.json" "./new_config_files/rov-config.json"
+	echo "Copying over rov-config.json file..."
+	backup_then_overwrite_file "$HOME/rov-config.json" "./new_config_files/rov-config.json"
 fi;
 
-if was_file_recently_modified ./new_config_files/ 20; then
+if was_file_recently_modified ./new_config_files/ 60; then
 
 	echo "Copying over rov_go_code startup service file..."
 	backup_then_overwrite_file "/lib/systemd/system/rov_go_code.service" "./new_config_files/rov_go_code.service"
