@@ -45,7 +45,7 @@ class Generic_Sensor:
     async def sensor_setup_loop(self):
         while True:
             try:
-                self.sensor_connection = await self.setup_sensor_function()
+                self.sensor_connection = await self.setup_sensor()
                 self.sensor_error_flag.clear()
                 await self.sensor_error_flag.wait()
             except asyncio.CancelledError:
@@ -68,8 +68,7 @@ class Generic_Sensor:
                         or self.sensor_error_flag.is_set()):
                     await asyncio.sleep(self.sensor_read_interval)
                     continue
-                new_readings = await self.read_sensor_function(
-                    self.sensor_connection)
+                new_readings = await self.read_sensor(self.sensor_connection)
                 if new_readings != self.measured_values:
                     self.measured_values = new_readings
                     self.sensor_value_changed_flag.set()
