@@ -10,55 +10,70 @@ from sensors.generic_sensor import Generic_Sensor
 ###### setup logging #######
 log = logging.getLogger(__name__)
 
-compass_IMU = None
+
+class FusedCompassSensor(Generic_Sensor):
+    sensor_name = "ICM20948_fused_compass"
+    measurement_names = ['yaw', 'pitch', 'roll'],
+    measurement_units = ['deg', 'deg', 'deg'],
+    sensor_read_interval = 1.0
+
+    imu = None
+    fusion = None
+
+    ACCEL_SCALING = 65534 / 8.0  # given self.imu.setFullScaleRangeAccel(qwiic_icm20948.gpm4)
+    GYRO_SCALING = 65534 / 1000.0  # given self.imu.setFullScaleRangeGyro(qwiic_icm20948.dps500)
+    MAG_SCALING = 10.0
+
+    # User coro returns data and determines update rate.
+    # For 9DOF sensors returns three 3-tuples (x, y, z) for accel, gyro and mag
+    async def read_compass_coro(self):
+        await asyncio.sleep(0.05)  # Plenty of time for mag to be ready
+        while not self.imu or not self.imu.connected or not self.imu.dataReady(
+        ):
+            await asyncio.sleep(0.005)
+            print("compass data not yet ready")
+
+        # read all axis and temp from sensor, note this also updates all instance variables
+        self.imu.getAgmt()
+        output = ((self.imu.axRaw / self.ACCEL_SCALING,
+                   self.imu.ayRaw / self.ACCEL_SCALING,
+                   self.imu.azRaw / self.ACCEL_SCALING),
+                  (self.imu.gxRaw / self.GYRO_SCALING,
+                   self.imu.gyRaw / self.GYRO_SCALING,
+                   self.imu.gzRaw / self.GYRO_SCALING),
+                  (self.imu.mxRaw / self.MAG_SCALING,
+                   self.imu.myRaw / self.MAG_SCALING,
+                   self.imu.mzRaw / self.MAG_SCALING), time.time())
+
+        return output
+
+    def TimeDiff(start, end):  # Timestamps here are in seconds
+        return (start - end)
+
+    async def setup_sensor(self):
+        if not self.imu:
+            self.imu = qwiic_icm20948.QwiicIcm20948()
+
+        if self.imu.connected == False:
+            raise Exception("Compass (Sparkfun ICM20948) isn't connected.")
+
+        self.imu.begin()
+        self.imu.setFullScaleRangeAccel(qwiic_icm20948.gpm4)
+        self.imu.setFullScaleRangeGyro(qwiic_icm20948.dps500)
+        # self.imu.enableDlpfAccel(True)
+        # self.imu.enableDlpfGyro(True)
+        # # acc_d11bw5_n17bw # https://github.com/sparkfun/SparkFun_ICM-20948_ArduinoLibrary/blob/d5ae1eba1ecbf808fca9bff0b0b6dc4e571e947c/examples/Arduino/Example4_WakeOnMotion/Example4_WakeOnMotion.ino#L151
+        # self.imu.setDLPFcfgAccel(qwiic_icm20948.acc_d111bw4_n136bw)
+        # # https://github.com/sparkfun/SparkFun_ICM-20948_ArduinoLibrary/blob/d5ae1eba1ecbf808fca9bff0b0b6dc4e571e947c/examples/Arduino/Example4_WakeOnMotion/Example4_WakeOnMotion.ino#L160
+        # self.imu.setDLPFcfgGyro(qwiic_icm20948.gyr_d119bw5_n154bw3)
+
+        # Start fusion update task
+        self.fusion = Fusion(self.read_compass_coro, timediff=self.TimeDiff)
+        await self.fusion.start(slow_platform=False)
+        return self.fusion
+
+    async def read_sensor(self):
+        return [self.fusion.heading, self.fusion.pitch, self.fusion.roll]
 
 
-# User coro returns data and determines update rate.
-# For 9DOF sensors returns three 3-tuples (x, y, z) for accel, gyro and mag
-async def read_compass_coro():
-    global compass_IMU
-    await asyncio.sleep(0.005)  # Plenty of time for mag to be ready
-    while not compass_IMU or not compass_IMU.connected or not compass_IMU.dataReady(
-    ):
-        await asyncio.sleep(0.005)
-        print("compass data not yet ready")
-
-    # read all axis and temp from sensor, note this also updates all instance variables
-    compass_IMU.getAgmt()
-    output = ((compass_IMU.axRaw, compass_IMU.ayRaw, compass_IMU.azRaw),
-              (compass_IMU.gxRaw, compass_IMU.gyRaw, compass_IMU.gzRaw),
-              (compass_IMU.mxRaw, compass_IMU.myRaw, compass_IMU.mzRaw),
-              time.time())
-    # print(str(output))
-    return output
-
-
-def TimeDiff(start, end):  # Timestamps here are in seconds
-    return (start - end)  # Scale to seconds
-
-
-async def setup_compass_sensor():
-    global compass_IMU
-    if not compass_IMU:
-        compass_IMU = qwiic_icm20948.QwiicIcm20948()
-
-    if compass_IMU.connected == False:
-        raise Exception("Compass (Sparkfun ICM20948) isn't connected.")
-
-    compass_IMU.begin()
-    compass_fused = Fusion(read_compass_coro, timediff=TimeDiff)
-    await compass_fused.start(slow_platform=False
-                              )  # Start the fusion update task
-
-    return compass_fused
-
-
-async def read_compass_sensor(compass_fused):
-    return [compass_fused.heading, compass_fused.pitch, compass_fused.roll]
-
-
-fused_compass_sensor = Generic_Sensor('ICM20948_fused_compass', 1,
-                                      ['yaw', 'pitch', 'roll'],
-                                      ['deg', 'deg', 'deg'],
-                                      setup_compass_sensor,
-                                      read_compass_sensor)
+fused_compass_sensor = FusedCompassSensor()

@@ -10,20 +10,29 @@ log = logging.getLogger(__name__)
 
 
 class Generic_Sensor:
-    def __init__(self, name: str, sensor_read_interval: float,
-                 measurement_names: str, measurement_units: str,
-                 setup_sensor_function, read_sensor_function):
-        self.sensor_name = name
-        self.sensor_connection = None
-        self.sensor_read_interval = sensor_read_interval
 
-        self.measurement_names = measurement_names
-        self.measurement_units = measurement_units
-        self.measured_values = [nan] * len(measurement_names)
+    ## --- TO BE OVERRIDDEN BY SENSOR SUBCLASSES -------
 
-        self.setup_sensor_function = setup_sensor_function
-        self.read_sensor_function = read_sensor_function
+    sensor_name = "Generic Sensor"
+    sensor_connection = None
+    sensor_read_interval = 1.0
+    measurement_names = []
+    measurement_units = []
+    measured_values = []
 
+    async def setup_sensor(self):
+        return True
+
+    async def read_sensor(self):
+        return True
+
+    async def do_sensor_action(self, action):
+        return True
+
+    ## END -------------------------------------
+
+    def __init__(self):
+        self.measured_values = [nan] * len(self.measurement_names)
         self.sensor_value_changed_flag = asyncio.Event()
 
     async def start_sensor_loop(self):

@@ -6,18 +6,19 @@ from sensors.generic_sensor import Generic_Sensor
 ###### setup logging #######
 log = logging.getLogger(__name__)
 
+class PressureTempSensor(Generic_Sensor):
+    sensor_name = "ms5803_pressure_temp"
+    measurement_names = ['pressure', 'temperature'],
+    measurement_units = ['mBar', 'C']
+    sensor_read_interval = 1.0
 
-async def setup_pressure_sensor():
-    import ms5803py
-    return ms5803py.MS5803()
+    async def setup_sensor(self):
+        import ms5803py
+        return ms5803py.MS5803()
+
+    async def read_sensor(self):
+        pressure, temp = self.sensor_connection.read(pressure_osr=4096)
+        return [pressure, temp]
 
 
-async def read_pressure_sensor(sensor_connection):
-    pressure, temp = sensor_connection.read(pressure_osr=4096)
-    return [pressure, temp]
-
-
-pressure_temp_sensor = Generic_Sensor('ms5803_pressure_temp', 1,
-                                      ['pressure', 'temperature'],
-                                      ['mBar', 'C'], setup_pressure_sensor,
-                                      read_pressure_sensor)
+pressure_temp_sensor = PressureTempSensor()

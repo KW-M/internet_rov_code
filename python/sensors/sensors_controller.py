@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 all_possible_sensors = [pressure_temp_sensor, fused_compass_sensor]
 
 
-class Sensor_Controller:
+class SensorController:
     connected_sensors = []
     EnabledSensors = []
 

@@ -20,7 +20,7 @@ from media_stream_controller import Media_Stream_Controller
 from rovSecurity.userAuth import readAuthStateFromDisk
 
 # from sensor_log import Sensor_Log
-from sensors_controller import Sensor_Controller
+from sensors.sensors_controller import SensorController
 from mesage_handler import MessageHandler
 from utilities import *
 # import logging_formatter
@@ -48,7 +48,7 @@ async def main():
     duplex_relay = Duplex_Named_Pipe_Relay(
         named_pipe_folder + 'from_webrtc_relay.pipe',
         named_pipe_folder + 'to_webrtc_relay.pipe')
-    sensors = Sensor_Controller()
+    sensors = SensorController()
     # sensor_log = Sensor_Log(sensors.all_sensors)
     motion_ctrl = Motion_Controller()
     media_ctrl = Media_Stream_Controller(named_pipe_folder)
