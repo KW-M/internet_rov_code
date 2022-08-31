@@ -35,11 +35,16 @@ class SensorController:
         sensor_dict = {}
         for sensor in self.connected_sensors:
             if sensor.sensor_value_changed_flag.is_set():
+                print(sensor.sensor_name + " | value changed " +
+                      str(sensor.measured_values))
                 sensor.sensor_value_changed_flag.clear()
                 for i in range(len(sensor.measured_values)):
                     measurement_name = sensor.measurement_names[i]
                     measured_value = sensor.measured_values[i]
                     sensor_dict[measurement_name] = measured_value
+            else:
+                print(sensor.sensor_name + " | value NOT changed " +
+                      str(sensor.measured_values))
 
         return sensor_dict
 
