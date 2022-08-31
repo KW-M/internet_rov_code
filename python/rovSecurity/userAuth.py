@@ -26,7 +26,8 @@ def generateAuthToken():
 def removeExpiredTokens():
     global authTokens
     initalTokenCount = len(authTokens)
-    for token in authTokens:
+    # list to avoid RuntimeError: dictionary changed size during iteration
+    for token in list(authTokens):
         checkTokenValidty(token)
     if initalTokenCount != len(authTokens):
         saveAuthStateToDisk()
