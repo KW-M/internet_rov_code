@@ -16,15 +16,12 @@ all_possible_sensors = [pressure_temp_sensor, fused_compass_sensor]
 
 class SensorController:
     connected_sensors = []
-    EnabledSensors = []
-
-    def __init__(self):
-        self.EnabledSensors = program_config.get("EnabledSensors", [])
 
     async def sensor_setup_loop(self):
         log.info("Setting Up Sensors...")
+        enabledSensors = program_config.get("EnabledSensors", [])
         self.connected_sensors = filter(
-            lambda sensor: sensor.sensor_name in self.EnabledSensors,
+            lambda sensor: sensor.sensor_name in enabledSensors,
             all_possible_sensors)
         sensor_tasks = [
             sensor.start_sensor_loop() for sensor in self.connected_sensors
@@ -33,6 +30,7 @@ class SensorController:
 
     def get_sensor_update_dict(self):
         sensor_dict = {}
+        print(self.connected_sensors)
         for sensor in self.connected_sensors:
             if sensor.sensor_value_changed_flag.is_set():
                 print(sensor.sensor_name + " | value changed " +
