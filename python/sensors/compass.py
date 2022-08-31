@@ -11,6 +11,10 @@ from sensors.generic_sensor import Generic_Sensor
 log = logging.getLogger(__name__)
 
 
+def TimeDiff(start, end):  # Timestamps here are in seconds
+    return (start - end)
+
+
 class FusedCompassSensor(Generic_Sensor):
     sensor_name = "ICM20948_fused_compass"
     measurement_names = ['yaw', 'pitch', 'roll'],
@@ -47,9 +51,6 @@ class FusedCompassSensor(Generic_Sensor):
 
         return output
 
-    def TimeDiff(start, end):  # Timestamps here are in seconds
-        return (start - end)
-
     async def setup_sensor(self):
         if not self.imu:
             self.imu = qwiic_icm20948.QwiicIcm20948()
@@ -68,7 +69,7 @@ class FusedCompassSensor(Generic_Sensor):
         # self.imu.setDLPFcfgGyro(qwiic_icm20948.gyr_d119bw5_n154bw3)
 
         # Start fusion update task
-        self.fusion = Fusion(self.read_compass_coro, timediff=self.TimeDiff)
+        self.fusion = Fusion(self.read_compass_coro, timediff=TimeDiff)
         await self.fusion.start(slow_platform=False)
         return self.fusion
 
