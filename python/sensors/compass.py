@@ -28,6 +28,10 @@ class FusedCompassSensor(Generic_Sensor):
     GYRO_SCALING = 65534 / 1000.0  # given self.imu.setFullScaleRangeGyro(qwiic_icm20948.dps500)
     MAG_SCALING = 10.0
 
+    def __init__(self):
+        super().__init__()
+        self.fusion = None
+
     # User coro returns data and determines update rate.
     # For 9DOF sensors returns three 3-tuples (x, y, z) for accel, gyro and mag
     async def read_compass_coro(self):
@@ -49,7 +53,7 @@ class FusedCompassSensor(Generic_Sensor):
                    self.imu.myRaw / self.MAG_SCALING,
                    self.imu.mzRaw / self.MAG_SCALING), time.time())
 
-        print(str(output))
+        # print(str(output))
 
         return output
 
@@ -76,8 +80,8 @@ class FusedCompassSensor(Generic_Sensor):
         return self.fusion
 
     async def read_sensor(self, _):
-        print("fused: " +
-              str([self.fusion.heading, self.fusion.pitch, self.fusion.roll]))
+        # print("fused: " +
+        #       str([self.fusion.heading, self.fusion.pitch, self.fusion.roll]))
         return [self.fusion.heading, self.fusion.pitch, self.fusion.roll]
 
 

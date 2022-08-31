@@ -36,7 +36,7 @@ class SensorController:
         for sensor in self.connected_sensors:
             if sensor.sensor_value_changed_flag.is_set():
                 sensor.sensor_value_changed_flag.clear()
-                for i in range(len(sensor.measurement_names)):
+                for i in range(len(sensor.measured_values)):
                     measurement_name = sensor.measurement_names[i]
                     measured_value = sensor.measured_values[i]
                     sensor_dict[measurement_name] = measured_value

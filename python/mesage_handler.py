@@ -414,19 +414,19 @@ class MessageHandler:
                         self.motion_ctrl.set_rov_motion(
                             thrust_vector=[0, 0, 0], turn_rate=0)
 
-                    # send a heartbeat message to help the website know that the datachannel is open (assuming the message gets through)
-                    await self.send_msg(status="Heartbeat",
-                                        val=time.time(),
-                                        cid=None,
-                                        recipient_peers=[peerId])
-
             # get sensor updates from all sensors:
             sensorUpdates = self.sensor_ctrl.get_sensor_update_dict()
 
-            # send sensor update (unless it is empty) to all connected peers
             if (len(sensorUpdates) != 0):
+                # sensorUpdates has some values, send them to all connected peers
                 await self.send_msg(status="sensor-update",
                                     val=sensorUpdates,
-                                    recipient_peers=["all"])
+                                    recipient_peers=[])
+            else:
+                # otherwise send a heartbeat message to help the website clients know that the datachannel is still open
+                await self.send_msg(status="Heartbeat",
+                                    val=time.time(),
+                                    cid=None,
+                                    recipient_peers=[peerId])
 
             await asyncio.sleep(1)
