@@ -73,7 +73,7 @@ class FusedCompassSensor(Generic_Sensor):
         await self.fusion.start(slow_platform=False)
         return self.fusion
 
-    async def read_sensor(self):
+    async def read_sensor(self, _):
         return [self.fusion.heading, self.fusion.pitch, self.fusion.roll]
 
 
