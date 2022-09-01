@@ -1,10 +1,11 @@
 import logging
 
-from utilities import *
+import ms5803py
 from sensors.generic_sensor import Generic_Sensor
 
 ###### setup logging #######
 log = logging.getLogger(__name__)
+
 
 class PressureTempSensor(Generic_Sensor):
     sensor_name = "ms5803_pressure_temp"
@@ -13,7 +14,7 @@ class PressureTempSensor(Generic_Sensor):
     sensor_read_interval = 1.0
 
     async def setup_sensor(self):
-        import ms5803py
+
         return ms5803py.MS5803()
 
     async def read_sensor(self):
