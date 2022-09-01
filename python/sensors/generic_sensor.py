@@ -1,15 +1,18 @@
-from array import array
+"""
+high level support for doing this and that.
+"""
+
 import asyncio
-from cmath import nan
+from math import nan
 import logging
 
-from utilities import *
-
-###### setup logging #######
-log = logging.getLogger(__name__)
+# from utilities import *
 
 
 class Generic_Sensor:
+
+    ###### setup logging #######
+    log = logging.getLogger(__name__)
 
     ## --- TO BE OVERRIDDEN BY SENSOR SUBCLASSES -------
 
@@ -23,10 +26,10 @@ class Generic_Sensor:
     async def setup_sensor(self):
         return True
 
-    async def read_sensor(self):
+    async def read_sensor(self, _):
         return True
 
-    async def do_sensor_action(self, action):
+    async def do_sensor_action(self, _):
         return True
 
     ## END -------------------------------------
@@ -52,14 +55,14 @@ class Generic_Sensor:
                 self.sensor_error_flag.clear()
                 await self.sensor_error_flag.wait()
             except asyncio.CancelledError:
-                return
+                return False
             except IOError as e:
-                log.error("Error in setup_sensors() Sensor Not Responding: " +
-                          str(e))
+                self.log.error(
+                    "Error in setup_sensors() Sensor Not Responding: %s", e)
                 self.sensor_error_flag.set()
                 await asyncio.sleep(3)
             except Exception as e:
-                log.error("Error Setting Up Sensors:", exc_info=e)
+                self.log.error("Error Setting Up Sensors:", exc_info=e)
                 self.sensor_error_flag.set()
                 await asyncio.sleep(3)
 
@@ -78,11 +81,12 @@ class Generic_Sensor:
             except asyncio.CancelledError:
                 return
             except IOError as e:
-                log.warning("IO Error reading " + self.sensor_name +
-                            " sensor, is it disconnected? " + str(e))
+                self.log.warning("IO Error reading %s, is it disconnected? %s",
+                                 self.sensor_name, e)
             except Exception as e:
-                log.error("Error reading " + self.sensor_name + " sensor:",
-                          exc_info=e)
+                self.log.error("Error reading %s: ",
+                               self.sensor_name,
+                               exc_info=e)
                 self.sensor_error_flag.set()
 
             await asyncio.sleep(self.sensor_read_interval)

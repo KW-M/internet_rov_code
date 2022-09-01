@@ -17,8 +17,8 @@ def TimeDiff(start, end):  # Timestamps here are in seconds
 
 class FusedCompassSensor(Generic_Sensor):
     sensor_name = "ICM20948_fused_compass"
-    measurement_names = ['yaw', 'pitch', 'roll'],
-    measurement_units = ['deg', 'deg', 'deg'],
+    measurement_names = ['yaw', 'pitch', 'roll']
+    measurement_units = ['deg', 'deg', 'deg']
     sensor_read_interval = 1.0
 
     imu = None
