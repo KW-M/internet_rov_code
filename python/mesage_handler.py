@@ -55,8 +55,8 @@ class MessageHandler:
         return 'token-accepted'
 
     def find_first_connected_peer(self):
-        for peerid in self.known_peers.items():
-            if self.known_peers[peerid]["connected"] is True:
+        for peerid, peerDetails in self.known_peers.items():
+            if peerDetails["connected"] is True:
                 return peerid
         return None
 
@@ -409,8 +409,7 @@ class MessageHandler:
                 continue
 
             # Find any peers who haven't sent a mesage recently
-            for peerId in self.known_peers.items():
-                peerDetails = self.known_peers[peerId]
+            for peerId, peerDetails in self.known_peers.items():
                 if time.time() - peerDetails["lastRecivedMsgTime"] > 1.2:
 
                     # If we haven't recieved any messages recently from the driver, cut the motors (safety feature):
