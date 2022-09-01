@@ -18,7 +18,7 @@ class Generic_Sensor:
 
     sensor_name = "Generic Sensor"
     sensor_connection = None
-    sensor_read_interval = .05
+    sensor_read_interval = 1.0
     measurement_names = []
     measurement_units = []
     measured_values = []
