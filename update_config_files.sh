@@ -65,7 +65,7 @@ echo "Pulling any updates to webrtc-relay from github"
 pushd ~/webrtc-relay
 git restore .
 git pull --rebase
-if was_file_recently_modified ./ 20; then
+if was_file_recently_modified ./ 60; then
 	echo "Installing webrtc-relay"
 	/usr/local/go/bin/go install .
 fi
