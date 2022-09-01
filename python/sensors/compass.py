@@ -1,9 +1,8 @@
 import time
-import sys
+import asyncio
 import logging
 import qwiic_icm20948
 
-from utilities import *
 from sensors.fusion_async import Fusion  # Using async version
 from sensors.generic_sensor import Generic_Sensor
 
@@ -61,7 +60,7 @@ class FusedCompassSensor(Generic_Sensor):
         if not self.imu:
             self.imu = qwiic_icm20948.QwiicIcm20948()
 
-        if self.imu.connected == False:
+        if self.imu.connected is False:
             raise Exception("Compass (Sparkfun ICM20948) isn't connected.")
 
         self.imu.begin()
@@ -69,7 +68,8 @@ class FusedCompassSensor(Generic_Sensor):
         self.imu.setFullScaleRangeGyro(qwiic_icm20948.dps500)
         self.imu.enableDlpfAccel(True)
         self.imu.enableDlpfGyro(True)
-        # acc_d11bw5_n17bw # https://github.com/sparkfun/SparkFun_ICM-20948_ArduinoLibrary/blob/d5ae1eba1ecbf808fca9bff0b0b6dc4e571e947c/examples/Arduino/Example4_WakeOnMotion/Example4_WakeOnMotion.ino#L151
+        # acc_d11bw5_n17bw
+        # https://github.com/sparkfun/SparkFun_ICM-20948_ArduinoLibrary/blob/d5ae1eba1ecbf808fca9bff0b0b6dc4e571e947c/examples/Arduino/Example4_WakeOnMotion/Example4_WakeOnMotion.ino#L151
         self.imu.setDLPFcfgAccel(qwiic_icm20948.acc_d111bw4_n136bw)
         # https://github.com/sparkfun/SparkFun_ICM-20948_ArduinoLibrary/blob/d5ae1eba1ecbf808fca9bff0b0b6dc4e571e947c/examples/Arduino/Example4_WakeOnMotion/Example4_WakeOnMotion.ino#L160
         self.imu.setDLPFcfgGyro(qwiic_icm20948.gyr_d119bw5_n154bw3)

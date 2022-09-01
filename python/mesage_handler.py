@@ -425,7 +425,7 @@ class MessageHandler:
                 await self.send_msg(status="sensor-update",
                                     val=sensorUpdates,
                                     recipient_peers=["*"])
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(0.02)
             else:
                 # otherwise send a heartbeat message to help the website clients know that the datachannel is still open
                 await self.send_msg(status="Heartbeat",

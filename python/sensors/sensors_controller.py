@@ -1,4 +1,3 @@
-from array import array
 import asyncio
 from cmath import nan
 import logging
@@ -30,7 +29,6 @@ class SensorController:
 
     def get_sensor_update_dict(self):
         sensor_dict = {}
-        print(self.connected_sensors)
         for sensor in self.connected_sensors:
             if sensor.sensor_value_changed_flag.is_set():
                 # print(sensor.sensor_name + " | value changed " +
