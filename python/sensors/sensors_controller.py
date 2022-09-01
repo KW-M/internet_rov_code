@@ -37,7 +37,7 @@ class SensorController:
                       str(sensor.measurement_names) +
                       str(sensor.measured_values))
                 sensor.sensor_value_changed_flag.clear()
-                for i, measured_value in enumerate(sensor.measurement_values):
+                for i, measured_value in enumerate(sensor.measured_values):
                     measurement_name = sensor.measurement_names[i] if i < len(
                         sensor.measurement_names) else "Unnamed"
                     sensor_dict[measurement_name] = measured_value
