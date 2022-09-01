@@ -3,6 +3,7 @@
     "BasePeerId": "ROV-",
     "UseMemorablePeerIds": true,
     "MemorablePeerIdOffset": 74646,
+    "IncludeMessagesInLogs": false,
     "NamedPipeFolder": "/tmp/relay-pipes/",
     "AddMetadataToBackendMessages": true,
     "MessageMetadataSeparator": "|\"|",
