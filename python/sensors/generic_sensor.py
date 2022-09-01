@@ -35,6 +35,9 @@ class Generic_Sensor:
         self.measured_values = [nan] * len(self.measurement_names)
         self.sensor_value_changed_flag = asyncio.Event()
 
+    def __str__(self) -> str:
+        return self.sensor_name + "=" + str(self.measured_values)
+
     async def start_sensor_loop(self):
         self.sensor_error_flag = asyncio.Event()
         await asyncio.gather(
