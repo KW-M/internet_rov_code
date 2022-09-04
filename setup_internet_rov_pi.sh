@@ -38,7 +38,7 @@ LANGUAGE=en_US.UTF-8
 LANG=en_US.UTF-8
 LC_ALL=en_US.UTF-8
 LC_CTYPE=en_US.UTF-8
-if ! locale -a | grep -i -q 'en_US.utf8' || ! locale -a | grep -i -q 'en_US.utf-8'; then
+if ! locale -a | grep -i -q 'en_US.utf8' && ! locale -a | grep -i -q 'en_US.utf-8'; then
  	echo -e "$Green en_US.utf8 local not generated, loading it now ... $Color_Off"
 	sudo perl -pi -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
 	sudo perl -pi -e 's/en_GB.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/g' /etc/locale.gen
