@@ -30,7 +30,7 @@ readAuthStateFromDisk()
 ###### Setup Logging #######
 ############################
 
-# set the Loglevel is from command line argument or config file. Use either --LogLevel=DEBUG or --LogLevel=debug
+# set the Loglevel from command line argument or config file. Use either --LogLevel=DEBUG or --LogLevel=debug
 logging.basicConfig(level=get_log_level(config['LogLevel']))
 log = logging.getLogger(__name__)
 

@@ -1,5 +1,4 @@
 # from urllib.parse import parse_qs # for parsing url query string
-import json
 import asyncio
 import logging
 from types import AsyncGeneratorType
@@ -40,7 +39,7 @@ async def readBashCommandOutputAsync(bashCommand, Timeout=None):
     except Exception as e:
         log.Error(e)
     finally:
-        if (sp.returncode == None):
+        if (sp.returncode is None):
             sp.kill()
 
 
@@ -67,35 +66,30 @@ async def handleActionCommand(action):
     if action == 'disable_wifi':
         return readBashCommandOutputAsync("rfkill block wlan", Timeout=5)
 
-    elif action == 'enable_wifi':
+    if action == 'enable_wifi':
         return readBashCommandOutputAsync("sudo rfkill unblock wlan",
                                           Timeout=5)
 
-    elif action == 'rov_status_report':
+    if action == 'rov_status_report':
         return readBashCommandOutputAsync(
             "/home/pi/internet_rov_code/rov_status_report.sh", Timeout=20)
 
-    elif action == 'restart_rov_services':
+    if action == 'restart_rov_services':
         return readBashCommandOutputAsync(
             "/home/pi/internet_rov_code/update_config_files.sh", Timeout=20)
 
-    elif action == 'pull_rov_github_code':
-        return readBashCommandOutputAsync(
-            "GIT_HTTP_CONNECT_TIMEOUT=4 cd /home/pi/internet_rov_code/; git add .; git stash; git pull",
-            Timeout=20)
-
-    elif action == 'rov_logs':
+    if action == 'rov_logs':
         return readBashCommandOutputAsync(
             "journalctl --unit=rov_python_code --unit=rov_go_code --unit=add_fixed_ip --unit=nginx --no-pager --follow -n 500",
             Timeout=20)
 
-    elif action == 'shutdown_rov':
+    if action == 'shutdown_rov':
         await runBashCommand(
             "sleep 4; sudo poweroff"
         )  # sleep 4 seconds to give time for the response message to be sent
         return "Shutting Down..."
 
-    elif action == 'reboot_rov':
+    if action == 'reboot_rov':
         await runBashCommand(
             "sleep 4; sudo reboot"
         )  # sleep 4 seconds to give time for the response message to be sent
@@ -107,8 +101,7 @@ async def handleActionCommand(action):
     # elif action == 'stop_netdata':
     #     return "sudo systemctl stop netdata"
 
-    else:
-        return None
+    return None
 
 
 async def generate_webrtc_format_response(
@@ -125,10 +118,10 @@ async def generate_webrtc_format_response(
             "val": "Unknown action: " + action
         }
 
-    elif type(action_result) is str:
+    elif isinstance(action_result, str):
         yield {"cid": cid, "val": action_result, "status": "done"}
 
-    elif type(action_result) is AsyncGeneratorType:
+    elif isinstance(action_result, AsyncGeneratorType):
         async for line in action_result:
             yield {"cid": cid, "val": line + "\n"}
         yield {"cid": cid, "status": "done"}
@@ -147,11 +140,11 @@ async def generate_aiohttp_response(request):
         msg = str("Error: Unknown action URL: " + request.path).encode('utf-8')
         await response.write(msg)
 
-    elif type(action_result) is str:
+    elif isinstance(action_result, str):
         msg = str(action_result).encode('utf-8')
         await response.write(msg)
 
-    elif type(action_result) is AsyncGeneratorType:
+    elif isinstance(action_result, AsyncGeneratorType):
         async for line in action_result:
             msg = str(line).encode('utf-8')
             await response.write(msg)
@@ -164,7 +157,7 @@ async def start_aiohttp_api_server():
     app.add_routes([
         web.get('/api/{action}', generate_aiohttp_response, allow_head=False)
     ])
-    return await web._run_app(app, port=9129)
+    return await web.run_app(app, port=9129)
 
 
 # import time

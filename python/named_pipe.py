@@ -59,7 +59,7 @@ class Named_Pipe:
                     raise ValueError('mode must be "r" or "w"')
 
             except Exception as e:
-                log.error(f'Failed to open pipe file: {e}')
+                log.error('Failed to open pipe file:', exc_info=e)
 
             await asyncio.sleep(1)
 
@@ -68,7 +68,7 @@ class Named_Pipe:
             try:
                 os.close(self.pipe_file)
             except Exception as e:
-                log.warn(f'Failed to close pipe file: {e}')
+                log.warning('Failed to close pipe file:', exc_info=e)
 
 
 class Named_Pipe_Relay:
@@ -104,12 +104,12 @@ class Named_Pipe_Relay:
                                 str(data, 'utf-8').strip('\n'))
 
             except Exception as e:
-                if read_transport != None:
+                if read_transport is not None:
                     read_transport.close()
-                if self.closed == True:
+                if self.closed is not True:
                     return
                 self.pipe.close()
-                log.error(f'Pipe read failed: {e}')
+                log.error('Pipe read failed:', exc_info=e)
                 break
 
     async def write_loop(self, asyncLoop=None):
@@ -131,10 +131,10 @@ class Named_Pipe_Relay:
                             stream.flush()
 
             except Exception as e:
-                if self.closed == True:
+                if self.closed is True:
                     return
                 self.pipe.close()
-                log.error(f'Pipe write failed: {e}')
+                log.error('Pipe write failed:', exc_info=e)
 
     def close(self):
         self.closed = True
@@ -196,6 +196,7 @@ class Command_Output_To_Named_Pipe:
         # create or wait for the command to open
         pipe_file = await self.out_pipe.get_open_pipe('w')
         # self.out_pipe.close()
+        # pylint: disable=consider-using-with
         self.running_cmd = subprocess.Popen(self.command_and_args,
                                             bufsize=0,
                                             stdin=self.input_pipe,
@@ -210,19 +211,20 @@ class Command_Output_To_Named_Pipe:
         self.running_cmd = None
 
 
-# ["ffmpeg", "-f", "avfoundation", "-pix_fmt", "nv12", "-video_size", "640x480", "-use_wallclock_as_timestamps", "1", "-framerate", "30", "-i", "default", "-f", "h264", "pipe:1"]
+# ["ffmpeg", "-f", "avfoundation", "-pix_fmt", "nv12", "-video_size", "640x480",
+# "-use_wallclock_as_timestamps", "1", "-framerate", "30", "-i", "default", "-f", "h264", "pipe:1"]
 if __name__ == '__main__':
 
     #logging.basicConfig(level=logging.DEBUG)
-    import subprocess
 
     def cmd_tee_passthrough_test():
         cmd1 = ['echo', 'hello']
         cmd2 = ['tee', 'test.txt']
         print(f"Shell style : {' '.join(cmd1)} | {' '.join(cmd2)}")
-
+        # pylint: disable=consider-using-with
         p1 = subprocess.Popen(
             cmd1, stdout=subprocess.PIPE)  # stderr=PIPE optional, dd is chatty
+        # pylint: disable=consider-using-with
         p2 = subprocess.Popen(cmd2, stdin=p1.stdout, stdout=None)
 
         # thoretically p1 and p2 may still be running, this ensures we are collecting their return codes
