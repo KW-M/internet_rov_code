@@ -184,19 +184,6 @@ else
 	sudo bash -c 'echo "tmpfs   /var/log    tmpfs    defaults,noatime,nosuid,mode=0755,size=30m    0 0" >> /etc/fstab'
 fi
 
-# --------- Setup nginx to log to the file nginx_error.log ---------
-sudo apt install -y nginx
-sudo apt autoremove -y
-# this solves the problem of missing the nginx log folder when the temp filesystem first starts up.
-if grep "/var/log/nginx" "/lib/systemd/system/nginx.service"; then
-	# ^checks if we have already added words " -e '/var/log/nginx_error.log'" to the nginx.service file:
-	echo -e "$Green nginx.service already has the nginx error log folder '/var/log/nginx' already added in /lib/systemd/system/nginx.service$Color_Off"
-else
-	echo -e "$Cyan Adding nginx error log folder '/var/log/nginx' in /lib/systemd/system/nginx.service $Color_Off"
-	# https://stackoverflow.com/questions/148451/how-to-use-sed-to-replace-only-the-first-occurrence-in-a-file
-	sudo sed -i '0,/ExecStartPre=/s//ExecStartPre=mkdir -p "\/var\/log\/nginx\/"\nExecStartPre=/' /lib/systemd/system/nginx.service
-fi
-
 
 # ---- Install USB Teathering suport for iPhone (From: https://www.youtube.com/watch?v=Q-m4i7LFxLA)
 echo -e "$Cyan Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils $Color_Off"
@@ -264,6 +251,18 @@ echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 /bin/bash ./update_config_files.sh # run the update config files script in this folder.
 
+# --------- Setup nginx to log to the file nginx_error.log ---------
+sudo apt install -y nginx
+# this solves the problem of missing the nginx log folder when the temp filesystem first starts up.
+if grep "/var/log/nginx" "/lib/systemd/system/nginx.service"; then
+	# ^checks if we have already added words " -e '/var/log/nginx_error.log'" to the nginx.service file:
+	echo -e "$Green nginx.service already has the nginx error log folder '/var/log/nginx' already added in /lib/systemd/system/nginx.service$Color_Off"
+else
+	echo -e "$Cyan Adding nginx error log folder '/var/log/nginx' in /lib/systemd/system/nginx.service $Color_Off"
+	# https://stackoverflow.com/questions/148451/how-to-use-sed-to-replace-only-the-first-occurrence-in-a-file
+	sudo sed -i '0,/ExecStartPre=/s//ExecStartPre=mkdir -p "\/var\/log\/nginx\/"\nExecStartPre=/' /lib/systemd/system/nginx.service
+fi
+
 echo -e "$Cyan Enabling systemd (systemctl) services so they start at boot (or whenever configured too)... $Color_Off"
 echo -e "$Green enabling pigpiod.service ... $Color_Off"
 sudo systemctl enable pigpiod.service
@@ -272,6 +271,7 @@ sudo systemctl enable rov_python_code.service # enable the new rov_python_code s
 echo -e "$Green enabling rov_go_code.service ... $Color_Off"
 sudo systemctl enable rov_go_code.service # enable the new rov_python_code service
 echo -e "$Green enabling nginx.service ... $Color_Off"
+sudo systemctl restart nginx.service
 sudo systemctl enable nginx.service
 echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
 sudo systemctl enable add_fixed_ip.service
