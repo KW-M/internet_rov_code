@@ -288,8 +288,9 @@ class MessageHandler:
                                 recipient_peers=["*"])
 
         elif action == 'take_photo':
-            print("TODO: take_photo")
+            print("TODO: take_photo %s", action_value)
             # send reply to just the sender
+
             await self.send_msg(status='done',
                                 cid=msg_cid,
                                 recipient_peers=[src_peer_id])

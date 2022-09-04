@@ -66,23 +66,23 @@ class FusedCompassSensor(Generic_Sensor):
         self.imu.begin()
         self.imu.setFullScaleRangeAccel(qwiic_icm20948.gpm4)
         self.imu.setFullScaleRangeGyro(qwiic_icm20948.dps500)
-        self.imu.enableDlpfAccel(True)
-        self.imu.enableDlpfGyro(True)
-        # acc_d11bw5_n17bw
+        # self.imu.enableDlpfAccel(True)
+        # self.imu.enableDlpfGyro(True)
+        # # acc_d11bw5_n17bw
         # https://github.com/sparkfun/SparkFun_ICM-20948_ArduinoLibrary/blob/d5ae1eba1ecbf808fca9bff0b0b6dc4e571e947c/examples/Arduino/Example4_WakeOnMotion/Example4_WakeOnMotion.ino#L151
-        self.imu.setDLPFcfgAccel(qwiic_icm20948.acc_d111bw4_n136bw)
+        # self.imu.setDLPFcfgAccel(qwiic_icm20948.acc_d111bw4_n136bw)
         # https://github.com/sparkfun/SparkFun_ICM-20948_ArduinoLibrary/blob/d5ae1eba1ecbf808fca9bff0b0b6dc4e571e947c/examples/Arduino/Example4_WakeOnMotion/Example4_WakeOnMotion.ino#L160
-        self.imu.setDLPFcfgGyro(qwiic_icm20948.gyr_d119bw5_n154bw3)
+        # self.imu.setDLPFcfgGyro(qwiic_icm20948.gyr_d119bw5_n154bw3)
 
         # Start fusion update task
         self.fusion = Fusion(self.read_compass_coro, timediff=TimeDiff)
         await self.fusion.start(slow_platform=False)
-        return self.fusion
 
-    async def read_sensor(self, _):
+    async def read_sensor(self):
         # print("fused: " +
         #       str([self.fusion.heading, self.fusion.pitch, self.fusion.roll]))
-        return [self.fusion.heading, self.fusion.pitch, self.fusion.roll]
+        return [self.fusion.heading, self.fusion.pitch,
+                self.fusion.roll], self.sensor_read_interval
 
 
 fused_compass_sensor = FusedCompassSensor()

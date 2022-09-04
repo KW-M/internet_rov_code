@@ -1,7 +1,11 @@
-from genericpath import exists
-from lib2to3.pgen2 import token
-import time, binascii, os, json, math
+import time
+import binascii
+import os
+import json
+import math
 from uuid import uuid4
+from genericpath import exists
+
 from config_reader import program_config, SECONDS_PER_DAY
 
 authTokens = {}

@@ -1,3 +1,4 @@
+# pylint: skip-file
 # fusion_async.py Asynchronous sensor fusion for micropython targets.
 # Ported to MicroPython by Peter Hinch, May 2017.
 # Released under the MIT License (MIT) See LICENSE
@@ -20,7 +21,7 @@ from math import sqrt, atan2, asin, degrees, radians
 from sensors.deltat import DeltaT
 
 
-class Fusion(object):
+class Fusion():
     '''
     Class provides sensor fusion allowing heading, pitch and roll to be extracted. This uses the Madgwick algorithm.
     The update method runs as a coroutine. Its calculations take 1.6mS on the Pyboard.

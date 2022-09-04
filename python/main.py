@@ -5,24 +5,22 @@
 # public domain
 # https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
 
-import time
-import json
 import logging
 import asyncio
 
 # import our python files from the same directory
 from config_reader import read_config_file, get_log_level
-from command_api import start_aiohttp_api_server
+# from command_api import start_aiohttp_api_server
 from named_pipe import Duplex_Named_Pipe_Relay
 # from unix_socket import Unix_Socket
-from motion_controller import Motion_Controller
+from motion.motion_controller import Motion_Controller
 from media_stream_controller import Media_Stream_Controller
+from python.status_led import Status_Led_Controller
 from rovSecurity.userAuth import readAuthStateFromDisk
 
 # from sensor_log import Sensor_Log
 from sensors.sensors_controller import SensorController
 from mesage_handler import MessageHandler
-from utilities import *
 # import logging_formatter
 
 config = read_config_file()
@@ -39,7 +37,7 @@ log = logging.getLogger(__name__)
 ######## Main Program Loop ###########
 ######################################
 async def main():
-    global duplex_relay, sensors, motion_ctrl, message_handler, media_ctrl
+    global duplex_relay, sensors, motion_ctrl, message_handler, media_ctrl, status_led_ctrl
 
     ##### Setup Variables #####
     ############################
@@ -54,6 +52,8 @@ async def main():
     media_ctrl = Media_Stream_Controller(named_pipe_folder)
     message_handler = MessageHandler(duplex_relay, media_ctrl, motion_ctrl,
                                      sensors)
+    status_led_ctrl = Status_Led_Controller(21, motion_ctrl.pigpio_instance)
+    status_led_ctrl.on()
 
     # setup the asyncio loop to run each of these async functions aka "tasks" aka "coroutines" concurently
     await asyncio.gather(
@@ -73,11 +73,10 @@ except KeyboardInterrupt:
     pass
 finally:
     # cleanup that will always run no matter what
-    # sensors.cleanup()
-    # motion_ctrl.cleanup_gpio()
+    sensors.cleanup()
+    motion_ctrl.cleanup_gpio()
     duplex_relay.cleanup()
     media_ctrl.cleanup()
-    pass
 
 # while True:
 

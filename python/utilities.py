@@ -1,15 +1,10 @@
-import traceback
-import json
-import asyncio
-
-
 def clamp(minimum, x, maximum):
     return max(minimum, min(x, maximum))
 
 
 def get_rounded_string(value):
     # from: https://stackoverflow.com/questions/20457038/how-to-round-to-2-decimals-with-python/20457284#20457284
-    return "{:0.3f}".format(value)
+    return f'{value:0.3f}'
 
 
 # -------------------------------------------------------------------------------------

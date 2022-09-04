@@ -1,3 +1,4 @@
+# pylint: skip-file
 # deltat.py time difference calculation for sensor fusion
 # Released under the MIT License (MIT)
 # Copyright (c) 2018 Peter Hinch

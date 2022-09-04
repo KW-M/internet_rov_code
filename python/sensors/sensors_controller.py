@@ -1,19 +1,16 @@
 import asyncio
-from cmath import nan
 import logging
 from sensors.pressure import pressure_temp_sensor
 from sensors.compass import fused_compass_sensor
 from config_reader import program_config
 
-from utilities import *
-
 ###### setup logging #######
 log = logging.getLogger(__name__)
 
-all_possible_sensors = [pressure_temp_sensor, fused_compass_sensor]
-
 
 class SensorController:
+
+    all_possible_sensors = [pressure_temp_sensor, fused_compass_sensor]
     connected_sensors = []
 
     async def sensor_setup_loop(self):
@@ -21,7 +18,7 @@ class SensorController:
         enabledSensors = program_config.get("EnabledSensors", [])
         self.connected_sensors = list(
             filter(lambda sensor: sensor.sensor_name in enabledSensors,
-                   all_possible_sensors))
+                   self.all_possible_sensors))
         sensor_tasks = [
             sensor.start_sensor_loop() for sensor in self.connected_sensors
         ]
@@ -48,8 +45,7 @@ class SensorController:
 
     def cleanup(self):
         for sensor in self.connected_sensors:
-            # sensor.sensor_connection.close()
-            pass
+            sensor.cleanup()
 
     # def get_sensor_column_names(self):
     #     output_column_names = ['date_time']
