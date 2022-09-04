@@ -41,6 +41,9 @@ async def main():
 
     ##### Setup Variables #####
     ############################
+    motion_ctrl = Motion_Controller()
+    status_led_ctrl = Status_Led_Controller(21, motion_ctrl.pigpio_instance)
+    status_led_ctrl.on()
 
     named_pipe_folder = config['NamedPipeFolder']
     duplex_relay = Duplex_Named_Pipe_Relay(
@@ -48,12 +51,10 @@ async def main():
         named_pipe_folder + 'to_webrtc_relay.pipe')
     sensors = SensorController()
     # sensor_log = Sensor_Log(sensors.all_sensors)
-    motion_ctrl = Motion_Controller()
+
     media_ctrl = Media_Stream_Controller(named_pipe_folder)
     message_handler = MessageHandler(duplex_relay, media_ctrl, motion_ctrl,
                                      sensors)
-    status_led_ctrl = Status_Led_Controller(21, motion_ctrl.pigpio_instance)
-    status_led_ctrl.on()
 
     # setup the asyncio loop to run each of these async functions aka "tasks" aka "coroutines" concurently
     await asyncio.gather(
@@ -72,7 +73,8 @@ try:
 except KeyboardInterrupt:
     pass
 finally:
-    # cleanup that will always run no matter what
+    # finally = stuff that will always run no matter what
+    status_led_ctrl.off()
     sensors.cleanup()
     motion_ctrl.cleanup_gpio()
     duplex_relay.cleanup()

@@ -1,4 +1,3 @@
-from logging import log
 import logging
 from Cryptodome.PublicKey import RSA
 from Cryptodome.Signature import PKCS1_v1_5
@@ -17,8 +16,8 @@ def signTrustedRovChallenge(challenge_string):
         program_config.get("RovAttestationPrivateKey", ""))
     if (rsa_private_key.can_sign()):
         return PKCS1_v1_5.new(rsa_private_key).sign(challenge_string)
-    else:
-        log.warn(
-            "Invalid or missing rsa private key in config json under RovAttestationPrivateKey"
-        )
-        return ""
+
+    log.warning(
+        "Invalid or missing rsa private key in config json under RovAttestationPrivateKey"
+    )
+    return ""
