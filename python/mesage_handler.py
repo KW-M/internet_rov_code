@@ -176,7 +176,7 @@ class MessageHandler:
     async def send_msg(
         self,
         recipient_peers=None,
-        status=" ",
+        status="",
         val=None,
         cid=None,
     ):
@@ -250,8 +250,8 @@ class MessageHandler:
             # all of these actions call shell commands and can be found in command_api.py
             msgGenerator = generate_webrtc_format_response(msg_cid, action)
             async for msg_data in msgGenerator:
-                msg_data.setdefault("TargetPeerIds", [src_peer_id])
-                await self.send_webrtc_msg(msg_data, {})
+                await self.send_webrtc_msg(msg_data,
+                                           {"TargetPeerIds": [src_peer_id]})
 
         else:
             return False
@@ -313,8 +313,8 @@ class MessageHandler:
         else:
             msgGenerator = generate_webrtc_format_response(msg_cid, action)
             async for msg_data in msgGenerator:
-                msg_data.setdefault("TargetPeerIds", [src_peer_id])
-                await self.send_webrtc_msg(msg_data, {})
+                await self.send_webrtc_msg(msg_data,
+                                           {"TargetPeerIds": [src_peer_id]})
 
         return True
 
@@ -373,8 +373,8 @@ class MessageHandler:
             #Debug
             print(
                 "src_peerid:" + src_peer_id,
-                "| action:" + str(action) + "| action_value:" +
-                str(action_value) + "| msg_cid:" + str(msg_cid))
+                " | action:" + str(action) + " | action_value:" +
+                str(action_value) + " | msg_cid:" + str(msg_cid))
 
             # These actions can be done by any peer
             if await self.handle_normal_actions(src_peer_id, action,
