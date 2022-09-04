@@ -7,6 +7,7 @@
 
 import logging
 import asyncio
+import pigpio
 
 # import our python files from the same directory
 from config_reader import read_config_file, get_log_level
@@ -41,8 +42,9 @@ async def main():
 
     ##### Setup Variables #####
     ############################
-    motion_ctrl = Motion_Controller()
-    status_led_ctrl = Status_Led_Controller(21, motion_ctrl.pigpio_instance)
+
+    pigpio_instance = pigpio.pi()
+    status_led_ctrl = Status_Led_Controller(21, pigpio_instance)
     status_led_ctrl.on()
 
     named_pipe_folder = config['NamedPipeFolder']
@@ -51,7 +53,7 @@ async def main():
         named_pipe_folder + 'to_webrtc_relay.pipe')
     sensors = SensorController()
     # sensor_log = Sensor_Log(sensors.all_sensors)
-
+    motion_ctrl = Motion_Controller(pigpio_instance=pigpio_instance)
     media_ctrl = Media_Stream_Controller(named_pipe_folder)
     message_handler = MessageHandler(duplex_relay, media_ctrl, motion_ctrl,
                                      sensors)

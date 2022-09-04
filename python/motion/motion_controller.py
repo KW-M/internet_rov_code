@@ -23,6 +23,10 @@ class Motion_Controller:
     last_thrust_vector = [0, 0, 0]
     last_turn_rate = 0
 
+    def __init__(self, pigpio_instance) -> None:
+        self.pigpio_instance = pigpio_instance
+        pass
+
     async def motor_setup_loop(self):
         self.gpio_issue_flag = asyncio.Event()
         while True:
@@ -44,8 +48,6 @@ class Motion_Controller:
         # Initilize the library for adafruit I2C 4 motor controller pi hat:
         log.info("Initializing motor controllers...")
         try:
-            # initilize pigpio and get a reference to it
-            self.pigpio_instance = pigpio.pi()
 
             # initilize the motor controllers
 
