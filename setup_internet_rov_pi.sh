@@ -92,9 +92,10 @@ v4l2-ctl --overlay=0 || true # disable preview viewfinder,  || true catches erro
 
 # --------- Update System Packages ------------
 echo -e "$Cyan Making sure all system & package updates are installed... $Color_Off"
-sudo apt -y full-upgrade
-sudo apt -y dist-upgrade
-sudo apt -y update
+sudo apt-get update --fix-missing || true
+sudo apt -y full-upgrade --fix-missing || true
+sudo apt -y dist-upgrade --fix-missing || true
+sudo apt -y update --fix-missing || true
 # sudo apt-get -y update && sudo apt-get -y upgrade # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -184,6 +185,18 @@ else
 	sudo bash -c 'echo "tmpfs   /var/log    tmpfs    defaults,noatime,nosuid,mode=0755,size=30m    0 0" >> /etc/fstab'
 fi
 
+# --------- generate ssl certificate --------------------------------
+# From: https://raspberrypi.stackexchange.com/a/66939
+# check if ssl key or certificate files don't exists, if so, generate them.
+# This allows use to use https on the webserver
+if [ ! -e "$HOME/webserver_ssl_cert/selfsigned.key" ] || [ ! -e "$HOME/webserver_ssl_cert/selfsigned.cert" ]; then
+	echo -e "$Green Creating self-signed ssl certificate for web server... you can type . for all of these $Color_Off"
+	mkdir -p "$HOME/webserver_ssl_cert"
+	# openssl genrsa -out "$HOME/webserver_ssl_cert/selfsign.key" 2048 && openssl req -new -x509 -key "$HOME/webserver_ssl_cert/selfsign.key" -out ~/webserver_ssl_cert/selfsign.crt -sha256
+	# -subj from https://stackoverflow.com/questions/16842768/passing-csr-distinguished-name-fields-as-parameters-to-openssl
+	sudo openssl req -x509 -nodes -newkey rsa:2048 -keyout "$HOME/webserver_ssl_cert/selfsigned.key" -out "$HOME/webserver_ssl_cert/selfsigned.cert" -sha256 -days 365 -subj "/C=US/ST=California/L=Monterey/O=SSROV/CN=internet_rov"
+fi
+
 
 # ---- Install USB Teathering suport for iPhone (From: https://www.youtube.com/watch?v=Q-m4i7LFxLA)
 echo -e "$Cyan Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils $Color_Off"
@@ -251,8 +264,20 @@ echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_
 cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 /bin/bash ./update_config_files.sh # run the update config files script in this folder.
 
-# --------- Setup nginx to log to the file nginx_error.log ---------
+# ---- Install nginx web server ----
+# sudo dpkg --remove --force-remove-reinstreq nginx || true # remove any old version of nginx
+# sudo dpkg --remove --force-remove-reinstreq nginx-core || true # remove any old version of nginx
+# sudo apt-get -y autoremove
+# sudo apt-get -y --purge remove
+# sudo apt-get -y autoclean
+# sudo apt-get -y clean
+# sudo apt-get -y -f install
+
+
 sudo apt install -y nginx
+
+# --------- Setup nginx to log to the file nginx_error.log ---------
+
 # this solves the problem of missing the nginx log folder when the temp filesystem first starts up.
 if grep "/var/log/nginx" "/lib/systemd/system/nginx.service"; then
 	# ^checks if we have already added words " -e '/var/log/nginx_error.log'" to the nginx.service file:

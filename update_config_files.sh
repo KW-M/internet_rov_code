@@ -64,8 +64,9 @@ popd
 echo "Pulling any updates to webrtc-relay from github"
 pushd ~/webrtc-relay
 git restore .
-git pull --rebase
-if was_file_recently_modified ./ 60; then
+changes=$(git pull --rebase)
+echo "changes: $changes"
+if ! echo "$changes" | grep "Already up to date"; then
 	echo "Installing webrtc-relay"
 	/usr/local/go/bin/go install .
 fi
@@ -75,9 +76,10 @@ popd
 echo "Pulling any changes to the rov backend from github"
 pushd "$FOLDER_CONTAINING_THIS_SCRIPT"
 git restore .
-git pull --rebase
+changes=$(git pull --rebase)
+echo "changes: $changes"
 
-if was_file_recently_modified ./python/requirements.txt 60; then
+if echo "$changes" | grep "requirements.txt"; then
 	echo "Installing python dependencies"
 	# install python dependencies
 	python3 -m pip install -r ./python/requirements.txt
@@ -89,30 +91,28 @@ if [ ! -e "$HOME/rov-config.json" ]; then
 	backup_then_overwrite_file "$HOME/rov-config.json" "./new_config_files/rov-config.json"
 fi;
 
-if was_file_recently_modified ./new_config_files/ 60; then
 
-	echo "Copying over rov_go_code startup service file..."
-	backup_then_overwrite_file "/lib/systemd/system/rov_go_code.service" "./new_config_files/rov_go_code.service"
+echo "Copying over rov_go_code startup service file..."
+backup_then_overwrite_file "/lib/systemd/system/rov_go_code.service" "./new_config_files/rov_go_code.service"
 
-	echo "Copying over rov_python_code startup service file..."
-	backup_then_overwrite_file "/lib/systemd/system/rov_python_code.service" "./new_config_files/rov_python_code.service"
+echo "Copying over rov_python_code startup service file..."
+backup_then_overwrite_file "/lib/systemd/system/rov_python_code.service" "./new_config_files/rov_python_code.service"
 
-	# echo "Copying over uv4l startup service file..."
-	# backup_then_overwrite_file "/etc/systemd/system/uv4l_raspicam.service" "./new_config_files/uv4l_raspicam.service"
+# echo "Copying over uv4l startup service file..."
+# backup_then_overwrite_file "/etc/systemd/system/uv4l_raspicam.service" "./new_config_files/uv4l_raspicam.service"
 
-	# echo "Copying over uv4l-raspicam config file"
-	# backup_then_overwrite_file "/etc/uv4l/uv4l-raspicam.conf" "./new_config_files/uv4l-raspicam.conf"
+# echo "Copying over uv4l-raspicam config file"
+# backup_then_overwrite_file "/etc/uv4l/uv4l-raspicam.conf" "./new_config_files/uv4l-raspicam.conf"
 
-	echo "Copying over nginx config file to /etc/nginx.conf"
-	backup_then_overwrite_file "/etc/nginx/nginx.conf" "./new_config_files/nginx.conf"
+echo "Copying over nginx config file to /etc/nginx.conf"
+backup_then_overwrite_file "/etc/nginx/nginx.conf" "./new_config_files/nginx.conf"
 
-	echo "Copying over add_fixed_ip.service startup service file..."
-	backup_then_overwrite_file "/etc/systemd/system/add_fixed_ip.service" "./new_config_files/add_fixed_ip.service"
+echo "Copying over add_fixed_ip.service startup service file..."
+backup_then_overwrite_file "/etc/systemd/system/add_fixed_ip.service" "./new_config_files/add_fixed_ip.service"
 
-	# echo "Copying over rov_bluetooth_terminal startup service file (TO ENABLE BLUETOOTH SERIAL TERMINAL CONNECTIONS)..."
-	# backup_then_overwrite_file "/etc/systemd/system/rov_bluetooth_terminal.service" "./new_config_files/rov_bluetooth_terminal.service"
+# echo "Copying over rov_bluetooth_terminal startup service file (TO ENABLE BLUETOOTH SERIAL TERMINAL CONNECTIONS)..."
+# backup_then_overwrite_file "/etc/systemd/system/rov_bluetooth_terminal.service" "./new_config_files/rov_bluetooth_terminal.service"
 
-fi
 
 #-----------------------------------------------------------------------------------------------------------------------
 
