@@ -40,7 +40,7 @@ class MessageHandler:
         correct_password = program_config.get(
             'RovControlPassword', 'Set a password in the config file')
 
-        if password is not correct_password:
+        if password != correct_password:
             return ('password-invalid', None)
 
         authToken = generateAuthToken()
