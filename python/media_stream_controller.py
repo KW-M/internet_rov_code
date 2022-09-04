@@ -87,7 +87,7 @@ class Media_Stream_Controller:
         vidOutput = self.start_piped_input_command(
             inputPipe=vidSrc.stdout,
             cmd_str=
-            "ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -use_wallclock_as_timestamps 1 -s 1024x576 -framerate 16 -i pipe:0 -vcodec libx264 -b:v 700k -g 10 -fflags nobuffer -preset ultrafast -tune zerolatency -f rtp 'rtp://"
+            "ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -use_wallclock_as_timestamps 1 -s 640x480 -framerate 16 -i pipe:0 -vcodec libx264 -b:v 700k -g 10 -fflags nobuffer -preset ultrafast -tune zerolatency -f rtp 'rtp://"
             + ip + "?pkt_size=1200'",
         )
         # works latecy free with freezes: libcamera-vid --width 640 --height 480 --framerate 15 --codec h264  --profile high --level 4.2 --bitrate 800000 --inline 1  --flush 1 --timeout 0 --nopreview 1 --output - | ffmpeg -hide_banner -f h264 -re -framerate 15 -i pipe:0 -vcodec copy -fflags nobuffer -f rtp 'rtp://127.0.0.1:1820?pkt_size=1200'
