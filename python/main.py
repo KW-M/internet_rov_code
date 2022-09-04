@@ -15,7 +15,7 @@ from named_pipe import Duplex_Named_Pipe_Relay
 # from unix_socket import Unix_Socket
 from motion.motion_controller import Motion_Controller
 from media_stream_controller import Media_Stream_Controller
-from python.status_led import Status_Led_Controller
+from status_led import Status_Led_Controller
 from rovSecurity.userAuth import readAuthStateFromDisk
 
 # from sensor_log import Sensor_Log
