@@ -1,7 +1,11 @@
+import logging
 import shlex
 import subprocess
 
-from named_pipe import Command_Output_To_Named_Pipe
+############################
+###### setup logging #######
+
+log = logging.getLogger(__name__)
 
 # class Video_Stream_Chain:
 #     def __init__(self, video_stream_chain):
@@ -20,6 +24,7 @@ class Media_Stream_Controller:
 
     def start_pipable_command(self, cmd_str=None, inputPipe=None):
         cmd1 = shlex.split(cmd_str)
+        log.info("Starting CMD: %s", {' '.join(cmd1)})
         p1 = subprocess.Popen(cmd1, stdin=inputPipe, stdout=subprocess.PIPE)
         return p1
 
@@ -28,16 +33,18 @@ class Media_Stream_Controller:
             cmd = self.start_pipable_command(cmd_str)
             self.open_video_stream_map[cmd_str] = cmd
             return cmd
-        elif cmd_str != None:
+        if cmd_str is not None:
             return self.open_video_stream_map[cmd_str]
+        return None
 
     def start_piped_input_command(self, inputPipe=None, cmd_str=None):
         if cmd_str not in self.open_video_stream_map:
             cmd = self.start_pipable_command(cmd_str, inputPipe=inputPipe)
             self.open_video_stream_map[cmd_str] = cmd
             return cmd
-        elif cmd_str != None:
+        if cmd_str is not None:
             return self.open_video_stream_map[cmd_str]
+        return None
 
     def cmd_tee_passthrough_test(self, cmd_str=None, pipe_file_path=None):
         cmd1 = shlex.split(cmd_str)
@@ -48,7 +55,7 @@ class Media_Stream_Controller:
         p2 = subprocess.Popen(cmd2, stdin=p1.stdout, stdout=None)
 
         # thoretically p1 and p2 may still be running, this ensures we are collecting their return codes
-        return p1, p1
+        return p1, p2
 
     def run_cmd_string(self, cmd_str=None):
         cmd = shlex.split(cmd_str)
@@ -68,17 +75,19 @@ class Media_Stream_Controller:
     #     return start_cmd, "vid.pipe"
 
     def start_source_stream(self, port=1820):
+        log.info("Start src stream: %s",
+                 {' '.join(self.open_video_stream_map.keys())})
         ip = "127.0.0.1:" + str(port)
         vidSrc = self.start_video_source(
             # "libcamera-vid --width 640 --height 480 --framerate 15 --codec h264  --profile high --level 4.2 --bitrate 800000 --inline 1  --flush 1 --timeout 0 --nopreview 1 --output - "
-            "libcamera-vid --width 1024 --height 576 --framerate 15 --codec yuv420 --flush 1 --timeout 0 --nopreview 1 --output - "
+            "libcamera-vid --width 640 --height 480 --framerate 16 --codec yuv420 --flush 1 --timeout 0 --nopreview 1 --output - "
         )
         # # --width 1024 --height 576 --framerate 15
         # # --width 1920 --height 1080 --framerate 20
         vidOutput = self.start_piped_input_command(
             inputPipe=vidSrc.stdout,
             cmd_str=
-            "ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -use_wallclock_as_timestamps 1 -s 1024x576 -framerate 15 -i pipe:0 -vcodec libx264 -b:v 700k -g 10 -fflags nobuffer -preset ultrafast -tune zerolatency -f rtp 'rtp://"
+            "ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -use_wallclock_as_timestamps 1 -s 1024x576 -framerate 16 -i pipe:0 -vcodec libx264 -b:v 700k -g 10 -fflags nobuffer -preset ultrafast -tune zerolatency -f rtp 'rtp://"
             + ip + "?pkt_size=1200'",
         )
         # works latecy free with freezes: libcamera-vid --width 640 --height 480 --framerate 15 --codec h264  --profile high --level 4.2 --bitrate 800000 --inline 1  --flush 1 --timeout 0 --nopreview 1 --output - | ffmpeg -hide_banner -f h264 -re -framerate 15 -i pipe:0 -vcodec copy -fflags nobuffer -f rtp 'rtp://127.0.0.1:1820?pkt_size=1200'
