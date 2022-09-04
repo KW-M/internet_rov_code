@@ -47,22 +47,22 @@ if ! locale -a | grep -i -q 'en_US.utf8' || ! locale -a | grep -i -q 'en_US.utf-
 	echo "LANGUAGE=en_US.UTF-8" | sudo tee --append /etc/default/locale
 	echo "LC_ALL=en_US.UTF-8" | sudo tee --append /etc/default/locale
 	echo "LC_CTYPE=en_US.UTF-8" | sudo tee --append /etc/default/locale
-	sudo dpkg-reconfigure -f noninteractive locales
+	sudo dpkg-reconfigure -f noninteractive locales || true
 fi
 
 echo -e "$Cyan Setting Timezone to America/Los_Angeles ... $Color_Off"
 sudo rm -f /etc/localtime
 echo "America/Los_Angeles" | sudo tee /etc/timezone
-sudo dpkg-reconfigure -f noninteractive tzdata
-sudo timedatectl set-timezone America/Los_Angeles
-sudo timedatectl set-ntp true # enable network time sync
+sudo dpkg-reconfigure -f noninteractive tzdata || true
+sudo timedatectl set-timezone America/Los_Angeles || true
+sudo timedatectl set-ntp true || true # enable network time sync
 
 echo -e "$Cyan Setting keyboard layout to US... $Color_Off"
 sudo localectl set-keymap us || true
 sudo dpkg-reconfigure -f noninteractive keyboard-configuration || true
 
 echo -e "$Cyan Removing the 'setup your raspberrypi' startup popup window wizard $Color_Off"
-sudo rm -f /etc/xdg/autostart/piwiz.desktop
+sudo rm -f /etc/xdg/autostart/piwiz.desktop || true
 
 # From: https://raspberrypi.stackexchange.com/questions/28907/how-could-one-automate-the-raspbian-raspi-config-setup
 echo -e "$Cyan Setting the pi to enable different functionality.  (all of these can also be set manually by running sudo raspi-config). $Color_Off"
@@ -77,17 +77,25 @@ sudo raspi-config nonint do_serial 0 || true # zero here means "enable"
 echo -e "$Green Enabling Camera $Color_Off"
 sudo raspi-config nonint do_camera 0 || true # zero here means "enable"
 echo -e "$Green Enabling VNC remote desktop $Color_Off"
-sudo raspi-config nonint do_vnc 0 # zero here means "enable"
+sudo raspi-config nonint do_vnc 0  || true # zero here means "enable"
 echo -e "$Green Setting the pi to automatically login and boot to the desktop (can also be set manually by running sudo raspi-config then, go to System, then Auto Boot / Login. $Color_Off"
-sudo raspi-config nonint do_boot_behaviour B4
+sudo raspi-config nonint do_boot_behaviour B4 || true
 echo -e "$Green Setting the pi GPU Memory amount to 128mb (can also be set manually by running sudo raspi-config then, go to Performance, then GPU Memory. $Color_Off"
-sudo raspi-config nonint do_memory_split 128
+sudo raspi-config nonint do_memory_split 128  || true
 
 # from: https://raspberrypi.stackexchange.com/questions/63930/remove-uv4l-software-by-http-linux-project-org-watermark
 # https://www.raspberrypi.org/forums/viewtopic.php?t=62364
 echo -e "$Cyan Enabling built in raspberry pi camera driver: $Color_Off"
 sudo modprobe bcm2835-v4l2 || true
-v4l2-ctl --overlay=0 && # disable preview viewfinder, && catches errors, which this will throw if the raspi camera is in use or missing.
+v4l2-ctl --overlay=0 || true # disable preview viewfinder,  || true catches errors, which this will throw if the raspi camera is in use or missing.
+
+
+# --------- Update System Packages ------------
+echo -e "$Cyan Making sure all system & package updates are installed... $Color_Off"
+sudo apt -y full-upgrade
+sudo apt -y dist-upgrade
+sudo apt -y update
+# sudo apt-get -y update && sudo apt-get -y upgrade # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ----- Boot Config Setup -----------------------------------------------------------------------------------------
@@ -102,10 +110,11 @@ else
 	sudo bash -c 'echo "i2c_arm_baudrate=10000" >> /boot/config.txt'
 fi
 
+# ------ Enable newer graphics driver for better video encoding ------
 # https://www.systutorials.com/how-to-delete-a-specific-line-from-a-text-file-in-command-line-on-linux/
 sudo sed -i 's|/#dtoverlay=vc4-fkms-v3d|/dtoverlay=vc4-fkms-v3d|g' /boot/config.txt
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ----- Setup Login Message --------------------------------------------------------------------------------------------------
 if grep "rov_status_report.sh" ~/.profile; then
 	echo -e "$Green rov_status_report already set to run every time a terminal/cmd prompt is opened in ~/.profile $Color_Off"
 else
@@ -113,6 +122,8 @@ else
 	# the .profile file is the file that gets run to setup the default terminal/command shell whenever you open a terminal or ssh session
 	echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_report.sh" | tee -a ~/.profile
 fi
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # ----- Bluetooth Serial Setup -----------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
@@ -165,7 +176,7 @@ fi
 # this is to save the sd card from unneccesary writes, that could kill it.
 # from: https://www.zdnet.com/article/raspberry-pi-extending-the-life-of-the-sd-card/
 # and: https://durdle.com/2017/01/04/how-not-to-kill-your-pis-sd-card/
-if grep "tmpfs   /var/log" /etc/fstab; then
+if grep "tmpfs /var/log" /etc/fstab; then
 	# ^checks if we have already added words "tmpfs   /var/log" to the /etc/fstab file:
 	echo -e "$Green Already setup in memory filesystem (tmpfs) for system log file folder /var/log $Color_Off"
 else
@@ -186,49 +197,28 @@ else
 	sudo sed -i '0,/ExecStartPre=/s//ExecStartPre=mkdir -p "\/var\/log\/nginx\/"\nExecStartPre=/' /lib/systemd/system/nginx.service
 fi
 
-# --------- generate ssl certificate --------------------------------
-# From: https://raspberrypi.stackexchange.com/a/66939
-# check if ssl key or certificate files don't exists, if so, generate them.
-# This allows use to use https on the webserver
-if [ ! -e "$HOME/webserver_ssl_cert/selfsigned.key" ] || [ ! -e "$HOME/webserver_ssl_cert/selfsigned.cert" ]; then
-	echo -e "$Green Creating self-signed ssl certificate for web server... you can type . for all of these $Color_Off"
-	mkdir -p "$HOME/webserver_ssl_cert"
-	# openssl genrsa -out "$HOME/webserver_ssl_cert/selfsign.key" 2048 && openssl req -new -x509 -key "$HOME/webserver_ssl_cert/selfsign.key" -out ~/webserver_ssl_cert/selfsign.crt -sha256
-	# -subj from https://stackoverflow.com/questions/16842768/passing-csr-distinguished-name-fields-as-parameters-to-openssl
-	sudo openssl req -x509 -nodes -newkey rsa:2048 -keyout "$HOME/webserver_ssl_cert/selfsigned.key" -out "$HOME/webserver_ssl_cert/selfsigned.cert" -sha256 -days 365 -subj "/C=US/ST=California/L=Monterey/O=SSROV/CN=internet_rov"
+
+# ---- Install USB Teathering suport for iPhone (From: https://www.youtube.com/watch?v=Q-m4i7LFxLA)
+echo -e "$Cyan Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils $Color_Off"
+echo -e "$Green These packages enable the pi to do usb internet teathering with an iphone... $Color_Off"
+sudo apt install -y usbmuxd ipheth-utils libimobiledevice-utils
+
+# ------- Install Arducam Low Light Cam Driver --------------------------------------------------------------------------------------
+# from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
+if ! command -v libcamera-hello &> /dev/null || ! dmesg | grep arducam; then
+	pushd ~/
+	mkdir arducam_install;
+	cd arducam_install;
+	echo -e "$Cyan Installing arducam pivariety camera driver $Color_Off"
+	wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
+	chmod +x install_pivariety_pkgs.sh
+	echo "n" | ./install_pivariety_pkgs.sh -p kernel_driver
+	./install_pivariety_pkgs.sh -p libcamera_dev
+	./install_pivariety_pkgs.sh -p libcamera_apps
+	popd
 fi
 
-# # From: https://www.linux-projects.org/uv4l/installation/
-# echo -e "$Cyan Adding uv4l repository key to apt... $Color_Off"
-# curl https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo apt-key add -
-# # The above command is depricated, the one bellow should probably work in the future (see: https://suay.site/?p=526)
-# curl -s https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/uv4l.gpg --import
-# sudo chmod 644 /etc/apt/trusted.gpg.d/uv4l.gpg
-# echo -e "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | sudo tee /etc/apt/sources.list.d/uv4l.list
-
-echo -e "$Cyan Making sure all system & package updates are installed... $Color_Off"
-sudo apt -y autoremove
-sudo apt -y update
-sudo apt -y full-upgrade
-sudo apt -y dist-upgrade
-# sudo apt-get -y update && sudo apt-get -y upgrade # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
-sudo apt -y autoremove
-# # From: https://www.linux-projects.org/uv4l/installation/
-# echo -e "$Cyan Installing packages with apt: nginx uv4l uv4l-raspicam  uv4l-server uv4l-demos $Color_Off"
-# sudo apt install -y nginx uv4l-raspicam uv4l-server uv4l-demos uv4l-raspicam-extras
-
-
-# echo -e "$Cyan Installing uv4l webrtc plugin with apt (package depending on raspberry pi model) $Color_Off"
-# # From: https://www.highvoltagecode.com/post/webrtc-on-raspberry-pi-live-hd-video-and-audio-streaming
-# if [[ $PI_CPU_ARCHITECTURE == "armv6l" ]]; then
-# 	echo -e "$Green PI with ARMv6 cpu detected (Pi Zero or similar), installing uv4l-webrtc-armv6 $Color_Off"
-# 	sudo apt install -y uv4l-webrtc-armv6
-# else
-# 	echo -e "$Green PI with non ARMv6 (v7 or higher) cpu detected, installing uv4l-webrtc $Color_Off"
-# 	sudo apt install -y uv4l-webrtc
-# fi
-
-# ---- INSTALL GO ----
+# ---- INSTALL GO Language ----
 if grep "GOPATH=" ~/.profile; then
 	# ^checks if we have already added words "GOPATH=" to the  ~/.profile file:
 	echo -e "$Green Go path already setup in ~/.profile $Color_Off"
@@ -236,7 +226,7 @@ else
 	pushd ~/
     # https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/
     echo -e "$Cyan Installing GO and adding GOPATH to ~/.profile $Color_Off"
-    sudo rm -r /usr/local/go | true # remove any old version of go
+    sudo rm -r /usr/local/go || true # remove any old version of go
     sudo apt install -y git wget
     wget https://go.dev/dl/go1.18.linux-armv6l.tar.gz
 
@@ -262,49 +252,6 @@ rm -rf rov-web || true
 git clone -b gh-pages --single-branch https://github.com/kw-m/rov-web.git
 popd
 
-# From: https://www.youtube.com/watch?v=Q-m4i7LFxLA
-echo -e "$Cyan Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils $Color_Off"
-echo -e "$Green These packages enable the pi to do usb internet teathering with an iphone... $Color_Off"
-sudo apt install -y usbmuxd ipheth-utils libimobiledevice-utils
-
-# ----------------------------------------------------------------------------------------------------------------------
-# From: https://ngrok.com/docs
-# echo -e "$Cyan Downloading and updating Ngrok $Color_Off"
-# echo -e "$Green This download url might break, so if it does just get the latest from https://ngrok.com/download, unzip it and put it in the home folder - might need to mark it as executable with chmod +x too. $Color_Off"
-# cd ~/
-# curl https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm.zip --output ~/ngrok_download.zip
-# unzip -o ~/ngrok_download.zip
-# rm ~/ngrok_download.zip
-# echo -e "$Green Marking ngrok as executable with command 'chmod +x ~/ngrok' $Color_Off"
-# chmod +x ~/ngrok
-# echo -e "$Green Updating ngrok $Color_Off"
-# ~/ngrok update
-# cd "$FOLDER_CONTAINING_THIS_SCRIPT"
-
-# ----------------------------------------------------------------------------------------------------------------------
-# from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
-if ! command -v libcamera-hello &> /dev/null || ! dmesg | grep arducam; then
-	pushd ~/
-	mkdir arducam_install;
-	cd arducam_install;
-	echo -e "$Cyan Installing arducam pivariety camera driver $Color_Off"
-	wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
-	chmod +x install_pivariety_pkgs.sh
-	echo "n" | ./install_pivariety_pkgs.sh -p kernel_driver
-	./install_pivariety_pkgs.sh -p libcamera_dev
-	./install_pivariety_pkgs.sh -p libcamera_apps
-	popd
-fi
-
-# ----------------------------------------------------------------------------------------------------------------------
-# from: https://learn.netdata.cloud/docs/agent/packaging/installer/methods/kickstart
-# check if the netdata command already exists:
-# if ! command -v netdata &> /dev/null; then
-# 	echo -e "$Cyan Installing netdata... $Color_Off"
-#  	bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive --disable-cloud --disable-telemetry
-# 	sudo systemctl disable netdata
-# fi
-
 # clean up any packages that were installed to aid installing anything else, but are no longer needed
 sudo apt autoremove -y
 
@@ -328,15 +275,6 @@ echo -e "$Green enabling nginx.service ... $Color_Off"
 sudo systemctl enable nginx.service
 echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
 sudo systemctl enable add_fixed_ip.service
-# echo -e "$Green enabling rov_bluetooth_terminal.service ... $Color_Off"
-# sudo systemctl enable rov_bluetooth_terminal.service # enable the new rfcomm service
-# echo -e "$Green enabling ngrok.service ... $Color_Off"
-# sudo systemctl enable ngrok.service # enable the new ngrok service
-# echo -e "$Green enabling uv4l_raspicam.service ... $Color_Off"
-# sudo systemctl enable uv4l_raspicam.service
-# echo -e "$Green enabling rov_uwsgi_server.service ... $Color_Off"
-# sudo systemctl enable rov_uwsgi_server.service
-
 
 # --------------------------------------------------------------------------
 # ----- Python Library Setup -------------------------------------------------------
@@ -349,28 +287,7 @@ sudo python3 -m pip install --upgrade setuptools
 echo -e "$Cyan Installing python packages $Color_Off"
 sudo python3 -m pip install -r ./python/requirements.txt
 
+
+# ---------------- DONE --------------------------------------
+
 echo "YAY! Internet ROV Install Script has Finished Successfully!"
-
-# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
-# echo -e "$Cyan Downloading Adafruit circuit python $Color_Off"
-# sudo python3 -m pip install --upgrade adafruit-python-shell
-
-# # from: https://learn.adafruit.com/adafruit-dc-and-stepper-motor-hat-for-raspberry-pi/installing-software
-# echo -e "$Cyan Downloading Adafruit motor controller python libraries... $Color_Off"
-# sudo python3 -m pip install --upgrade adafruit-circuitpython-motorkit
-
-# from: https://github.com/NickCrews/ms5803py
-# echo -e "$Cyan Downloading pressure sensor python libraries... $Color_Off"
-# sudo python3 -m pip install --upgrade ms5803py
-
-# From: https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html
-# echo -e "$Cyan Installing uWSGI python3 library (tiny server handler) and python c bindings for it $Color_Off"
-# sudo apt install -y build-essential python-dev
-# sudo python3 -m pip install --upgrade uwsgi
-
-# ----------------------------------------------------------------------------------------------------------------------
-# from: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
-# cd ~/ # go to home directory
-# echo -e "$Cyan Installing Adafruit circuit python (May ask to reboot, say yes) $Color_Off"
-# wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
-# sudo python3 raspi-blinka.py
