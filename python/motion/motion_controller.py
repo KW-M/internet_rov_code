@@ -3,8 +3,8 @@ import logging
 import math
 import pigpio
 
-from drok_pwm_motor_controller import Drok_Pwm_Motor
-from adafruit_pwm_motor_controller import Adafruit_Pwm_Motor
+from motion.drok_pwm_motor_controller import Drok_Pwm_Motor
+from motion.adafruit_pwm_motor_controller import Adafruit_Pwm_Motor
 
 ###### setup logging #######
 log = logging.getLogger(__name__)
