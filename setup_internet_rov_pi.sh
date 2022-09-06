@@ -205,14 +205,16 @@ sudo apt install -y usbmuxd ipheth-utils libimobiledevice-utils
 
 # ------- Install Arducam Low Light Cam Driver --------------------------------------------------------------------------------------
 # from: https://www.arducam.com/docs/cameras-for-raspberry-pi/pivariety/how-to-install-kernel-driver-for-pivariety-camera/#12-v4l2-pivariety-driver-detection
-if ! command -v libcamera-hello &> /dev/null || ! dmesg | grep arducam; then
+if ! dmesg | grep arducam; then
 	pushd ~/
+	rm -rf arducam_install || true
 	mkdir arducam_install;
 	cd arducam_install;
+	sudo sed -i.bak '/dtoverlay=arducam/d' /boot/config.txt # remove existing refernces to arducam
 	echo -e "$Cyan Installing arducam pivariety camera driver $Color_Off"
 	wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh
 	chmod +x install_pivariety_pkgs.sh
-	echo "n" | ./install_pivariety_pkgs.sh -p kernel_driver
+	./install_pivariety_pkgs.sh -p kernel_driver
 	./install_pivariety_pkgs.sh -p libcamera_dev
 	./install_pivariety_pkgs.sh -p libcamera_apps
 	popd

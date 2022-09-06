@@ -76,6 +76,7 @@ popd
 echo "Pulling any changes to the rov backend from github"
 pushd "$FOLDER_CONTAINING_THIS_SCRIPT"
 git restore .
+# git diff-tree --no-commit-id --name-only -r HEAD..origin/main
 changes=$(git pull --rebase)
 echo "changes: $changes"
 

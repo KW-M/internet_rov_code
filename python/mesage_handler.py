@@ -267,8 +267,7 @@ class MessageHandler:
         if action not in [
                 "take_control", "take_photo", "start_video_rec",
                 "stop_video_rec", "shutdown_rov", "reboot_rov", "enable_wifi",
-                "disable_wifi", "rov_logs", "pull_rov_github_code",
-                "restart_rov_services"
+                "disable_wifi", "rov_logs", "restart_rov_services"
         ]:
             return False
 
@@ -426,11 +425,11 @@ class MessageHandler:
                 await self.send_msg(status="sensor-update",
                                     val=sensorUpdates,
                                     recipient_peers=["*"])
-            await asyncio.sleep(0.02)
-            # else:
-            #     # otherwise send a heartbeat message to help the website clients know that the datachannel is still open
-            #     await self.send_msg(status="Heartbeat",
-            #                         val=time.time(),
-            #                         cid=None,
-            #                         recipient_peers=["*"])
-            #     await asyncio.sleep(1)
+                await asyncio.sleep(0.02)
+            else:
+                # otherwise send a heartbeat message to help the website clients know that the datachannel is still open
+                await self.send_msg(status="Heartbeat",
+                                    val=time.time(),
+                                    cid=None,
+                                    recipient_peers=["*"])
+                await asyncio.sleep(1)
