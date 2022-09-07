@@ -49,13 +49,17 @@ class Motion_Controller:
         log.info("Initializing motor controllers...")
         try:
 
-            # initilize the motor controllers
+            # Small Blue Motor Controller (claw or lights)
+            self.CLAW_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance,
+                                                 pin_in1=4,
+                                                 pin_in2=17)
 
-            # Up Left: Top Red Motor Controller - plug closer to controller power input
-            self.UP_LEFT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
-                                                pin_ena=18,
-                                                pin_in1=27,
-                                                pin_in2=22)
+            # Motor Controller 1A (forward right)
+            #Top Red Motor Controller; plug closer to controller power input (left)
+            self.FORWARD_RIGHT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
+                                                      pin_ena=18,
+                                                      pin_in1=27,
+                                                      pin_in2=22)
 
             # Motor Controller 1B (up right)
             self.UP_RIGHT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
@@ -68,16 +72,12 @@ class Motion_Controller:
                                                      pin_ena=5,
                                                      pin_in1=6,
                                                      pin_in2=12)
-            # Motor Controller 2B (forward left)
-            self.FORWARD_RIGHT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
-                                                      pin_ena=13,
-                                                      pin_in1=16,
-                                                      pin_in2=19)
 
-            # Motor Controller 5 (claw or lights)
-            self.CLAW_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance,
-                                                 pin_in1=4,
-                                                 pin_in2=17)
+            # Motor Controller 2B (up left)
+            self.UP_LEFT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
+                                                pin_ena=13,
+                                                pin_in1=16,
+                                                pin_in2=19)
 
         except ValueError:
             self.gpio_issue_flag.set()

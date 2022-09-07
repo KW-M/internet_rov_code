@@ -122,8 +122,17 @@ async def generate_webrtc_format_response(
         yield {"cid": cid, "val": action_result, "status": "done"}
 
     elif isinstance(action_result, AsyncGeneratorType):
+        i = 0  # counter for the number of messages sent
         async for line in action_result:
-            yield {"cid": cid, "val": line + "\n"}
+            i += 1  # increment counter
+            if ("rov_logs...") in line:
+                continue  # avoid sending our own log messages to the client (which would cause message recursion)
+            yield {
+                "cid": cid,
+                "val": line + "\n",
+                "status": action + "..." + i
+            }
+        # send done status to indicate that the command has finished
         yield {"cid": cid, "status": "done"}
 
 
