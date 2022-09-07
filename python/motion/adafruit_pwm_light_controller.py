@@ -46,7 +46,7 @@ if __name__ == "__main__":
             sys.exit(1)
 
         # setup light
-        light = Adafruit_Pwm_Light(pi, 18, 19)
+        light = Adafruit_Pwm_Light(pi, pin_in1=4, pin_in2=17)
 
         while True:
             light.set_brightness(1)
