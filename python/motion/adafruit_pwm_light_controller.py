@@ -22,7 +22,7 @@ class Adafruit_Pwm_Light(Adafruit_Pwm_Motor):
         # cancel out negative speed value which could fry the light
         speed = abs(speed)
         # cap speed at 1/32 (max)
-        speed = min(speed, 1) * (1 / 6)
+        speed = min(speed, 1)  # * (1 / 6)
         super().set_speed(speed)
 
     def set_brightness(self, brightness):
@@ -51,16 +51,25 @@ if __name__ == "__main__":
         light.set_brightness(0)
 
         brightness = 0
+        direction = "+"
         while True:
             char = input(
-                "Press Enter to raise the brightness, Enter - to lower, Enter 0 to turn off..."
+                "Press Enter + to raise the brightness, Enter - to lower, Enter 0 to turn off..."
             )
             if (char == '0'):
                 brightness = 0
-            elif (char == '-'):
+                continue
+
+            if (char == '-'):
+                direction = "-"
+            elif char == '+':
+                direction = "+"
+
+            if (direction == '-'):
                 brightness -= 1 / RAMP_STEPS
-            else:
+            elif direction == '+':
                 brightness += 1 / RAMP_STEPS
+
             print(f'light at {brightness}')
             light.set_brightness(brightness)
 
