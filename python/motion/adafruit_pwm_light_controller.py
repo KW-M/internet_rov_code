@@ -22,7 +22,7 @@ class Adafruit_Pwm_Light(Adafruit_Pwm_Motor):
         # cancel out negative speed value which could fry the light
         speed = abs(speed)
         # cap speed at 1/32 (max)
-        speed = min(speed, 1) * (1 / 32)
+        speed = min(speed, 1) * (1 / 6)
         super().set_speed(speed)
 
     def set_brightness(self, brightness):
