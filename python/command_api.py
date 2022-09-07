@@ -130,7 +130,7 @@ async def generate_webrtc_format_response(
             yield {
                 "cid": cid,
                 "val": line + "\n",
-                "status": action + "..." + i
+                "status": action + "..." + str(i)
             }
         # send done status to indicate that the command has finished
         yield {"cid": cid, "status": "done"}
