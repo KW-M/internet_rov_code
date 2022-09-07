@@ -37,7 +37,7 @@ if __name__ == "__main__":
     import pigpio
     import time
 
-    RAMP_STEPS = 20
+    RAMP_STEPS = 24
     try:
 
         # setup pigpio
@@ -48,22 +48,36 @@ if __name__ == "__main__":
 
         # setup light
         light = Adafruit_Pwm_Light(pi, pin_in1=4, pin_in2=17)
+        light.set_brightness(0)
 
+        brightness = 0
         while True:
-            light.set_brightness(1)
-            time.sleep(5)
-            light.set_brightness(0)
-            time.sleep(5)
-            light.set_brightness(-1)
-            time.sleep(5)
-            light.set_brightness(0)
-            time.sleep(5)
+            char = input(
+                "Press Enter to raise the brightness, Enter - to lower, Enter 0 to turn off..."
+            )
+            if (char == '0'):
+                brightness = 0
+            elif (char == '-'):
+                brightness -= 1 / RAMP_STEPS
+            else:
+                brightness += 1 / RAMP_STEPS
+            print(f'light at {brightness}')
+            light.set_brightness(brightness)
 
-            for i in range(0, RAMP_STEPS):
-                b = 1 / RAMP_STEPS * i
-                print(f'light at {b}')
-                light.set_brightness(b)
-                time.sleep(.1)
+            # light.set_brightness(1)
+            # time.sleep(5)
+
+            # time.sleep(5)
+            # light.set_brightness(-1)
+            # time.sleep(5)
+            # light.set_brightness(0)
+            # time.sleep(5)
+
+            # for i in range(0, RAMP_STEPS):
+            #     b = 1 / RAMP_STEPS * i
+            #     print(f'light at {b}')
+            #     light.set_brightness(b)
+            #     time.sleep(.1)
 
     except KeyboardInterrupt:
         pass
