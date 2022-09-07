@@ -29,6 +29,7 @@ class Adafruit_Pwm_Light(Adafruit_Pwm_Motor):
         """
         brightness: the brigtness of the light between 0 (off) and 1 (brightest)
         """
+        print(f'light brightness: {brightness}')
         self.set_speed(brightness)
 
 
@@ -36,7 +37,7 @@ if __name__ == "__main__":
     import pigpio
     import time
 
-    RAMP_STEPS = 6
+    RAMP_STEPS = 20
     try:
 
         # setup pigpio
@@ -50,19 +51,19 @@ if __name__ == "__main__":
 
         while True:
             light.set_brightness(1)
-            time.sleep(1)
+            time.sleep(5)
             light.set_brightness(0)
-            time.sleep(1)
+            time.sleep(5)
             light.set_brightness(-1)
-            time.sleep(1)
+            time.sleep(5)
             light.set_brightness(0)
-            time.sleep(1)
+            time.sleep(5)
 
-            for i in range(-RAMP_STEPS, RAMP_STEPS):
+            for i in range(0, RAMP_STEPS):
                 b = 1 / RAMP_STEPS * i
                 print(f'light at {b}')
                 light.set_brightness(b)
-                time.sleep(.5)
+                time.sleep(.1)
 
     except KeyboardInterrupt:
         pass
