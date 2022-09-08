@@ -112,10 +112,10 @@ class Motion_Controller:
         # Format: radians = math.radians(degrees)
         vertical_thrusters_angle = math.radians(45)
 
-        up_left_thrust_amt = -1 * (
+        up_left_thrust_amt = (
             vertical_amt * math.sin(vertical_thrusters_angle) -
             strafe_amt * math.cos(vertical_thrusters_angle))
-        up_right_thrust_amt = -1 * (
+        up_right_thrust_amt = (
             vertical_amt * math.sin(vertical_thrusters_angle) +
             strafe_amt * math.cos(vertical_thrusters_angle))
         forward_left_thrust_amt = -forward_amt - turn_rate
