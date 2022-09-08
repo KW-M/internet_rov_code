@@ -35,10 +35,11 @@ class FusedCompassSensor(Generic_Sensor):
     # For 9DOF sensors returns three 3-tuples (x, y, z) for accel, gyro and mag
     async def read_compass_coro(self):
         await asyncio.sleep(0.05)  # Plenty of time for mag to be ready
-        while not self.imu or not self.imu.connected or not self.imu.dataReady(
-        ):
+        while not self.imu or not self.imu.connected:
+            print("compass not connected")
+            asyncio.sleep(5)
+        while not self.imu.dataReady():
             await asyncio.sleep(0.005)
-            print("compass data not yet ready")
 
         # read all axis and temp from sensor, note this also updates all instance variables
         self.imu.getAgmt()
