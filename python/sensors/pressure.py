@@ -16,7 +16,7 @@ class PressureTempSensor(Generic_Sensor):
     async def setup_sensor(self):
         return ms5803py.MS5803()
 
-    async def read_sensor(self, _):
+    async def read_sensor(self):
         pressure, temp = self.sensor_connection.read(pressure_osr=4096)
         return [pressure, temp]
 
