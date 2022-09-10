@@ -28,10 +28,11 @@ class Motion_Controller:
         pass
 
     async def motor_setup_loop(self):
+        """ Function to run in a loop to check if the motors are working properly. """
         self.gpio_issue_flag = asyncio.Event()
         while True:
             self.gpio_issue_flag.clear()
-            self.init_motor_controllers()
+            self.init_motor_controllers(async_loop=asyncio.get_event_loop())
             log.debug('init_motor_controllers done')
             if self.gpio_issue_flag.is_set():
                 log.debug('motor_setup_loop: flag set')
@@ -44,7 +45,7 @@ class Motion_Controller:
             await self.gpio_issue_flag.wait()
             self.cleanup_gpio()
 
-    def init_motor_controllers(self):
+    def init_motor_controllers(self, async_loop=None):
         # Initilize the library for adafruit I2C 4 motor controller pi hat:
         log.info("Initializing motor controllers...")
         try:
@@ -59,25 +60,29 @@ class Motion_Controller:
             self.FORWARD_RIGHT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
                                                       pin_ena=18,
                                                       pin_in1=27,
-                                                      pin_in2=22)
+                                                      pin_in2=22,
+                                                      async_loop=async_loop)
 
             # Motor Controller 1B (up right)
             self.UP_RIGHT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
                                                  pin_ena=23,
                                                  pin_in1=24,
-                                                 pin_in2=25)
+                                                 pin_in2=25,
+                                                 async_loop=async_loop)
 
             # Motor Controller 2A (forward right)
             self.FORWARD_LEFT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
                                                      pin_ena=5,
                                                      pin_in1=6,
-                                                     pin_in2=12)
+                                                     pin_in2=12,
+                                                     async_loop=async_loop)
 
             # Motor Controller 2B (up left)
             self.UP_LEFT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
                                                 pin_ena=13,
                                                 pin_in1=16,
-                                                pin_in2=19)
+                                                pin_in2=19,
+                                                async_loop=async_loop)
 
         except ValueError:
             self.gpio_issue_flag.set()
