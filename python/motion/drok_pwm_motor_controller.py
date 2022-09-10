@@ -53,13 +53,15 @@ class Drok_Pwm_Motor:
         """
         # https://abyz.me.uk/rpi/pigpio/python.html#set_PWM_dutycycle
 
-        if self.speedchange_callback_timer is not None:
-            # check if desired speed and current speed are of different sign (because multiplication dude)
-            if (speed * self.last_speed < 0):
-                self.time_of_last_speed_change = time.time()
-            else:
-                self.speedchange_callback_timer.cancel()
-                self.speedchange_callback_timer = None
+        # check if desired speed and current speed are of different sign indicating different rotation directions
+        dirChanged = speed * self.last_speed < 0
+
+        if dirChanged and self.speedchange_callback_timer is None:
+            self.time_of_last_speed_change = time.time()
+
+        if not dirChanged and self.speedchange_callback_timer is not None:
+            self.speedchange_callback_timer.cancel()
+            self.speedchange_callback_timer = None
 
         self.desired_speed = speed
         self.drive_motor()
