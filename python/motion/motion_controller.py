@@ -86,7 +86,7 @@ class Motion_Controller:
             self.gpio_issue_flag.set()
         except Exception as e:
             self.gpio_issue_flag.set()
-            log.error("Error Initializing Motor Controllers: ", exec_info=e)
+            log.error("Error Initializing Motor Controllers: ", exc_info=e)
 
     def set_rov_motion(self, thrust_vector=None, turn_rate=0):
         """

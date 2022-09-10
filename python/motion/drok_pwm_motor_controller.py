@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from time import time
+import time
 import pigpio
 
 ###### setup logging #######
@@ -56,7 +56,7 @@ class Drok_Pwm_Motor:
         if self.speedchange_callback_timer is not None:
             # check if desired speed and current speed are of different sign (because multiplication dude)
             if (speed * self.last_speed < 0):
-                self.time_of_last_speed_change = time()
+                self.time_of_last_speed_change = time.time()
             else:
                 self.speedchange_callback_timer.cancel()
                 self.speedchange_callback_timer = None
@@ -76,7 +76,7 @@ class Drok_Pwm_Motor:
         speed = self.desired_speed
         # check if desired speed and current speed are of different sign
         if (self.desired_speed * self.last_speed < 0
-                and time() - self.time_of_last_speed_change < 4):
+                and time.time() - self.time_of_last_speed_change < 4):
             # if so, we need to break for 0.1 seconds before changing the direction of the motor
             speed = 0
             if self.speedchange_callback_timer is None:
