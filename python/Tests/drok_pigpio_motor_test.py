@@ -12,6 +12,8 @@ class Drok_Pwm_Motor:
     pin_in1: the raspberry pi pin going to IN1 pin on the motor controller (IN3 if driving the second motor)
     pin_in2: the raspberry pi pin going to IN2 pin on the motor controller (IN4 if driving the second motor)
     """
+
+    # pylint: disable=too-many-arguments
     def __init__(self,
                  pigpio_instance,
                  pin_ena,

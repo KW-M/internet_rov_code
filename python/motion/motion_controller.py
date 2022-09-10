@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import math
-import pigpio
 
 from motion.drok_pwm_motor_controller import Drok_Pwm_Motor
 from motion.adafruit_pwm_motor_controller import Adafruit_Pwm_Motor
@@ -25,7 +24,6 @@ class Motion_Controller:
 
     def __init__(self, pigpio_instance) -> None:
         self.pigpio_instance = pigpio_instance
-        pass
 
     async def motor_setup_loop(self):
         """ Function to run in a loop to check if the motors are working properly. """

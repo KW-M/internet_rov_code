@@ -20,5 +20,8 @@ class PressureTempSensor(Generic_Sensor):
         pressure, temp = self.sensor_connection.read(pressure_osr=4096)
         return [pressure, temp]
 
+    def cleanup(self):
+        pass
+
 
 pressure_temp_sensor = PressureTempSensor()

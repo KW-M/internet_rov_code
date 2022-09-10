@@ -55,7 +55,7 @@ class Generic_Sensor:
               self.sensor_name, action, value)
         return False
 
-    async def cleanup(self) -> None:
+    def cleanup(self) -> None:
         '''
         (Optional) if the sensor needs to do any cleanup when the program exits, do it here
         '''
