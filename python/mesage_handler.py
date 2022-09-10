@@ -110,6 +110,9 @@ class MessageHandler:
         # update the last recived message time for this peer
         if src_peer_id in self.known_peers:
             self.known_peers[src_peer_id]["lastRecivedMsgTime"] = time.time()
+            log.debug("lastRecivedMsgTime for peer: " + src_peer_id +
+                      " updated to: " +
+                      str(self.known_peers[src_peer_id]["lastRecivedMsgTime"]))
 
         # --------------- handle the peer event (if present)
 
