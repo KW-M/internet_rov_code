@@ -78,12 +78,12 @@ class Drok_Pwm_Motor:
         speed = self.desired_speed
         # check if desired speed and current speed are of different sign
         if (self.desired_speed * self.last_speed < 0
-                and time.time() - self.time_of_last_speed_change < 4):
+                and time.time() - self.time_of_last_speed_change < 0.1):
             # if so, we need to break for 0.1 seconds before changing the direction of the motor
             speed = 0
             if self.speedchange_callback_timer is None:
                 self.speedchange_callback_timer = self.ascync_loop.call_later(
-                    4, self.speedchange_callback)
+                    0.1, self.speedchange_callback)
         else:
             self.last_speed = self.desired_speed
 
