@@ -405,20 +405,18 @@ class MessageHandler:
 
             # Cut motors & keep looping if no one is connected to the rov (safety feature):
             if self.current_driver_peerid is None:
-                self.motion_ctrl.set_rov_motion(thrust_vector=[0, 0, 0],
-                                                turn_rate=0)
+                self.motion_ctrl.stop_motors()
                 # # if no one is connected continue looping
                 await asyncio.sleep(0.5)
                 continue
 
             # Find any peers who haven't sent a mesage recently
             for peerId, peerDetails in self.known_peers.items():
-                if time.time() - peerDetails["lastRecivedMsgTime"] > 1.2:
+                if time.time() - peerDetails["lastRecivedMsgTime"] > 2:
 
                     # If we haven't recieved any messages recently from the driver, cut the motors (safety feature):
                     if peerId == self.current_driver_peerid:
-                        self.motion_ctrl.set_rov_motion(
-                            thrust_vector=[0, 0, 0], turn_rate=0)
+                        self.motion_ctrl.stop_motors()
 
             # get sensor updates from all sensors:
             sensorUpdates = self.sensor_ctrl.get_sensor_update_dict()
