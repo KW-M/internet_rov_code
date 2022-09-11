@@ -4,7 +4,8 @@
     "UseMemorablePeerIds": true,
     "MemorablePeerIdOffset": 74646,
     "IncludeMessagesInLogs": false,
-    "NamedPipeFolder": "/tmp/relay-pipes/",
+    "TokenPersistanceFile": "/home/pi/webrtc-relay-tokens.json",
+    "NamedPipeFolder": "/tmp/webrtc-relay-pipes/",
     "AddMetadataToBackendMessages": true,
     "MessageMetadataSeparator": "|\"|",
     "PeerInitConfigs": [

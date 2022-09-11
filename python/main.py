@@ -98,7 +98,7 @@ finally:
 
 #         # # ----- MOTORS -----
 #         motors.init_motor_controllers()
-#         motors.stop_gpio_and_motors()  # Keep motors off while disconnected:
+#         motors.stop_motors()  # Keep motors off while disconnected:
 
 #         # # ----- SENSORS -----
 #         # sensors.setup_sensors()
@@ -132,7 +132,7 @@ finally:
 #             log.error(error, exc_info=True)
 
 #         try:
-#             # motors.stop_gpio_and_motors()
+#             # motors.stop_motors()
 #             # motors.cleanup_gpio()
 #             # errorMessage = json.dumps({'error': str(error)})
 #             # msg_socket.send_socket_message(errorMessage)

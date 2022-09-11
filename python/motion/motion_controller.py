@@ -141,7 +141,7 @@ class Motion_Controller:
             log.warning("Error setting motor speed!", exc_info=e)
             self.gpio_issue_flag.set()
 
-    def stop_gpio_and_motors(self):
+    def stop_motors(self):
         try:
             self.FORWARD_LEFT_MOTOR.set_speed(0)
             self.FORWARD_RIGHT_MOTOR.set_speed(0)
@@ -154,6 +154,6 @@ class Motion_Controller:
 
     def cleanup_gpio(self):
         """ Function to shut down the current pigpio.pi() instance. useful when turning off / exiting the rov program"""
-        self.stop_gpio_and_motors()
+        self.stop_motors()
         if self.pigpio_instance:
             self.pigpio_instance.stop()
