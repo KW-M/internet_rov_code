@@ -3,7 +3,7 @@ import logging
 import time
 import pigpio
 
-REQUIRED_BREAKING_TIME = 4  # seconds
+REQUIRED_BREAKING_TIME = 0.1  # seconds
 
 ###### setup logging #######
 log = logging.getLogger(__name__)
