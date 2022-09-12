@@ -3,6 +3,8 @@ import logging
 import time
 import pigpio
 
+REQUIRED_BREAKING_TIME = 4  # seconds
+
 ###### setup logging #######
 log = logging.getLogger(__name__)
 
@@ -49,20 +51,20 @@ class Drok_Pwm_Motor:
 
     def set_speed(self, speed):
         """
-        speed: the speed of the motor between 1 (full forward) and -1 (full reverse)
+        speed: the speed of the motor between 1.0 (full forward) and -1.0 (full reverse)
         """
         # https://abyz.me.uk/rpi/pigpio/python.html#set_PWM_dutycycle
 
         # check if desired speed and current speed are of different sign indicating different rotation directions
         dirChanged = speed * self.last_speed < 0
+        if dirChanged:
+            # reset the callback timer if the direction changed
+            if self.speedchange_callback_timer is not None:
+                self.speedchange_callback_timer.cancel()
+            self.speedchange_callback_timer = self.ascync_loop.call_later(
+                REQUIRED_BREAKING_TIME, self.speedchange_callback)
 
-        if dirChanged and self.speedchange_callback_timer is None:
-            self.time_of_last_speed_change = time.time()
-
-        if not dirChanged and self.speedchange_callback_timer is not None:
-            self.speedchange_callback_timer.cancel()
-            self.speedchange_callback_timer = None
-
+        self.last_speed = speed
         self.desired_speed = speed
         self.drive_motor()
 
@@ -76,16 +78,10 @@ class Drok_Pwm_Motor:
         """
 
         speed = self.desired_speed
-        # check if desired speed and current speed are of different sign
-        if (self.desired_speed * self.last_speed < 0
-                and time.time() - self.time_of_last_speed_change < 0.1):
-            # if so, we need to break for 0.1 seconds before changing the direction of the motor
+        # check if the speed change callback timer is in use
+        if self.speedchange_callback_timer is not None:
+            # if so, we need to break for REQUIRED_BREAKING_TIME seconds before changing the direction of the motor
             speed = 0
-            if self.speedchange_callback_timer is None:
-                self.speedchange_callback_timer = self.ascync_loop.call_later(
-                    0.1, self.speedchange_callback)
-        else:
-            self.last_speed = self.desired_speed
 
         if (speed > 0):
             # cap speed at 1 (max)
