@@ -3,7 +3,7 @@ import logging
 import time
 import pigpio
 
-REQUIRED_BREAKING_TIME = 0.1  # seconds
+REQUIRED_BREAKING_TIME = 0.4  # seconds
 
 ###### setup logging #######
 log = logging.getLogger(__name__)
@@ -57,16 +57,16 @@ class Drok_Pwm_Motor:
 
         # check if desired speed and current speed are of different sign indicating different rotation directions
         dirChanged = speed * self.last_speed < 0
+        self.last_speed = speed
         if dirChanged:
             # reset the callback timer if the direction changed
             if self.speedchange_callback_timer is not None:
                 self.speedchange_callback_timer.cancel()
             self.speedchange_callback_timer = self.ascync_loop.call_later(
                 REQUIRED_BREAKING_TIME, self.speedchange_callback)
-
-        self.last_speed = speed
-        self.desired_speed = speed
-        self.drive_motor()
+        else:
+            self.desired_speed = speed
+            self.drive_motor()
 
     def speedchange_callback(self):
         self.speedchange_callback_timer = None

@@ -18,22 +18,6 @@
             "PingInterval": 3000,
             "RetryCount": 2,
             "StartLocalServer": false
-        },
-        {
-            "Host": "localhost",
-            "Port": 9000,
-            "Path": "/",
-            "Key": "peerjs",
-            "Secure": false,
-            "PingInterval": 3000,
-            "RetryCount": 2,
-            "StartLocalServer": true,
-            "ServerLogLevel": "info",
-            "AllowDiscovery": true,
-            "Configuration": {
-                "iceServers": [],
-                "sdpSemantics": "unified-plan"
-            }
         }
     ],
     "RovControlPassword": "Change This Password",
