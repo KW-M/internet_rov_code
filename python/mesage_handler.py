@@ -101,7 +101,7 @@ class MessageHandler:
 
         # reset the current driver peerid if the driver just disconnected:
         if self.current_driver_peerid == src_peer_id:
-            self.change_driver(self.find_first_connected_peer())
+            await self.change_driver(self.find_first_connected_peer())
 
         if src_peer_id in self.known_peers:
             self.known_peers[src_peer_id]["authToken"] = None
@@ -118,7 +118,7 @@ class MessageHandler:
                 "lastRecivedMsgTime": time.time(),
             }
         if self.current_driver_peerid is None:
-            self.change_driver(src_peer_id)
+            await self.change_driver(src_peer_id)
         else:
             # Let the connecting peer know who the designated driver is:
             await self.send_msg(status='driver-changed',
