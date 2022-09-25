@@ -191,6 +191,8 @@ https://trac.ffmpeg.org/wiki/DirectShow
 https://trac.ffmpeg.org/wiki/Capture/Webcam
 https://github.com/yihui/animation/issues/74
 
+# "libcamera-vid --width 640 --height 480 --framerate 15 --codec h264  --profile high --level 4.2 --bitrate 800000 --inline 1  --flush 1 --timeout 0 --nopreview 1 --output - "
+
 
 # working udp send and recive combo:
 # send (replace with ip of reciever)
@@ -218,3 +220,25 @@ libcamera-vid --width 1920 --height 1080 --codec yuv420 --framerate 20 --flush 1
 ffmpeg -hide_banner -f v4l2 -input_format raw -pix_fmt yuv420p -video_size 1920x1080 -framerate 30 -i /dev/video0 -vcodec copy -b:v 900k -g 10 -fflags +genpts -fflags nobuffer -f mpegts udp://Kyles-MBP:1254
 ffmpeg -hide_banner -f video4linux2 -input_format yuyv422 -i /dev/video0 -c:v libx264 -vf format=yuv420p -f mpegts udp://Kyles-MBP:1254
 ffmpeg -f video4linux2 -input_format mjpeg -i /dev/video0
+
+
+# works latecy free with freezes: libcamera-vid --width 640 --height 480 --framerate 15 --codec h264  --profile high --level 4.2 --bitrate 800000 --inline 1  --flush 1 --timeout 0 --nopreview 1 --output - | ffmpeg -hide_banner -f h264 -re -framerate 15 -i pipe:0 -vcodec copy -fflags nobuffer -f rtp 'rtp://127.0.0.1:1820?pkt_size=1200'
+#
+# ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -re -s 960x576 -framerate 15 -use_wallclock_as_timestamps 1 -i pipe:0 -r 15 -vcodec h264_v4l2m2m -preset "ultrafast" -tune zerolatency -b:v 700k -fflags nobuffer -f rtp 'rtp://
+#
+# ffmpeg -hide_banner -f lavfi -pix_fmt yuv420p -use_wallclock_as_timestamps 1 -i "testsrc=size=1280x720:rate=30" -r 30 -vcodec h264_v4l2m2m -preset "ultrafast" -tune zerolatency  -use_wallclock_as_timestamps 1 -fflags nobuffer -b:v 200k -f h264
+# -s 1024x576 -framerate 15
+# -s 1920x1080 -framerate 20
+
+
+Old: "ffmpeg -fflags +genpts -re -f lavfi -i testsrc=size=640x480:rate=30 -pix_fmt yuv420p -c:v libx264 -g 10 -preset ultrafast -tune zerolatency -f rtp -sdp_file stream{}.sdp 'rtp://127.0.0.1:{}?rtcpport={}&localrtcpport={}&pkt_size=1200'"
+# best test pattern command so far:
+"ffmpeg -fflags +genpts -protocol_whitelist pipe,tls,file,http,https,tcp,rtp -f lavfi -i testsrc=size=640x480:rate=30  -pix_fmt yuv420p -vf realtime -c:v libx264 -x264-params intra-refresh=1,fast-pskip=0 -profile:v baseline -level:v 3.1 -threads 3 -minrate 500K -maxrate 1.3M -bufsize 500K -g 10  -preset ultrafast -tune zerolatency -f rtp -sdp_file stream{}.sdp 'rtp://127.0.0.1:{}?rtcpport={}&localrtcpport={}&pkt_size=1200'"
+                .format(ffmpegInstanceNum, rtpPort, rtcpPort, rtcpPort)))
+
+sources:
+# https://pkg.go.dev/github.com/pion/webrtc/v3/examples/rtp-to-webrtc#section-readme
+# ?" https://trac.ffmpeg.org/ticket/8479
+# http://web.archive.org/web/20210203090350/https://blog.maxwellgale.com/2021/01/30/streaming-video-over-webrtc-using-ffmpeg/
+# https://www.kurento.org/blog/rtp-ii-streaming-ffmpeg
+# alternatively replace the run_cmd_string line above with this use vp8 encoding (seems to run slower when run from python, not sure why):

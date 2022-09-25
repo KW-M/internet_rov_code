@@ -14,9 +14,10 @@ log = logging.getLogger(__name__)
 
 
 class MessageHandler:
-    def __init__(self, msg_named_pipe, media_controller, motion_controller,
+
+    def __init__(self, relay_grpc, media_controller, motion_controller,
                  sensor_controller):
-        self.msg_named_pipe = msg_named_pipe
+        self.relay_grpc = relay_grpc
         self.media_controller = media_controller
         self.motion_ctrl = motion_controller
         self.sensor_ctrl = sensor_controller
@@ -33,6 +34,8 @@ class MessageHandler:
             'MessageMetadataSeparator', '|"|')
 
     def check_if_peer_is_authenticated(self, peer_id):
+        '''
+        Returns true if the given peer has provided a valid authentication token this session.'''
         authToken = self.known_peers.get(peer_id, {}).get("authToken", None)
         return checkTokenValidty(authToken)
 
@@ -54,107 +57,66 @@ class MessageHandler:
         self.known_peers[src_peer_id]["authToken"] = authToken
         return 'token-accepted'
 
-    def find_first_connected_peer(self):
+    def find_first_connected_peer(self) -> str | None:
         for peerid, peerDetails in self.known_peers.items():
             if peerDetails["connected"] is True:
                 return peerid
         return None
 
-    def parse_socket_message(self, message):
+    def parse_message_payload(self, message_payload: bytes):
         """
         Parse a message from the socket and return a dict of the message metadata and the message data.
-        :param message:
-        :return:
+        :param message_payload: the message payload to parse as bytes
+        :return: the decoded message data as a dict
         """
 
-        message_metadata_separator_index = message.find(
-            self.MESSAGE_METADATA_SEPARATOR)
-        message_metadata, message_data = None, None
-
         try:
-            if message_metadata_separator_index != -1:
-                # Load metadata and message data as two json strings.
-                message_metadata = json.loads(
-                    message[:message_metadata_separator_index])
-                message_data = json.loads(
-                    message[message_metadata_separator_index +
-                            len(self.MESSAGE_METADATA_SEPARATOR):])
-            else:
-                # No message metadata sepearator in message (assume it is metadata only)
-                message_metadata = json.loads(message)
-
-            return (message_metadata, message_data)
+            # decode message payload as a json string.
+            message_data = json.loads(str(message_payload, 'utf-8'))
+            return message_data
 
         except json.JSONDecodeError:
             log.warning(
                 'Received unix socket message with invalid JSON format: %s',
-                message)
-            return (None, None)
+                str(message_payload, 'utf-8'))
+            return None
 
         except Exception as error:
             log.error(error, exc_info=True)
-            return (None, None)
-
-    async def handle_messsage_metadata(self, metadata):
-
-        # exit if the message metadata doesn't have the SrcPeerId field
-        if metadata is None or "SrcPeerId" not in metadata:
             return None
 
-        driver_has_changed = False
-        src_peer_id = metadata["SrcPeerId"]
-
-        # check if some event happend (a connected or disconnected event most likely):
-        peerEvent = metadata.get("PeerEvent", None)
-
-        # update the last recived message time for this peer
-        if src_peer_id in self.known_peers:
-            self.known_peers[src_peer_id]["lastRecivedMsgTime"] = time.time()
-            log.debug("lastRecivedMsgTime for peer: " + src_peer_id +
-                      " updated to: " +
-                      str(self.known_peers[src_peer_id]["lastRecivedMsgTime"]))
-
-        # --------------- handle the peer event (if present)
-
-        if peerEvent is None:
-            return src_peer_id
-
-        if peerEvent == "Connected":
-            log.info("A client peer has connected: %s", src_peer_id)
-            if src_peer_id in self.known_peers:
-                self.known_peers[src_peer_id]["connected"] = True
-            else:
-                self.known_peers[src_peer_id] = {
-                    "connected": True,
-                    "authToken": None,
-                    "lastRecivedMsgTime": time.time(),
-                }
-            if self.current_driver_peerid is None:
-                self.current_driver_peerid = src_peer_id
-                driver_has_changed = True
-
-        elif peerEvent == "Disconnected":
-            log.info("A client peer has DISconnected: %s", src_peer_id)
-
-            # reset the current driver peerid if the driver just disconnected:
-            if self.current_driver_peerid == src_peer_id:
-                self.current_driver_peerid = self.find_first_connected_peer()
-                driver_has_changed = True  # ^ could be None
-
-            #
-            if src_peer_id in self.known_peers:
-                self.known_peers[src_peer_id]["authToken"] = None
-                self.known_peers[src_peer_id]["connected"] = False
-
-        # ---------------
-
-        if driver_has_changed:
-            # Let all connected peers know that the designated driver peer has changed: (empty list at end = send to all connected peers)
+    async def change_driver(self, new_driver_peer_id):
+        if self.current_driver_peerid != new_driver_peer_id:
+            self.current_driver_peerid = new_driver_peer_id
+            # Let all connected peers know that the designated driver peer has changed:
             await self.send_msg(status="driver-changed",
                                 val=self.current_driver_peerid,
                                 recipient_peers=["*"])
 
-        elif metadata["PeerEvent"] == "Connected":
+    async def handle_peer_disconnected_message(self, src_peer_id: str):
+        log.info("A client peer has DISconnected: %s", src_peer_id)
+
+        # reset the current driver peerid if the driver just disconnected:
+        if self.current_driver_peerid == src_peer_id:
+            self.change_driver(self.find_first_connected_peer())
+
+        if src_peer_id in self.known_peers:
+            self.known_peers[src_peer_id]["authToken"] = None
+            self.known_peers[src_peer_id]["connected"] = False
+
+    async def handle_peer_connected_message(self, src_peer_id: str):
+        log.info("A client peer has connected: %s", src_peer_id)
+        if src_peer_id in self.known_peers:
+            self.known_peers[src_peer_id]["connected"] = True
+        else:
+            self.known_peers[src_peer_id] = {
+                "connected": True,
+                "authToken": None,
+                "lastRecivedMsgTime": time.time(),
+            }
+        if self.current_driver_peerid is None:
+            self.change_driver(src_peer_id)
+        else:
             # Let the connecting peer know who the designated driver is:
             await self.send_msg(status='driver-changed',
                                 val=self.current_driver_peerid,
@@ -167,14 +129,14 @@ class MessageHandler:
         msg_metadata and sends the message to the unix socket
         """
 
-        if self.msg_named_pipe.is_open():
+        if self.relay_grpc.is_open():
 
             # generate the output message:
             reply_message = json.dumps(
                 msg_metadata) + self.MESSAGE_METADATA_SEPARATOR + json.dumps(
                     msg_dict)
 
-            await self.msg_named_pipe.write_message(reply_message)
+            await self.relay_grpc.write_message(reply_message)
 
     async def send_msg(
         self,
@@ -350,57 +312,58 @@ class MessageHandler:
 
         return True
 
-    async def socket_incoming_message_handler_loop(self):
+    # pylint: disable=unused-argument
+    async def handle_incoming_msg(self,
+                                  msg_payload: bytes,
+                                  src_peer_id,
+                                  exchange_id=None,
+                                  relay_peer_number=0):
         """
-        Waits for new messages to be recieved on the socket and then does whatever action the message contains.
-        :param socket_datachannel: the unix socket class with a queue of recived messages from the socket in utf-8 text.
+        Handle incoming messages from all peers
+        :param msg_payload: the message payload bytes
+        :param src_peer_id: the peer id of the sender
+        :param exchange_id: the exchange id of the message
+        :param relay_peer_number: the number of the webrtc-relay relay peer that the message came through
         """
 
-        # loop infinitely:
-        while True:
+        msg_dict = self.parse_message_payload(msg_payload)
+        if msg_dict is None or len(msg_dict) == 0:
+            return
 
-            # get the next message from the socket and parse it into some dicts and data:
-            message = await self.msg_named_pipe.get_next_message()
-            metadata, msg_dict = self.parse_socket_message(message)
-            src_peer_id = await self.handle_messsage_metadata(metadata)
+        # extract relevant message params
+        action = msg_dict.get('action', None)
+        action_value = msg_dict.get('val', None)
+        msg_cid = msg_dict.get('cid', None)
 
-            if (metadata is None or msg_dict is None or len(msg_dict) == 0):
-                continue
+        #Debug
+        print(
+            "src_peerid:" + src_peer_id,
+            " | action:" + str(action) + " | action_value:" +
+            str(action_value) + " | msg_cid:" + str(msg_cid))
 
-            # extract relevant message params
-            action = msg_dict.get('action', None)
-            action_value = msg_dict.get('val', None)
-            msg_cid = msg_dict.get('cid', None)
+        # These actions can be done by any peer
+        if await self.handle_normal_actions(src_peer_id, action, action_value,
+                                            msg_cid):
+            return
 
-            #Debug
-            print(
-                "src_peerid:" + src_peer_id,
-                " | action:" + str(action) + " | action_value:" +
-                str(action_value) + " | msg_cid:" + str(msg_cid))
+        # These actions require that the peer that sent the message is the designated driver:
+        if await self.handle_driver_only_actions(src_peer_id, action,
+                                                 action_value, msg_cid):
+            return
 
-            # These actions can be done by any peer
-            if await self.handle_normal_actions(src_peer_id, action,
-                                                action_value, msg_cid):
-                continue
+        # All following actions require the peer that sent the message to be authenticated (have correctly done password challenge before)
+        if await self.handle_authenticated_actions(src_peer_id, action,
+                                                   action_value, msg_cid):
+            return
 
-            # These actions require that the peer that sent the message is the designated driver:
-            if await self.handle_driver_only_actions(src_peer_id, action,
-                                                     action_value, msg_cid):
-                continue
+        # handle action requests that are invalid (do not contain the required action parameter or an unknonw action param):
+        await self.send_msg(status='error',
+                            val='No action specified'
+                            if action is None else 'Unknown action: ' + action,
+                            cid=msg_cid,
+                            recipient_peers=["*"])
 
-            # All following actions require the peer that sent the message to be authenticated (have correctly done password challenge before)
-            if await self.handle_authenticated_actions(src_peer_id, action,
-                                                       action_value, msg_cid):
-                continue
-
-            # handle action requests that are invalid (do not contain the required action parameter or an unknonw action param):
-            await self.send_msg(status='error',
-                                val='No action specified' if action is None
-                                else 'Unknown action: ' + action,
-                                cid=msg_cid,
-                                recipient_peers=["*"])
-
-    async def socket_update_message_sender_loop(self):
+    async def update_sender_loop(self):
         while True:
 
             # Cut motors & keep looping if no one is connected to the rov (safety feature):

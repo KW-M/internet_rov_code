@@ -3,11 +3,11 @@
     "BasePeerId": "ROV-",
     "UseMemorablePeerIds": true,
     "MemorablePeerIdOffset": 74646,
-    "IncludeMessagesInLogs": false,
+    "IncludeMessagesInLogs": true,
     "TokenPersistanceFile": "/home/pi/webrtc-relay-tokens.json",
-    "NamedPipeFolder": "/tmp/webrtc-relay-pipes/",
-    "AddMetadataToBackendMessages": true,
-    "MessageMetadataSeparator": "|\"|",
+    "StartGRPCServer": true,
+    "GRPCServerAddress": "http://localhost:9718",
+    "GoProfilingServerEnabled": true,
     "PeerInitConfigs": [
         {
             "Host": "0.peerjs.com",

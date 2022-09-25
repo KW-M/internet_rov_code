@@ -12,7 +12,7 @@ import pigpio
 # import our python files from the same directory
 from config_reader import read_config_file, get_log_level
 # from command_api import start_aiohttp_api_server
-from named_pipe import Duplex_Named_Pipe_Relay
+from grpc_client import Relay_GRPC_Client
 # from unix_socket import Unix_Socket
 from motion.motion_controller import Motion_Controller
 from media_stream_controller import Media_Stream_Controller
@@ -38,7 +38,7 @@ log = logging.getLogger(__name__)
 ######## Main Program Loop ###########
 ######################################
 async def main():
-    global duplex_relay, sensors, motion_ctrl, message_handler, media_ctrl, status_led_ctrl
+    global relay_grpc, sensors, motion_ctrl, message_handler, media_ctrl, status_led_ctrl
 
     ##### Setup Variables #####
     ############################
@@ -48,23 +48,21 @@ async def main():
     status_led_ctrl.on()
 
     named_pipe_folder = config['NamedPipeFolder']
-    duplex_relay = Duplex_Named_Pipe_Relay(
-        named_pipe_folder + 'from_webrtc_relay.pipe',
-        named_pipe_folder + 'to_webrtc_relay.pipe')
+    relay_grpc = Relay_GRPC_Client(config['GRPCServerAddress'])
     sensors = SensorController()
     # sensor_log = Sensor_Log(sensors.all_sensors)
     motion_ctrl = Motion_Controller(pigpio_instance=pigpio_instance)
     media_ctrl = Media_Stream_Controller(named_pipe_folder)
-    message_handler = MessageHandler(duplex_relay, media_ctrl, motion_ctrl,
+    message_handler = MessageHandler(relay_grpc, media_ctrl, motion_ctrl,
                                      sensors)
 
     # setup the asyncio loop to run each of these async functions aka "tasks" aka "coroutines" concurently
     await asyncio.gather(
         sensors.sensor_setup_loop(),
         motion_ctrl.motor_setup_loop(),
-        duplex_relay.start_loops(),
+        relay_grpc.start(message_handler),
         message_handler.socket_incoming_message_handler_loop(),
-        message_handler.socket_update_message_sender_loop(),
+        message_handler.update_sender_loop(),
         # start_aiohttp_api_server()
     )
 
@@ -79,7 +77,7 @@ finally:
     status_led_ctrl.off()
     sensors.cleanup()
     motion_ctrl.cleanup_gpio()
-    duplex_relay.cleanup()
+    # relay_grpc.cleanup()
     media_ctrl.cleanup()
 
 # while True:

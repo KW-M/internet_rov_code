@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
 
 
 class Media_Stream_Controller:
+
     def __init__(self, named_pipe_folder):
         self.open_video_stream_map = {}
         self.named_pipe_folder = named_pipe_folder
@@ -25,6 +26,7 @@ class Media_Stream_Controller:
     def start_pipable_command(self, cmd_str=None, inputPipe=None):
         cmd1 = shlex.split(cmd_str)
         log.info("Starting CMD: %s", {' '.join(cmd1)})
+        # pylint: disable=consider-using-with
         p1 = subprocess.Popen(cmd1, stdin=inputPipe, stdout=subprocess.PIPE)
         return p1
 
@@ -51,7 +53,9 @@ class Media_Stream_Controller:
         cmd2 = ['tee', pipe_file_path]
         print(f"Shell style : {' '.join(cmd1)} | {' '.join(cmd2)}")
 
+        # pylint: disable=consider-using-with
         p1 = subprocess.Popen(cmd1, stdout=subprocess.PIPE)
+        # pylint: disable=consider-using-with
         p2 = subprocess.Popen(cmd2, stdin=p1.stdout, stdout=None)
 
         # thoretically p1 and p2 may still be running, this ensures we are collecting their return codes
@@ -59,6 +63,7 @@ class Media_Stream_Controller:
 
     def run_cmd_string(self, cmd_str=None):
         cmd = shlex.split(cmd_str)
+        # pylint: disable=consider-using-with
         p1 = subprocess.Popen(cmd, stdout=None)
         return p1
 
@@ -74,28 +79,35 @@ class Media_Stream_Controller:
     #         cmd_str)  ## returns a coroutine
     #     return start_cmd, "vid.pipe"
 
-    def start_source_stream(self, port=1820):
-        log.info("Start src stream: %s",
-                 {' '.join(self.open_video_stream_map.keys())})
-        ip = "127.0.0.1:" + str(port)
+    def start_source_stream(self):
+
+        existing_streams = self.open_video_stream_map.keys()
+        log.info("Start src stream: %s", {' '.join(existing_streams)})
+
         vidSrc = self.start_video_source(
-            # "libcamera-vid --width 640 --height 480 --framerate 15 --codec h264  --profile high --level 4.2 --bitrate 800000 --inline 1  --flush 1 --timeout 0 --nopreview 1 --output - "
             "libcamera-vid --width 640 --height 480 --framerate 16 --codec yuv420 --flush 1 --timeout 0 --nopreview 1 --output - "
         )
         # # --width 1024 --height 576 --framerate 15
         # # --width 1920 --height 1080 --framerate 20
+
+        # Use ffmpeg to send the camera video stream to the relay in h264 encoded video format:
+        # NOTE that this requires the ffmpeg command to be installed and in the PATH
+        ffmpegInstanceNum = len(existing_streams)
+        # account for every other port being used for RTCP (RTP Control Protocol)
+        rtpPort = 7870 + (ffmpegInstanceNum * 2)
+        rtcpPort = rtpPort + 1  # set every other port to be used for RTCP (RTP Control Protocol)
+        rtpUrl = "rtp://localhost:" + str(rtpPort)
+
+        # run ffmpeg command
+        ffmpeg_cmd = "ffmpeg -hide_banner -fflags +genpts -protocol_whitelist pipe,tls,file,http,https,tcp,rtp -use_wallclock_as_timestamps 1 -f rawvideo -pix_fmt yuv420p -s 640x480 -framerate 16 -vf realtime -vcodec libx264 -x264-params intra-refresh=1,fast-pskip=0 -profile:v baseline -level:v 3.1 -threads 3 -minrate 500K -maxrate 1.3M -bufsize 500K -g 10  -preset ultrafast -tune zerolatency -f rtp -sdp_file stream{ffmpegInstanceNum}.sdp '{rtpUrl}?rtcpport={rtcpPort}&localrtcpport={rtcpPort}&pkt_size=1200'".format(
+            ffmpegInstanceNum=ffmpegInstanceNum,
+            rtpUrl=rtpUrl,
+            rtcpPort=rtcpPort)
         vidOutput = self.start_piped_input_command(
             inputPipe=vidSrc.stdout,
-            cmd_str=
-            "ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -use_wallclock_as_timestamps 1 -s 640x480 -framerate 16 -i pipe:0 -vcodec libx264 -b:v 700k -g 10 -fflags nobuffer -preset ultrafast -tune zerolatency -f rtp 'rtp://"
-            + ip + "?pkt_size=1200'",
+            cmd_str=ffmpeg_cmd,
         )
-        # works latecy free with freezes: libcamera-vid --width 640 --height 480 --framerate 15 --codec h264  --profile high --level 4.2 --bitrate 800000 --inline 1  --flush 1 --timeout 0 --nopreview 1 --output - | ffmpeg -hide_banner -f h264 -re -framerate 15 -i pipe:0 -vcodec copy -fflags nobuffer -f rtp 'rtp://127.0.0.1:1820?pkt_size=1200'
-        # ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -re -s 960x576 -framerate 15 -use_wallclock_as_timestamps 1 -i pipe:0 -r 15 -vcodec h264_v4l2m2m -preset "ultrafast" -tune zerolatency -b:v 700k -fflags nobuffer -f rtp 'rtp://
-        # ffmpeg -hide_banner -f lavfi -pix_fmt yuv420p -use_wallclock_as_timestamps 1 -i "testsrc=size=1280x720:rate=30" -r 30 -vcodec h264_v4l2m2m -preset "ultrafast" -tune zerolatency  -use_wallclock_as_timestamps 1 -fflags nobuffer -b:v 200k -f h264
-        # -s 1024x576 -framerate 15
-        # -s 1920x1080 -framerate 20
-        return vidOutput, "udp://" + ip
+        return vidOutput, rtpUrl
 
     # async def get_video_stream(self, port=1820):
     #     ip = "127.0.0.1:" + str(port)
@@ -112,8 +124,8 @@ class Media_Stream_Controller:
     #     return start_cmd, "udp://" + ip
 
     def cleanup(self):
-        for subprocess in self.runningSubprocesses:
-            subprocess.kill()
+        for sp in self.runningSubprocesses:
+            sp.kill()
 
 
 # ["ffmpeg", "-f", "avfoundation", "-pix_fmt", "nv12", "-video_size", "640x480", "-use_wallclock_as_timestamps", "1", "-framerate", "30", "-i", "default", "-f", "h264", "pipe:1"]
