@@ -57,7 +57,7 @@ class MessageHandler:
         self.known_peers[src_peer_id]["authToken"] = authToken
         return 'token-accepted'
 
-    def find_first_connected_peer(self) -> str | None:
+    def find_first_connected_peer(self) -> str:
         for peerid, peerDetails in self.known_peers.items():
             if peerDetails["connected"] is True:
                 return peerid
