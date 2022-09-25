@@ -131,7 +131,7 @@ class Relay_GRPC_Client:
                 print("PYTHON: Got msgRecived event: " + str(ev) +
                       " | exId: " + str(exchange_id))
                 await self.msg_handler.handle_incoming_msg(
-                    ev.payload, ev.src_peer_id, ev.exchange_id,
+                    ev.payload, ev.src_peer_id, exchange_id,
                     ev.relay_peer_number)
             if event_type == "relay_connected":
                 ev: RelayConnectedEvent = e
