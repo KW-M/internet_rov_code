@@ -15,7 +15,7 @@ class Relay_GRPC_Client:
     grpc_address: str = None
     msg_recived_callback = None
     msg_handler: MessageHandler = None
-    outgoing_msg_queue = asyncio.Queue()
+    outgoing_msg_queue: asyncio.Queue = None
 
     # blocking async function that will keep connected to relay and wait for events from the relay / send messages to the relay
     async def start_loop(self, msg_handler: MessageHandler):
@@ -33,6 +33,7 @@ class Relay_GRPC_Client:
     def __init__(self, grpc_address=None):
         self.grpc_address: str = grpc_address
         self.stub: WebRtcRelayStub = None
+        self.outgoing_msg_queue = asyncio.Queue()
 
     def _get_channel(self):
         parts = self.grpc_address.split("//")
