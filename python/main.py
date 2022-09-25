@@ -59,8 +59,7 @@ async def main():
     await asyncio.gather(
         sensors.sensor_setup_loop(),
         motion_ctrl.motor_setup_loop(),
-        relay_grpc.start(message_handler),
-        message_handler.socket_incoming_message_handler_loop(),
+        relay_grpc.start_loop(message_handler),
         message_handler.update_sender_loop(),
         # start_aiohttp_api_server()
     )

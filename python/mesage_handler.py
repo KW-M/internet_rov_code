@@ -5,6 +5,7 @@ import asyncio
 
 from command_api import generate_webrtc_format_response
 from config_reader import program_config
+from grpc_client import Relay_GRPC_Client
 from rovSecurity.userAuth import generateAuthToken, getRovUUID, checkTokenValidty
 
 ############################
@@ -15,8 +16,10 @@ log = logging.getLogger(__name__)
 
 class MessageHandler:
 
-    def __init__(self, relay_grpc, media_controller, motion_controller,
-                 sensor_controller):
+    relay_grpc: Relay_GRPC_Client = None
+
+    def __init__(self, relay_grpc: Relay_GRPC_Client, media_controller,
+                 motion_controller, sensor_controller):
         self.relay_grpc = relay_grpc
         self.media_controller = media_controller
         self.motion_ctrl = motion_controller
@@ -122,22 +125,6 @@ class MessageHandler:
                                 val=self.current_driver_peerid,
                                 recipient_peers=[src_peer_id])
 
-    async def send_webrtc_msg(self, msg_dict, msg_metadata):
-        """
-        send a message to a list of peers (via the unix socket -> golang relay).
-        msg_dict:a dict containing the message data to be sent to the peer and
-        msg_metadata and sends the message to the unix socket
-        """
-
-        if self.relay_grpc.is_open():
-
-            # generate the output message:
-            reply_message = json.dumps(
-                msg_metadata) + self.MESSAGE_METADATA_SEPARATOR + json.dumps(
-                    msg_dict)
-
-            await self.relay_grpc.write_message(reply_message)
-
     async def send_msg(
         self,
         recipient_peers=None,
@@ -148,26 +135,16 @@ class MessageHandler:
         """
         send a message to a list of peers (via the unix socket -> golang relay).
         """
-        msgDict = {'status': status}
+        msg_dict = {'status': status}
         if (val is not None):
-            msgDict["val"] = val
+            msg_dict["val"] = val
         if (cid is not None):
-            msgDict["cid"] = cid
+            msg_dict["cid"] = cid
         if (recipient_peers is None):
             recipient_peers = ["*"]
-        return await self.send_webrtc_msg(msgDict,
-                                          {'TargetPeerIds': recipient_peers})
-
-    async def send_metadata_msg(self, msg_metadata, recipient_peers):
-        """
-        send a metadata message to the golang relay.
-        msg_metadata: and sends the message to the unix socket
-        """
-        # add the target peer ids to the outgoing message metadata:
-        if (recipient_peers is None):
-            recipient_peers = []
-        msg_metadata.setdefault('TargetPeerIds', recipient_peers)
-        return await self.send_webrtc_msg({}, msg_metadata)
+        return await self.relay_grpc.send_message(
+            payload=bytes(json.dumps(msg_dict), 'utf-8'),
+            target_peer_ids=recipient_peers)
 
     async def handle_normal_actions(self, src_peer_id, action, action_value,
                                     msg_cid):
@@ -200,12 +177,10 @@ class MessageHandler:
         elif action == "begin_video_stream":
             # send the *golang* code (note the action is in reply_metadata) the begin_video_stream command
             _, streamUrl = self.media_controller.start_source_stream()
-            await self.send_metadata_msg(
-                {
-                    "Action": "Media_Call_Peer",
-                    "Params": ["FRONTCAM", "video/h264", streamUrl]
-                },
-                recipient_peers=[src_peer_id])
+            await self.relay_grpc.call(track_name="FRONT_ROV_CAM",
+                                       mime_type="video/h264",
+                                       rtp_source_url=streamUrl,
+                                       target_peer_ids=[src_peer_id])
             # await startVideo
             print("begin_video_stream: " + streamUrl)
 
@@ -215,8 +190,9 @@ class MessageHandler:
             # all of these actions call shell commands and can be found in command_api.py
             msgGenerator = generate_webrtc_format_response(msg_cid, action)
             async for msg_data in msgGenerator:
-                await self.send_webrtc_msg(msg_data,
-                                           {"TargetPeerIds": [src_peer_id]})
+                await self.relay_grpc.send_message(
+                    payload=bytes(json.dumps(msg_data), 'utf-8'),
+                    target_peer_ids=[src_peer_id])
 
         else:
             return False
@@ -277,8 +253,9 @@ class MessageHandler:
         else:
             msgGenerator = generate_webrtc_format_response(msg_cid, action)
             async for msg_data in msgGenerator:
-                await self.send_webrtc_msg(msg_data,
-                                           {"TargetPeerIds": [src_peer_id]})
+                await self.relay_grpc.send_message(
+                    payload=bytes(json.dumps(msg_data), 'utf-8'),
+                    target_peer_ids=[src_peer_id])
 
         return True
 
