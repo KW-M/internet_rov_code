@@ -99,7 +99,7 @@ class Media_Stream_Controller:
         rtpUrl = "rtp://localhost:" + str(rtpPort)
 
         # run ffmpeg command
-        ffmpeg_cmd = "ffmpeg -hide_banner -fflags +genpts -protocol_whitelist pipe,tls,file,http,https,tcp,rtp -use_wallclock_as_timestamps 1 -f rawvideo -pix_fmt yuv420p -s 640x480 -framerate 16 -i pipe:0 -vf realtime -vcodec libx264 -x264-params intra-refresh=1,fast-pskip=0 -profile:v baseline -level:v 3.1 -threads 3 -minrate 500K -maxrate 1.3M -bufsize 500K -g 10  -preset ultrafast -tune zerolatency -f rtp -sdp_file stream{ffmpegInstanceNum}.sdp '{rtpUrl}?rtcpport={rtcpPort}&localrtcpport={rtcpPort}&pkt_size=1200'".format(
+        ffmpeg_cmd = "ffmpeg -hide_banner -fflags +genpts -protocol_whitelist pipe,tls,file,http,https,tcp,rtp -use_wallclock_as_timestamps 1 -f rawvideo -pix_fmt yuv420p -s 640x480 -framerate 16 -i pipe:0 -vf realtime -vcodec libx264 -x264-params intra-refresh=1,fast-pskip=0 -profile:v baseline -level:v 3.1 -threads 3 -minrate 500K -maxrate 1.3M -bufsize 500K -g 10  -preset ultrafast -tune zerolatency -f rtp -sdp_file /home/pi/stream{ffmpegInstanceNum}.sdp '{rtpUrl}?rtcpport={rtcpPort}&localrtcpport={rtcpPort}&pkt_size=1200'".format(
             ffmpegInstanceNum=ffmpegInstanceNum,
             rtpUrl=rtpUrl,
             rtcpPort=rtcpPort)
