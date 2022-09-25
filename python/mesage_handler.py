@@ -5,7 +5,7 @@ import asyncio
 
 from command_api import generate_webrtc_format_response
 from config_reader import program_config
-from grpc_client import Relay_GRPC_Client
+# from grpc_client import Relay_GRPC_Client
 from rovSecurity.userAuth import generateAuthToken, getRovUUID, checkTokenValidty
 
 ############################
@@ -16,10 +16,10 @@ log = logging.getLogger(__name__)
 
 class MessageHandler:
 
-    relay_grpc: Relay_GRPC_Client = None
+    # relay_grpc: Relay_GRPC_Client = None
 
-    def __init__(self, relay_grpc: Relay_GRPC_Client, media_controller,
-                 motion_controller, sensor_controller):
+    def __init__(self, relay_grpc, media_controller, motion_controller,
+                 sensor_controller):
         self.relay_grpc = relay_grpc
         self.media_controller = media_controller
         self.motion_ctrl = motion_controller
