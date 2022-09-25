@@ -115,8 +115,8 @@ class Relay_GRPC_Client:
                            exchange_id=exchange_id))
 
     async def _outgoing_msgs_iterator(self):
-        async for msg in self.outgoing_msg_queue:
-            yield msg
+        while True:
+            yield await self.outgoing_msg_queue.get()
 
     async def _get_event_stream(self):
         eventStream = self.stub.get_event_stream(
