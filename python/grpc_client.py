@@ -175,7 +175,7 @@ class Relay_GRPC_Client:
                       " | exId: " + str(exchange_id))
 
     async def _connect(self):
-        async with self.get_channel() as chan:
+        async with self._get_channel() as chan:
             # async with Channel(path="./WebrtcRelayGrpc.sock") as chan:
             grpc_channel = chan
             self.stub = WebRtcRelayStub(grpc_channel)
