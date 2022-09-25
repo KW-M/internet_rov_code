@@ -23,7 +23,7 @@ class Relay_GRPC_Client:
         self.msg_handler = msg_handler
         while True:
             try:
-                self._connect()
+                await self._connect()
             except Exception as e:
                 self.stub = None
                 print(e)
@@ -179,6 +179,6 @@ class Relay_GRPC_Client:
             # async with Channel(path="./WebrtcRelayGrpc.sock") as chan:
             grpc_channel = chan
             self.stub = WebRtcRelayStub(grpc_channel)
-            asyncio.gather(
+            await asyncio.gather(
                 self._get_event_stream(),
                 self.stub.send_msg_stream(self._outgoing_msgs_iterator()))
