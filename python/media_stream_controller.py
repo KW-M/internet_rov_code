@@ -16,9 +16,8 @@ log = logging.getLogger(__name__)
 
 class Media_Stream_Controller:
 
-    def __init__(self, named_pipe_folder):
+    def __init__(self):
         self.open_video_stream_map = {}
-        self.named_pipe_folder = named_pipe_folder
         self.runningSubprocesses = []
 
         # https://stackoverflow.com/questions/295459/how-do-i-use-subprocess-popen-to-connect-multiple-processes-by-pipes

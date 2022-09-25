@@ -17,6 +17,7 @@ program_config = {
     "RovAttestationPrivateKey":
     "Change this private key in the program config json file",
     "EnabledSensors": [],
+    "GRPCServerAddress": "http://localhost:7413",
 }
 
 

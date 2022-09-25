@@ -47,12 +47,11 @@ async def main():
     status_led_ctrl = Status_Led_Controller(21, pigpio_instance)
     status_led_ctrl.on()
 
-    named_pipe_folder = config['NamedPipeFolder']
     relay_grpc = Relay_GRPC_Client(config['GRPCServerAddress'])
     sensors = SensorController()
     # sensor_log = Sensor_Log(sensors.all_sensors)
     motion_ctrl = Motion_Controller(pigpio_instance=pigpio_instance)
-    media_ctrl = Media_Stream_Controller(named_pipe_folder)
+    media_ctrl = Media_Stream_Controller()
     message_handler = MessageHandler(relay_grpc, media_ctrl, motion_ctrl,
                                      sensors)
 
