@@ -20,6 +20,29 @@
             "StartLocalServer": false
         }
     ],
+    "MediaSources": [
+        {
+            "Kind": "video",
+            "SourceLabel": "test_video",
+            "SourceCmd": "ffmpeg -f lavfi -i testsrc2=size=640x480:rate=30 -vf realtime -f rawvideo -pix_fmt yuv420p -",
+            "PixelFormat": "I420",
+            "FrameRate": 30,
+            "Width": 640,
+            "Height": 480
+        },
+        {
+            "Kind": "video",
+            "SourceLabel": "raspberrypi_video",
+            "SourceCmd": "libcamera-vid --width 640 --height 480 --framerate 16 --codec yuv420 --flush 1 --timeout 0 --nopreview 1 --output -",
+            "PixelFormat": "I420",
+            "FrameRate": 16,
+            "Width": 640,
+            "Height": 480
+        }
+    ],
+    "AutoStreamMediaSources": [
+        "raspberrypi_video"
+    ],
     "RovControlPassword": "Change This Password",
     "AuthTokenTimeout": 86400,
     "AuthStateStorageFilepath": "/home/pi/rov-auth-state.json",

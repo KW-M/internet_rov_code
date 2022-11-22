@@ -240,6 +240,15 @@ else
 	popd
 fi
 
+# ---- Install libvpx (vp8 & vp9 video codecs) ----
+pushd ~/
+git clone https://chromium.googlesource.com/webm/libvpx
+cd libvpx/
+./configure --enable-pic --disable-examples --disable-tools --disable-unit_tests --disable-docs
+make
+sudo make install
+popd
+
 # ---- INSTALL GO WEBRTC-RELAY ----
 pushd ~/
 rm -rf webrtc-relay || true
