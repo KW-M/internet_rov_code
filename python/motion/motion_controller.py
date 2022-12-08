@@ -49,38 +49,20 @@ class Motion_Controller:
         try:
 
             # Small Blue Motor Controller (claw or lights)
-            self.CLAW_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance,
-                                                 pin_in1=4,
-                                                 pin_in2=17)
+            self.CLAW_MOTOR = Adafruit_Pwm_Motor(self.pigpio_instance, pin_in1=4, pin_in2=17)
 
             # Motor Controller 1A (forward right)
             #Top Red Motor Controller; plug closer to controller power input (left)
-            self.FORWARD_RIGHT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
-                                                      pin_ena=18,
-                                                      pin_in1=27,
-                                                      pin_in2=22,
-                                                      async_loop=async_loop)
+            self.FORWARD_RIGHT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance, pin_ena=18, pin_in1=27, pin_in2=22, async_loop=async_loop)
 
             # Motor Controller 1B (up right)
-            self.UP_RIGHT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
-                                                 pin_ena=23,
-                                                 pin_in1=24,
-                                                 pin_in2=25,
-                                                 async_loop=async_loop)
+            self.UP_RIGHT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance, pin_ena=23, pin_in1=24, pin_in2=25, async_loop=async_loop)
 
             # Motor Controller 2A (forward right)
-            self.FORWARD_LEFT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
-                                                     pin_ena=5,
-                                                     pin_in1=6,
-                                                     pin_in2=12,
-                                                     async_loop=async_loop)
+            self.FORWARD_LEFT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance, pin_ena=5, pin_in1=6, pin_in2=12, async_loop=async_loop)
 
             # Motor Controller 2B (up left)
-            self.UP_LEFT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance,
-                                                pin_ena=13,
-                                                pin_in1=16,
-                                                pin_in2=19,
-                                                async_loop=async_loop)
+            self.UP_LEFT_MOTOR = Drok_Pwm_Motor(self.pigpio_instance, pin_ena=13, pin_in1=16, pin_in2=19, async_loop=async_loop)
 
         except ValueError:
             self.gpio_issue_flag.set()
@@ -102,8 +84,7 @@ class Motion_Controller:
         if self.gpio_issue_flag.is_set():
             return
 
-        if (turn_rate == self.last_turn_rate
-                and thrust_vector == self.last_thrust_vector):
+        if (turn_rate == self.last_turn_rate and thrust_vector == self.last_thrust_vector):
             return
 
         turn_rate = float(turn_rate)  # make sure it's a float
@@ -115,20 +96,13 @@ class Motion_Controller:
         # Format: radians = math.radians(degrees)
         vertical_thrusters_angle = math.radians(45)
 
-        up_left_thrust_amt = (
-            vertical_amt * math.sin(vertical_thrusters_angle) -
-            strafe_amt * math.cos(vertical_thrusters_angle))
-        up_right_thrust_amt = (
-            vertical_amt * math.sin(vertical_thrusters_angle) +
-            strafe_amt * math.cos(vertical_thrusters_angle))
+        up_left_thrust_amt = (vertical_amt * math.sin(vertical_thrusters_angle) - strafe_amt * math.cos(vertical_thrusters_angle))
+        up_right_thrust_amt = (vertical_amt * math.sin(vertical_thrusters_angle) + strafe_amt * math.cos(vertical_thrusters_angle))
         forward_left_thrust_amt = -forward_amt - turn_rate
         forward_right_thrust_amt = -forward_amt + turn_rate
         # https://www.desmos.com/calculator/64b6jlzsk4
 
-        log.debug("ThrustVec (%s) TurnRate %s -> Motors %s %s %s %s",
-                  ','.join(str(x) for x in thrust_vector), str(turn_rate),
-                  str(forward_left_thrust_amt), str(forward_right_thrust_amt),
-                  str(up_left_thrust_amt), str(up_right_thrust_amt))
+        log.debug("ThrustVec (%s) TurnRate %s -> Motors %s %s %s %s", ','.join(str(x) for x in thrust_vector), str(turn_rate), str(forward_left_thrust_amt), str(forward_right_thrust_amt), str(up_left_thrust_amt), str(up_right_thrust_amt))
 
         try:
             self.UP_LEFT_MOTOR.set_speed(up_left_thrust_amt)
