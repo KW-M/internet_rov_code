@@ -14,8 +14,8 @@ from config_reader import read_config_file, get_log_level
 # from command_api import start_aiohttp_api_server
 from grpc_client import Relay_GRPC_Client
 # from unix_socket import Unix_Socket
-from motion.motion_controller import Motion_Controller
-from media_stream_controller import Media_Stream_Controller
+from motion.motion_controller import MotionController
+from media_stream_controller import MediaStreamController
 from status_led import Status_Led_Controller
 from rovSecurity.userAuth import readAuthStateFromDisk
 
@@ -50,10 +50,9 @@ async def main():
     relay_grpc = Relay_GRPC_Client(config['GRPCServerAddress'])
     sensors = SensorController()
     # sensor_log = Sensor_Log(sensors.all_sensors)
-    motion_ctrl = Motion_Controller(pigpio_instance=pigpio_instance)
-    media_ctrl = Media_Stream_Controller()
-    message_handler = MessageHandler(relay_grpc, media_ctrl, motion_ctrl,
-                                     sensors)
+    motion_ctrl = MotionController(pigpio_instance=pigpio_instance)
+    media_ctrl = MediaStreamController()
+    message_handler = MessageHandler(relay_grpc, media_ctrl, motion_ctrl, sensors)
 
     # setup the asyncio loop to run each of these async functions aka "tasks" aka "coroutines" concurently
     await asyncio.gather(

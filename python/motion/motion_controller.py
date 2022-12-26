@@ -9,7 +9,7 @@ from motion.adafruit_pwm_motor_controller import Adafruit_Pwm_Motor
 log = logging.getLogger(__name__)
 
 
-class Motion_Controller:
+class MotionController:
 
     # current_motor_state = {
     #     'left': 0,

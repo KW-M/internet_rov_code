@@ -3,9 +3,9 @@ high level support for doing this and that.
 """
 
 import asyncio
-from math import nan
 import logging
 from typing import Tuple
+from protobuf.rov_action_api import Measurement
 
 
 class Generic_Sensor:
@@ -17,14 +17,17 @@ class Generic_Sensor:
 
     # The name the sensor should be idenfied by
     sensor_name: str = "Generic Sensor"
-    # The name(s) of the kind(s) of measurement(s) the sensor provides (e.g. pressure, temperature, humidity)
-    measurement_names: list[str] = []
-    # The units(s) for the kind(s) of measurement(s) the sensor provides (in the same order as the measurement_names list)
-    measurement_units: list[str] = []
+    # A list of measurement types the sensor provides (e.g. pressure, temperature, humidity)
+    measurements: list[Measurement] = []
+    measurement_updated_flags: list[asyncio.Event] = []
+
+    # # The name(s) of the kind(s) of measurement(s) the sensor provides (e.g. pressure, temperature, humidity)
+    # measurement_names: list[str] = []
+    # # The units(s) for the kind(s) of measurement(s) the sensor provides (in the same order as the measurement_names list)
+    # measurement_units: list[str] = []
     # The most recently measured value(s) for the kind(s) of measurement(s) the sensor provides (in the same order as the measurement_names list)
     # ! measured_values should not be set in read_sensor(). It will automatically be updated from the return value of read_sensor()
-    measured_values: list[float] = []
-
+    # measured_values: list[float] = []
     async def setup_sensor(self) -> None:
         '''
         (Required) get the latest sensor readings for this sensor.
@@ -51,8 +54,7 @@ class Generic_Sensor:
         Parameters: action: string, value: string
         Returns True if action was successful, False otherwise
         '''
-        print("%s: do_sensor_action() not implemented! %s, %s",
-              self.sensor_name, action, value)
+        print("%s: do_sensor_action() not implemented! %s, %s", self.sensor_name, action, value)
         return False
 
     def cleanup(self) -> None:
@@ -64,20 +66,19 @@ class Generic_Sensor:
     ## END -------------------------------------
 
     def __init__(self):
-        self.measured_values = [nan] * len(self.measurement_names)
-        self.sensor_value_changed_flag = asyncio.Event()
+        self.measurement_updated_flags = [asyncio.Event()] * len(self.measurements)
 
     def __str__(self) -> str:
-        return self.sensor_name + "=" + str(self.measured_values)
+        return self.sensor_name + "=" + [str(m.value) + "|" for m in self.measurements]
 
     async def start_sensor_loop(self):
         self.sensor_error_flag = asyncio.Event()
         await asyncio.gather(
-            self.sensor_setup_loop(),
-            self.sensor_read_loop(),
+            self._sensor_setup_loop(),
+            self._sensor_read_loop(),
         )
 
-    async def sensor_setup_loop(self):
+    async def _sensor_setup_loop(self):
         self.sensor_error_flag.set()
         while True:
             try:
@@ -87,9 +88,7 @@ class Generic_Sensor:
             except asyncio.CancelledError:
                 return False
             except IOError as e:
-                self.log.error(
-                    "IOError in sensor_setup_loop() %s Sensor Not Responding: %s",
-                    self.sensor_name, e)
+                self.log.error("IOError in sensor_setup_loop() %s Sensor Not Responding: %s", self.sensor_name, e)
                 self.sensor_error_flag.set()
                 await asyncio.sleep(3)
             except Exception as e:
@@ -97,7 +96,7 @@ class Generic_Sensor:
                 self.sensor_error_flag.set()
                 await asyncio.sleep(3)
 
-    async def sensor_read_loop(self):
+    async def _sensor_read_loop(self):
         sensor_wait_time = 1.0
         while True:
             if (self.sensor_error_flag.is_set()):
@@ -106,18 +105,21 @@ class Generic_Sensor:
             new_readings: list[float]
             try:
                 new_readings, sensor_wait_time = await self.read_sensor()
-                if new_readings != self.measured_values:
-                    self.measured_values = new_readings
-                    self.sensor_value_changed_flag.set()
+                if len(new_readings) != len(self.measurements):
+                    self.log.error("Sensor %s returned %i readings, but only has %i measurement types defined", self.sensor_name, len(new_readings), len(self.measurements))
+                    await asyncio.sleep(10)
+                    continue
+                for i, new_reading in enumerate(new_readings):
+                    mesurement = self.measurements[i]
+                    if new_reading != mesurement.value:
+                        self.measurements[i].value = new_reading
+                        self.measurement_updated_flags[i].set()
             except asyncio.CancelledError:
                 return
             except IOError as e:
-                self.log.warning("IO Error reading %s, is it disconnected? %s",
-                                 self.sensor_name, e)
+                self.log.warning("IO Error reading %s, is it disconnected? %s", self.sensor_name, e)
             except Exception as e:
-                self.log.error("Error reading %s: ",
-                               self.sensor_name,
-                               exc_info=e)
+                self.log.error("Error reading %s: ", self.sensor_name, exc_info=e)
                 self.sensor_error_flag.set()
 
             await asyncio.sleep(sensor_wait_time)

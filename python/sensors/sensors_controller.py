@@ -16,32 +16,26 @@ class SensorController:
     async def sensor_setup_loop(self):
         log.info("Setting Up Sensors...")
         enabledSensors = program_config.get("EnabledSensors", [])
-        self.connected_sensors = list(
-            filter(lambda sensor: sensor.sensor_name in enabledSensors,
-                   self.all_possible_sensors))
-        sensor_tasks = [
-            sensor.start_sensor_loop() for sensor in self.connected_sensors
-        ]
+        self.connected_sensors = list(filter(lambda sensor: sensor.sensor_name in enabledSensors, self.all_possible_sensors))
+        sensor_tasks = [sensor.start_sensor_loop() for sensor in self.connected_sensors]
         await asyncio.gather(*sensor_tasks)
 
-    def get_sensor_update_dict(self):
-        sensor_dict = {}
+    def get_sensor_updates(self):
+        sensor_updates = []
         for sensor in self.connected_sensors:
-            if sensor.sensor_value_changed_flag.is_set():
-                # print(sensor.sensor_name + " | value changed " +
-                #       str(sensor.measurement_names) +
-                #       str(sensor.measured_values))
-                sensor.sensor_value_changed_flag.clear()
-                for i, measured_value in enumerate(sensor.measured_values):
-                    measurement_name = sensor.measurement_names[i] if i < len(
-                        sensor.measurement_names) else "Unnamed"
-                    sensor_dict[measurement_name] = measured_value
-            else:
-                pass
-                # print(sensor.sensor_name + " | value NOT changed " +
-                #       str(sensor.measured_values))
+            for i, measurement in enumerate(sensor.measurements):
+                if sensor.measurement_updated_flags[i].is_set():
+                    # print(sensor.sensor_name + " | value changed " +
+                    #       str(sensor.measurement_names) +
+                    #       str(sensor.measured_values))
+                    sensor.measurement_updated_flags[i].clear()
+                    sensor_updates.append(measurement)
+                else:
+                    pass
+                    # print(sensor.sensor_name + " | value NOT changed " +
+                    #       str(sensor.measured_values))
 
-        return sensor_dict
+        return sensor_updates
 
     def cleanup(self):
         for sensor in self.connected_sensors:

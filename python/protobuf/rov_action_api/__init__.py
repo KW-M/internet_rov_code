@@ -7,7 +7,7 @@ from typing import List
 import betterproto
 
 
-class RovSensorTypes(betterproto.Enum):
+class SensorMeasurmentTypes(betterproto.Enum):
     depth_meters = 0
     water_temp_celsius = 1
     pressure_mbar = 2
@@ -18,7 +18,8 @@ class RovSensorTypes(betterproto.Enum):
     y_acceleration_m_s2 = 7
     z_acceleration_m_s2 = 8
     battery_voltage = 9
-    battery_current = 10
+    battery_current_amps = 10
+    internal_temp_celsius = 11
 
 
 @dataclass(eq=False, repr=False)
@@ -207,18 +208,18 @@ class PongResponse(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
-class SensorUpdate(betterproto.Message):
-    sensor_type: str = betterproto.string_field(1)
-    """The sensor name"""
+class Measurement(betterproto.Message):
+    measurement_type: "SensorMeasurmentTypes" = betterproto.enum_field(1)
+    """The sensor type (see RovSensorTypes)"""
 
-    value: str = betterproto.string_field(2)
+    value: float = betterproto.float_field(2)
     """The sensor value"""
 
 
 @dataclass(eq=False, repr=False)
 class SensorUpdatesResponse(betterproto.Message):
-    sensor_updates: List["SensorUpdate"] = betterproto.message_field(1)
-    """The sensor updates"""
+    measurement_updates: List["Measurement"] = betterproto.message_field(1)
+    """All the changed mesurements from the sensors: (see Measurement type)"""
 
 
 @dataclass(eq=False, repr=False)
@@ -267,6 +268,12 @@ class ClientConnectedResponse(betterproto.Message):
 class ClientDisconnectedResponse(betterproto.Message):
     client_peer_id: str = betterproto.string_field(1)
     """The disconnected client's peer id"""
+
+
+@dataclass(eq=False, repr=False)
+class HeartbeatResponse(betterproto.Message):
+    time: int = betterproto.int64_field(1)
+    """The time the heartbeat was sent"""
 
 
 @dataclass(eq=False, repr=False)
@@ -344,3 +351,6 @@ class RovResponse(betterproto.Message):
         15, group="Body"
     )
     """client_disconnected"""
+
+    heartbeat: "HeartbeatResponse" = betterproto.message_field(16, group="Body")
+    """heartbeat"""

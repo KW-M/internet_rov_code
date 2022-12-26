@@ -2,6 +2,7 @@ import logging
 
 import ms5803py
 from sensors.generic_sensor import Generic_Sensor
+from protobuf.rov_action_api import Measurement, SensorMeasurmentTypes
 
 ###### setup logging #######
 log = logging.getLogger(__name__)
@@ -9,8 +10,7 @@ log = logging.getLogger(__name__)
 
 class PressureTempSensor(Generic_Sensor):
     sensor_name = "ms5803_pressure_temp"
-    measurement_names = ['pressure', 'temperature']
-    measurement_units = ['mBar', 'C']
+    measurements = [Measurement(SensorMeasurmentTypes.pressure_mbar, 0), Measurement(SensorMeasurmentTypes.water_temp_celsius, 0)]
     sensor_read_interval = 1.0
 
     async def setup_sensor(self):

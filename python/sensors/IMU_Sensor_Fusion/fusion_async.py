@@ -18,7 +18,7 @@
 
 import asyncio
 from math import sqrt, atan2, asin, degrees, radians
-from sensors.deltat import DeltaT
+from sensors.IMU_Sensor_Fusion.deltat import DeltaT
 
 
 class Fusion():
@@ -30,15 +30,12 @@ class Fusion():
 
     def __init__(self, read_coro, timediff=None):
         self.read_coro = read_coro
-        self.magbias = (0, 0, 0
-                        )  # local magnetic bias factors: set from calibration
+        self.magbias = (0, 0, 0)  # local magnetic bias factors: set from calibration
         self.expect_ts = timediff is not None
         self.deltat = DeltaT(timediff)  # Time between updates
         self.q = [1.0, 0.0, 0.0, 0.0]  # vector to hold quaternion
-        GyroMeasError = radians(
-            40)  # Original code indicates this leads to a 2 sec response time
-        self.beta = sqrt(
-            3.0 / 4.0) * GyroMeasError  # compute beta (see README)
+        GyroMeasError = radians(40)  # Original code indicates this leads to a 2 sec response time
+        self.beta = sqrt(3.0 / 4.0) * GyroMeasError  # compute beta (see README)
         self.pitch = 0
         self.heading = 0
         self.roll = 0
@@ -72,8 +69,7 @@ class Fusion():
                 ts = None
             ax, ay, az = accel  # Units G (but later normalised)
             gx, gy, gz = (radians(x) for x in gyro)  # Units deg/s
-            q1, q2, q3, q4 = (self.q[x] for x in range(4)
-                              )  # short name local variable for readability
+            q1, q2, q3, q4 = (self.q[x] for x in range(4))  # short name local variable for readability
             # Auxiliary variables to avoid repeated arithmetic
             _2q1 = 2 * q1
             _2q2 = 2 * q2
@@ -103,8 +99,7 @@ class Fusion():
             s2 = _4q2 * q4q4 - _2q4 * ax + 4 * q1q1 * q2 - _2q1 * ay - _4q2 + _8q2 * q2q2 + _8q2 * q3q3 + _4q2 * az
             s3 = 4 * q1q1 * q3 + _2q1 * ax + _4q3 * q4q4 - _2q4 * ay - _4q3 + _8q3 * q2q2 + _8q3 * q3q3 + _4q3 * az
             s4 = 4 * q2q2 * q4 - _2q2 * ax + 4 * q3q3 * q4 - _2q3 * ay
-            norm = 1 / sqrt(s1 * s1 + s2 * s2 + s3 * s3 +
-                            s4 * s4)  # normalise step magnitude
+            norm = 1 / sqrt(s1 * s1 + s2 * s2 + s3 * s3 + s4 * s4)  # normalise step magnitude
             s1 *= norm
             s2 *= norm
             s3 *= norm
@@ -125,17 +120,11 @@ class Fusion():
             q2 += qDot2 * deltat
             q3 += qDot3 * deltat
             q4 += qDot4 * deltat
-            norm = 1 / sqrt(
-                q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4)  # normalise quaternion
+            norm = 1 / sqrt(q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4)  # normalise quaternion
             self.q = q1 * norm, q2 * norm, q3 * norm, q4 * norm
             self.heading = 0  # Meaningless without a magnetometer
-            self.pitch = degrees(
-                -asin(2.0 * (self.q[1] * self.q[3] - self.q[0] * self.q[2])))
-            self.roll = degrees(
-                atan2(
-                    2.0 * (self.q[0] * self.q[1] + self.q[2] * self.q[3]),
-                    self.q[0] * self.q[0] - self.q[1] * self.q[1] -
-                    self.q[2] * self.q[2] + self.q[3] * self.q[3]))
+            self.pitch = degrees(-asin(2.0 * (self.q[1] * self.q[3] - self.q[0] * self.q[2])))
+            self.roll = degrees(atan2(2.0 * (self.q[0] * self.q[1] + self.q[2] * self.q[3]), self.q[0] * self.q[0] - self.q[1] * self.q[1] - self.q[2] * self.q[2] + self.q[3] * self.q[3]))
 
     async def _update_mag(self, slow_platform):
         while True:
@@ -144,12 +133,10 @@ class Fusion():
             else:
                 accel, gyro, mag = await self.read_coro()
                 ts = None
-            mx, my, mz = (mag[x] - self.magbias[x]
-                          for x in range(3))  # Units irrelevant (normalised)
+            mx, my, mz = (mag[x] - self.magbias[x] for x in range(3))  # Units irrelevant (normalised)
             ax, ay, az = accel  # Units irrelevant (normalised)
             gx, gy, gz = (radians(x) for x in gyro)  # Units deg/s
-            q1, q2, q3, q4 = (self.q[x] for x in range(4)
-                              )  # short name local variable for readability
+            q1, q2, q3, q4 = (self.q[x] for x in range(4))  # short name local variable for readability
             # Auxiliary variables to avoid repeated arithmetic
             _2q1 = 2 * q1
             _2q2 = 2 * q2
@@ -199,43 +186,18 @@ class Fusion():
             _4bz = 2 * _2bz
 
             # Gradient descent algorithm corrective step
-            s1 = (-_2q3 * (2 * q2q4 - _2q1q3 - ax) + _2q2 *
-                  (2 * q1q2 + _2q3q4 - ay) - _2bz * q3 *
-                  (_2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) +
-                  (-_2bx * q4 + _2bz * q2) * (_2bx * (q2q3 - q1q4) + _2bz *
-                                              (q1q2 + q3q4) - my) + _2bx * q3 *
-                  (_2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz))
+            s1 = (-_2q3 * (2 * q2q4 - _2q1q3 - ax) + _2q2 * (2 * q1q2 + _2q3q4 - ay) - _2bz * q3 * (_2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (-_2bx * q4 + _2bz * q2) * (_2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + _2bx * q3 * (_2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz))
 
-            s2 = (_2q4 * (2 * q2q4 - _2q1q3 - ax) + _2q1 *
-                  (2 * q1q2 + _2q3q4 - ay) - 4 * q2 *
-                  (1 - 2 * q2q2 - 2 * q3q3 - az) + _2bz * q4 *
-                  (_2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) +
-                  (_2bx * q3 + _2bz * q1) * (_2bx * (q2q3 - q1q4) + _2bz *
-                                             (q1q2 + q3q4) - my) +
-                  (_2bx * q4 - _4bz * q2) * (_2bx * (q1q3 + q2q4) + _2bz *
-                                             (0.5 - q2q2 - q3q3) - mz))
+            s2 = (_2q4 * (2 * q2q4 - _2q1q3 - ax) + _2q1 * (2 * q1q2 + _2q3q4 - ay) - 4 * q2 * (1 - 2 * q2q2 - 2 * q3q3 - az) + _2bz * q4 * (_2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (_2bx * q3 + _2bz * q1) * (_2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + (_2bx * q4 - _4bz * q2) * (_2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz))
 
             if slow_platform:
                 await asyncio.sleep_ms(0)
 
-            s3 = (-_2q1 * (2 * q2q4 - _2q1q3 - ax) + _2q4 *
-                  (2 * q1q2 + _2q3q4 - ay) - 4 * q3 *
-                  (1 - 2 * q2q2 - 2 * q3q3 - az) + (-_4bx * q3 - _2bz * q1) *
-                  (_2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) +
-                  (_2bx * q2 + _2bz * q4) * (_2bx * (q2q3 - q1q4) + _2bz *
-                                             (q1q2 + q3q4) - my) +
-                  (_2bx * q1 - _4bz * q3) * (_2bx * (q1q3 + q2q4) + _2bz *
-                                             (0.5 - q2q2 - q3q3) - mz))
+            s3 = (-_2q1 * (2 * q2q4 - _2q1q3 - ax) + _2q4 * (2 * q1q2 + _2q3q4 - ay) - 4 * q3 * (1 - 2 * q2q2 - 2 * q3q3 - az) + (-_4bx * q3 - _2bz * q1) * (_2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (_2bx * q2 + _2bz * q4) * (_2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + (_2bx * q1 - _4bz * q3) * (_2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz))
 
-            s4 = (_2q2 * (2 * q2q4 - _2q1q3 - ax) + _2q3 *
-                  (2 * q1q2 + _2q3q4 - ay) + (-_4bx * q4 + _2bz * q2) *
-                  (_2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) +
-                  (-_2bx * q1 + _2bz * q3) * (_2bx * (q2q3 - q1q4) + _2bz *
-                                              (q1q2 + q3q4) - my) + _2bx * q2 *
-                  (_2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz))
+            s4 = (_2q2 * (2 * q2q4 - _2q1q3 - ax) + _2q3 * (2 * q1q2 + _2q3q4 - ay) + (-_4bx * q4 + _2bz * q2) * (_2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (-_2bx * q1 + _2bz * q3) * (_2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + _2bx * q2 * (_2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz))
 
-            norm = 1 / sqrt(s1 * s1 + s2 * s2 + s3 * s3 +
-                            s4 * s4)  # normalise step magnitude
+            norm = 1 / sqrt(s1 * s1 + s2 * s2 + s3 * s3 + s4 * s4)  # normalise step magnitude
             s1 *= norm
             s2 *= norm
             s3 *= norm
@@ -253,18 +215,8 @@ class Fusion():
             q2 += qDot2 * deltat
             q3 += qDot3 * deltat
             q4 += qDot4 * deltat
-            norm = 1 / sqrt(
-                q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4)  # normalise quaternion
+            norm = 1 / sqrt(q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4)  # normalise quaternion
             self.q = q1 * norm, q2 * norm, q3 * norm, q4 * norm
-            self.heading = self.declination + degrees(
-                atan2(
-                    2.0 * (self.q[1] * self.q[2] + self.q[0] * self.q[3]),
-                    self.q[0] * self.q[0] + self.q[1] * self.q[1] -
-                    self.q[2] * self.q[2] - self.q[3] * self.q[3]))
-            self.pitch = degrees(
-                -asin(2.0 * (self.q[1] * self.q[3] - self.q[0] * self.q[2])))
-            self.roll = degrees(
-                atan2(
-                    2.0 * (self.q[0] * self.q[1] + self.q[2] * self.q[3]),
-                    self.q[0] * self.q[0] - self.q[1] * self.q[1] -
-                    self.q[2] * self.q[2] + self.q[3] * self.q[3]))
+            self.heading = self.declination + degrees(atan2(2.0 * (self.q[1] * self.q[2] + self.q[0] * self.q[3]), self.q[0] * self.q[0] + self.q[1] * self.q[1] - self.q[2] * self.q[2] - self.q[3] * self.q[3]))
+            self.pitch = degrees(-asin(2.0 * (self.q[1] * self.q[3] - self.q[0] * self.q[2])))
+            self.roll = degrees(atan2(2.0 * (self.q[0] * self.q[1] + self.q[2] * self.q[3]), self.q[0] * self.q[0] - self.q[1] * self.q[1] - self.q[2] * self.q[2] + self.q[3] * self.q[3]))
