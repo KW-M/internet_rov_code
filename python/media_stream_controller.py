@@ -101,9 +101,7 @@ class Media_Stream_Controller:
         # run ffmpeg command
         # "ffmpeg -hide_banner -fflags +genpts -protocol_whitelist pipe,tls,file,http,https,tcp,rtp -use_wallclock_as_timestamps 1 -f rawvideo -pix_fmt yuv420p -s 640x480 -framerate 16 -i pipe:0 -vf realtime -vcodec libx264 -x264-params intra-refresh=1,fast-pskip=0 -profile:v baseline -level:v 3.1 -threads 3 -minrate 500K -maxrate 1.3M -bufsize 500K -g 10  -preset ultrafast -tune zerolatency -f rtp -sdp_file /home/pi/stream{ffmpegInstanceNum}.sdp '{rtpUrl}?rtcpport={rtcpPort}&localrtcpport={rtcpPort}&pkt_size=1200'"
         ffmpeg_cmd = "ffmpeg -hide_banner -f rawvideo -pix_fmt yuv420p -use_wallclock_as_timestamps 1 -s 640x480 -framerate 16 -i pipe:0 -vcodec libx264 -b:v 700k -g 10 -fflags nobuffer -preset ultrafast -tune zerolatency -f rtp '{rtpUrl}?rtcpport={rtcpPort}&localrtcpport={rtcpPort}&pkt_size=1200'".format(
-            ffmpegInstanceNum=ffmpegInstanceNum,
-            rtpUrl=rtpUrl,
-            rtcpPort=rtcpPort)
+            rtpUrl=rtpUrl, rtcpPort=rtcpPort)
         vidOutput = self.start_piped_input_command(
             inputPipe=vidSrc.stdout,
             cmd_str=ffmpeg_cmd,

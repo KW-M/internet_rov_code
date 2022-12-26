@@ -6,7 +6,10 @@ import asyncio
 from command_api import generate_webrtc_format_response
 from config_reader import program_config
 # from grpc_client import Relay_GRPC_Client
-from rovSecurity.userAuth import generateAuthToken, getRovUUID, checkTokenValidty
+from protobuf.rov_action_api import RovAction, RovResponse, DriverChangedResponse, betterproto, ErrorResponse, PasswordAcceptedResponse, PasswordInvalidResponse, PasswordRequiredResponse, PongResponse, TokenAcceptedResponse
+
+# from protobuf.rov_action_api import RovAction, RovResponse, DriverChangedResponse, DisableWifiAction, AuthTokenAttemptAction, BeginVideoStreamAction, ClientConnectedResponse, betterproto, ClientDisconnectedResponse, ContinuedOutputResponse, dataclass, DoneResponse, EnableWifiAction, ErrorResponse, MoveAction, List, PasswordAcceptedResponse, PasswordAttemptAction, PasswordInvalidResponse, PasswordRequiredResponse, PingAction, PongResponse, RebootRovAction, RestartRovServicesAction, RovLogsAction, RovSensorTypes, RovStatusReportAction, SensorUpdate, SensorUpdatesResponse, ShutdownRovAction, StartVideoRecAction, StopVideoRecAction, TakeControlAction, TakePhotoAction, TokenAcceptedResponse, TokenInvalidResponse, ToogleLightsAction
+from rovSecurity.userAuth import generateAuthToken, checkTokenValidty
 
 ############################
 ###### setup logging #######
@@ -18,8 +21,7 @@ class MessageHandler:
 
     # relay_grpc: Relay_GRPC_Client = None
 
-    def __init__(self, relay_grpc, media_controller, motion_controller,
-                 sensor_controller):
+    def __init__(self, relay_grpc, media_controller, motion_controller, sensor_controller):
         self.relay_grpc = relay_grpc
         self.media_controller = media_controller
         self.motion_ctrl = motion_controller
@@ -33,40 +35,37 @@ class MessageHandler:
         self.known_peers = {}
 
         # constants
-        self.MESSAGE_METADATA_SEPARATOR = program_config.get(
-            'MessageMetadataSeparator', '|"|')
+        self.MESSAGE_METADATA_SEPARATOR = program_config.get('MessageMetadataSeparator', '|"|')
 
     def check_if_peer_is_authenticated(self, peer_id):
-        '''
-        Returns true if the given peer has provided a valid authentication token this session.'''
-        authToken = self.known_peers.get(peer_id, {}).get("authToken", None)
-        return checkTokenValidty(authToken)
+        '''Returns true if the given peer has provided a valid authentication token this session.'''
+        auth_token = self.known_peers.get(peer_id, {}).get("authToken", None)
+        return checkTokenValidty(auth_token)
 
     def password_challenge(self, password, src_peer_id):
-        correct_password = program_config.get(
-            'RovControlPassword', 'Set a password in the config file')
+        correct_password = program_config.get('RovControlPassword', 'Set a password in the config file')
 
         if password != correct_password:
             return ('password-invalid', None)
 
-        authToken = generateAuthToken()
-        self.known_peers[src_peer_id]["authToken"] = authToken
-        return ('password-accepted', authToken)
+        auth_token = generateAuthToken()
+        self.known_peers[src_peer_id]["authToken"] = auth_token
+        return ('password-accepted', auth_token)
 
-    def auth_token_challenge(self, authToken, src_peer_id):
-        if not checkTokenValidty(authToken):
+    def auth_token_challenge(self, auth_token, src_peer_id):
+        if not checkTokenValidty(auth_token):
             return 'password-required'
 
-        self.known_peers[src_peer_id]["authToken"] = authToken
+        self.known_peers[src_peer_id]["authToken"] = auth_token
         return 'token-accepted'
 
-    def find_first_connected_peer(self) -> str:
-        for peerid, peerDetails in self.known_peers.items():
-            if peerDetails["connected"] is True:
+    def find_first_connected_peer(self) -> str or None:
+        for peerid, peer_details in self.known_peers.items():
+            if peer_details.get("connected", False) is True:
                 return peerid
         return None
 
-    def parse_message_payload(self, message_payload: bytes):
+    def parse_message_payload(self, message_payload: bytes) -> RovAction or None:
         """
         Parse a message from the socket and return a dict of the message metadata and the message data.
         :param message_payload: the message payload to parse as bytes
@@ -74,14 +73,11 @@ class MessageHandler:
         """
 
         try:
-            # decode message payload as a json string.
-            message_data = json.loads(str(message_payload, 'utf-8'))
-            return message_data
+            # decode message payload as a protobuf message:
+            return RovAction().parse(message_payload)
 
         except json.JSONDecodeError:
-            log.warning(
-                'Received unix socket message with invalid JSON format: %s',
-                str(message_payload, 'utf-8'))
+            log.warning('Received unix socket message with invalid JSON format: %s', str(message_payload, 'utf-8'))
             return None
 
         except Exception as error:
@@ -92,9 +88,7 @@ class MessageHandler:
         if self.current_driver_peerid != new_driver_peer_id:
             self.current_driver_peerid = new_driver_peer_id
             # Let all connected peers know that the designated driver peer has changed:
-            await self.send_msg(status="driver-changed",
-                                val=self.current_driver_peerid,
-                                recipient_peers=["*"])
+            await self.send_msg(msg_data=RovResponse(driver_changed=DriverChangedResponse(driver_peer_id=self.current_driver_peerid)), recipient_peers=["*"])
 
     async def handle_peer_disconnected_message(self, src_peer_id: str):
         log.info("A client peer has DISconnected: %s", src_peer_id)
@@ -121,180 +115,135 @@ class MessageHandler:
             await self.change_driver(src_peer_id)
         else:
             # Let the connecting peer know who the designated driver is:
-            await self.send_msg(status='driver-changed',
-                                val=self.current_driver_peerid,
-                                recipient_peers=[src_peer_id])
+            await self.send_msg(msg_data=RovResponse(driver_changed=DriverChangedResponse(driver_peer_id=self.current_driver_peerid)), recipient_peers=[src_peer_id])
 
     async def send_msg(
         self,
-        recipient_peers=None,
-        status="",
-        val=None,
-        cid=None,
+        msg_data: RovResponse = None,
+        recipient_peers: list[str] = None,
     ):
         """
         send a message to a list of peers (via the unix socket -> golang relay).
         """
-        msg_dict = {'status': status}
-        if (val is not None):
-            msg_dict["val"] = val
-        if (cid is not None):
-            msg_dict["cid"] = cid
         if (recipient_peers is None):
             recipient_peers = ["*"]
-        return await self.relay_grpc.send_message(
-            payload=bytes(json.dumps(msg_dict), 'utf-8'),
-            target_peer_ids=recipient_peers)
+        return await self.relay_grpc.send_message(payload=msg_data.SerializeToString(), target_peer_ids=recipient_peers)
 
-    async def handle_normal_actions(self, src_peer_id, action, action_value,
-                                    msg_cid):
+    async def handle_normal_actions(self, src_peer_id, msg_data: RovAction):
 
-        if action == "ping":
+        rov_exchange_id = msg_data.rov_exchange_id
+
+        if msg_data.ping:
             self.last_ping_recived_time = time.time()
             # send back the same timestamp from the ping with the status "pong"
-            await self.send_msg(status='pong',
-                                val=action_value,
-                                cid=msg_cid,
-                                recipient_peers=[src_peer_id])
+            await self.send_msg(msg_data=RovResponse(pong=PongResponse(time=msg_data.ping.time)), recipient_peers=[src_peer_id])
 
-        elif action == "password_attempt":
+        elif msg_data.password_attempt:
             # send back the result of the password attempt
-            (challenge_result,
-             authToken) = self.password_challenge(action_value, src_peer_id)
-            await self.send_msg(status=challenge_result,
-                                val=authToken,
-                                cid=msg_cid,
-                                recipient_peers=[src_peer_id])
+            (challenge_result, auth_token) = self.password_challenge(msg_data.password_attempt.password, src_peer_id)
+            # await self.send_msg(status=challenge_result, val=authToken, cid=rov_exchange_id, recipient_peers=[src_peer_id])
+            if challenge_result == 'password-accepted':
+                await self.send_msg(msg_data=RovResponse(password_accepted=PasswordAcceptedResponse(auth_token), rov_exchange_id=rov_exchange_id), recipient_peers=[src_peer_id])
+            elif challenge_result == 'password-invalid':
+                await self.send_msg(msg_data=RovResponse(password_invalid=PasswordInvalidResponse(), rov_exchange_id=rov_exchange_id), recipient_peers=[src_peer_id])
 
-        elif action == "authtoken_attempt":
-            challenge_result = self.auth_token_challenge(
-                action_value, src_peer_id)
-            await self.send_msg(status=challenge_result,
-                                cid=msg_cid,
-                                recipient_peers=[src_peer_id])
+        elif msg_data.authtoken_attempt:
+            challenge_result = self.auth_token_challenge(msg_data.auth_token_attempt.token, src_peer_id)
+            if challenge_result == 'token-accepted':
+                await self.send_msg(msg_data=RovResponse(token_accepted=TokenAcceptedResponse(), rov_exchange_id=rov_exchange_id), recipient_peers=[src_peer_id])
+            elif challenge_result == 'password-required':
+                await self.send_msg(msg_data=RovResponse(password_required=PasswordRequiredResponse(), rov_exchange_id=rov_exchange_id), recipient_peers=[src_peer_id])
 
         # -- golang relay commands:
-        elif action == "begin_video_stream":
+        elif msg_data.begin_video_stream:
             # send the *golang* code (note the action is in reply_metadata) the begin_video_stream command
-            _, streamUrl = self.media_controller.start_source_stream()
-            await self.relay_grpc.call(track_name="FRONT_ROV_CAM",
-                                       mime_type="video/h264",
-                                       rtp_source_url=streamUrl,
-                                       target_peer_ids=[src_peer_id])
+            # _, streamUrl = self.media_controller.start_source_stream()
+            # await self.relay_grpc.call(track_name="FRONT_ROV_CAM",
+            #                            mime_type="video/h264",
+            #                            rtp_source_url=streamUrl,
+            #                            target_peer_ids=[src_peer_id])
             # await startVideo
-            print("begin_video_stream: " + streamUrl)
+            print("begin_video_stream... (not implemented yet)")
 
-        elif action in [
-                "rov_status_report",
-        ]:
+        elif msg_data.rov_status_report:
             # all of these actions call shell commands and can be found in command_api.py
-            msgGenerator = generate_webrtc_format_response(msg_cid, action)
+            msgGenerator = generate_webrtc_format_response(rov_exchange_id, msg_data)
             async for msg_data in msgGenerator:
-                await self.relay_grpc.send_message(
-                    payload=bytes(json.dumps(msg_data), 'utf-8'),
-                    target_peer_ids=[src_peer_id])
+                await self.relay_grpc.send_message(payload=bytes(json.dumps(msg_data), 'utf-8'), target_peer_ids=[src_peer_id])
 
         else:
             return False
 
         return True
 
-    async def handle_authenticated_actions(self, src_peer_id, action,
-                                           action_value, msg_cid):
-        """
-        handle actions that require an authenticated peer (one who as previously entered thec correct password):
-        """
+    # async def handle_authenticated_actions(self, src_peer_id, action, action_value, rov_exchange_id):
+    #     """
+    #     handle actions that require an authenticated peer (one who as previously entered thec correct password):
+    #     """
 
-        if action not in [
-                "take_control", "take_photo", "start_video_rec",
-                "stop_video_rec", "shutdown_rov", "reboot_rov", "enable_wifi",
-                "disable_wifi", "rov_logs", "restart_rov_services"
-        ]:
-            return False
+    #     if action not in ["take_control", "take_photo", "start_video_rec", "stop_video_rec", "shutdown_rov", "reboot_rov", "enable_wifi", "disable_wifi", "rov_logs", "restart_rov_services"]:
+    #         return False
 
-        if (not self.check_if_peer_is_authenticated(src_peer_id)):
-            # if the sender is not authenticated, send back the password-required message along with this rov's unique id
-            await self.send_msg(status='password-required',
-                                val=getRovUUID(),
-                                cid=msg_cid,
-                                recipient_peers=[src_peer_id])
+    #     if (not self.check_if_peer_is_authenticated(src_peer_id)):
+    #         # if the sender is not authenticated, send back the password-required message along with this rov's unique id
+    #         await self.send_msg(msg_data=RovResponse(password_required=PasswordRequiredResponse(rov_id=getRovUUID()), rov_exchange_id=rov_exchange_id), recipient_peers=[src_peer_id])
 
-        elif action == "take_control" and self.current_driver_peerid != src_peer_id:
-            self.current_driver_peerid = src_peer_id
-            # if the authenticated peer is trying to take control of the ROV, set their peer id to be the designated driver peer id "curent_driver_peerid"
-            # Let all connected peers know that the designated driver has changed
-            await self.send_msg(status='driver-changed',
-                                val=self.current_driver_peerid,
-                                recipient_peers=["*"])
+    #     elif action == "take_control" and self.current_driver_peerid != src_peer_id:
+    #         self.current_driver_peerid = src_peer_id
+    #         # if the authenticated peer is trying to take control of the ROV, set their peer id to be the designated driver peer id "curent_driver_peerid"
+    #         # Let all connected peers know that the designated driver has changed
+    #         await self.send_msg(msg_data=RovResponse(driver_changed=DriverChangedResponse(driver_peer_id=self.current_driver_peerid)), recipient_peers=["*"])
 
-        elif action == 'take_photo':
-            print("TODO: take_photo %s", action_value)
-            # send reply to just the sender
+    #     elif action == 'take_photo':
+    #         print("TODO: take_photo %s", action_value)
+    #         # send reply to just the sender
 
-            await self.send_msg(status='done',
-                                cid=msg_cid,
-                                recipient_peers=[src_peer_id])
+    #         await self.send_msg(status='done', cid=msg_cid, recipient_peers=[src_peer_id])
 
-        elif action == 'start_video_rec':
-            print("TODO: start_video_rec")
-            # send reply to just the sender
-            await self.send_msg(status='done',
-                                cid=msg_cid,
-                                recipient_peers=[src_peer_id])
+    #     elif action == 'start_video_rec':
+    #         print("TODO: start_video_rec")
+    #         # send reply to just the sender
+    #         await self.send_msg(status='done', cid=msg_cid, recipient_peers=[src_peer_id])
 
-        elif action == 'stop_video_rec':
-            print("TODO: stop_video_rec")
-            # send reply to just the sender
-            await self.send_msg(status='done',
-                                cid=msg_cid,
-                                recipient_peers=[src_peer_id])
+    #     elif action == 'stop_video_rec':
+    #         print("TODO: stop_video_rec")
+    #         # send reply to just the sender
+    #         await self.send_msg(status='done', cid=msg_cid, recipient_peers=[src_peer_id])
 
-        # all of the other actions call shell commands and can be found in command_api.py
-        else:
-            msgGenerator = generate_webrtc_format_response(msg_cid, action)
-            async for msg_data in msgGenerator:
-                await self.relay_grpc.send_message(
-                    payload=bytes(json.dumps(msg_data), 'utf-8'),
-                    target_peer_ids=[src_peer_id])
+    #     # all of the other actions call shell commands and can be found in command_api.py
+    #     else:
+    #         msgGenerator = generate_webrtc_format_response(msg_cid, action)
+    #         async for msg_data in msgGenerator:
+    #             await self.relay_grpc.send_message(payload=bytes(json.dumps(msg_data), 'utf-8'), target_peer_ids=[src_peer_id])
 
-        return True
+    #     return True
 
-    async def handle_driver_only_actions(self, src_peer_id, action,
-                                         action_value, msg_cid):
-        """
-        Handle actions that only the designated rov driver can do.
-        !!! The driver may not nececsarilly be an authenticated peer !!!!
-        For example the system will hand driver control to the last connected person if the real driver disconnects, so at least someone is always driving:
-        To to take control hovever, a peer must be authenticated
-        """
+    # async def handle_driver_only_actions(self, src_peer_id, msg_data):
+    #     """
+    #     Handle actions that only the designated rov driver can do.
+    #     !!! The driver may not nececsarilly be an authenticated peer !!!!
+    #     For example the system will hand driver control to the last connected person if the real driver disconnects, so at least someone is always driving:
+    #     To to take control hovever, a peer must be authenticated
+    #     """
 
-        if action not in ["move", "toogle_lights"]:
-            return False
+    #     if action not in ["move", "toogle_lights"]:
+    #         return False
 
-        if (not self.current_driver_peerid == src_peer_id):
-            # if the sender is not the driver, send back the not a driver error message
-            await self.send_msg(status='error',
-                                val='You must be the ROV driver first!',
-                                cid=msg_cid,
-                                recipient_peers=[src_peer_id])
+    #     if (not self.current_driver_peerid == src_peer_id):
+    #         # if the sender is not the driver, send back the not a driver error message
+    #         await self.send_msg(status='error', val='You must be the ROV driver first!', cid=msg_cid, recipient_peers=[src_peer_id])
 
-        elif action == "move":
-            # update the rov motion
-            self.motion_ctrl.set_rov_motion(
-                thrust_vector=action_value['thrustVector'],
-                turn_rate=action_value['turnRate'])
+    #     elif action == "move":
+    #         # update the rov motion
+    #         self.motion_ctrl.set_rov_motion(thrust_vector=action_value['thrustVector'], turn_rate=action_value['turnRate'])
 
-        elif action == "toggle_lights":
-            print("TODO: Toggle lights")
+    #     elif action == "toggle_lights":
+    #         print("TODO: Toggle lights")
 
-        return True
+    #     return True
 
     # pylint: disable=unused-argument
-    async def handle_incoming_msg(self,
-                                  msg_payload: bytes,
-                                  src_peer_id,
-                                  exchange_id=None,
-                                  relay_peer_number=0):
+    async def handle_incoming_msg(self, msg_payload: bytes, src_peer_id, exchange_id=None, relay_peer_number=0):
         """
         Handle incoming messages from all peers
         :param msg_payload: the message payload bytes
@@ -303,42 +252,28 @@ class MessageHandler:
         :param relay_peer_number: the number of the webrtc-relay relay peer that the message came through
         """
 
-        msg_dict = self.parse_message_payload(msg_payload)
-        if msg_dict is None or len(msg_dict) == 0:
+        msg_data = self.parse_message_payload(msg_payload)
+        if msg_data is None:
             return
-
-        # extract relevant message params
-        action = msg_dict.get('action', None)
-        action_value = msg_dict.get('val', None)
-        msg_cid = msg_dict.get('cid', None)
 
         #Debug
-        print(
-            "src_peerid:" + src_peer_id,
-            " | action:" + str(action) + " | action_value:" +
-            str(action_value) + " | msg_cid:" + str(msg_cid))
+        print("src_peerid:" + src_peer_id, " | action:" + str(msg_data))
 
         # These actions can be done by any peer
-        if await self.handle_normal_actions(src_peer_id, action, action_value,
-                                            msg_cid):
+        if await self.handle_normal_actions(src_peer_id, msg_data):
             return
 
-        # These actions require that the peer that sent the message is the designated driver:
-        if await self.handle_driver_only_actions(src_peer_id, action,
-                                                 action_value, msg_cid):
-            return
+        # # These actions require that the peer that sent the message is the designated driver:
+        # if await self.handle_driver_only_actions(src_peer_id, msg_data):
+        #     return
 
-        # All following actions require the peer that sent the message to be authenticated (have correctly done password challenge before)
-        if await self.handle_authenticated_actions(src_peer_id, action,
-                                                   action_value, msg_cid):
-            return
+        # # All following actions require the peer that sent the message to be authenticated (have correctly done password challenge before)
+        # if await self.handle_authenticated_actions(src_peer_id, msg_data):
+        #     return
 
-        # handle action requests that are invalid (do not contain the required action parameter or an unknonw action param):
-        await self.send_msg(status='error',
-                            val='No action specified'
-                            if action is None else 'Unknown action: ' + action,
-                            cid=msg_cid,
-                            recipient_peers=["*"])
+        # handle action requests that are invalid (do not contain an action parameter or an unknon action param):
+        action, _ = betterproto.which_one_of(msg_data, "Body")
+        await self.send_msg(msg_data=RovResponse(error=ErrorResponse(message='No action specified' if action is None else 'Unknown action: ' + action), rov_exchange_id=msg_data.rov_exchange_id), recipient_peers=["*"])
 
     async def update_sender_loop(self):
         while True:
@@ -359,18 +294,13 @@ class MessageHandler:
                         self.motion_ctrl.stop_motors()
 
             # get sensor updates from all sensors:
-            sensorUpdates = self.sensor_ctrl.get_sensor_update_dict()
+            # sensorUpdates = self.sensor_ctrl.get_sensor_update_dict()
 
-            if (len(sensorUpdates) != 0):
-                # sensorUpdates has some values, send them to all connected peers
-                await self.send_msg(status="sensor-update",
-                                    val=sensorUpdates,
-                                    recipient_peers=["*"])
-                await asyncio.sleep(0.02)
-            else:
-                # otherwise send a heartbeat message to help the website clients know that the datachannel is still open
-                await self.send_msg(status="Heartbeat",
-                                    val=time.time(),
-                                    cid=None,
-                                    recipient_peers=["*"])
-                await asyncio.sleep(1)
+            # if (len(sensorUpdates) != 0):
+            #     # sensorUpdates has some values, send them to all connected peers
+            #     await self.send_msg(status="sensor-update", val=sensorUpdates, recipient_peers=["*"])
+            #     await asyncio.sleep(0.02)
+            # else:
+            #     # otherwise send a heartbeat message to help the website clients know that the datachannel is still open
+            #     await self.send_msg(status="Heartbeat", val=time.time(), cid=None, recipient_peers=["*"])
+            #     await asyncio.sleep(1)
