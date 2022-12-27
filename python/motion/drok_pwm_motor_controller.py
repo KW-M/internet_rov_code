@@ -2,7 +2,7 @@ import asyncio
 import logging
 import pigpio
 
-REQUIRED_BREAKING_TIME = 0.06  # seconds
+REQUIRED_BREAKING_TIME = 0.05  # seconds
 
 ###### setup logging #######
 log = logging.getLogger(__name__)

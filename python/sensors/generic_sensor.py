@@ -8,7 +8,7 @@ from typing import Tuple
 from protobuf.rov_action_api import Measurement
 
 
-class Generic_Sensor:
+class GenericSensor:
 
     ###### setup logging #######
     log = logging.getLogger(__name__)
@@ -17,7 +17,7 @@ class Generic_Sensor:
 
     # The name the sensor should be idenfied by
     sensor_name: str = "Generic Sensor"
-    # A list of measurement types the sensor provides (e.g. pressure, temperature, humidity)
+    # A list of measurements the sensor provides as Measurement classes
     measurements: list[Measurement] = []
     measurement_updated_flags: list[asyncio.Event] = []
 
@@ -28,9 +28,9 @@ class Generic_Sensor:
     # The most recently measured value(s) for the kind(s) of measurement(s) the sensor provides (in the same order as the measurement_names list)
     # ! measured_values should not be set in read_sensor(). It will automatically be updated from the return value of read_sensor()
     # measured_values: list[float] = []
-    async def setup_sensor(self) -> None:
+    async def setup_sensor(self):
         '''
-        (Required) get the latest sensor readings for this sensor.
+        (Required) run any setup to get the sensor initilized here.
         Any exception raised will be caught, logged and trigger setup_sensor() to be run again after a delay.
         Exceptions will also cause sensor_read_loop() to be stopped until setup_sensor() is successful again.
         '''
@@ -102,10 +102,11 @@ class Generic_Sensor:
             if (self.sensor_error_flag.is_set()):
                 await asyncio.sleep(sensor_wait_time)
                 continue
-            new_readings: list[float]
+
             try:
                 new_readings, sensor_wait_time = await self.read_sensor()
-                if len(new_readings) != len(self.measurements):
+                measurement_count = len(self.measurements)
+                if len(new_readings) != measurement_count:
                     self.log.error("Sensor %s returned %i readings, but only has %i measurement types defined", self.sensor_name, len(new_readings), len(self.measurements))
                     await asyncio.sleep(10)
                     continue

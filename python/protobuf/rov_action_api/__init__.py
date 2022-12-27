@@ -119,6 +119,11 @@ class RovLogsAction(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class RefreshAllSensorsAction(betterproto.Message):
+    pass
+
+
+@dataclass(eq=False, repr=False)
 class RovAction(betterproto.Message):
     rov_exchange_id: int = betterproto.int32_field(2)
     """Action exchange id (used to match up action requests and responses)"""
@@ -126,14 +131,10 @@ class RovAction(betterproto.Message):
     ping: "PingAction" = betterproto.message_field(3, group="Body")
     """ping"""
 
-    password_attempt: "PasswordAttemptAction" = betterproto.message_field(
-        4, group="Body"
-    )
+    password_attempt: "PasswordAttemptAction" = betterproto.message_field(4, group="Body")
     """password_attempt"""
 
-    auth_token_attempt: "AuthTokenAttemptAction" = betterproto.message_field(
-        5, group="Body"
-    )
+    auth_token_attempt: "AuthTokenAttemptAction" = betterproto.message_field(5, group="Body")
     """authtoken_attempt"""
 
     take_control: "TakeControlAction" = betterproto.message_field(6, group="Body")
@@ -142,9 +143,7 @@ class RovAction(betterproto.Message):
     move: "MoveAction" = betterproto.message_field(7, group="Body")
     """move"""
 
-    begin_video_stream: "BeginVideoStreamAction" = betterproto.message_field(
-        8, group="Body"
-    )
+    begin_video_stream: "BeginVideoStreamAction" = betterproto.message_field(8, group="Body")
     """begin_video_stream"""
 
     take_photo: "TakePhotoAction" = betterproto.message_field(9, group="Body")
@@ -171,18 +170,17 @@ class RovAction(betterproto.Message):
     disable_wifi: "DisableWifiAction" = betterproto.message_field(16, group="Body")
     """disable_wifi"""
 
-    rov_status_report: "RovStatusReportAction" = betterproto.message_field(
-        17, group="Body"
-    )
+    rov_status_report: "RovStatusReportAction" = betterproto.message_field(17, group="Body")
     """rov_status_report"""
 
-    restart_rov_services: "RestartRovServicesAction" = betterproto.message_field(
-        18, group="Body"
-    )
+    restart_rov_services: "RestartRovServicesAction" = betterproto.message_field(18, group="Body")
     """restart_rov_services"""
 
     rov_logs: "RovLogsAction" = betterproto.message_field(19, group="Body")
     """rov_logs"""
+
+    refresh_all_sensors: "RefreshAllSensorsAction" = betterproto.message_field(20, group="Body")
+    """refresh_all_sensors"""
 
 
 @dataclass(eq=False, repr=False)
@@ -292,9 +290,7 @@ class RovResponse(betterproto.Message):
     pong: "PongResponse" = betterproto.message_field(5, group="Body")
     """pong (response to a ping action)"""
 
-    continued_output: "ContinuedOutputResponse" = betterproto.message_field(
-        6, group="Body"
-    )
+    continued_output: "ContinuedOutputResponse" = betterproto.message_field(6, group="Body")
     """
     continued_output (for message responses that arrive in multiple parts such
     as logs or shell command output)
@@ -306,29 +302,21 @@ class RovResponse(betterproto.Message):
     sensors and their current values)
     """
 
-    password_required: "PasswordRequiredResponse" = betterproto.message_field(
-        8, group="Body"
-    )
+    password_required: "PasswordRequiredResponse" = betterproto.message_field(8, group="Body")
     """
     password_required (sent when a password is required to perform an action)
     """
 
-    password_accepted: "PasswordAcceptedResponse" = betterproto.message_field(
-        9, group="Body"
-    )
+    password_accepted: "PasswordAcceptedResponse" = betterproto.message_field(9, group="Body")
     """password_accepted (sent when a password request action is accepted)"""
 
-    password_invalid: "PasswordInvalidResponse" = betterproto.message_field(
-        10, group="Body"
-    )
+    password_invalid: "PasswordInvalidResponse" = betterproto.message_field(10, group="Body")
     """
     password_invalid (sent when a password request action has the incorrect
     password)
     """
 
-    token_accepted: "TokenAcceptedResponse" = betterproto.message_field(
-        11, group="Body"
-    )
+    token_accepted: "TokenAcceptedResponse" = betterproto.message_field(11, group="Body")
     """
     token_accepted (sent when a token request action is accepted (replaces
     password for future requests))
@@ -337,19 +325,13 @@ class RovResponse(betterproto.Message):
     token_invalid: "TokenInvalidResponse" = betterproto.message_field(12, group="Body")
     """token_invalid"""
 
-    driver_changed: "DriverChangedResponse" = betterproto.message_field(
-        13, group="Body"
-    )
+    driver_changed: "DriverChangedResponse" = betterproto.message_field(13, group="Body")
     """driver_changed"""
 
-    client_connected: "ClientConnectedResponse" = betterproto.message_field(
-        14, group="Body"
-    )
+    client_connected: "ClientConnectedResponse" = betterproto.message_field(14, group="Body")
     """client_connected"""
 
-    client_disconnected: "ClientDisconnectedResponse" = betterproto.message_field(
-        15, group="Body"
-    )
+    client_disconnected: "ClientDisconnectedResponse" = betterproto.message_field(15, group="Body")
     """client_disconnected"""
 
     heartbeat: "HeartbeatResponse" = betterproto.message_field(16, group="Body")

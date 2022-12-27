@@ -27,6 +27,7 @@ class Fusion():
     The update method runs as a coroutine. Its calculations take 1.6mS on the Pyboard.
     '''
     declination = 0  # Optional offset for true north. A +ve value adds to heading
+    running_task = None
 
     def __init__(self, read_coro, timediff=None):
         self.read_coro = read_coro
@@ -56,9 +57,13 @@ class Fusion():
     async def start(self, slow_platform=False):
         data = await self.read_coro()
         if len(data) == 2 or (self.expect_ts and len(data) == 3):
-            asyncio.create_task(self._update_nomag(slow_platform))
+            self.running_task = asyncio.create_task(self._update_nomag(slow_platform))
         else:
-            asyncio.create_task(self._update_mag(slow_platform))
+            self.running_task = asyncio.create_task(self._update_mag(slow_platform))
+
+    async def stop(self):
+        if self.running_task is not None:
+            self.running_task.cancel()
 
     async def _update_nomag(self, slow_platform):
         while True:

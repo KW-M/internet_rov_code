@@ -117,11 +117,11 @@ class MotionController:
 
     def stop_motors(self):
         try:
+            print("S/TOPPING MOTORS")
             self.FORWARD_LEFT_MOTOR.set_speed(0)
             self.FORWARD_RIGHT_MOTOR.set_speed(0)
             self.UP_RIGHT_MOTOR.set_speed(0)
             self.UP_LEFT_MOTOR.set_speed(0)
-            log.info("All Motors now STOPPED.")
         except Exception as e:
             log.warning("Error stopping motors!", exc_info=e)
             self.gpio_issue_flag.set()
@@ -129,5 +129,6 @@ class MotionController:
     def cleanup_gpio(self):
         """ Function to shut down the current pigpio.pi() instance. useful when turning off / exiting the rov program"""
         self.stop_motors()
+        print("CLEAN GPIO")
         if self.pigpio_instance:
             self.pigpio_instance.stop()

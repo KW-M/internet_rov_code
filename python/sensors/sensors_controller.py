@@ -3,6 +3,7 @@ import logging
 from sensors.pressure import pressure_temp_sensor
 from sensors.compass import fused_compass_sensor
 from config_reader import program_config
+from sensors.generic_sensor import GenericSensor
 
 ###### setup logging #######
 log = logging.getLogger(__name__)
@@ -10,8 +11,8 @@ log = logging.getLogger(__name__)
 
 class SensorController:
 
-    all_possible_sensors = [pressure_temp_sensor, fused_compass_sensor]
-    connected_sensors = []
+    all_possible_sensors: list[GenericSensor] = [fused_compass_sensor, pressure_temp_sensor]
+    connected_sensors: list[GenericSensor] = []
 
     async def sensor_setup_loop(self):
         log.info("Setting Up Sensors...")
@@ -25,16 +26,15 @@ class SensorController:
         for sensor in self.connected_sensors:
             for i, measurement in enumerate(sensor.measurements):
                 if sensor.measurement_updated_flags[i].is_set():
-                    # print(sensor.sensor_name + " | value changed " +
-                    #       str(sensor.measurement_names) +
-                    #       str(sensor.measured_values))
                     sensor.measurement_updated_flags[i].clear()
                     sensor_updates.append(measurement)
-                else:
-                    pass
-                    # print(sensor.sensor_name + " | value NOT changed " +
-                    #       str(sensor.measured_values))
+        return sensor_updates
 
+    def get_all_sensor_values(self):
+        sensor_updates = []
+        for sensor in self.connected_sensors:
+            for measurement in sensor.measurements:
+                sensor_updates.append(measurement)
         return sensor_updates
 
     def cleanup(self):
