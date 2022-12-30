@@ -25,7 +25,7 @@ echo -e "$Cyan This scripts sets up a raspberry pi as an internet rov, (ideally 
 echo -e "$Green - It should be fine if this script gets run twice or more."
 echo -e "$Green - Make sure the pi has a good power source & internet connection."
 echo -e "$Green - It will take ~ 1 hour to run."
-read -p "Press [Enter] key to continue (press [Control] + [c] keys to stop the script <- FYI: This works on any terminal command)..."
+read -p "Press [Enter] key to continue (press [Control] + [c] keys to force stop the script <- FYI: This works on any terminal command)..."
 source ~/.profile || true
 
 # ------------------------------------------------------------------------------
@@ -89,14 +89,13 @@ echo -e "$Cyan Enabling built in raspberry pi camera driver: $Color_Off"
 sudo modprobe bcm2835-v4l2 || true
 v4l2-ctl --overlay=0 || true # disable preview viewfinder,  || true catches errors, which this will throw if the raspi camera is in use or missing.
 
-
 # --------- Update System Packages ------------
 echo -e "$Cyan Making sure all system & package updates are installed... $Color_Off"
 sudo apt-get update --fix-missing || true
 sudo apt -y full-upgrade --fix-missing || true
 sudo apt -y dist-upgrade --fix-missing || true
 sudo apt -y update --fix-missing || true
-# sudo apt-get -y update && sudo apt-get -y upgrade # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+# From: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ----- Boot Config Setup -----------------------------------------------------------------------------------------
@@ -124,6 +123,8 @@ else
 	echo "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_report.sh" | tee -a ~/.profile
 fi
 
+# make sure the shell profile is now available to the pi:
+source ~/.profile || true
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ----- Bluetooth Serial Setup -----------------------------------------------------------------------------------------
@@ -185,19 +186,6 @@ else
 	sudo bash -c 'echo "tmpfs   /var/log    tmpfs    defaults,noatime,nosuid,mode=0755,size=30m    0 0" >> /etc/fstab'
 fi
 
-# --------- generate ssl certificate --------------------------------
-# From: https://raspberrypi.stackexchange.com/a/66939
-# check if ssl key or certificate files don't exists, if so, generate them.
-# This allows use to use https on the webserver
-if [ ! -e "$HOME/webserver_ssl_cert/selfsigned.key" ] || [ ! -e "$HOME/webserver_ssl_cert/selfsigned.cert" ]; then
-	echo -e "$Green Creating self-signed ssl certificate for web server... you can type . for all of these $Color_Off"
-	mkdir -p "$HOME/webserver_ssl_cert"
-	# openssl genrsa -out "$HOME/webserver_ssl_cert/selfsign.key" 2048 && openssl req -new -x509 -key "$HOME/webserver_ssl_cert/selfsign.key" -out ~/webserver_ssl_cert/selfsign.crt -sha256
-	# -subj from https://stackoverflow.com/questions/16842768/passing-csr-distinguished-name-fields-as-parameters-to-openssl
-	sudo openssl req -x509 -nodes -newkey rsa:2048 -keyout "$HOME/webserver_ssl_cert/selfsigned.key" -out "$HOME/webserver_ssl_cert/selfsigned.cert" -sha256 -days 365 -subj "/C=US/ST=California/L=Monterey/O=SSROV/CN=internet_rov"
-fi
-
-
 # ---- Install USB Teathering suport for iPhone (From: https://www.youtube.com/watch?v=Q-m4i7LFxLA)
 echo -e "$Cyan Installing packages with apt: usbmuxd ipheth-utils libimobiledevice-utils $Color_Off"
 echo -e "$Green These packages enable the pi to do usb internet teathering with an iphone... $Color_Off"
@@ -247,11 +235,13 @@ cd libvpx/
 ./configure --enable-pic --disable-examples --disable-tools --disable-unit_tests --disable-docs
 make
 sudo make install
+cd ../
+rm -rf libvpx
 popd
 
 # ---- INSTALL GO WEBRTC-RELAY ----
 pushd ~/
-rm -rf webrtc-relay || true
+rm -rf webrtc-relay || true # remove any old version of webrtc-relay
 git clone https://github.com/kw-m/webrtc-relay.git
 cd webrtc-relay
 go install .
@@ -259,23 +249,15 @@ popd
 
 # ---- DOWNLOAD STATIC ROV FRONTEND WEB PAGE ----
 pushd ~/
-rm -rf rov-web || true
+rm -rf rov-web || true # remove any old version of rov-web
 git clone -b gh-pages --single-branch https://github.com/kw-m/rov-web.git
 popd
 
 # clean up any packages that were installed to aid installing anything else, but are no longer needed
 sudo apt autoremove -y
 
-# make sure the shell profile is still available to the pi:
-source ~/.profile
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_Off"
-cd "$FOLDER_CONTAINING_THIS_SCRIPT"
-/bin/bash ./update_config_files.sh # run the update config files script in this folder.
-
-# ---- Install nginx web server ----
+# ---- INSTALL Nginx web server ----
+sudo apt install -y nginx
 # sudo dpkg --remove --force-remove-reinstreq nginx || true # remove any old version of nginx
 # sudo dpkg --remove --force-remove-reinstreq nginx-core || true # remove any old version of nginx
 # sudo apt-get -y autoremove
@@ -284,10 +266,7 @@ cd "$FOLDER_CONTAINING_THIS_SCRIPT"
 # sudo apt-get -y clean
 # sudo apt-get -y -f install
 
-
-sudo apt install -y nginx
-
-# --------- Setup nginx to log to the file nginx_error.log ---------
+# --------- Setup Nginx to log to the file "nginx_error.log" ---------
 
 # this solves the problem of missing the nginx log folder when the temp filesystem first starts up.
 if grep "/var/log/nginx" "/lib/systemd/system/nginx.service"; then
@@ -299,18 +278,17 @@ else
 	sudo sed -i '0,/ExecStartPre=/s//ExecStartPre=mkdir -p "\/var\/log\/nginx\/"\nExecStartPre=/' /lib/systemd/system/nginx.service
 fi
 
-echo -e "$Cyan Enabling systemd (systemctl) services so they start at boot (or whenever configured too)... $Color_Off"
-echo -e "$Green enabling pigpiod.service ... $Color_Off"
-sudo systemctl enable pigpiod.service
-echo -e "$Green enabling rov_python_code.service ... $Color_Off"
-sudo systemctl enable rov_python_code.service # enable the new rov_python_code service
-echo -e "$Green enabling rov_go_code.service ... $Color_Off"
-sudo systemctl enable rov_go_code.service # enable the new rov_python_code service
-echo -e "$Green enabling nginx.service ... $Color_Off"
-sudo systemctl restart nginx.service
-sudo systemctl enable nginx.service
-echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
-sudo systemctl enable add_fixed_ip.service
+# --------- GENERATE SELF-SIGNED SSL CERTIFICATE --------------------------------
+# From: https://raspberrypi.stackexchange.com/a/66939
+# check if ssl key or certificate files don't exists, if so, generate them.
+# This allows use to use https on the webserver (kinda not though, since it's self-signed)
+# if [ ! -e "$HOME/webserver_ssl_cert/selfsigned.key" ] || [ ! -e "$HOME/webserver_ssl_cert/selfsigned.cert" ]; then
+# 	echo -e "$Green Creating self-signed ssl certificate for web server... you can type . for all of these $Color_Off"
+# 	mkdir -p "$HOME/webserver_ssl_cert"
+# 	# openssl genrsa -out "$HOME/webserver_ssl_cert/selfsign.key" 2048 && openssl req -new -x509 -key "$HOME/webserver_ssl_cert/selfsign.key" -out ~/webserver_ssl_cert/selfsign.crt -sha256
+# 	# -subj from https://stackoverflow.com/questions/16842768/passing-csr-distinguished-name-fields-as-parameters-to-openssl
+# 	sudo openssl req -x509 -nodes -newkey rsa:2048 -keyout "$HOME/webserver_ssl_cert/selfsigned.key" -out "$HOME/webserver_ssl_cert/selfsigned.cert" -sha256 -days 365 -subj "/C=US/ST=California/L=Monterey/O=SSROV/CN=internet_rov"
+# fi
 
 # --------------------------------------------------------------------------
 # ----- Python Library Setup -------------------------------------------------------
@@ -323,7 +301,29 @@ sudo python3 -m pip install --upgrade setuptools
 echo -e "$Cyan Installing python packages $Color_Off"
 sudo python3 -m pip install -r ./python/requirements.txt
 
+echo "Compiling cython modules"
+python3 ./python/cython_modules/setup.py build_ext --inplace
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+echo -e "$Cyan Running the update_config_files.sh script in this folder. $Color_Off"
+cd "$FOLDER_CONTAINING_THIS_SCRIPT"
+/bin/bash ./update_config_files.sh # run the update config files script in this folder.
+
+echo -e "$Cyan Enabling systemd (systemctl) services so they start at boot (or whenever configured too)... $Color_Off"
+echo -e "$Green enabling pigpiod.service ... $Color_Off"
+sudo systemctl enable pigpiod.service
+echo -e "$Green enabling rov_python_code.service ... $Color_Off"
+sudo systemctl enable rov_python_code.service # enable the new rov_python_code service
+echo -e "$Green enabling rov_go_code.service ... $Color_Off"
+sudo systemctl enable rov_go_code.service # enable the new rov_python_code service
+echo -e "$Green enabling nginx.service ... $Color_Off"
+sudo systemctl enable nginx.service
+echo -e "$Green enabling add_fixed_ip.service ... $Color_Off"
+sudo systemctl enable add_fixed_ip.service
 
 # ---------------- DONE --------------------------------------
 
-echo "YAY! Internet ROV Install Script has Finished Successfully!"
+echo "YAY! Internet ROV Install Script has Finished Successfully! :D"
+echo "Rebooting the Raspberry Pi is probably a good idea now."
+echo "Type 'sudo reboot' to reboot the Raspberry Pi."

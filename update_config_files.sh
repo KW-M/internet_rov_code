@@ -82,8 +82,12 @@ echo "changes: $changes"
 
 if echo "$changes" | grep "requirements.txt"; then
 	echo "Installing python dependencies"
-	# install python dependencies
 	python3 -m pip install -r ./python/requirements.txt
+fi
+
+if echo "$changes" | grep "cython_modules"; then
+	echo "Compiling cython modules"
+	python3 ./python/cython_modules/setup.py build_ext --inplace
 fi
 
 # cp rov-config.json ~/

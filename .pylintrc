@@ -1,0 +1,7 @@
+[FORMAT]
+max-line-length=2040
+disable=
+    missing-function-docstring
+    too-many-arguments
+    too-many-boolean-expressions
+    redundant-keyword-arg # until https://github.com/PyCQA/pylint/issues/3633 is fixed

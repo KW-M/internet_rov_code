@@ -1,0 +1,65 @@
+strictness: high
+test-warnings: True
+doc-warnings: True
+
+max-line-length: 2040
+
+ignore-paths:
+  - protobuf
+  - build
+  - env
+
+
+mccabe:
+  run: False
+  disable:
+    - MC0001
+
+mypy:
+  run: False
+
+pydocstyle:
+  disable:
+    - D101
+    - D203
+  run: False
+
+pycodestyle:
+  disable:
+   - E301
+  options:
+    max-line-length: 2040
+
+# see .pylintrc
+pylint:
+  disable:
+    # - too-many-instance-attributes
+    # - cyclic-import
+    # - len-as-condition
+    # - invalid-name
+    # - no-else-return
+    # - no-self-use
+    # - protected-access
+    - missing-function-docstring
+    - missing-class-docstring
+    - missing-module-docstring
+    - broad-except
+
+    - too-many-arguments
+    - too-many-boolean-expressions
+    - redundant-keyword-arg # until https://github.com/PyCQA/pylint/issues/3633 is fixed
+    # - inconsistent-return-statements
+    # - import-outside-toplevel
+    # - consider-using-set-comprehension
+    # - useless-object-inheritance
+    # - unnecessary-pass
+    # - consider-using-f-string
+    # - super-with-arguments
+    # - unspecified-encoding
+    # - global-variable-not-assigned
+    # - useless-suppression
+    # - raise-missing-from
+    # - redundant-u-string-prefix
+    # - consider-using-from-import
+    # - missing-timeout
+    # - too-many-locals
