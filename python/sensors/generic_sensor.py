@@ -19,7 +19,7 @@ class GenericSensor:
     sensor_name: str = "Generic Sensor"
     # A list of measurements the sensor provides as Measurement classes
     measurements: list[Measurement] = []
-    measurement_updated_flags: list[asyncio.Event] = []
+    measurement_updated_flags: list[bool] = []
 
     # # The name(s) of the kind(s) of measurement(s) the sensor provides (e.g. pressure, temperature, humidity)
     # measurement_names: list[str] = []
@@ -66,7 +66,7 @@ class GenericSensor:
     ## END -------------------------------------
 
     def __init__(self):
-        self.measurement_updated_flags = [asyncio.Event()] * len(self.measurements)
+        self.measurement_updated_flags = [False] * len(self.measurements)
 
     def __str__(self) -> str:
         return self.sensor_name + "=" + [str(m.value) + "|" for m in self.measurements]
@@ -114,7 +114,7 @@ class GenericSensor:
                     mesurement = self.measurements[i]
                     if new_reading != mesurement.value:
                         self.measurements[i].value = new_reading
-                        self.measurement_updated_flags[i].set()
+                        self.measurement_updated_flags[i] = True
             except asyncio.CancelledError:
                 return
             except IOError as e:

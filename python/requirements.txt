@@ -5,3 +5,5 @@ pigpio==1.78
 ms5803py==1.0.0
 sparkfun-qwiic-icm20948==0.0.1
 betterproto==2.0.0b5
+cython==3.0.0a11
+AHRS==0.3.1

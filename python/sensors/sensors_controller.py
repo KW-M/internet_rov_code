@@ -25,8 +25,9 @@ class SensorController:
         sensor_updates = []
         for sensor in self.connected_sensors:
             for i, measurement in enumerate(sensor.measurements):
-                if sensor.measurement_updated_flags[i].is_set():
-                    sensor.measurement_updated_flags[i].clear()
+                if sensor.measurement_updated_flags[i]:
+                    # print("sensor update: ", i, measurement.measurement_type, measurement.value)
+                    sensor.measurement_updated_flags[i] = False
                     sensor_updates.append(measurement)
         return sensor_updates
 
