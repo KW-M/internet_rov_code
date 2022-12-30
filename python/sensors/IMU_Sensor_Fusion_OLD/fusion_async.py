@@ -18,7 +18,7 @@
 
 import asyncio
 from math import sqrt, atan2, asin, degrees, radians
-from sensors.IMU_Sensor_Fusion.deltat import DeltaT
+from sensors.IMU_Sensor_Fusion_OLD.deltat import DeltaT
 
 
 class Fusion():

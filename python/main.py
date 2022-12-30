@@ -12,7 +12,7 @@ import pigpio
 # import our python files from the same directory
 from config_reader import read_config_file, get_log_level
 # from command_api import start_aiohttp_api_server
-from grpc_client import Relay_GRPC_Client
+from grpc_client import RelayGRPCClient
 # from unix_socket import Unix_Socket
 from motion.motion_controller import MotionController
 from media_stream_controller import MediaStreamController
@@ -47,7 +47,7 @@ async def main():
     status_led_ctrl = Status_Led_Controller(21, pigpio_instance)
     status_led_ctrl.on()
 
-    relay_grpc = Relay_GRPC_Client(config['GRPCServerAddress'])
+    relay_grpc = RelayGRPCClient(config['GRPCServerAddress'])
     sensors = SensorController()
     # sensor_log = Sensor_Log(sensors.all_sensors)
     motion_ctrl = MotionController(pigpio_instance=pigpio_instance)

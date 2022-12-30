@@ -1,21 +1,23 @@
 import asyncio
 from random import randrange
-from protobuf.webrtcrelay import WebRtcRelayStub, EventStreamRequest, PeerConnectedEvent, MsgRecivedEvent, PeerCalledEvent, PeerDataConnErrorEvent, \
-    PeerDisconnectedEvent, PeerHungupEvent, PeerMediaConnErrorEvent, RelayConnectedEvent, RelayDisconnectedEvent, RelayErrorEvent, CallRequest, \
-    RtpCodecParams, TrackInfo
+from typing import Callable
+import logging
+from protobuf.webrtcrelay import WebRtcRelayStub, EventStreamRequest, CallRequest, RtpCodecParams, TrackInfo, SendMsgRequest
 from grpclib.client import Channel
-import betterproto
-
 from mesage_handler import MessageHandler
-from protobuf.webrtcrelay import SendMsgRequest
+
+############################
+###### setup logging #######
+
+log = logging.getLogger(__name__)
 
 
-class Relay_GRPC_Client:
-    stub: WebRtcRelayStub = None
-    grpc_address: str = None
-    msg_recived_callback = None
-    msg_handler: MessageHandler = None
-    outgoing_msg_queue: asyncio.Queue = None
+class RelayGRPCClient:
+    stub: WebRtcRelayStub | None = None
+    grpc_address: str
+    msg_recived_callback: Callable
+    msg_handler: MessageHandler
+    outgoing_msg_queue: asyncio.Queue
 
     # blocking async function that will keep connected to relay and wait for events from the relay / send messages to the relay
     async def start_loop(self, msg_handler: MessageHandler):
@@ -24,15 +26,14 @@ class Relay_GRPC_Client:
         while True:
             try:
                 await self._connect()
-            except Exception as e:
+            except Exception as err:
                 self.stub = None
-                print(e)
+                log.exception("GRPC ERROR:", err)
                 print("relay GRPC disconnected, reconnecting in 3 seconds...")
                 await asyncio.sleep(3)
 
-    def __init__(self, grpc_address=None):
+    def __init__(self, grpc_address: str):
         self.grpc_address: str = grpc_address
-        self.stub: WebRtcRelayStub = None
         self.outgoing_msg_queue = asyncio.Queue()
 
     def _get_channel(self):
@@ -65,6 +66,7 @@ class Relay_GRPC_Client:
     async def call(self, target_peer_ids=None, relay_peer_number=0, track_name=None, rtp_source_url="", mime_type="video/h264", clock_rate=90000, exchange_id=None):
         # tell the relay to media call the given peer id with the video stream we just created:
         if (self.stub is None):
+            return
             raise Exception("Not connected to relay!")
         if target_peer_ids is None:
             target_peer_ids = ["*"]
@@ -85,10 +87,10 @@ class Relay_GRPC_Client:
                 rtp_source_url=rtp_source_url,
             )]))
 
-    async def send_message(self, payload: bytes = None, target_peer_ids=None, relay_peer_number=0, exchange_id=None):
+    async def send_message(self, payload: bytes, target_peer_ids: list[str], relay_peer_number: int = 0, exchange_id: int | None = None):
         # tell the relay to media call the given peer id with the video stream we just created:
         if (self.stub is None):
-            raise Exception("Not connected to relay!")
+            log.warning("send_message() fail: Not connected to relay!")
         if target_peer_ids is None:
             target_peer_ids = ["*"]
         if exchange_id is None:
@@ -100,46 +102,11 @@ class Relay_GRPC_Client:
             yield await self.outgoing_msg_queue.get()
 
     async def _get_event_stream(self):
-        eventStream = self.stub.get_event_stream(event_stream_request=EventStreamRequest())
-        async for event in eventStream:
-            exchange_id = event.exchange_id
-            (event_type, e) = betterproto.which_one_of(event, "event")
-            # print("PYTHON: Got GRPC Event: " + event_type)
-            if event_type == "msg_recived":
-                ev: MsgRecivedEvent = e
-                # print("PYTHON: Got msgRecived event: " + str(ev) +
-                #       " | exId: " + str(exchange_id))
-                await self.msg_handler.handle_incoming_msg(ev.payload, ev.src_peer_id, exchange_id, ev.relay_peer_number)
-            if event_type == "relay_connected":
-                ev: RelayConnectedEvent = e
-                print("PYTHON: Got relayConnected event: " + str(ev) + " | exId: " + str(exchange_id))
-
-            if event_type == "relay_disconnected":
-                ev: RelayDisconnectedEvent = e
-                print("PYTHON: Got relayDisconnected event: " + str(ev) + " | exId: " + str(exchange_id))
-            if event_type == "relay_error":
-                ev: RelayErrorEvent = e
-                print("PYTHON: Got relayError event: " + str(ev) + " | exId: " + str(exchange_id))
-            if event_type == "peer_connected":
-                ev: PeerConnectedEvent = e
-                print("PYTHON: Got peerConnected event: " + str(ev) + " | exId: " + str(exchange_id))
-                await self.msg_handler.handle_peer_connected_message(src_peer_id=ev.src_peer_id)
-            if event_type == "peer_disconnected":
-                ev: PeerDisconnectedEvent = e
-                print("PYTHON: Got peerDisconnected event: " + str(ev) + " | exId: " + str(exchange_id))
-                await self.msg_handler.handle_peer_disconnected_message(src_peer_id=ev.src_peer_id)
-            if event_type == "peer_called":
-                ev: PeerCalledEvent = e
-                print("PYTHON: Got peerCalled event: " + str(ev) + " | exId: " + str(exchange_id))
-            if event_type == "peer_hungup":
-                ev: PeerHungupEvent = e
-                print("PYTHON: Got peerHungup event: " + str(ev) + " | exId: " + str(exchange_id))
-            if event_type == "peer_data_conn_error":
-                ev: PeerDataConnErrorEvent = e
-                print("PYTHON: Got peerDataConnError event: " + str(ev) + " | exId: " + str(exchange_id))
-            if event_type == "peer_media_conn_error":
-                ev: PeerMediaConnErrorEvent = e
-                print("PYTHON: Got peerMediaConnError event: " + str(ev) + " | exId: " + str(exchange_id))
+        if (self.stub is None):
+            raise Exception("Not connected to relay!")
+        evt_stream = self.stub.get_event_stream(event_stream_request=EventStreamRequest())
+        async for event in evt_stream:
+            await self.msg_handler.handle_relay_event(event)
 
     async def _connect(self):
         async with self._get_channel() as chan:
