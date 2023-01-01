@@ -65,9 +65,9 @@ class RelayGRPCClient:
     # pylint: disable=too-many-arguments
     async def call(self, target_peer_ids=None, relay_peer_number=0, track_name=None, rtp_source_url="", mime_type="video/h264", clock_rate=90000, exchange_id=None):
         # tell the relay to media call the given peer id with the video stream we just created:
-        if (self.stub is None):
+        if self.stub is None:
             return
-            raise Exception("Not connected to relay!")
+
         if target_peer_ids is None:
             target_peer_ids = ["*"]
         if exchange_id is None:
@@ -89,7 +89,7 @@ class RelayGRPCClient:
 
     async def send_message(self, payload: bytes, target_peer_ids: list[str], relay_peer_number: int = 0, exchange_id: int | None = None):
         # tell the relay to media call the given peer id with the video stream we just created:
-        if (self.stub is None):
+        if self.stub is None:
             log.warning("send_message() fail: Not connected to relay!")
         if target_peer_ids is None:
             target_peer_ids = ["*"]
@@ -102,7 +102,7 @@ class RelayGRPCClient:
             yield await self.outgoing_msg_queue.get()
 
     async def _get_event_stream(self):
-        if (self.stub is None):
+        if self.stub is None:
             raise Exception("Not connected to relay!")
         evt_stream = self.stub.get_event_stream(event_stream_request=EventStreamRequest())
         async for event in evt_stream:

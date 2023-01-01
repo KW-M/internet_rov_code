@@ -1,5 +1,5 @@
-def clamp(minimum, x, maximum):
-    return max(minimum, min(x, maximum))
+def clamp(minimum: float, value: float, maximum: float):
+    return max(minimum, min(value, maximum))
 
 
 def get_rounded_string(value):

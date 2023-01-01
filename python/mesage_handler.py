@@ -342,9 +342,8 @@ class MessageHandler:
     @verify_authorization(needs_authentication=False, needs_driver=True)
     async def handle_move(self, src_peer_id: str, msg_data: RovAction) -> None:
         """Moves the ROV in the given thrust vector & turn speed"""
-        # update the rov motion
-        vec = [msg_data.move.velocity_x, msg_data.move.velocity_y, msg_data.move.velocity_z]
-        self.motion_ctrl.set_rov_motion(thrust_vector=vec, turn_rate=msg_data.move.angular_velocity_yaw)
+        # Set the new rov motion target:
+        self.motion_ctrl.set_rov_motion(msg_data.move.velocity_x, msg_data.move.velocity_y, msg_data.move.velocity_z, msg_data.move.angular_velocity_yaw)
         return None
 
     @verify_authorization(needs_authentication=False, needs_driver=True)

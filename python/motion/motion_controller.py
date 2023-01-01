@@ -28,7 +28,8 @@ class MotionTarget:
     def __str__(self) -> str:
         return f"MotionTarget(x={self.velocity_x}, y={self.velocity_y}, z={self.velocity_z}, yaw={self.yaw_angular_velocity})"
 
--
+
+# pylint: disable=too-many-instance-attributes
 class MotionController:
     gpio_issue_flag: asyncio.Event
     last_motion_target: MotionTarget
@@ -84,8 +85,9 @@ class MotionController:
             self.gpio_issue_flag.set()
         except Exception as err:
             self.gpio_issue_flag.set()
-            log.error("Error Initializing Motor Controllers:  %s",err, exc_info=True)
+            log.error("Error Initializing Motor Controllers:  %s", err, exc_info=True)
 
+    # pylint: disable=too-many-locals
     def set_rov_motion(self, velocity_x: float = 0, velocity_y: float = 0, velocity_z: float = 0, yaw_angular_velocity: float = 0):
         """
         Function to set the rov velocity based on the vector passed in.
@@ -98,7 +100,7 @@ class MotionController:
             return
 
         motion_target = MotionTarget(velocity_x, velocity_y, velocity_z, yaw_angular_velocity)
-        if (motion_target == self.last_motion_target):
+        if motion_target == self.last_motion_target:
             return
 
         turn_rate = motion_target.yaw_angular_velocity  # make sure it's a float
@@ -116,7 +118,7 @@ class MotionController:
         forward_right_thrust_amt = -forward_amt + turn_rate
         # https://www.desmos.com/calculator/64b6jlzsk4
 
-        log.debug("%s -> Motors %s %s %s %s", str(motion_target), str(turn_rate), str(forward_left_thrust_amt), str(forward_right_thrust_amt), str(up_left_thrust_amt), str(up_right_thrust_amt))
+        log.debug("%s -> Motors %s ", str(motion_target), " ".join([str(turn_rate), str(forward_left_thrust_amt), str(forward_right_thrust_amt), str(up_left_thrust_amt), str(up_right_thrust_amt)]))
 
         try:
             self.up_left_motor.set_speed(up_left_thrust_amt)
@@ -125,7 +127,7 @@ class MotionController:
             self.forward_right_motor.set_speed(forward_right_thrust_amt)
             self.last_motion_target = motion_target
         except Exception as err:
-            log.warning("Error setting motor speed! %s",err, exc_info=True)
+            log.warning("Error setting motor speed! %s", err, exc_info=True)
             self.gpio_issue_flag.set()
 
     def stop_motors(self):
