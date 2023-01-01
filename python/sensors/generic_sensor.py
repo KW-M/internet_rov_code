@@ -19,7 +19,10 @@ class GenericSensor:
     sensor_name: str = "Generic Sensor"
     # A list of measurements the sensor provides as Measurement classes
     measurements: list[Measurement] = []
+    # A list of flags to indicate if the corresponding measurement in the measurements list has been updated since the last time it was read by the sensor_controller
     measurement_updated_flags: list[bool] = []
+    # An asyncio flag to indicate if the sensor is currently in an error state and should not be used until initilized again
+    sensor_error_flag: asyncio.Event
 
     # # The name(s) of the kind(s) of measurement(s) the sensor provides (e.g. pressure, temperature, humidity)
     # measurement_names: list[str] = []
@@ -40,7 +43,7 @@ class GenericSensor:
         '''
         (Required) get the latest sensor readings for this sensor.
         Returns: a tuple (a, b) where a & b are:
-        - a: A list of the current sensor values - in the same order as the measurement_names list
+        - a: A list of the current sensor values as floats - in the same order as the measurements list
         - b: The time to wait before calling read_sensor() again
         Any exception raised will be caught and logged, but will not stop the sensor_read_loop()
         '''
@@ -69,7 +72,7 @@ class GenericSensor:
         self.measurement_updated_flags = [False] * len(self.measurements)
 
     def __str__(self) -> str:
-        return self.sensor_name + "=" + [str(m.value) + "|" for m in self.measurements]
+        return self.sensor_name + "=" + "|".join([str(m.value) for m in self.measurements])
 
     async def start_sensor_loop(self):
         self.sensor_error_flag = asyncio.Event()
@@ -87,19 +90,19 @@ class GenericSensor:
                 await self.sensor_error_flag.wait()
             except asyncio.CancelledError:
                 return False
-            except IOError as e:
-                self.log.error("IOError in sensor_setup_loop() %s Sensor Not Responding: %s", self.sensor_name, e)
+            except IOError as err:
+                self.log.error("IOError in sensor_setup_loop() %s Sensor Not Responding: %s", self.sensor_name, err)
                 self.sensor_error_flag.set()
                 await asyncio.sleep(3)
-            except Exception as e:
-                self.log.error("Error Setting Up Sensors:", exc_info=e)
+            except Exception as err:
+                self.log.error("Error Setting Up Sensors: %s", err, exc_info=True)
                 self.sensor_error_flag.set()
                 await asyncio.sleep(3)
 
     async def _sensor_read_loop(self):
         sensor_wait_time = 1.0
         while True:
-            if (self.sensor_error_flag.is_set()):
+            if self.sensor_error_flag.is_set():
                 await asyncio.sleep(sensor_wait_time)
                 continue
 
@@ -117,10 +120,10 @@ class GenericSensor:
                         self.measurement_updated_flags[i] = True
             except asyncio.CancelledError:
                 return
-            except IOError as e:
-                self.log.warning("IO Error reading %s, is it disconnected? %s", self.sensor_name, e)
-            except Exception as e:
-                self.log.error("Error reading %s: ", self.sensor_name, exc_info=e)
+            except IOError as err:
+                self.log.warning("IO Error reading %s, is it disconnected? %s", self.sensor_name, err)
+            except Exception as err:
+                self.log.error("Error reading %s: %s", self.sensor_name, err, exc_info=True)
                 self.sensor_error_flag.set()
 
             await asyncio.sleep(sensor_wait_time)

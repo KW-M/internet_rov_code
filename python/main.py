@@ -124,7 +124,7 @@ finally:
 #                    "suppress_traceback") and error.suppress_traceback == True:
 #             log.error(str(error))
 #         else:
-#             log.error(error, exc_info=True)
+#             log.error("Error: %s",error, exc_info=True)
 
 #         try:
 #             # motors.stop_motors()

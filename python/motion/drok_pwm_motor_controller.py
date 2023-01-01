@@ -32,7 +32,7 @@ class Drok_Pwm_Motor:
             pin_ena: int,
             pin_in1: int,
             pin_in2: int,
-            async_loop: asyncio.AbstractEventLoop = None):
+            async_loop: asyncio.AbstractEventLoop | None = None):
         self.pigpio_instance = pigpio_instance
         self.pin_ena = pin_ena
         self.pin_in1 = pin_in1

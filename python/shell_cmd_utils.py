@@ -24,7 +24,7 @@ async def read_full_cmd_output(shell_cmd, cmd_timeout=None) -> tuple[str, str, i
     except asyncio.exceptions.TimeoutError:
         return ("", "Command timeout reached.", 1)
     except Exception as err:
-        log.exception(err)
+        log.error("Py Cmd Error: %s", err, exc_info=True)
         return ("", "Py Error: " + str(err), 1)
     finally:
         if process.returncode is None:

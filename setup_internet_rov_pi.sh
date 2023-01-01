@@ -294,6 +294,9 @@ fi
 # ----- Python Library Setup -------------------------------------------------------
 # --------------------------------------------------------------------------
 
+# Python 3.10 installer script is here:
+# https://itheo.tech/installing-python-310-on-raspberry-pi
+
 echo -e "$Cyan Installing python3 pip $Color_Off"
 sudo apt install -y python3-pip
 sudo python3 -m pip install --upgrade setuptools

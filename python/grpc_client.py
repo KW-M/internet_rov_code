@@ -28,7 +28,7 @@ class RelayGRPCClient:
                 await self._connect()
             except Exception as err:
                 self.stub = None
-                log.exception("GRPC ERROR:", err)
+                log.error("GRPC ERROR: %s", err, exc_info=True)
                 print("relay GRPC disconnected, reconnecting in 3 seconds...")
                 await asyncio.sleep(3)
 
