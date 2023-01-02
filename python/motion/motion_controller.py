@@ -22,8 +22,8 @@ class MotionTarget:
         self.velocity_z = velocity_z
         self.yaw_angular_velocity = yaw_angular_velocity
 
-    def __eq__(self, __o: "MotionTarget" | None) -> bool:
-        return __o is not None and self.velocity_x == __o.velocity_x and self.velocity_y == __o.velocity_y and self.velocity_y == __o.velocity_y and self.yaw_angular_velocity == __o.yaw_angular_velocity
+    def __eq__(self, __o: object) -> bool:
+        return isinstance(__o, MotionTarget) and self.velocity_x == __o.velocity_x and self.velocity_y == __o.velocity_y and self.velocity_y == __o.velocity_y and self.yaw_angular_velocity == __o.yaw_angular_velocity
 
     def __str__(self) -> str:
         return f"MotionTarget(x={self.velocity_x}, y={self.velocity_y}, z={self.velocity_z}, yaw={self.yaw_angular_velocity})"
@@ -132,7 +132,7 @@ class MotionController:
 
     def stop_motors(self):
         try:
-            print("S/TOPPING MOTORS")
+            # print("S/TOPPING MOTORS")
             self.forward_left_motor.set_speed(0)
             self.forward_right_motor.set_speed(0)
             self.up_right_motor.set_speed(0)

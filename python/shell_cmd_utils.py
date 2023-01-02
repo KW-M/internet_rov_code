@@ -20,7 +20,7 @@ async def read_full_cmd_output(shell_cmd, cmd_timeout=None) -> tuple[str, str, i
         async with timeout(cmd_timeout):
             stdout, stderr = await process.communicate()
             return_code = process.returncode if process.returncode is not None else 1
-            return (str(stdout, 'utf-8'), str(stderr, 'utf-8'), return_code)
+            return (str((stdout if stdout is not None else b''), 'utf-8'), str((stderr if stderr is not None else b''), 'utf-8'), return_code)
     except asyncio.exceptions.TimeoutError:
         return ("", "Command timeout reached.", 1)
     except Exception as err:
@@ -59,6 +59,7 @@ async def generate_cmd_continued_output_response(rov_exchange_id, shell_command,
             i += 1  # increment counter
             if "rov_logs..." in line:
                 continue  # avoid sending our own log messages to the client (which would cause message recursion)
+
             yield RovResponse(rov_exchange_id=rov_exchange_id, continued_output=ContinuedOutputResponse(message=line))
         else:
             log.error("Unexpected type in generate_cmd_continued_output_response: %s", str(type(line)))

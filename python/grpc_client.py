@@ -18,6 +18,7 @@ class RelayGRPCClient:
     msg_recived_callback: Callable
     msg_handler: MessageHandler
     outgoing_msg_queue: asyncio.Queue
+    is_connected: bool = False
 
     # blocking async function that will keep connected to relay and wait for events from the relay / send messages to the relay
     async def start_loop(self, msg_handler: MessageHandler):
@@ -28,6 +29,7 @@ class RelayGRPCClient:
                 await self._connect()
             except Exception as err:
                 self.stub = None
+                self.is_connected = False
                 log.error("GRPC ERROR: %s", err, exc_info=True)
                 print("relay GRPC disconnected, reconnecting in 3 seconds...")
                 await asyncio.sleep(3)
@@ -113,4 +115,5 @@ class RelayGRPCClient:
             # async with Channel(path="./WebrtcRelayGrpc.sock") as chan:
             grpc_channel = chan
             self.stub = WebRtcRelayStub(grpc_channel)
+            self.is_connected = True
             await asyncio.gather(self._get_event_stream(), self.stub.send_msg_stream(self._outgoing_msgs_iterator()))

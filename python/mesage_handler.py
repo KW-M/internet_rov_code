@@ -1,11 +1,13 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+from typing import AsyncGenerator
+
 import time
 import logging
 import asyncio
 from functools import wraps
-from typing import AsyncGenerator
 
 from config_reader import program_config
-from grpc_client import RelayGRPCClient
 from sensors.sensors_controller import SensorController
 from motion.motion_controller import MotionController
 from media_stream_controller import MediaStreamController
@@ -14,6 +16,9 @@ from shell_cmd_utils import generate_cmd_continued_output_response, run_shell_cm
 from rovSecurity.userAuth import generateAuthToken, check_token_validty
 from protobuf.rov_action_api import RovAction, SensorUpdatesResponse, RovResponse, DoneResponse, TokenInvalidResponse, DriverChangedResponse, HeartbeatResponse, betterproto, ErrorResponse, PasswordAcceptedResponse, PasswordInvalidResponse, PasswordRequiredResponse, PongResponse, TokenAcceptedResponse
 from protobuf.webrtcrelay import RelayEventStream, PeerConnectedEvent, MsgRecivedEvent, PeerCalledEvent, PeerDataConnErrorEvent, PeerDisconnectedEvent, PeerHungupEvent, PeerMediaConnErrorEvent, RelayConnectedEvent, RelayDisconnectedEvent, RelayErrorEvent
+
+if TYPE_CHECKING:
+    from grpc_client import RelayGRPCClient
 
 ############################
 ###### setup logging #######
@@ -47,7 +52,7 @@ def verify_authorization(needs_authentication: bool, needs_driver: bool):
                 return (RovResponse(password_required=PasswordRequiredResponse()), [src_peer_id])
             if needs_driver and self.designated_driver_peerid != src_peer_id:
                 return (RovResponse(error=ErrorResponse(message="To be the designated rov driver, click drive")), [src_peer_id])
-            return await func(self, msg_data, src_peer_id)
+            return await func(self, src_peer_id, msg_data)
 
         return wrapper
 
@@ -61,13 +66,15 @@ class MessageHandler:
     sensor_ctrl: SensorController
     media_controller: MediaStreamController
     motion_ctrl: MotionController
+    last_msg_send_time: float
 
-    def __init__(self, relay_grpc, media_controller, motion_controller, sensor_controller):
+    def __init__(self, relay_grpc: RelayGRPCClient, media_controller: MediaStreamController, motion_controller: MotionController, sensor_controller):
         """Initialize the message handler."""
         self.relay_grpc = relay_grpc
         self.media_controller = media_controller
         self.motion_ctrl = motion_controller
         self.sensor_ctrl = sensor_controller
+        self.last_msg_send_time = 0
 
         # --- Variables to keep track of who is allowed to drive the rov ---
         self.designated_driver_peerid: str | None = None
@@ -80,10 +87,10 @@ class MessageHandler:
         while True:
 
             # Cut motors & keep looping if no one is connected to the rov (safety feature):
-            if self.designated_driver_peerid is None:
+            if self.designated_driver_peerid is None or not self.relay_grpc.is_connected:
                 self.motion_ctrl.stop_motors()
                 # # if no one is connected continue looping
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(0.1)
                 continue
 
             # Find any peers who haven't sent a mesage recently
@@ -101,7 +108,7 @@ class MessageHandler:
                 # Measurements has some values, send them to all connected peers
                 await self.send_msg(msg_data=RovResponse(sensor_updates=SensorUpdatesResponse(measurement_updates=sensor_updates)), recipient_peers=["*"])
                 await asyncio.sleep(0.002)
-            else:
+            elif self.last_msg_send_time < time.time() - 1:
                 # otherwise send a heartbeat message to help the website clients know that the datachannel is still open
                 time_ms = int(time.time() * 1000)
                 await self.send_msg(msg_data=RovResponse(heartbeat=HeartbeatResponse(time=time_ms)), recipient_peers=["*"])
@@ -190,17 +197,21 @@ class MessageHandler:
         """
         # typechecking protobuf oneOf fields doesn't yet work: https://github.com/danielgtaylor/python-betterproto/issues/358
 
+        print("type(msg_payload)" + str(type(msg_payload)))
         msg_data: RovAction | None = None
         if isinstance(msg_payload, RovAction):
             msg_data = msg_payload
         elif isinstance(msg_payload, bytes):
             # Parse the message payload:
             msg_data = self.parse_message_payload(msg_payload)
+        else:
+            return log.warning("Got unknown incoming message payload type: %s", str(type(msg_payload)))
 
         if msg_data is None:
             return log.warning("Got empty message payload from peer: %s", src_peer_id)
 
-        print("PYTHON: Got message: ", msg_data)
+        # if not msg_data.is_set("ping"):
+        #     print("PYTHON: Got message: ", msg_data)
 
         # Set the last_recived_msg_time for the peer:
         if src_peer_id not in self.known_peers or self.known_peers[src_peer_id].is_connected is False:
@@ -278,12 +289,14 @@ class MessageHandler:
 
         # Send the response:
         if response is not None:
-            msg_datas = response[0]
+            reply_datas = response[0]
             target_peers = response[1]
-            if isinstance(msg_datas, RovResponse):
-                await self.send_msg(msg_data=msg_datas, recipient_peers=target_peers)
-            elif isinstance(msg_datas, AsyncGenerator):
-                async for reply_data in msg_datas:
+            if isinstance(reply_datas, RovResponse):
+                reply_datas.rov_exchange_id = msg_data.rov_exchange_id
+                await self.send_msg(msg_data=reply_datas, recipient_peers=target_peers)
+            elif isinstance(reply_datas, AsyncGenerator):
+                async for reply_data in reply_datas:
+                    reply_data.rov_exchange_id = msg_data.rov_exchange_id
                     await self.send_msg(msg_data=reply_data, recipient_peers=target_peers)
             else:
                 raise Exception("Unexpected response type: " + str(type(msg_data)))
@@ -306,11 +319,13 @@ class MessageHandler:
             return (RovResponse(password_invalid=PasswordInvalidResponse(), rov_exchange_id=msg_data.rov_exchange_id), [src_peer_id])
 
         # If the password is correct:
-        # 1. Replay the action that was sent by the peer before the password challenge:
-        await self.replay_action(src_peer_id, msg_data.rov_exchange_id)
-        # 2. generate an auth token and send it back:
+        # 1. generate and save an auth token for this peer
         auth_token = generateAuthToken()
         self.known_peers[src_peer_id].auth_token = auth_token
+        # 2. Replay the action that was sent by the peer before the password challenge:
+        await self.replay_action(src_peer_id, msg_data.rov_exchange_id)
+        await asyncio.sleep(6)
+        # 3. Send a password accepted response with the auth token:
         return (RovResponse(password_accepted=PasswordAcceptedResponse(auth_token=auth_token), rov_exchange_id=msg_data.rov_exchange_id), [src_peer_id])
 
     async def handle_auth_token_attempt(self, src_peer_id: str, msg_data: RovAction) -> tuple[RovResponse, list[str]]:
@@ -396,7 +411,10 @@ class MessageHandler:
     @verify_authorization(needs_authentication=True, needs_driver=False)
     async def handle_rov_logs(self, src_peer_id: str, msg_data: RovAction) -> tuple[AsyncGenerator, list[str]]:
         """Return a generator that continuously outputs new systemd log messages as they appear plus the last 500 lines of log."""
+        print("handle_rov_logs", src_peer_id, msg_data)
         msg_generator = generate_cmd_continued_output_response(msg_data.rov_exchange_id, "journalctl --unit=rov_python_code --unit=rov_go_code --unit=add_fixed_ip --unit=nginx --no-pager --follow -n 500", cmd_timeout=20)
+
+        await asyncio.sleep(2)
         return (msg_generator, [src_peer_id])
 
     @verify_authorization(needs_authentication=True, needs_driver=False)
@@ -467,6 +485,9 @@ class MessageHandler:
         """
         # if recipient_peers is None:
         #     recipient_peers = ["*"]
+        self.last_msg_send_time = time.time()
+        if not msg_data.is_set("heartbeat") and not msg_data.is_set("sensor_updates") and not msg_data.is_set("continued_output"):
+            print("Sending Message: ", msg_data)
         return await self.relay_grpc.send_message(payload=msg_data.SerializeToString(), target_peer_ids=recipient_peers)
 
     def parse_message_payload(self, message_payload: bytes) -> RovAction | None:
