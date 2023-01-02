@@ -2,13 +2,8 @@
 /secret_config.json
 
 ## exclude generated Cython cpp, but include source cpp in the cython_modules/cpp folder
-# cython_modules/
-# !python/cython_modules/cpp
-# !/python/cython_modules/cpp/*.cpp
-# !/python/cython_modules/cpp/*.h
-# !/python/cython_modules/cpp/*.hpp
-# !/python/cython_modules/cpp/*.so
-# !/python/cython_modules/cpp/*.pyd
+python/cython_modules/*.cpp
+!python/cython_modules/cpp
 
 # npm & parcel
 .parcel-cache
