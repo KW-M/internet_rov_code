@@ -108,7 +108,7 @@ exe "sudo sed -i 's|/#dtoverlay=vc4-fkms-v3d|/dtoverlay=vc4-fkms-v3d|g' /boot/co
 if ! grep "rov_status_report.sh" ~/.profile; then
 	echoGreen "Adding command to run rov_status_report.sh whenever a terminal is oppened by adding it to the .profile file "
 	# the .profile file is the file that gets run to setup the default terminal/command shell whenever you open a terminal or ssh session
-	exe "echo '/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_report.sh' | tee -a ~/.profile" || true
+	exe "echo 'bash $FOLDER_CONTAINING_THIS_SCRIPT/rov_status_report.sh' | tee -a ~/.profile" || true
 fi
 
 # make sure the shell profile is now available to the pi:
