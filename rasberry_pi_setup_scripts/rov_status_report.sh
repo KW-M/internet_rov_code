@@ -1,6 +1,4 @@
-#!/bin/bash
-
-# script will be the custom text that shows when you open an ssh / terminal / bluetooth serial terminal
+# script will be the custom text that shows when you open an ssh / terminal / serial terminal
 # From: https://raspberrypi.stackexchange.com/questions/73681/raspberry-pi-custom-ssh-normal-login-message
 
 echo "========================="
