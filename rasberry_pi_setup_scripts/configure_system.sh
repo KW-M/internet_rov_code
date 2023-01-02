@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e # exit on error
+set -u # exit on undefined variable
 set -x # echo all commands
 
 # ------------------------------------------------------------------------------
