@@ -419,7 +419,7 @@ class MessageHandler:
 
     @verify_authorization(needs_authentication=True, needs_driver=False)
     async def handle_restart_rov_services(self, src_peer_id: str, msg_data: RovAction) -> tuple[AsyncGenerator, list[str]]:
-        msg_generator = generate_cmd_continued_output_response(msg_data.rov_exchange_id, "/home/pi/internet_rov_code/update_config_files.sh", cmd_timeout=20)
+        msg_generator = generate_cmd_continued_output_response(msg_data.rov_exchange_id, "/home/pi/internet_rov_code/rasberry_pi_setup_scripts/fetch_changes.sh", cmd_timeout=20)
         return (msg_generator, [src_peer_id])
 
     @verify_authorization(needs_authentication=True, needs_driver=False)

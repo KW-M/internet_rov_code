@@ -21,9 +21,9 @@ webrtc-relay -config-file ./new_config_files/rov-config.json
 ### My development workflow
 
 1. Make changes to the config files or python code in the internet_rov_code folder. - I like using the visual studio code remote ssh extension to edit code on the pi.
-2. run **update_config_files.sh** to replace the configs in system folders with the new ones in the internet_rov_code folder and then it restarts all the services and python code.
+2. run **rasberry_pi_setup_scripts/fetch_changes.sh** to replace the configs in system folders with the new ones in the internet_rov_code folder and then it restarts all the services and python code.
 3. Test.
-4. If I need to install something or add a new kind of config file, add the commands I used to the end of setup_internet_rov.sh and/or update_config_files.sh with a comment or link explaining why or how to do the same thing manually.
+4. If I need to install something or add a new kind of config file, add the commands I used to the end of setup_internet_rov.sh and/or rasberry_pi_setup_scripts/fetch_changes.sh with a comment or link explaining why or how to do the same thing manually.
 
 ### Raspberry Pi Software Organization
 
