@@ -20,12 +20,12 @@ Blue="\033[37;44;1m"   # Blue color code for console text
 Black="\033[37;40;1m" # Black color code for console text
 Red="\033[37;41;1m"    # Red color code for console text
 Color_Off="\033[0m" # Text color Reset code for console text
-echoBlue() { echo -e "$Blue $@ $Color_Off" ;}
-echoGreen() { echo -e "$Green $@ $Color_Off" ; }
-echoRed() { echo -e "$Red $@ $Color_Off" ; }
+echoBlue() { echo -e "$Blue $@ $Color_Off" >&2;}
+echoGreen() { echo -e "$Green $@ $Color_Off" >&2; }
+echoRed() { echo -e "$Red $@ $Color_Off" >&2; }
 
 # Function to display commands in Black before running them
-exe() { echo -e "$Black> $@ $Color_Off" ; eval "$@" ; }
+exe() { echo -e "$Black> $@ $Color_Off" >&2; eval "$@" ; }
 
 # This function is used in the main body of this script:
 backupThenOverwrite(){
@@ -72,13 +72,13 @@ echoBlue "changes: $changes"
 # Check if the requirements.txt file has been modified recently, if so, install the python dependencies:
 if echo "$changes" | grep "requirements.txt"; then
 	echoBlue "Installing python dependencies"
-	exe "python3 -m pip install -r ./python/requirements.txt"
+	exe "python3 -m pip install -r python/requirements.txt"
 fi
 
 # Check if the cython_modules folder has been modified recently, if so, recompile the cython modules:
 if echo "$changes" | grep "cython_modules"; then
 	echoBlue "Compiling cython modules"
-	exe "python3 ./python/cython_modules/setup.py build_ext --inplace"
+	exe "python3 python/cython_modules/setup.py build_ext --inplace"
 fi
 
 # Check if the rov-config.json file exists, if not copy it over from the new_config_files folder:

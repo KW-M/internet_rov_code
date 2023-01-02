@@ -22,12 +22,12 @@ Blue="\033[37;44;1m"   # Blue color code for console text
 Black="\033[37;40;1m" # Black color code for console text
 Red="\033[37;41;1m"    # Red color code for console text
 Color_Off="\033[0m" # Text color Reset code for console text
-echoBlue() { echo -e "$Blue $@ $Color_Off" ;}
-echoGreen() { echo -e "$Green $@ $Color_Off" ; }
-echoRed() { echo -e "$Red $@ $Color_Off" ; }
+echoBlue() { echo -e "$Blue $@ $Color_Off" >&2;}
+echoGreen() { echo -e "$Green $@ $Color_Off" >&2; }
+echoRed() { echo -e "$Red $@ $Color_Off" >&2; }
 
 # Function to display commands in Black before running them
-exe() { echo -e "$Black> $@ $Color_Off" ; eval "$@" ; }
+exe() { echo -e "$Black> $@ $Color_Off" >&2; eval "$@" ; }
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -42,105 +42,105 @@ exe "sudo apt -y dist-upgrade --fix-missing" || true
 exe "sudo apt -y update --fix-missing" || true
 exe "sudo apt install -y git wget" || true
 
-# # ------- Install Arducam Low Light Camera Driver --------------------------------------------------------------------------------------
-# # from: https://docs.arducam.com/Raspberry-Pi-Camera/Pivariety-Camera/Quick-Start-Guide/
-# # if ! dmesg | grep arducam; then
-# #     { # try
-# #         cd ~/
-# #         exe "sudo sed -i.bak '/dtoverlay=arducam/d' /boot/config.txt" && false || # remove existing refernces to arducam
-# #         exe "sudo sed -i.bak '/dtoverlay=arducam-pivariety/d' /boot/config.txt" && false || # remove existing refernces to arducam
+# ------- Install Arducam Low Light Camera Driver --------------------------------------------------------------------------------------
+# from: https://docs.arducam.com/Raspberry-Pi-Camera/Pivariety-Camera/Quick-Start-Guide/
+if ! dmesg | grep arducam; then
+    { # try
+        cd ~/
+        exe "sudo sed -i.bak '/dtoverlay=arducam/d' /boot/config.txt" && false || # remove existing refernces to arducam
+        exe "sudo sed -i.bak '/dtoverlay=arducam-pivariety/d' /boot/config.txt" && false || # remove existing refernces to arducam
 
-# #         echoBlue "Adding dtoverlay=arducam-pivariety to /boot/config.txt " &&
-# #         exe "echo 'dtoverlay=arducam-pivariety' | sudo tee /boot/config.txt" && # add arducam to config.txt
+        echoBlue "Adding dtoverlay=arducam-pivariety to /boot/config.txt " &&
+        exe "echo 'dtoverlay=arducam-pivariety' | sudo tee /boot/config.txt" && # add arducam to config.txt
 
-# #         echoBlue "Installing arducam pivariety camera driver " &&
-# #         exe "mkdir -p camera_drivers" &&
-# #         exe "cd camera_drivers" &&
-# #         exe "wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh" &&
-# #         exe "chmod +x install_pivariety_pkgs.sh" &&
+        echoBlue "Installing arducam pivariety camera driver " &&
+        exe "mkdir -p camera_drivers" &&
+        exe "cd camera_drivers" &&
+        exe "wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh" &&
+        exe "chmod +x install_pivariety_pkgs.sh" &&
 
-# #         # exe "./install_pivariety_pkgs.sh -p kernel_driver" && # this comes with the kernel by default on raspberrypi os, so not needed anymore
-# #         exe "./install_pivariety_pkgs.sh -p libcamera_dev" &&
-# #         exe "./install_pivariety_pkgs.sh -p libcamera_apps" &&
+        # exe "./install_pivariety_pkgs.sh -p kernel_driver" && # this comes with the kernel by default on raspberrypi os, so not needed anymore
+        exe "./install_pivariety_pkgs.sh -p libcamera_dev" &&
+        exe "./install_pivariety_pkgs.sh -p libcamera_apps" &&
 
-# #         exe "cd ../" &&
-# #         exe "rm -rf camera_drivers"
-# #     } || { # catch
-# #         echoRed "Failed to install arducam pivariety camera driver "
-# #         echoRed "Install them manually using this link: https://docs.arducam.com/Raspberry-Pi-Camera/Pivariety-Camera/Quick-Start-Guide/ "
-# #     }
-# # fi
+        exe "cd ../" &&
+        exe "rm -rf camera_drivers"
+    } || { # catch
+        echoRed "Failed to install arducam pivariety camera driver "
+        echoRed "Install them manually using this link: https://docs.arducam.com/Raspberry-Pi-Camera/Pivariety-Camera/Quick-Start-Guide/ "
+    }
+fi
 
-# # ---- Install GO Language ----
-# # From: https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/
-# # check if we have already added words "GOPATH=" to the  ~/.profile file:
-# if ! grep "GOPATH=" ~/.profile; then
-#     { # try
-#         cd ~/
-#         echoBlue "Installing GO and adding GOPATH to ~/.profile " &&
-#         exe "sudo rm -rf /usr/local/go" && false || # remove any old version of go
-#         exe "sudo sed -i.bak '/go\\/bin/d' ~/.profile " && false || # remove existing refernces to go
-#         exe "sudo sed -i.bak '/GOPATH/d' ~/.profile" && false ||  # remove existing refernces to GOPATH
+# ---- Install GO Language ----
+# From: https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/
+# check if we have already added words "GOPATH=" to the  ~/.profile file:
+if ! grep "GOPATH=" ~/.profile; then
+    { # try
+        cd ~/
+        echoBlue "Installing GO and adding GOPATH to ~/.profile " &&
+        exe "sudo rm -rf /usr/local/go" && false || # remove any old version of go
+        exe "sudo sed -i.bak '/go\\/bin/d' ~/.profile " && false || # remove existing refernces to go
+        exe "sudo sed -i.bak '/GOPATH/d' ~/.profile" && false ||  # remove existing refernces to GOPATH
 
-#         exe "wget https://go.dev/dl/go1.19.4.linux-armv6l.tar.gz -O goinstall.tar.gz" &&
-#         exe "sudo tar -C /usr/local -xzf goinstall.tar.gz" &&
-#         exe "rm goinstall.tar.gz" &&
-#         exe "echo 'PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' | sudo tee -a ~/.profile" &&
-#         exe "echo 'GOPATH=$HOME/golang' | sudo tee -a ~/.profile" &&
-#         exe "source ~/.profile"
-#     } || { # catch
-#         echoRed "Failed to install GO Lang "
-#         echoRed "Install it manually using this link: https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/ "
-#     }
-# fi
+        exe "wget https://go.dev/dl/go1.19.4.linux-armv6l.tar.gz -O goinstall.tar.gz" &&
+        exe "sudo tar -C /usr/local -xzf goinstall.tar.gz" &&
+        exe "rm goinstall.tar.gz" &&
+        exe "echo 'PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' | sudo tee -a ~/.profile" &&
+        exe "echo 'GOPATH=$HOME/golang' | sudo tee -a ~/.profile" &&
+        exe "source ~/.profile"
+    } || { # catch
+        echoRed "Failed to install GO Lang "
+        echoRed "Install it manually using this link: https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/ "
+    }
+fi
 
 # # ---- Install libvpx (vp8 & vp9 video codecs) ----
-# { # try
-#     cd ~/
-#     exe "rm -rf libvpx" && false || # remove any old version of libvpx
-#     exe "git clone https://chromium.googlesource.com/webm/libvpx" &&
-#     exe "cd libvpx/" &&
-#     exe "./configure --enable-pic --disable-examples --disable-tools --disable-unit_tests --disable-docs --enable-static" &&
-#     exe "make" &&
-#     exe "sudo make install" &&
-#     exe "cd ../" &&
-#     exe "rm -rf libvpx"
-# } || { # catch
-#     echoRed "Failed to install libvpx "
-#     echoRed "Install it manually: google 'install libvpx on debian or raspberry pi -ffmpeg' "
-# }
+{ # try
+    cd ~/
+    exe "rm -rf libvpx" && false || # remove any old version of libvpx
+    exe "git clone https://chromium.googlesource.com/webm/libvpx" &&
+    exe "cd libvpx/" &&
+    exe "./configure --enable-pic --disable-examples --disable-tools --disable-unit_tests --disable-docs --enable-static" &&
+    exe "make" &&
+    exe "sudo make install" &&
+    exe "cd ../" &&
+    exe "rm -rf libvpx"
+} || { # catch
+    echoRed "Failed to install libvpx "
+    echoRed "Install it manually: google 'install libvpx on debian or raspberry pi -ffmpeg' "
+}
 
 # # ---- INSTALL GO WEBRTC-RELAY ----
-# { # try
-#     cd ~/
-#     exe "rm -rf webrtc-relay" && false || # remove any old version of webrtc-relay
-#     exe "git clone https://github.com/kw-m/webrtc-relay.git" &&
-#     exe "cd webrtc-relay" &&
-#     exe "go install ./ "
-# } || { # catch
-#     echoRed "Failed to install webrtc-relay "
-#     echoRed "Download & Install it manually: see https://github.com/kw-m/webrtc-relay' "
-# }
+{ # try
+    cd ~/
+    exe "rm -rf webrtc-relay" && false || # remove any old version of webrtc-relay
+    exe "git clone https://github.com/kw-m/webrtc-relay.git" &&
+    exe "cd webrtc-relay" &&
+    exe "go install ./ "
+} || { # catch
+    echoRed "Failed to install webrtc-relay "
+    echoRed "Download & Install it manually: see https://github.com/kw-m/webrtc-relay' "
+}
 
 # # ---- DOWNLOAD STATIC ROV FRONTEND WEB PAGE ----
 
-# { # try
-#     cd ~/
-#     exe "rm -rf rov-web" && false || # remove any old version of rov-web
-#     exe "git clone -b gh-pages --single-branch https://github.com/kw-m/rov-web.git"
-# } || { # catch
-#     echoRed "Failed to download rov-web "
-#     echoRed "Download & Install it manually: see https://github.com/kw-m/rov-web "
-# }
+{ # try
+    cd ~/
+    exe "rm -rf rov-web" && false || # remove any old version of rov-web
+    exe "git clone -b gh-pages --single-branch https://github.com/kw-m/rov-web.git"
+} || { # catch
+    echoRed "Failed to download rov-web "
+    echoRed "Download & Install it manually: see https://github.com/kw-m/rov-web "
+}
 
 # # ---- Install USB Teathering suport for iPhone (From: https://www.youtube.com/watch?v=Q-m4i7LFxLA)
-# { # try
-#     echoBlue "Installing packages to enable the pi to do usb internet teathering with an iphone... "
-#     sudo apt install -y usbmuxd ipheth-utils libimobiledevice-utils
-# } || { # catch
-#     echoRed "Failed to install usb tethering packages "
-#     echoRed "Install it manually: https://www.youtube.com/watch?v=Q-m4i7LFxLA' "
-# }
+{ # try
+    echoBlue "Installing packages to enable the pi to do usb internet teathering with an iphone... "
+    sudo apt install -y usbmuxd ipheth-utils libimobiledevice-utils
+} || { # catch
+    echoRed "Failed to install usb tethering packages "
+    echoRed "Install it manually: https://www.youtube.com/watch?v=Q-m4i7LFxLA' "
+}
 
 # ---- Install Ngnix Web Server ----
 { # try
@@ -166,15 +166,18 @@ exe "sudo apt install -y git wget" || true
 # A Python 3.10+ installer script can be found here:
 # https://itheo.tech/installing-python-310-on-raspberry-pi
 
+exe "cd '$FOLDER_CONTAINING_THIS_SCRIPT'"
+exe "cd '../'"
+
 echoBlue "Installing python3 pip "
 exe "sudo apt install -y python3-pip"
 exe "sudo python3 -m pip install --upgrade setuptools"
 
 echoBlue "Installing python packages "
-exe "sudo python3 -m pip install -r ../python/requirements.txt"
+exe "sudo python3 -m pip install -r python/requirements.txt"
 
 echoBlue "Compiling cython modules"
-exe "python3 ./python/cython_modules/setup.py build_ext --inplace"
+exe "python3 python/cython_modules/setup.py build_ext --inplace"
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -182,7 +185,6 @@ exe "python3 ./python/cython_modules/setup.py build_ext --inplace"
     echoBlue "Running the rasberry_pi_setup_scripts/fetch_changes.sh script in this folder. " &&
     # exe "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rasberry_pi_setup_scripts/fetch_changes.sh" && # run the update config files script in this folder.
 
-    echo "" &&
     echoBlue "Enabling systemd (systemctl) services so they start at boot (or whenever configured too)... " &&
     exe "sudo systemctl enable pigpiod.service" &&
     exe "sudo systemctl enable rov_python_code.service" && # enable the new rov_python_code service
