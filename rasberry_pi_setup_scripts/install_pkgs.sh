@@ -6,10 +6,8 @@ set -u # exit on undefined variable
 # ---- Helpful Variables -------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-PATH_TO_THIS_SCRIPT=$0
+PATH_TO_THIS_SCRIPT=$(readlink -f -- $0)
 FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
-cd "$FOLDER_CONTAINING_THIS_SCRIPT"
-FOLDER_CONTAINING_THIS_SCRIPT="$(pwd)"
 
 # ----- RPi Model Details ------------------------------------------------------
 # from https://raspberrypi.stackexchange.com/questions/100076/what-revisions-does-cat-proc-cpuinfo-return-on-the-new-pi-4-1-2-4gb

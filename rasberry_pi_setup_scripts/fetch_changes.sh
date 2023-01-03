@@ -6,7 +6,7 @@ set -u # exit on undefined variable
 # ---- Helpful Variables -------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-PATH_TO_THIS_SCRIPT=$0
+PATH_TO_THIS_SCRIPT=$(readlink -f -- $0)
 FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
 
 # ----- RPi Model Details ------------------------------------------------------
@@ -31,11 +31,16 @@ exe() { echo -e "$Black> $@ $Color_Off" >&2; eval "$@" ; }
 backupThenOverwrite(){
 	REPLACEMENT_FILE=$1
 	ORIGINAL_FILE_PATH=$2
+	ORIGINAL_FILE_NAME=$(basename "$ORIGINAL_FILE_PATH")
 	ORIGINAL_FOLDER_PATH=${ORIGINAL_FILE_PATH%/*}
+
 	# make folder to hold backups
 	mkdir -p "$HOME/original_config_file_backups/"
 	# Copy the original file into the backups folder
-	exe "sudo cp '$ORIGINAL_FILE_PATH' '$HOME/original_config_file_backups/'" || true
+	if [ -e "$ORIGINAL_FILE_PATH" ] && [ ! -e "$HOME/original_config_file_backups/$ORIGINAL_FILE_NAME" ]; then
+	   # if the original file (Usually the originally installed file exists AND a backup of that file doesn't exist in original_config_file_backups/, then)
+	  exe "sudo cp '$ORIGINAL_FILE_PATH' '$HOME/original_config_file_backups/'" || true;
+	fi;
 	# copy the replacement file into the original file's location
 	exe "sudo mkdir -p '$ORIGINAL_FOLDER_PATH' && sudo cp -T '$REPLACEMENT_FILE' '$ORIGINAL_FILE_PATH'" || true
 };

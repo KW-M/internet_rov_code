@@ -6,7 +6,7 @@ set -u # exit on undefined variable
 # ---- Helpful Variables -------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-PATH_TO_THIS_SCRIPT=$0
+PATH_TO_THIS_SCRIPT=$(readlink -f -- $0)
 FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
 
 # ----- RPi Model Details ------------------------------------------------------
