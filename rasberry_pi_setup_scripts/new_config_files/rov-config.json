@@ -3,11 +3,11 @@
     "BasePeerId": "ROV-",
     "UseMemorablePeerIds": true,
     "MemorablePeerIdOffset": 74646,
-    "IncludeMessagesInLogs": true,
-    "TokenPersistanceFile": "/home/pi/webrtc-relay-tokens.json",
+    "IncludeMessagesInLogs": false,
+    "GoProfilingServerEnabled": true,
     "StartGRPCServer": true,
     "GRPCServerAddress": "http://localhost:9718",
-    "GoProfilingServerEnabled": true,
+    "TokenPersistanceFile": "/home/pi/webrtc-relay-tokens.json",
     "PeerInitConfigs": [
         {
             "Host": "0.peerjs.com",
@@ -47,5 +47,8 @@
     "AuthTokenTimeout": 86400,
     "AuthStateStorageFilepath": "/home/pi/rov-auth-state.json",
     "RovAttestationPrivateKey": "-- Put RSA Private Key Here. No whitespace --",
-    "EnabledSensors": []
+    "EnabledSensors": [
+        "ICM20948_fused_compass",
+        "ms5803_pressure_temp"
+    ]
 }
