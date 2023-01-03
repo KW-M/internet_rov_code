@@ -21,13 +21,13 @@ FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
 # ------------------------------------------------------------------------------
 
 echo "Making sure any changes in ~/.profile file are available to this shell script by runing 'source ~/.profile' ..."
-source ~/.profile || true
+source ~/.profile | tee ~/rov-setup.log
 
 echo "Running install_pkgs.sh ..."
-bash "$FOLDER_CONTAINING_THIS_SCRIPT/install_pkgs.sh" || true
+bash "$FOLDER_CONTAINING_THIS_SCRIPT/install_pkgs.sh" | tee -a ~/rov-setup.log
 
 echo "Running configure_system.sh ..."
-bash "$FOLDER_CONTAINING_THIS_SCRIPT/configure_system.sh" || true
+bash "$FOLDER_CONTAINING_THIS_SCRIPT/configure_system.sh" | tee -a ~/rov-setup.log
 
 # ---------------- DONE --------------------------------------
 
