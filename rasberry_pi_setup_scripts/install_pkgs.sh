@@ -186,7 +186,7 @@ exe "python3 python/cython_modules/setup.py build_ext --inplace"
 
 { # try
     echoBlue "Running the rasberry_pi_setup_scripts/fetch_changes.sh script in this folder. " &&
-    # exe "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/rasberry_pi_setup_scripts/fetch_changes.sh" && # run the update config files script in this folder.
+    exe "/bin/bash $FOLDER_CONTAINING_THIS_SCRIPT/fetch_changes.sh" && # run the update config files script in this folder.
 
     echoBlue "Enabling systemd (systemctl) services so they start at boot (or whenever configured too)... " &&
     exe "sudo systemctl enable pigpiod.service" &&
