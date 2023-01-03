@@ -40,6 +40,23 @@ exe "sudo apt -y dist-upgrade --fix-missing" || true
 exe "sudo apt -y update --fix-missing" || true
 exe "sudo apt install -y git wget" || true
 
+# # ---- Install libvpx (vp8 & vp9 video codecs) and libx264 (h264 video codec) ----
+{ # try
+    cd ~/
+    exe "sudo apt install -y libx264-dev" &&
+    exe "rm -rf libvpx" && false || # remove any old version of libvpx
+    exe "git clone https://chromium.googlesource.com/webm/libvpx" &&
+    exe "cd libvpx/" &&
+    exe "./configure --enable-pic --disable-examples --disable-tools --disable-unit_tests --disable-docs --enable-static" &&
+    exe "make" &&
+    exe "sudo make install" &&
+    exe "cd ../" &&
+    exe "rm -rf libvpx"
+} || { # catch
+    echoRed "Failed to install libvpx "
+    echoRed "Install it manually: google 'install libvpx on debian or raspberry pi -ffmpeg' "
+}
+
 # ------- Install Arducam Low Light Camera Driver --------------------------------------------------------------------------------------
 # from: https://docs.arducam.com/Raspberry-Pi-Camera/Pivariety-Camera/Quick-Start-Guide/
 if ! dmesg | grep arducam; then
@@ -92,21 +109,7 @@ if ! grep "GOPATH=" ~/.profile; then
     }
 fi
 
-# # ---- Install libvpx (vp8 & vp9 video codecs) ----
-{ # try
-    cd ~/
-    exe "rm -rf libvpx" && false || # remove any old version of libvpx
-    exe "git clone https://chromium.googlesource.com/webm/libvpx" &&
-    exe "cd libvpx/" &&
-    exe "./configure --enable-pic --disable-examples --disable-tools --disable-unit_tests --disable-docs --enable-static" &&
-    exe "make" &&
-    exe "sudo make install" &&
-    exe "cd ../" &&
-    exe "rm -rf libvpx"
-} || { # catch
-    echoRed "Failed to install libvpx "
-    echoRed "Install it manually: google 'install libvpx on debian or raspberry pi -ffmpeg' "
-}
+
 
 # # ---- INSTALL GO WEBRTC-RELAY ----
 { # try
