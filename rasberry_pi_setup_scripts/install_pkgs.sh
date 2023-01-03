@@ -172,12 +172,12 @@ fi
 exe "cd '$FOLDER_CONTAINING_THIS_SCRIPT'"
 exe "cd '../'"
 
-echoBlue "Installing python3 pip and pigpiod"
-exe "sudo apt install -y python3-pip pigpiod"
-exe "sudo python3 -m pip install --upgrade setuptools"
+echoBlue "Installing python3 pip, pigpiod and numpy"
+exe "sudo apt install -y python3-pip pigpiod python3-numpy"
+exe "python3 -m pip install --upgrade setuptools"
 
 echoBlue "Installing python packages "
-exe "sudo python3 -m pip install -r python/requirements.txt"
+exe "python3 -m pip install -r python/requirements.txt"
 
 echoBlue "Compiling cython modules"
 exe "python3 python/cython_modules/setup.py build_ext --inplace"

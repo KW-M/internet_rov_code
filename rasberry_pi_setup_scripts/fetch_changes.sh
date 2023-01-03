@@ -8,6 +8,7 @@ set -u # exit on undefined variable
 
 PATH_TO_THIS_SCRIPT=$(readlink -f -- $0)
 FOLDER_CONTAINING_THIS_SCRIPT=${PATH_TO_THIS_SCRIPT%/*}
+CURRENT_DATE=$(date +"%Y-%m-%d_%H-%M-%S")
 
 # ----- RPi Model Details ------------------------------------------------------
 # from https://raspberrypi.stackexchange.com/questions/100076/what-revisions-does-cat-proc-cpuinfo-return-on-the-new-pi-4-1-2-4gb
@@ -51,13 +52,13 @@ backupThenOverwrite(){
 
 echo "Pulling any changes to the rov static web page from github"
 exe "cd ~/rov-web"
-exe "git stash --all" # stash any changes to the web page before overwriting them
+exe "git stash push -m 'Auto Stash $CURRENT_DATE'" # stash any changes to the web page before overwriting them
 exe "git checkout gh-pages"
 exe "git pull --rebase"
 
 echoBlue "Pulling any updates to webrtc-relay from github"
 exe "cd ~/webrtc-relay"
-exe "git stash --all" # stash any changes to the web page before overwriting them
+exe "git stash push -m 'Auto Stash $CURRENT_DATE'" # stash any changes to the web page before overwriting them
 changes=$(git pull --rebase)
 echoBlue "changes: $changes"
 if ! echo "$changes" | grep "Already up to date"; then
