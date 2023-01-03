@@ -341,7 +341,7 @@ class MessageHandler:
 
     async def handle_rov_status_report(self, src_peer_id: str, msg_data: RovAction) -> tuple[AsyncGenerator, list[str]]:
         """ Returns the generator of the status shell script"""
-        msg_generator = generate_cmd_continued_output_response(msg_data.rov_exchange_id, "/home/pi/internet_rov_code/rov_status_report.sh", cmd_timeout=20)
+        msg_generator = generate_cmd_continued_output_response(msg_data.rov_exchange_id, "/home/pi/internet_rov_code/rasberry_pi_setup_scripts/rov_status_report.sh", cmd_timeout=20)
         return (msg_generator, [src_peer_id])
 
     async def handle_refresh_all_sensors(self, src_peer_id: str, msg_data: RovAction) -> tuple[RovResponse, list[str]]:

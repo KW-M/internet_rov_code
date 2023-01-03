@@ -43,6 +43,7 @@ class MotionController:
 
     def __init__(self, pigpio_instance) -> None:
         self.pigpio_instance = pigpio_instance
+        self.last_motion_target = MotionTarget(0, 0, 0, 0)
 
     async def motor_setup_loop(self):
         """ Function to run in a loop to check if the motors are working properly. """
