@@ -71,7 +71,7 @@ fi
 echoBlue "Pulling any changes to the rov backend from github"
 exe "cd '$FOLDER_CONTAINING_THIS_SCRIPT'"
 exe "cd ../"
-exe "git stash --all" # stash any changes to the web page before overwriting them
+exe "git stash push -m 'Auto Stash $CURRENT_DATE'" # stash any changes to the web page before overwriting them
 changes=$(git pull --rebase)
 echoBlue "changes: $changes"
 
