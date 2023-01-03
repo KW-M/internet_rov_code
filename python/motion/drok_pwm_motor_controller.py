@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import Optional
 import asyncio
 import logging
 import pigpio
@@ -32,7 +34,7 @@ class Drok_Pwm_Motor:
             pin_ena: int,
             pin_in1: int,
             pin_in2: int,
-            async_loop: asyncio.AbstractEventLoop | None = None):
+            async_loop: Optional[asyncio.AbstractEventLoop] = None):
         self.pigpio_instance = pigpio_instance
         self.pin_ena = pin_ena
         self.pin_in1 = pin_in1

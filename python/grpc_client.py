@@ -1,6 +1,7 @@
+from __future__ import annotations
+from typing import Optional, Callable
 import asyncio
 from random import randrange
-from typing import Callable
 import logging
 from protobuf.webrtcrelay import WebRtcRelayStub, EventStreamRequest, CallRequest, RtpCodecParams, TrackInfo, SendMsgRequest
 from grpclib.client import Channel
@@ -13,7 +14,7 @@ log = logging.getLogger(__name__)
 
 
 class RelayGRPCClient:
-    stub: WebRtcRelayStub | None = None
+    stub: Optional[WebRtcRelayStub] = None
     grpc_address: str
     msg_recived_callback: Callable
     msg_handler: MessageHandler
@@ -89,7 +90,7 @@ class RelayGRPCClient:
                 rtp_source_url=rtp_source_url,
             )]))
 
-    async def send_message(self, payload: bytes, target_peer_ids: list[str], relay_peer_number: int = 0, exchange_id: int | None = None):
+    async def send_message(self, payload: bytes, target_peer_ids: list[str], relay_peer_number: int = 0, exchange_id: Optional[int] = None):
         # tell the relay to media call the given peer id with the video stream we just created:
         if self.stub is None:
             log.warning("send_message() fail: Not connected to relay!")

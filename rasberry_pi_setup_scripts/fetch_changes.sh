@@ -86,15 +86,15 @@ if echo "$changes" | grep "cython_modules"; then
 	exe "python3 python/cython_modules/setup.py build_ext --inplace"
 fi
 
-# Check if the rov-config.json file exists, if not copy it over from the new_config_files folder:
-if [ ! -e "$HOME/rov-config.json" ]; then
-	echo "Copying over rov-config.json file..."
-	backupThenOverwrite "rov-config.json" "$HOME/rov-config.json"
-fi;
-
 # ------------------------------------------------------------------------------
 
 exe "cd '$FOLDER_CONTAINING_THIS_SCRIPT/new_config_files'"
+
+# Check if the rov-config.json file exists, if not copy it over from the new_config_files folder:
+if [ ! -e "$HOME/rov-config.json" ]; then
+	echo "Copying over rov-config.json file..."
+	backupThenOverwrite "$FOLDER_CONTAINING_THIS_SCRIPT/new_config_files/rov-config.json" "$HOME/rov-config.json"
+fi;
 
 echoBlue "Copying over rov_go_code startup service file..."
 backupThenOverwrite "rov_go_code.service" "/lib/systemd/system/rov_go_code.service"

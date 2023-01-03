@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import Optional
 import asyncio
 import logging
 import math
@@ -60,7 +62,7 @@ class MotionController:
             await self.gpio_issue_flag.wait()
             self.cleanup_gpio()
 
-    def init_motor_controllers(self, async_loop: asyncio.AbstractEventLoop | None = None):
+    def init_motor_controllers(self, async_loop: Optional[asyncio.AbstractEventLoop] = None):
         # Initilize the library for adafruit I2C 4 motor controller pi hat:
         log.info("Initializing motor controllers...")
         try:

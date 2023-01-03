@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import Optional
 import time
 import binascii
 import os
@@ -8,8 +10,8 @@ from genericpath import exists
 
 from config_reader import program_config, SECONDS_PER_DAY
 
-authTokens = {}
-rovUUID = None
+auth_tokens = {}
+rov_uuid = None
 
 
 def generateAuthToken():
@@ -17,52 +19,52 @@ def generateAuthToken():
     generates a new auth token, saves it to the authTokens dict and writes the authTokens to disk as json
     Returns: (string) the new auth token
     """
-    global authTokens
-    authToken = binascii.hexlify(os.urandom(20)).decode()  # https://stackoverflow.com/questions/41354205/how-to-generate-a-unique-auth-token-in-python
-    authTokens[authToken] = math.floor(time.time() + program_config.get("AuthTokenTimeout", SECONDS_PER_DAY))  # time at which this key should expire (expressed in seconds since epoch)
+    global auth_tokens
+    auth_token = binascii.hexlify(os.urandom(20)).decode()  # https://stackoverflow.com/questions/41354205/how-to-generate-a-unique-auth-token-in-python
+    auth_tokens[auth_token] = math.floor(time.time() + program_config.get("AuthTokenTimeout", SECONDS_PER_DAY))  # time at which this key should expire (expressed in seconds since epoch)
     saveAuthStateToDisk()
-    return authToken
+    return auth_token
 
 
 def removeExpiredTokens():
-    global authTokens
-    initalTokenCount = len(authTokens)
+    global auth_tokens
+    inital_token_count = len(auth_tokens)
     # list to avoid RuntimeError: dictionary changed size during iteration
-    for token in list(authTokens):
+    for token in list(auth_tokens):
         check_token_validty(token)
-    if initalTokenCount != len(authTokens):
+    if inital_token_count != len(auth_tokens):
         saveAuthStateToDisk()
 
 
-def check_token_validty(auth_token: str | None):
-    global authTokens
-    tokenExpiration = authTokens.get(auth_token, None)
-    if tokenExpiration != None:
-        if time.time() < tokenExpiration:
+def check_token_validty(auth_token: Optional[str]):
+    global auth_tokens
+    token_expiration = auth_tokens.get(auth_token, None)
+    if token_expiration != None:
+        if time.time() < token_expiration:
             return True
         else:
-            authTokens.pop(auth_token)
+            auth_tokens.pop(auth_token)
     return False
 
 
 def getRovUUID():
-    global rovUUID
-    if rovUUID == None:
-        rovUUID = uuid4().hex
+    global rov_uuid
+    if rov_uuid == None:
+        rov_uuid = uuid4().hex
         saveAuthStateToDisk()
-    return rovUUID
+    return rov_uuid
 
 
 def readAuthStateFromDisk():
     """Reads the program_config as json and puts it in authTokens dict"""
-    global authTokens, rovUUID
+    global auth_tokens, rov_uuid
     authStorageFilepath = program_config.get("AuthStateStorageFilepath", "./rov-auth-state.json")
     if exists(authStorageFilepath):
         with open(authStorageFilepath, "r") as f:
             try:
                 state = json.load(f)
-                authTokens = state.get("authTokens", {})
-                rovUUID = state.get("rovUUID", getRovUUID())
+                auth_tokens = state.get("authTokens", {})
+                rov_uuid = state.get("rovUUID", getRovUUID())
                 removeExpiredTokens()
             except json.JSONDecodeError:
                 print("Invalid JSON in " + authStorageFilepath + ", ignoring...")
@@ -72,4 +74,4 @@ def saveAuthStateToDisk():
     """Saves the authTokens dict as json text to the AUTH_STATE_STORAGE_FILEPATH"""
     authStorageFilepath = program_config.get("AuthStateStorageFilepath", "./rov-auth-state.json")
     with open(authStorageFilepath, "w") as f:
-        json.dump({"authTokens": authTokens, "rovUUID": rovUUID}, f)
+        json.dump({"authTokens": auth_tokens, "rovUUID": rov_uuid}, f)

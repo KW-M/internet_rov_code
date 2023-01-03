@@ -161,14 +161,19 @@ fi
 # ----- Python Library Setup -------------------------------------------------------
 # --------------------------------------------------------------------------
 
-# A Python 3.10+ installer script can be found here:
-# https://itheo.tech/installing-python-310-on-raspberry-pi
+## A Python 3.10+ installer script can be found here:
+## From: https://itheo.tech/installing-python-310-on-raspberry-pi
+# python_version_to_install="3.10.0"
+# exe "cd ~/"
+# exe "wget -qO - https://raw.githubusercontent.com/tvdsluijs/sh-python-installer/main/python.sh | sudo bash -s ${python_version_to_install}"
+# exe "rm ./Python-${python_version_to_install}tar.xz"
+# exe "rm -rf ./Python-${python_version_to_install}"
 
 exe "cd '$FOLDER_CONTAINING_THIS_SCRIPT'"
 exe "cd '../'"
 
-echoBlue "Installing python3 pip "
-exe "sudo apt install -y python3-pip"
+echoBlue "Installing python3 pip and pigpiod"
+exe "sudo apt install -y python3-pip pigpiod"
 exe "sudo python3 -m pip install --upgrade setuptools"
 
 echoBlue "Installing python packages "

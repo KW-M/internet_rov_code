@@ -1,6 +1,10 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
-from typing import AsyncGenerator
+from typing import (
+    TYPE_CHECKING,
+    AsyncGenerator,
+    Optional,
+    Union,
+)
 
 import time
 import logging
@@ -29,7 +33,7 @@ log = logging.getLogger(__name__)
 class KnownPeerMetadata():
     """ Metadata about a peer that we know about."""
     __slots__ = ('auth_token', 'last_recived_msg_time', 'is_connected', 'replay_actions')
-    auth_token: str | None
+    auth_token: Optional[str]
     last_recived_msg_time: float
     is_connected: bool
     replay_actions: dict[int, RovAction]  # key is the exchange id, value is the message. Used to replay messages once a peer authenticates
@@ -77,7 +81,7 @@ class MessageHandler:
         self.last_msg_send_time = 0
 
         # --- Variables to keep track of who is allowed to drive the rov ---
-        self.designated_driver_peerid: str | None = None
+        self.designated_driver_peerid: Optional[str] = None
 
         # Dictionary to keep track of all the peers/users we know about since the message handler started running, key is the peer id
         self.known_peers: dict[str, KnownPeerMetadata] = {}
@@ -188,7 +192,7 @@ class MessageHandler:
     # pylint: disable=unused-argument
     # pylint: disable=too-many-branches
     # pylint: disable=too-many-statements
-    async def handle_incoming_msg(self, msg_payload: bytes | RovAction, src_peer_id: str, relay_peer_number=0, relay_exchange_id: int | None = None):
+    async def handle_incoming_msg(self, msg_payload: Union[bytes, RovAction], src_peer_id: str, relay_peer_number=0, relay_exchange_id: Optional[int] = None):
         """
         Handle incoming messages from all peers
         :param msg_payload: the message payload bytes
@@ -198,7 +202,7 @@ class MessageHandler:
         # typechecking protobuf oneOf fields doesn't yet work: https://github.com/danielgtaylor/python-betterproto/issues/358
 
         print("type(msg_payload)" + str(type(msg_payload)))
-        msg_data: RovAction | None = None
+        msg_data: Optional[RovAction] = None
         if isinstance(msg_payload, RovAction):
             msg_data = msg_payload
         elif isinstance(msg_payload, bytes):
@@ -442,7 +446,7 @@ class MessageHandler:
 # Helper Functions
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-    async def change_driver(self, new_driver_peer_id: str | None):
+    async def change_driver(self, new_driver_peer_id: Optional[str]):
         if new_driver_peer_id is not None and self.designated_driver_peerid != new_driver_peer_id:
             self.designated_driver_peerid = new_driver_peer_id
             # Let all connected peers know that the designated driver peer has changed:
@@ -465,7 +469,7 @@ class MessageHandler:
                 await self.handle_incoming_msg(replay_action, src_peer_id)
                 del self.known_peers[src_peer_id].replay_actions[rov_exchange_id]
 
-    def find_first_connected_peer(self) -> str | None:
+    def find_first_connected_peer(self) -> Optional[str]:
         '''Returns the peer_id of the first connected peer, or None if no peers are connected.'''
         for peer_id, peer_metadata in self.known_peers.items():
             if peer_metadata.is_connected is True:
@@ -490,7 +494,7 @@ class MessageHandler:
             print("Sending Message: ", msg_data)
         return await self.relay_grpc.send_message(payload=msg_data.SerializeToString(), target_peer_ids=recipient_peers)
 
-    def parse_message_payload(self, message_payload: bytes) -> RovAction | None:
+    def parse_message_payload(self, message_payload: bytes) -> Optional[RovAction]:
         """
         Parse a message from the socket and return a dict of the message metadata and the message data.
         :param message_payload: the message payload to parse as bytes
