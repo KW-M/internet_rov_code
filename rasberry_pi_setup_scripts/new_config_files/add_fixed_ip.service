@@ -11,7 +11,7 @@ Wants=network.target
 After=network-online.target
 
 [Service]
-ExecStart=/home/pi/internet_rov_code/new_config_files/add_fixed_ip.sh
+ExecStart=/home/pi/internet_rov_code/rasberry_pi_setup_scripts/add_fixed_ip.sh
 Restart=always
 TimeoutStopSec=10s
 RestartSec=5s
