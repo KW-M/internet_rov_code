@@ -12,7 +12,7 @@ echo "http://`hostname`.local - This is the pi's mDNS name, try it."
 # list all local ip addresses
 hostname --all-ip-addresses | xargs echo | sed 's/ /\n/g'
 # try to get our external (internet facing) IP using the icanhazip service
-PUBLIC_IP=$(wget --timeout=2 --quiet -O - http://icanhazip.com/ | tail)
+PUBLIC_IP=$(wget --timeout=2 --tries=1 --quiet -O - http://icanhazip.com/ | tail)
 if [ $PUBLIC_IP ]; then
     echo "Public IP: $PUBLIC_IP"
 else

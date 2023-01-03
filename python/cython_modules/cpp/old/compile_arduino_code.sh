@@ -19,8 +19,8 @@ shopt -s globstar
 PKG_OK=$(dpkg-query -W --showformat='${Status}\n' libpiduino-dev|grep "install ok installed")
 if [ "" = "$PKG_OK" ]; then
     echo "libpiduino-dev not found. Installing..."
-    wget https://github.com/NVSL/PiDuino_Library/releases/download/1.0.0/libpiduino1_1.0-1_armhf.deb
-    wget https://github.com/NVSL/PiDuino_Library/releases/download/1.0.0/libpiduino-dev_1.0-1_armhf.deb
+    wget -c --timeout=10 --waitretry=4 --tries=5 https://github.com/NVSL/PiDuino_Library/releases/download/1.0.0/libpiduino1_1.0-1_armhf.deb
+    wget -c --timeout=10 --waitretry=4 --tries=5 https://github.com/NVSL/PiDuino_Library/releases/download/1.0.0/libpiduino-dev_1.0-1_armhf.deb
     sudo dpkg -i libpiduino1_1.0-1_armhf.deb
     sudo dpkg -i libpiduino-dev_1.0-1_armhf.deb
 

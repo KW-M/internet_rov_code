@@ -48,18 +48,18 @@ if ! dmesg | grep arducam; then
         exe "sudo sed -i.bak '/dtoverlay=arducam/d' /boot/config.txt" && false || # remove existing refernces to arducam
         exe "sudo sed -i.bak '/dtoverlay=arducam-pivariety/d' /boot/config.txt" && false || # remove existing refernces to arducam
 
-        echoBlue "Adding dtoverlay=arducam-pivariety to /boot/config.txt " &&
-        exe "echo 'dtoverlay=arducam-pivariety' | sudo tee /boot/config.txt" && # add arducam to config.txt
-
         echoBlue "Installing arducam pivariety camera driver " &&
         exe "mkdir -p camera_drivers" &&
         exe "cd camera_drivers" &&
-        exe "wget -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh" &&
+        exe "wget -c --timeout=10 --waitretry=4 --tries=5 -O install_pivariety_pkgs.sh https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/install_script/install_pivariety_pkgs.sh" &&
         exe "chmod +x install_pivariety_pkgs.sh" &&
 
         # exe "./install_pivariety_pkgs.sh -p kernel_driver" && # this comes with the kernel by default on raspberrypi os, so not needed anymore
         exe "./install_pivariety_pkgs.sh -p libcamera_dev" &&
         exe "./install_pivariety_pkgs.sh -p libcamera_apps" &&
+
+        echoBlue "Adding dtoverlay=arducam-pivariety to /boot/config.txt " &&
+        exe "echo 'dtoverlay=arducam-pivariety' | sudo tee -a /boot/config.txt" && # add arducam to config.txt
 
         exe "cd ../" &&
         exe "rm -rf camera_drivers"
@@ -80,7 +80,7 @@ if ! grep "GOPATH=" ~/.profile; then
         exe "sudo sed -i.bak '/go\\/bin/d' ~/.profile " && false || # remove existing refernces to go
         exe "sudo sed -i.bak '/GOPATH/d' ~/.profile" && false ||  # remove existing refernces to GOPATH
 
-        exe "wget https://go.dev/dl/go1.19.4.linux-armv6l.tar.gz -O goinstall.tar.gz" &&
+        exe "wget -c --timeout=10 --waitretry=4 --tries=5 https://go.dev/dl/go1.19.4.linux-armv6l.tar.gz -O goinstall.tar.gz" &&
         exe "sudo tar -C /usr/local -xzf goinstall.tar.gz" &&
         exe "rm goinstall.tar.gz" &&
         exe "echo 'PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' | sudo tee -a ~/.profile" &&
@@ -165,7 +165,7 @@ fi
 ## From: https://itheo.tech/installing-python-310-on-raspberry-pi
 # python_version_to_install="3.10.0"
 # exe "cd ~/"
-# exe "wget -qO - https://raw.githubusercontent.com/tvdsluijs/sh-python-installer/main/python.sh | sudo bash -s ${python_version_to_install}"
+# exe " -c --timeout=10 --waitretry=4 --tries=5 -q0 - https://raw.githubusercontent.com/tvdsluijs/sh-python-installer/main/python.sh | sudo bash -s ${python_version_to_install}"
 # exe "rm ./Python-${python_version_to_install}tar.xz"
 # exe "rm -rf ./Python-${python_version_to_install}"
 
