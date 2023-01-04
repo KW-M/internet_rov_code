@@ -34,27 +34,33 @@ exe() { echo -e "$Black> $@ $Color_Off" >&2; eval "$@" ; }
 # --------- Update System Packages ------------
 # From: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 echoBlue "Making sure all system & package updates are installed... "
+echoRed "Install it manually: see instructions around line number $LINENO in this script ($PATH_TO_THIS_SCRIPT) or google 'install libvpx on debian or raspberry pi' "
+
+exit 0
 exe "sudo apt-get update --fix-missing" || true
 exe "sudo apt -y full-upgrade --fix-missing" || true
 exe "sudo apt -y dist-upgrade --fix-missing" || true
 exe "sudo apt -y update --fix-missing" || true
 exe "sudo apt install -y git wget" || true
 
-# # ---- Install libvpx (vp8 & vp9 video codecs) and libx264 (h264 video codec) ----
+# # ---- Install libvpx (vp8 & vp9 video codecs) and libx264 (h264 video codec) and ffmpeg ----
 { # try
     cd ~/
-    exe "sudo apt install -y libx264-dev" &&
-    exe "rm -rf libvpx" && false || # remove any old version of libvpx
-    exe "git clone https://chromium.googlesource.com/webm/libvpx" &&
-    exe "cd libvpx/" &&
-    exe "./configure --enable-pic --disable-examples --disable-tools --disable-unit_tests --disable-docs --enable-static" &&
-    exe "make" &&
-    exe "sudo make install" &&
-    exe "cd ../" &&
-    exe "rm -rf libvpx"
+    exe "sudo apt install -y libx264-dev libvpx-dev ffmpeg" &&
+
+    # TO MANUALLY INSTALL libvpx:
+    # exe "rm -rf libvpx" && false || # remove any old version of libvpx
+    # exe "git clone https://chromium.googlesource.com/webm/libvpx" &&
+    # exe "cd libvpx/" &&
+    # exe "./configure --enable-pic --disable-examples --disable-tools --disable-unit_tests --disable-docs --enable-static" &&
+    # exe "make" &&
+    # exe "sudo make install" &&
+    # exe "cd ../" &&
+    # exe "rm -rf libvpx"
 } || { # catch
-    echoRed "Failed to install libvpx "
-    echoRed "Install it manually: google 'install libvpx on debian or raspberry pi -ffmpeg' "
+    echoRed "Failed to install libvpx, libx264, and/or ffmpeg "
+    echoRed "Install it manually: see instructions around line number $LINENO in this script ($PATH_TO_THIS_SCRIPT) or google 'install libvpx on debian or raspberry pi' "
+    exit 1
 }
 
 # ------- Install Arducam Low Light Camera Driver --------------------------------------------------------------------------------------
@@ -83,6 +89,8 @@ if ! dmesg | grep arducam; then
     } || { # catch
         echoRed "Failed to install arducam pivariety camera driver "
         echoRed "Install them manually using this link: https://docs.arducam.com/Raspberry-Pi-Camera/Pivariety-Camera/Quick-Start-Guide/ "
+        echoRed "[Script Failed somewhere before line number $LINENO in this script: $PATH_TO_THIS_SCRIPT]"
+        exit 1
     }
 fi
 
@@ -106,6 +114,8 @@ if ! grep "GOPATH=" ~/.profile; then
     } || { # catch
         echoRed "Failed to install GO Lang "
         echoRed "Install it manually using this link: https://www.e-tinkers.com/2019/06/better-way-to-install-golang-go-on-raspberry-pi/ "
+        echoRed "[Script Failed somewhere before line number $LINENO in this script: $PATH_TO_THIS_SCRIPT]"
+        exit 1
     }
 fi
 
@@ -121,6 +131,8 @@ fi
 } || { # catch
     echoRed "Failed to install webrtc-relay "
     echoRed "Download & Install it manually: see https://github.com/kw-m/webrtc-relay' "
+    echoRed "[Script Failed somewhere before line number $LINENO in this script: $PATH_TO_THIS_SCRIPT]"
+    exit 1
 }
 
 # # ---- DOWNLOAD STATIC ROV FRONTEND WEB PAGE ----
@@ -132,6 +144,8 @@ fi
 } || { # catch
     echoRed "Failed to download rov-web "
     echoRed "Download & Install it manually: see https://github.com/kw-m/rov-web "
+    echoRed "[Script Failed somewhere before line number $LINENO in this script: $PATH_TO_THIS_SCRIPT]"
+    exit 1
 }
 
 # # ---- Install USB Teathering suport for iPhone (From: https://www.youtube.com/watch?v=Q-m4i7LFxLA)
@@ -141,6 +155,8 @@ fi
 } || { # catch
     echoRed "Failed to install usb tethering packages "
     echoRed "Install it manually: https://www.youtube.com/watch?v=Q-m4i7LFxLA' "
+    echoRed "[Script Failed somewhere before line number $LINENO in this script: $PATH_TO_THIS_SCRIPT]"
+    exit 1
 }
 
 # ---- Install Ngnix Web Server ----
@@ -158,32 +174,41 @@ fi
 } || { # catch
     echoRed "Failed to install & setup nginx web server"
     echoRed "Install it manually: https://nginx.org/en/linux_packages.html "
+    echoRed "[Script Failed somewhere before line number $LINENO in this script: $PATH_TO_THIS_SCRIPT]"
+    exit 1
 }
 
 # --------------------------------------------------------------------------
 # ----- Python Library Setup -------------------------------------------------------
 # --------------------------------------------------------------------------
 
-## A Python 3.10+ installer script can be found here:
+## A Python > 3.10 installer script can be found here: (SEEMS TO CAUSE MORE TROUBLE THAN IT SOLVES in jan 2023)
 ## From: https://itheo.tech/installing-python-310-on-raspberry-pi
-# python_version_to_install="3.10.0"
-# exe "cd ~/"
-# exe " -c --timeout=10 --waitretry=4 --tries=5 -q0 - https://raw.githubusercontent.com/tvdsluijs/sh-python-installer/main/python.sh | sudo bash -s ${python_version_to_install}"
-# exe "rm ./Python-${python_version_to_install}tar.xz"
-# exe "rm -rf ./Python-${python_version_to_install}"
+# python_version_to_install="3.10.0" &&
+# exe "cd ~/" &&
+# exe " -c --timeout=10 --waitretry=4 --tries=5 -q0 - https://raw.githubusercontent.com/tvdsluijs/sh-python-installer/main/python.sh | sudo bash -s ${python_version_to_install}" &&
+# exe "rm ./Python-${python_version_to_install}tar.xz" &&
+# exe "rm -rf ./Python-${python_version_to_install}" &&
 
-exe "cd '$FOLDER_CONTAINING_THIS_SCRIPT'"
-exe "cd '../'"
+{ # try
+    exe "cd '$FOLDER_CONTAINING_THIS_SCRIPT'" &&
+    exe "cd '../'" &&
 
-echoBlue "Installing python3 pip, pigpiod and numpy"
-exe "sudo apt install -y python3-pip pigpiod python3-numpy"
-exe "python3 -m pip install --upgrade setuptools"
+    echoBlue "Installing python3-pip & pigpiod" &&
+    exe "sudo apt install -y python3-pip pigpiod" &&
+    exe "python3 -m pip install --upgrade setuptools" &&
 
-echoBlue "Installing python packages "
-exe "python3 -m pip install -r python/requirements.txt"
+    echoBlue "Installing required python packages" &&
+    exe "python3 -m pip install -r python/requirements.txt" &&
 
-echoBlue "Compiling cython modules"
-exe "python3 python/cython_modules/setup.py build_ext --inplace"
+    echoBlue "Compiling cython modules" &&
+    exe "python3 python/cython_modules/setup.py build_ext --inplace"
+} || { # catch
+    echoRed "Failed to install python packages or compile cython"
+    echoRed "Install them manually, see the python/requirements.txt file and python/cython_modules/setup.py file in this internet_rov_code/ folder. Also this cython tutorial may be helpful: https://ron.sh/compiling-python-code-with-cython/"
+    echoRed "[Script Failed somewhere before line number $LINENO in this script: $PATH_TO_THIS_SCRIPT]"
+    exit 1
+}
 
 # ----------------------------------------------------------------------------------------------------------------------
 
