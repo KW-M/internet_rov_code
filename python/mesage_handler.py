@@ -416,7 +416,7 @@ class MessageHandler:
     async def handle_rov_logs(self, src_peer_id: str, msg_data: RovAction) -> tuple[AsyncGenerator, list[str]]:
         """Return a generator that continuously outputs new systemd log messages as they appear plus the last 500 lines of log."""
         print("handle_rov_logs", src_peer_id, msg_data)
-        msg_generator = generate_cmd_continued_output_response(msg_data.rov_exchange_id, "journalctl --unit=rov_python_code --unit=rov_go_code --unit=add_fixed_ip --unit=nginx --no-pager --follow -n 500", cmd_timeout=20)
+        msg_generator = generate_cmd_continued_output_response(msg_data.rov_exchange_id, "journalctl --unit=rov_python_code --unit=rov_go_code --unit=maintain_network --unit=nginx --no-pager --follow -n 500", cmd_timeout=20)
 
         await asyncio.sleep(2)
         return (msg_generator, [src_peer_id])

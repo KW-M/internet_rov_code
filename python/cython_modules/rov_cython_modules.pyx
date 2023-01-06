@@ -14,9 +14,10 @@ cdef extern from "Fused_Compass_IMU.h":
 
     cppclass Fused_Compass_IMU:
              Fused_Compass_Data current_data
-             Fused_Compass_Data read_sensor()
-             bool setup_sensor()
              Fused_Compass_IMU() except +
+             bool setup_sensor()
+             Fused_Compass_Data read_sensor()
+             bool cleanup()
 
 
 cdef class Py_Fused_Compass:
@@ -30,7 +31,10 @@ cdef class Py_Fused_Compass:
 
     def read_sensor(self):
         self.c_imu.read_sensor()
-        return self.c_imu.current_data.quat, self.c_imu.current_data.quat_accuracy, self.c_imu.current_data.temp_c
+        return (self.c_imu.current_data.quat, self.c_imu.current_data.quat_accuracy, self.c_imu.current_data.temp_c)
+
+    def cleanup(self):
+        return self.c_imu.cleanup()
 
 
 # cpdef run_fused_compass():

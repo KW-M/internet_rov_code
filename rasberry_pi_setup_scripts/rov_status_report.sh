@@ -52,10 +52,10 @@ else
     systemctl status --no-pager nginx.service
 fi
 echo "------------------------"
-if systemctl -q is-active add_fixed_ip.service; then
-    echo "ACTIVE | add_fixed_ip.service"
+if systemctl -q is-active maintain_network.service; then
+    echo "ACTIVE | maintain_network.service"
 else
-    systemctl status --no-pager add_fixed_ip.service
+    systemctl status --no-pager maintain_network.service
 fi
 # echo "------------------------"
 # if systemctl -q is-active bluetooth.service; then

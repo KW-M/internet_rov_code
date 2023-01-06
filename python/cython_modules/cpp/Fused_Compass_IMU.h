@@ -17,10 +17,11 @@ typedef struct s_Fused_Compass_Data
 class Fused_Compass_IMU
 {
 public:
+    Fused_Compass_Data current_data;
+    ICM_20948_I2C myICM; // create an ICM_20948_I2C object
     Fused_Compass_IMU();
     bool setup_sensor();
     Fused_Compass_Data read_sensor();
-    Fused_Compass_Data current_data;
-    ICM_20948_I2C myICM; // create an ICM_20948_I2C object
+    bool cleanup(); // returns true if successful
     bool is_status_error(ICM_20948_Status_e status, const char *msg);
 };

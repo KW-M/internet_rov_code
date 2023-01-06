@@ -33,10 +33,10 @@ union Pressure_Union
   uint8_t Bytes[icm_20948_DMP_Pressure_Bytes];
   struct
   {
-    int16_t Pressure;
-    uint8_t PSomething;
-    int16_t Temperature;
-    uint8_t TSomething;
+    int16_t Pressure;    // Proabably pressure in mpa?
+    uint8_t PSomething;  // Unknown Byte
+    int16_t Temperature; // Probably temperature in c once converted: see sparkfun lib getTempC function()
+    uint8_t TSomething;  // Unknown Byte
   } Data;
 };
 
@@ -72,10 +72,7 @@ bool Fused_Compass_IMU::setup_sensor()
   if (this->is_status_error(myICM.status, "Compass IMU connection error: "))
     return false; // Should wait 0.5 second and try again
 
-  // cout << "Compass IMU Connected!" << endl;
-  // ICM_20948_Status_e status = this->myICM.swReset(); // make sure the ICM-20948 is in a known state
-  // if (this->is_status_error(myICM.status, "Compass IMU sw reset error: "))
-  //   return false; // Should wait 0.5 second and try again
+  cout << "Compass IMU Connected!" << endl;
 
   // Initialize the DMP. initializeDMP is a weak function. You can overwrite it if you want to e.g. to change the sample rate
   status = this->myICM.initializeDMP();
@@ -202,18 +199,18 @@ Fused_Compass_Data Fused_Compass_IMU::read_sensor()
       else if ((data.header & DMP_header_bitmap_Pressure) > 0)
       { // We have asked for pressure data so we should receive Pressure
         // this.current_data.pressure = data;
-        // data.Pressure
-        // [6]; // Byte [2:0]: Pressure data, Byte [5:3]: Temperature data
-        cout << "Raw Pres/Temp from DMP: ";
-        print_binary(data.Pressure, 6);
-        cout << endl;
-        Pressure_Union *pdata = (Pressure_Union *)data.Pressure;
-        cout << "Pressure from DMP: " << pdata->Data.Pressure << endl;
-        cout << "Temperature from DMP: " << pdata->Data.Temperature << endl;
+        // Byte [2:0]: Pressure data, Byte [5:3]: Temperature data
+
+        // cout << "Raw Pres/Temp from DMP: ";
+        // print_binary(data.Pressure, 6);
+        // cout << endl;
+        // Pressure_Union *pdata = (Pressure_Union *)data.Pressure;
+        // cout << "Pressure from DMP: " << pdata->Data.Pressure << endl;
+        // cout << "Temperature from DMP: " << pdata->Data.Temperature << endl;
       }
       else if ((data.header & DMP_header_bitmap_Geomag) > 0)
       {
-        cout << "Geomag data is here! " << endl;
+        // cout << "Geomag data is here! " << endl;
         // // Scale to +/- 1
         // double q1 = ((double)data.Geomag.Data.Q1) / 1073741824.0; // Convert to double. Divide by 2^30
         // double q2 = ((double)data.Geomag.Data.Q2) / 1073741824.0; // Convert to double. Divide by 2^30
@@ -246,6 +243,12 @@ Fused_Compass_Data Fused_Compass_IMU::read_sensor()
 
   // Return the current data
   return this->current_data;
+}
+
+bool Fused_Compass_IMU::cleanup()
+{
+  ICM_20948_Status_e status = this->myICM.swReset(); // make sure the ICM-20948 is in a known state
+  return !(this->is_status_error(myICM.status, "Compass IMU sw reset error: "));
 }
 
 bool Fused_Compass_IMU::is_status_error(ICM_20948_Status_e status, const char *msg)

@@ -221,7 +221,7 @@ fi
     exe "sudo systemctl enable rov_python_code.service" && # enable the new rov_python_code service
     exe "sudo systemctl enable rov_go_code.service" && # enable the new rov_python_code service
     exe "sudo systemctl enable nginx.service" &&
-    exe "sudo systemctl enable add_fixed_ip.service"
+    exe "sudo systemctl enable maintain_network.service"
 } || { # catch
     echoRed "Failed to enable some systemd services. See the above output for more info."
 }

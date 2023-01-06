@@ -106,8 +106,8 @@ backupThenOverwrite "rov_python_code.service" "/lib/systemd/system/rov_python_co
 echoBlue "Copying over nginx config file to /etc/nginx.conf"
 backupThenOverwrite "nginx.conf" "/etc/nginx/nginx.conf"
 
-echoBlue "Copying over add_fixed_ip.service startup service file..."
-backupThenOverwrite "add_fixed_ip.service" "/etc/systemd/system/add_fixed_ip.service"
+echoBlue "Copying over maintain_network.service startup service file..."
+backupThenOverwrite "maintain_network.service" "/etc/systemd/system/maintain_network.service"
 
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -117,7 +117,7 @@ exe "sudo systemctl daemon-reload"
 exe "sudo systemctl restart pigpiod.service"
 exe "sudo systemctl restart rov_go_code.service"
 exe "sudo systemctl restart rov_python_code.service"
-exe "sudo systemctl restart add_fixed_ip.service"
+exe "sudo systemctl restart maintain_network.service"
 exe "sudo systemctl restart nginx.service"
 
 # The above lines restart systemd "services" running when this rasberry pi boots.

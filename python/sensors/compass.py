@@ -63,7 +63,7 @@ class FusedCompassSensor(GenericSensor):
         return (fused_values, self.sensor_read_interval)
 
     def cleanup(self) -> None:
-        pass
+        self.imu.cleanup()
 
 
 fused_compass_sensor = FusedCompassSensor()
