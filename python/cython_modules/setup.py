@@ -58,8 +58,8 @@ setup(
                 sources=sources,
                 # libraries=["examplesharedlibrary"],  # would refer to "libexamplesharedlibrary.so" (Note 'lib' in front and .so (or .a) extension are removed)
                 language="c++",  # remove this if C and not C++
-                extra_compile_args=["-Wno-comment", "-fpermissive", "-std=c++17", "-fopenmp", "-O2"],
-                extra_link_args=["-lm", "-pthread", "-fopenmp"],
+                extra_compile_args=["-Wno-comment", "-fpermissive", "-std=c++17", "-O2"],
+                extra_link_args=["-lm", "-pthread"],
                 include_dirs=header_include_folders,
             )
         ],

@@ -248,7 +248,7 @@ Fused_Compass_Data Fused_Compass_IMU::read_sensor()
 bool Fused_Compass_IMU::cleanup()
 {
   ICM_20948_Status_e status = this->myICM.swReset(); // make sure the ICM-20948 is in a known state
-  return !(this->is_status_error(myICM.status, "Compass IMU sw reset error: "));
+  return !(this->is_status_error(status, "Compass IMU sw reset error: "));
 }
 
 bool Fused_Compass_IMU::is_status_error(ICM_20948_Status_e status, const char *msg)
