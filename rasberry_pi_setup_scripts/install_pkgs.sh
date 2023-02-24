@@ -21,7 +21,7 @@ Black="\033[37;40;1m" # Black color code for console text
 Red="\033[37;41;1m"    # Red color code for console text
 Color_Off="\033[0m" # Text color Reset code for console text
 echoBlue() { echo -e "$Blue $@ $Color_Off" >&2;}
-echoGreen() { echo -e "$Green $@ $Color_Off" >&2; }
+echoGreen() { echoBlue " $@ $Color_Off" >&2; }
 echoRed() { echo -e "$Red $@ $Color_Off" >&2; }
 
 # Function to display commands in Black before running them
@@ -36,7 +36,6 @@ exe() { echo -e "$Black> $@ $Color_Off" >&2; eval "$@" ; }
 echoBlue "Making sure all system & package updates are installed... "
 echoRed "Install it manually: see instructions around line number $LINENO in this script ($PATH_TO_THIS_SCRIPT) or google 'install libvpx on debian or raspberry pi' "
 
-exit 0
 exe "sudo apt-get update --fix-missing" || true
 exe "sudo apt -y full-upgrade --fix-missing" || true
 exe "sudo apt -y dist-upgrade --fix-missing" || true
@@ -46,7 +45,7 @@ exe "sudo apt install -y git wget" || true
 # # ---- Install libvpx (vp8 & vp9 video codecs) and libx264 (h264 video codec) and ffmpeg ----
 { # try
     cd ~/
-    exe "sudo apt install -y libx264-dev libvpx-dev ffmpeg" &&
+    exe "sudo apt install -y libx264-dev libvpx-dev ffmpeg"
 
     # TO MANUALLY INSTALL libvpx:
     # exe "rm -rf libvpx" && false || # remove any old version of libvpx
@@ -120,6 +119,18 @@ if ! grep "GOPATH=" ~/.profile; then
 fi
 
 
+# ------ Install NGROK -------
+{ # try
+    echoBlue "Downloading and updating Ngrok" &&
+    echoBlue "This download url might break, so if it does just copy the link for the latest armv7 version from https://ngrok.com/download, and run the following command with that link instead" &&
+    exe "curl -sSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm.tgz | sudo tar xzf - -C '/usr/local/bin' --wildcards --no-anchored 'ngrok*'" &&
+    exe "ngrok update"
+    echoBlue "Ngrok installed. Remember to set the ngrok authtoken when this script is done."
+} || { # catch
+    echoRed "Failed to install Ngrok "
+    echoRed "Install it manually using this link: https://ngrok.com/download "
+    echoRed "[Script Failed somewhere before line number $LINENO in this script: $PATH_TO_THIS_SCRIPT]"
+}
 
 # # ---- INSTALL GO WEBRTC-RELAY ----
 { # try
