@@ -105,8 +105,8 @@ if ! grep "GOPATH=" ~/.profile; then
         exe "wget -c --timeout=10 --waitretry=4 --tries=5 https://go.dev/dl/go1.20.1.linux-arm64.tar.gz -O goinstall.tar.gz" &&
         exe "sudo tar -C /usr/local -xzf goinstall.tar.gz" &&
         exe "rm goinstall.tar.gz" &&
-        exe "echo 'PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' | sudo tee -a ~/.profile" &&
-        exe "echo 'GOPATH=$HOME/golang' | sudo tee -a ~/.profile" &&
+        exe "echo 'PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin' | sudo tee -a ~/.profile" &&
+        exe "echo 'GOPATH=\$HOME/golang' | sudo tee -a ~/.profile" &&
         exe "source ~/.profile"
     } || { # catch
         echoRed "Failed to install GO Lang "
