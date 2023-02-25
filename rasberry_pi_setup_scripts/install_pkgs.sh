@@ -34,20 +34,18 @@ exe() { echo -e "$Black> $@ $Color_Off" >&2; eval "$@" ; }
 # --------- Update System Packages ------------
 # From: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 echoBlue "Making sure all system & package updates are installed... "
-echoRed "Install it manually: see instructions around line number $LINENO in this script ($PATH_TO_THIS_SCRIPT) or google 'install libvpx on debian or raspberry pi' "
-
 exe "sudo apt-get update --fix-missing" || true
-exe "sudo apt -y full-upgrade --fix-missing" || true
-exe "sudo apt -y dist-upgrade --fix-missing" || true
-exe "sudo apt -y update --fix-missing" || true
-exe "sudo apt install -y git wget" || true
+exe "sudo apt-get -y full-upgrade --fix-missing" || true
+exe "sudo apt-get -y dist-upgrade --fix-missing" || true
+exe "sudo apt-get -y update --fix-missing" || true
+exe "sudo apt-get install -y git wget" || true
 
 # # ---- Install libvpx (vp8 & vp9 video codecs) and libx264 (h264 video codec) and ffmpeg ----
 { # try
     cd ~/
-    exe "sudo apt install -y libx264-dev libvpx-dev ffmpeg"
+    exe "sudo apt-get install -y libx264-dev libvpx-dev ffmpeg"
 
-    # TO MANUALLY INSTALL libvpx:
+    # TO MANUALLY INSTALL libvpx, uncomment these lines, and comment out the one above.
     # exe "rm -rf libvpx" && false || # remove any old version of libvpx
     # exe "git clone https://chromium.googlesource.com/webm/libvpx" &&
     # exe "cd libvpx/" &&
@@ -135,6 +133,7 @@ fi
 # # ---- INSTALL GO WEBRTC-RELAY ----
 { # try
     cd ~/
+    source .profile # make sure go path in the profile
     exe "rm -rf webrtc-relay" && false || # remove any old version of webrtc-relay
     exe "git clone https://github.com/kw-m/webrtc-relay.git" &&
     exe "cd webrtc-relay" &&
@@ -162,7 +161,7 @@ fi
 # # ---- Install USB Teathering suport for iPhone (From: https://www.youtube.com/watch?v=Q-m4i7LFxLA)
 { # try
     echoBlue "Installing packages to enable the pi to do usb internet teathering with an iphone... "
-    sudo apt install -y usbmuxd ipheth-utils libimobiledevice-utils
+    sudo apt-get install -y usbmuxd ipheth-utils libimobiledevice-utils
 } || { # catch
     echoRed "Failed to install usb tethering packages "
     echoRed "Install it manually: https://www.youtube.com/watch?v=Q-m4i7LFxLA' "
@@ -172,7 +171,7 @@ fi
 
 # ---- Install Ngnix Web Server ----
 { # try
-    exe "sudo apt install -y nginx"
+    exe "sudo apt-get install -y nginx"
 
     # Setup Nginx to log to the file "nginx_error.log":
     # this solves the problem of missing the nginx log folder when the temp filesystem first starts up.
@@ -206,7 +205,7 @@ fi
     exe "cd '../'" &&
 
     echoBlue "Installing python3-pip & pigpiod" &&
-    exe "sudo apt install -y python3-pip pigpiod" &&
+    exe "sudo apt-get install -y python3-pip pigpiod" &&
     exe "python3 -m pip install --upgrade setuptools" &&
 
     echoBlue "Installing required python packages" &&
@@ -238,7 +237,7 @@ fi
 }
 
 echoBlue "cleaning up any packages that were installed to aid installing anything else, but are no longer needed"
-exe "sudo apt autoremove -y"
+exe "sudo apt-get autoremove -y"
 
 # -------------------- Done ------------------------
 
