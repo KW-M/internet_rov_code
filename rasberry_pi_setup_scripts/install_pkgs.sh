@@ -96,13 +96,13 @@ fi
 # check if we have already added words "GOPATH=" to the  ~/.profile file:
 if ! grep "GOPATH=" ~/.profile; then
     { # try
-        cd ~/
+        exe "cd ~/"
         echoBlue "Installing GO and adding GOPATH to ~/.profile " &&
         exe "sudo rm -rf /usr/local/go" && false || # remove any old version of go
         exe "sudo sed -i.bak '/go\\/bin/d' ~/.profile " && false || # remove existing refernces to go
         exe "sudo sed -i.bak '/GOPATH/d' ~/.profile" && false ||  # remove existing refernces to GOPATH
 
-        exe "wget -c --timeout=10 --waitretry=4 --tries=5 https://go.dev/dl/go1.19.4.linux-armv6l.tar.gz -O goinstall.tar.gz" &&
+        exe "wget -c --timeout=10 --waitretry=4 --tries=5 https://go.dev/dl/go1.20.1.linux-arm64.tar.gz -O goinstall.tar.gz" &&
         exe "sudo tar -C /usr/local -xzf goinstall.tar.gz" &&
         exe "rm goinstall.tar.gz" &&
         exe "echo 'PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' | sudo tee -a ~/.profile" &&
@@ -132,8 +132,7 @@ fi
 
 # # ---- INSTALL GO WEBRTC-RELAY ----
 { # try
-    cd ~/
-    source .profile # make sure go path in the profile
+    exe "cd ~/"
     exe "rm -rf webrtc-relay" && false || # remove any old version of webrtc-relay
     exe "git clone https://github.com/kw-m/webrtc-relay.git" &&
     exe "cd webrtc-relay" &&
@@ -148,7 +147,7 @@ fi
 # # ---- DOWNLOAD STATIC ROV FRONTEND WEB PAGE ----
 
 { # try
-    cd ~/
+    exe "cd ~/"
     exe "rm -rf rov-web" && false || # remove any old version of rov-web
     exe "git clone -b gh-pages --single-branch https://github.com/kw-m/rov-web.git"
 } || { # catch
