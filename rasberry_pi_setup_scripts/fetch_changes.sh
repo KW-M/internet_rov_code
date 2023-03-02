@@ -44,6 +44,7 @@ backupThenOverwrite(){
 	fi;
 	# copy the replacement file into the original file's location
 	exe "sudo mkdir -p '$ORIGINAL_FOLDER_PATH' && sudo cp -T '$REPLACEMENT_FILE' '$ORIGINAL_FILE_PATH'" || true
+	exe "sudo chown '$USER' '$ORIGINAL_FILE_PATH'" # make sure we can still read & write it from the pi user.
 };
 
 # --------------------------------------------

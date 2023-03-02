@@ -24,9 +24,7 @@ if [ "" = "$PKG_OK" ]; then
     sudo dpkg -i libpiduino1_1.0-1_armhf.deb
     sudo dpkg -i libpiduino-dev_1.0-1_armhf.deb
 
-    sudo apt install -y autotools-dev
-    sudo apt install -y autoconf
-    sudo apt install -y libtool
+    sudo apt-get install -y autotools-dev autoconf libtool
 fi
 
 
