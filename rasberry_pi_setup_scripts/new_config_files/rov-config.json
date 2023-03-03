@@ -32,16 +32,34 @@
         },
         {
             "Kind": "video",
-            "SourceLabel": "raspberrypi_video",
+            "SourceLabel": "libcamera_video",
             "SourceCmd": "libcamera-vid --width 640 --height 480 --framerate 16 --codec yuv420 --flush 1 --timeout 0 --nopreview 1 --output -",
             "PixelFormat": "I420",
             "FrameRate": 16,
             "Width": 640,
             "Height": 480
+        },
+        {
+            "Kind": "video",
+            "SourceLabel": "usb_cam_video",
+            "SourceCmd": "gst-launch-1.0 v4l2src ! video/x-raw, format=YUYV, width=800, height=600, framerate=15/1 ! videoconvert ! video/x-raw, format=I420, width=800, height=600, framerate=15/1 ! fdsink fd=1",
+            "PixelFormat": "I420",
+            "FrameRate": 15,
+            "Width": 800,
+            "Height": 600
+        },
+        {
+            "Kind": "video",
+            "SourceLabel": "usb_cam_1080_video",
+            "SourceCmd": "gst-launch-1.0 v4l2src device=/dev/video2 ! video/x-h264, colorimetry=2:4:5:1 ! decodebin ! video/x-raw, format=I420 ! fdsink fd=1",
+            "PixelFormat": "I420",
+            "FrameRate": 30,
+            "Width": 1920,
+            "Height": 1080
         }
     ],
     "AutoStreamMediaSources": [
-        "raspberrypi_video"
+        "usb_cam_video"
     ],
     "RovControlPassword": "Change This Password",
     "AuthTokenTimeout": 86400,

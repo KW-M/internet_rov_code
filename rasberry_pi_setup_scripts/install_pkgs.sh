@@ -220,7 +220,7 @@ fi
     echoRed "[Script Failed somewhere before line number $LINENO in this script: $PATH_TO_THIS_SCRIPT]"
     exit 1
 }
-
+# sudo apt-get install gstreamer1.0-liba
 # ----------------------------------------------------------------------------------------------------------------------
 
 { # try
