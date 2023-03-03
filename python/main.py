@@ -8,6 +8,7 @@
 import logging
 import asyncio
 import pigpio
+# import select, sys
 
 # import our python files from the same directory
 from config_reader import read_config_file, get_log_level
@@ -60,13 +61,14 @@ async def main():
         motion_ctrl.motor_setup_loop(),
         relay_grpc.start_loop(message_handler),
         message_handler.update_sender_loop(),
-        # start_aiohttp_api_server()
+        # start_aiohttp_api_server(),
+        # monitor_tasks()
     )
 
 
 ##### run the main program loop, and exit quietly if ctrl-c is pressed  #####
 try:
-    asyncio.run(main())
+    asyncio.run(main(), debug=False)
 except KeyboardInterrupt:
     pass
 finally:
@@ -74,65 +76,23 @@ finally:
     status_led_ctrl.off()
     sensors.cleanup()
     motion_ctrl.cleanup_gpio()
-    # relay_grpc.cleanup()
+    relay_grpc.cleanup()
     media_ctrl.cleanup()
 
-# while True:
+#### ASYNCIO DEBUG ####
 
-#     try:
-#         ######## SETUP #########
+# async def monitor_tasks():
+#     '''Prints stack traces of all tasks when Enter is pressed.
+#     Add to the event loop with:
+#     asyncio.run(main(),debug=True)
+#     asyncio.gather(..., monitor_tasks())
+#     '''
 
-#         # ----- SOCKET CONNECTION ----
-#         success = msg_socket.setup_socket(socket_path='/tmp/go_robot.socket',
-#                                           socket_timeout=5)
-#         if not success:
-#             log.warning(
-#                 'Unix socket connection not open. Retrying in 3 seconds...')
-#             time.sleep(3)
-#             continue
-
-#         # # ----- MOTORS -----
-#         motors.init_motor_controllers()
-#         motors.stop_motors()  # Keep motors off while disconnected:
-
-#         # # ----- SENSORS -----
-#         # sensors.setup_sensors()
-
-#         # # ----- SENSOR_LOG -----
-#         # sensr_log.setup_sensor_log(sensors.get_connected_sensor_column_names())
-
-#         ######## MESSAGE LOOP #########
-#         while True:
-
-#             # Wait for a message to arrive (or timeout)
-#             # - Note the timeout effectively sets how frequently reply messages can go out when no messages come in.
-#             recived_message = msg_socket.recieve_socket_message()
-
-#             # Handle the message and generate a response message (if needed)
-#             reply_message = handle_socket_message(recived_message, motors,
-#                                                   sensors, sensr_log)
-
-#             # Send the response message
-#             if reply_message != None:
-#                 success = msg_socket.send_socket_message(reply_message)
-#                 # log.debug('Sending reply message: ' + str(reply_message) +
-#                 #           " Successful?: " + str(success))
-
-#     except Exception as error:
-
-#         if hasattr(error,
-#                    "suppress_traceback") and error.suppress_traceback == True:
-#             log.error(str(error))
-#         else:
-#             log.error("Error: %s",error, exc_info=True)
-
-#         try:
-#             # motors.stop_motors()
-#             # motors.cleanup_gpio()
-#             # errorMessage = json.dumps({'error': str(error)})
-#             # msg_socket.send_socket_message(errorMessage)
-#             msg_socket.close_socket()
-#         except:
-#             pass
-
-#         time.sleep(3)
+#     print("Press Enter to print stack traces of all tasks...")
+#     while True:
+#         if select.select([
+#                 sys.stdin,
+#         ], [], [], 0.01)[0]:
+#             char = sys.stdin.read(1)
+#             tasks = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
+#             [t.print_stack(limit=5) for t in tasks]

@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
 
 class RelayGRPCClient:
     stub: Optional[WebRtcRelayStub] = None
+    grpc_channel: Optional[Channel] = None
     grpc_address: str
     msg_recived_callback: Callable
     msg_handler: MessageHandler
@@ -114,7 +115,12 @@ class RelayGRPCClient:
     async def _connect(self):
         async with self._get_channel() as chan:
             # async with Channel(path="./WebrtcRelayGrpc.sock") as chan:
-            grpc_channel = chan
-            self.stub = WebRtcRelayStub(grpc_channel)
+            self.grpc_channel = chan
+            self.stub = WebRtcRelayStub(chan)
             self.is_connected = True
             await asyncio.gather(self._get_event_stream(), self.stub.send_msg_stream(self._outgoing_msgs_iterator()))
+
+    async def cleanup(self):
+        self.is_connected = False
+        if (self.grpc_channel is not None):
+            self.grpc_channel.close()

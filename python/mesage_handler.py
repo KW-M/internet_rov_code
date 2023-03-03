@@ -99,7 +99,7 @@ class MessageHandler:
 
             # Find any peers who haven't sent a mesage recently
             for peer_id, peer_metadata in self.known_peers.items():
-                if time.time() - peer_metadata.last_recived_msg_time > 2:
+                if time.time() - peer_metadata.last_recived_msg_time > 5:
                     # If we haven't recieved any messages recently from the driver, cut the motors (safety feature):
                     if peer_id == self.designated_driver_peerid:
                         self.motion_ctrl.stop_motors()
@@ -111,12 +111,11 @@ class MessageHandler:
             if len(sensor_updates) != 0:
                 # Measurements has some values, send them to all connected peers
                 await self.send_msg(msg_data=RovResponse(sensor_updates=SensorUpdatesResponse(measurement_updates=sensor_updates)), recipient_peers=["*"])
-                await asyncio.sleep(0.002)
             elif self.last_msg_send_time < time.time() - 1:
                 # otherwise send a heartbeat message to help the website clients know that the datachannel is still open
                 time_ms = int(time.time() * 1000)
                 await self.send_msg(msg_data=RovResponse(heartbeat=HeartbeatResponse(time=time_ms)), recipient_peers=["*"])
-                await asyncio.sleep(0.002)
+            await asyncio.sleep(0.002)
 
     async def handle_relay_event(self, relay_event: RelayEventStream):
         """
@@ -155,9 +154,11 @@ class MessageHandler:
         if event_type == "peer_data_conn_error":
             evt: PeerDataConnErrorEvent = event  # type: ignore
             print("PYTHON: Got peerDataConnError event: " + str(evt) + " | exId: " + str(relay_exchange_id))
+            await self.handle_peer_disconnected(src_peer_id=evt.src_peer_id)
         if event_type == "peer_media_conn_error":
             evt: PeerMediaConnErrorEvent = event  # type: ignore
             print("PYTHON: Got peerMediaConnError event: " + str(evt) + " | exId: " + str(relay_exchange_id))
+            await self.handle_peer_disconnected(src_peer_id=evt.src_peer_id)
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Relay events (these are sent by the webrtc-relay when something happens)
@@ -201,7 +202,6 @@ class MessageHandler:
         """
         # typechecking protobuf oneOf fields doesn't yet work: https://github.com/danielgtaylor/python-betterproto/issues/358
 
-        print("type(msg_payload)" + str(type(msg_payload)))
         msg_data: Optional[RovAction] = None
         if isinstance(msg_payload, RovAction):
             msg_data = msg_payload
@@ -415,9 +415,7 @@ class MessageHandler:
     @verify_authorization(needs_authentication=True, needs_driver=False)
     async def handle_rov_logs(self, src_peer_id: str, msg_data: RovAction) -> tuple[AsyncGenerator, list[str]]:
         """Return a generator that continuously outputs new systemd log messages as they appear plus the last 500 lines of log."""
-        print("handle_rov_logs", src_peer_id, msg_data)
         msg_generator = generate_cmd_continued_output_response(msg_data.rov_exchange_id, "journalctl --unit=rov_python_code --unit=rov_go_code --unit=maintain_network --unit=nginx --no-pager --follow -n 500", cmd_timeout=20)
-
         await asyncio.sleep(2)
         return (msg_generator, [src_peer_id])
 
