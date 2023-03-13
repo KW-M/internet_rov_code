@@ -1,0 +1,32 @@
+{
+  "name": "rov-web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "packageManager": "pnpm@7.18.1",
+  "scripts": {
+    "compile:proto": "pnpm run compile:proto:python && pnpm run compile:proto:javascript",
+    "compile:proto:python": "protoc --python_betterproto_out=src/lib/proto/python src/lib/proto/rov_actions.proto",
+    "compile:proto:javascript": "pbjs -t static-module --es6 -w es6 -o src/lib/proto/rovActionsCompiled.js src/lib/proto/rov_actions.proto;pbts -o src/lib/proto/rovActionsCompiled.d.ts src/lib/proto/rovActionsCompiled.js",
+    "compile:browserify": "browserify ./js/etc/nodeJsShims.js --standalone nodeJsShim -o ./js/nodeShimsBundle.js",
+    "dev": "vite --host",
+    "build": "vite build --base=./",
+    "preview": "vite preview --host --base=/rov-web/",
+    "check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "devDependencies": {
+    "buffer": "^6.0.3",
+    "protobufjs-cli": "~1.0.2",
+    "tslib": "^2.4.1",
+    "typescript": "^4.9.4",
+    "vite": "^4.0.0",
+    "xstate": "^4.35.0"
+  },
+  "dependencies": {
+    "livekit-client": "^1.6.9",
+    "livekit-server-sdk": "^1.1.0",
+    "protobufjs": "~7.1.2",
+    "rollup-plugin-node-polyfills": "^0.2.1",
+    "uuid": "^9.0.0"
+  }
+}
