@@ -101,7 +101,7 @@ export async function connectToLivekit(livekitSetup: LivekitSetupOptions): Promi
             appendLog(`signal connection established in ${signalConnectionTime}ms`);
             // speed up publishing by starting to publish before it's fully connected
             // publishing is accepted as soon as signal connection has established
-            let camResult = await rovRoom.localParticipant.enableCameraAndMicrophone();
+            let camResult = await rovRoom.localParticipant.setCameraEnabled(true);
             appendLog(`tracks published in ${Date.now() - startTime}ms`);
         })
         .on(RoomEvent.Connected, async () => {
