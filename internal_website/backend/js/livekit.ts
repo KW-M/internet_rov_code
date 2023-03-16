@@ -70,7 +70,7 @@ export async function connectToLivekit(livekitSetup: LivekitSetupOptions): Promi
 
     // generate authTokens from the credentials:
     const cloudToken = getPublisherAccessToken(livekitSetup.CloudAPIKey, livekitSetup.CloudSecretKey, livekitSetup.RovRoomName);
-    const cloudRoomClient = new RoomServiceClient(getHttpURL(livekitUrlEndpoint, true), livekitSetup.CloudAPIKey, livekitSetup.CloudSecretKey)
+    const cloudRoomClient = new RoomServiceClient(getHttpURL(livekitUrlEndpoint, false), livekitSetup.CloudAPIKey, livekitSetup.CloudSecretKey)
     await createLivekitRoom(cloudRoomClient, livekitSetup.RovRoomName);
     await refreshMetadata(cloudRoomClient, livekitSetup);
 
@@ -153,7 +153,10 @@ export async function connectToLivekit(livekitSetup: LivekitSetupOptions): Promi
             appendLog('MediaDevicesChanged');
         })
         .on(RoomEvent.LocalTrackUnpublished, (track: LocalTrackPublication, participant: LocalParticipant) => {
-            console.error("LocalTrackUnpublished ", track, participant)
+            appendLog("LocalTrackUnpublished!!!?", track, participant)
+        })
+        .on(RoomEvent.LocalTrackPublished, (track: LocalTrackPublication, participant: LocalParticipant) => {
+            appendLog('LocalVideoTrackPublished ', track, participant)
         })
         .on(RoomEvent.MediaDevicesError, (e: Error) => {
             const failure = MediaDeviceFailure.getFailure(e);
@@ -180,7 +183,7 @@ export async function connectToLivekit(livekitSetup: LivekitSetupOptions): Promi
 
 
 
-    await rovRoom.connect(getWebsocketURL(livekitUrlEndpoint, true), cloudToken, LIVEKIT_BACKEND_ROOM_CONNECTION_CONFIG); // local: 'ws://localhost:7800',
+    await rovRoom.connect(getWebsocketURL(livekitUrlEndpoint, false), cloudToken, LIVEKIT_BACKEND_ROOM_CONNECTION_CONFIG); // local: 'ws://localhost:7800',
     console.log('connected to room', rovRoom.name);
     // let camResult = await rovRoom.localParticipant.setCameraEnabled(true);
     // console.log('video live', rovRoom.name, camResult);

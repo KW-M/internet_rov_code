@@ -8,15 +8,19 @@ export function waitfor(millisec) {
 
 export function appendLog(...args: any[]) {
     console.log(...args)
+    const txtElem = document.createElement('p');
+    txtElem.innerText = args.map(arg => JSON.stringify(arg)).join(' | ');
+    document.body.appendChild(txtElem)
 }
 
-
 export function getHttpURL(urlEndpoint: string, forceSSL: boolean = false) {
-    return ((window.location.protocol === 'https' || forceSSL) ? 'https' : 'http') + '://' + urlEndpoint;
+    return 'https' + '://' + urlEndpoint;
+    // return ((window.location.protocol.startsWith('https') || forceSSL) ? 'https' : 'http') + '://' + urlEndpoint;
 }
 
 export function getWebsocketURL(urlEndpoint: string, forceSSL: boolean = false) {
-    return ((window.location.protocol === 'https' || forceSSL) ? 'wss' : 'ws') + '://' + urlEndpoint;
+    return 'wss' + '://' + urlEndpoint;
+    // return ((window.location.protocol.startsWith('https') || forceSSL) ? 'wss' : 'ws') + '://' + urlEndpoint;
 }
 
 export function buildQueryString(userQuery) {

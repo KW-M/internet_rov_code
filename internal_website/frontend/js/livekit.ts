@@ -30,7 +30,7 @@ declare global {
 
 export async function listLivekitRooms() {
     const accessToken = window.LIVEKIT_TOKEN
-    return await fetch(getHttpURL(LIVEKIT_CLOUD_ENDPOINT, true) + '/twirp/livekit.RoomService/ListRooms', {
+    return await fetch(getHttpURL(LIVEKIT_CLOUD_ENDPOINT, false) + '/twirp/livekit.RoomService/ListRooms', {
         method: 'POST',
         cache: 'no-cache',
         mode: 'cors',
@@ -145,7 +145,7 @@ export async function connectToLivekitRoom(roomName: string, accessToken: string
             appendLog('MediaDevicesChanged _THIS SHOULDN\'T HAPPEN?_', rovRoom.canPlaybackAudio);
         })
 
-    await rovRoom.connect(getWebsocketURL(livekitUrlEndpoint, true), accessToken, LIVEKIT_FRONTEND_ROOM_CONNECTION_CONFIG); // local: 'ws://localhost:7800',
+    await rovRoom.connect(getWebsocketURL(livekitUrlEndpoint, false), accessToken, LIVEKIT_FRONTEND_ROOM_CONNECTION_CONFIG); // local: 'ws://localhost:7800',
     console.log('connected to room', rovRoom.name, rovRoom);
     console.log(rovRoom.participants.keys(), rovRoom);
 

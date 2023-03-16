@@ -3,7 +3,7 @@ import { waitfor } from "../../js/util"
 // import { wsHook } from "../../js/wsHook"
 import { DECODE_TXT } from "../../js/consts";
 // import { SignalRequest } from "livekit-client/dist/src/proto/livekit_rtc";
-import * as joo from "./proxy"
+// import * as joo from "./proxy"
 
 const urlParams = new URLSearchParams(location.search);
 const rovChooserElem = document.getElementById("rov_chooser")
