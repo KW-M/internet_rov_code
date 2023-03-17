@@ -13,14 +13,8 @@ export function appendLog(...args: any[]) {
     document.body.appendChild(txtElem)
 }
 
-export function getHttpURL(urlEndpoint: string, forceSSL: boolean = false) {
-    return 'https' + '://' + urlEndpoint;
-    // return ((window.location.protocol.startsWith('https') || forceSSL) ? 'https' : 'http') + '://' + urlEndpoint;
-}
-
 export function getWebsocketURL(urlEndpoint: string, forceSSL: boolean = false) {
-    return 'wss' + '://' + urlEndpoint;
-    // return ((window.location.protocol.startsWith('https') || forceSSL) ? 'wss' : 'ws') + '://' + urlEndpoint;
+    return urlEndpoint.replace("http", "ws"); // works with https:// too because wss:// is the https version
 }
 
 export function buildQueryString(userQuery) {

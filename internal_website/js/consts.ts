@@ -9,8 +9,8 @@ declare global {
 export const ENCODE_TXT = new TextEncoder().encode
 export const DECODE_TXT = new TextDecoder().decode
 
-export const LIVEKIT_CLOUD_ENDPOINT = 'rov-web.livekit.cloud'
-export const LIVEKIT_LOCAL_ENDPOINT = 'localhost:7880'
+export const LIVEKIT_CLOUD_ENDPOINT = 'https://rov-web.livekit.cloud'
+export const LIVEKIT_LOCAL_ENDPOINT = 'http://localhost:7880'
 
 export const LIVEKIT_BACKEND_ROOM_CONNECTION_CONFIG: RoomConnectOptions = {
     autoSubscribe: false,

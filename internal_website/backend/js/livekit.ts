@@ -34,7 +34,7 @@ console.log(nothin); // KEEP SO NODE SHIMS GET INCLUDED
 // import type { AccessToken as AccessTokenType, AccessTokenOptions, RoomServiceClient } from 'livekit-server-sdk';
 import type * as livekitServerSDKTypes from 'livekit-server-sdk';
 import { LIVEKIT_CLOUD_ENDPOINT, LIVEKIT_LOCAL_ENDPOINT, LIVEKIT_BACKEND_ROOM_CONNECTION_CONFIG, DECODE_TXT } from '../../js/consts';
-import { appendLog, getHttpURL, getWebsocketURL } from '../../js/util';
+import { appendLog, getWebsocketURL } from '../../js/util';
 import { getFrontendAccessToken, getPublisherAccessToken } from './livekitTokens';
 const RoomServiceClient = globalThis.nodeJsShim.livekitServerSDK.RoomServiceClient as typeof livekitServerSDKTypes.RoomServiceClient
 let currentRoom: Room | undefined = undefined;
@@ -70,7 +70,7 @@ export async function connectToLivekit(livekitSetup: LivekitSetupOptions): Promi
 
     // generate authTokens from the credentials:
     const cloudToken = getPublisherAccessToken(livekitSetup.CloudAPIKey, livekitSetup.CloudSecretKey, livekitSetup.RovRoomName);
-    const cloudRoomClient = new RoomServiceClient(getHttpURL(livekitUrlEndpoint, false), livekitSetup.CloudAPIKey, livekitSetup.CloudSecretKey)
+    const cloudRoomClient = new RoomServiceClient(livekitUrlEndpoint, livekitSetup.CloudAPIKey, livekitSetup.CloudSecretKey)
     await createLivekitRoom(cloudRoomClient, livekitSetup.RovRoomName);
     await refreshMetadata(cloudRoomClient, livekitSetup);
 
@@ -183,7 +183,7 @@ export async function connectToLivekit(livekitSetup: LivekitSetupOptions): Promi
 
 
 
-    await rovRoom.connect(getWebsocketURL(livekitUrlEndpoint, false), cloudToken, LIVEKIT_BACKEND_ROOM_CONNECTION_CONFIG); // local: 'ws://localhost:7800',
+    await rovRoom.connect(getWebsocketURL(livekitUrlEndpoint), cloudToken, LIVEKIT_BACKEND_ROOM_CONNECTION_CONFIG); // local: 'ws://localhost:7800',
     console.log('connected to room', rovRoom.name);
     // let camResult = await rovRoom.localParticipant.setCameraEnabled(true);
     // console.log('video live', rovRoom.name, camResult);
