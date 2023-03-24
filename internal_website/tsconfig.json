@@ -4,6 +4,12 @@
         "useDefineForClassFields": true,
         "module": "ESNext",
         "moduleResolution": "node",
+        // Service worker types:
+        "lib": [
+            "ESNext",
+            "DOM",
+            "WebWorker"
+        ],
         /**
         * Typecheck JS in `.svelte` and `.js` files by default.
         * Disable checkJs if you'd like to use dynamic types in JS.
@@ -19,6 +25,8 @@
         "src/**/*.d.ts",
         "src/**/*.ts",
         "src/**/*.js",
-        "src/**/*.svelte"
-, "vite-env.d.ts", "vite-env.d.ts"    ],
+        "src/**/*.svelte",
+        "vite-env.d.ts",
+        "vite-env.d.ts"
+    ],
 }

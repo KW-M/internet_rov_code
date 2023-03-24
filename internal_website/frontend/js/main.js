@@ -1,13 +1,66 @@
-import { connectToLivekitRoom, listLivekitRooms } from "./livekit";
+import { connectToRoom, connectToRoomLocal, listLivekitRooms, sendTestMessage } from "./livekit";
 import { waitfor } from "../../js/util"
-// import { wsHook } from "../../js/wsHook"
-import { DECODE_TXT } from "../../js/consts";
+import { DECODE_TXT, ENCODE_TXT, LIVEKIT_CLOUD_ENDPOINT, LIVEKIT_LOCAL_ENDPOINT, PROXY_PREFIX } from "../../js/consts";
+import { handleFrontendMsgRcvd } from "./msgHandler";
+// import { setSendProxyMessageCallback } from "./proxy";
+
 // import { SignalRequest } from "livekit-client/dist/src/proto/livekit_rtc";
-// import * as joo from "./proxy"
 
 const urlParams = new URLSearchParams(location.search);
 const rovChooserElem = document.getElementById("rov_chooser")
-let rooms = [];
+const videContainerElem = document.getElementById("video_container")
+const openRooms = [];
+
+async function start() {
+    console.log("Starting...")
+
+    const sendTestButton = document.createElement("button");
+    sendTestButton.innerText = "Send test msg";
+    sendTestButton.disabled = true;
+    sendTestButton.onclick = () => {
+        sendTestMessage();
+    }
+    document.body.appendChild(sendTestButton);
+
+    while (true) {
+        const cloudRooms = await listLivekitRooms(LIVEKIT_CLOUD_ENDPOINT)
+        const localRooms = await listLivekitRooms(LIVEKIT_LOCAL_ENDPOINT)
+        // console.log("cloud rooms:", cloudRooms, "local rooms:", localRooms)
+        const rooms = cloudRooms;
+        // const rooms = [{
+        //     name: "ROV77",
+        //     metadata: '{"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiUEVSU09OMTY3OTU4MzIyOTUyNCIsInZpZGVvIjp7InJvb20iOiJST1Y3NyIsInJvb21MaXN0Ijp0cnVlLCJyb29tSm9pbiI6dHJ1ZSwiY2FuUHVibGlzaCI6dHJ1ZSwiY2FuU3Vic2NyaWJlIjp0cnVlLCJjYW5QdWJsaXNoRGF0YSI6dHJ1ZX0sImlhdCI6MTY3OTU4MzIyOSwibmJmIjoxNjc5NTgzMjI5LCJleHAiOjE2Nzk2MDQ4MjksImlzcyI6IkFQSWtvRTdtM1pxZDVkSiIsInN1YiI6IlBFUlNPTjE2Nzk1ODMyMjk1MjQiLCJqdGkiOiJQRVJTT04xNjc5NTgzMjI5NTI0In0.2sm5PnnzjmaeV5EVrQvLR5kROF3w0_uVU-G5uwSUZ-0"}'
+        // }]
+        if (rooms.length > 0) {
+            rovChooserElem.innerHTML = "";
+            rooms.forEach(room => {
+                if (!room.metadata) return;
+                const button = document.createElement("button");
+                const { accessToken } = JSON.parse(room.metadata);
+                button.innerText = "Connect to " + room.name;
+                button.onclick = () => {
+                    connectToRoom(room.name, accessToken).then(() => {
+                        sendTestButton.disabled = false;
+                        button.innerText = "Connect locally to " + room.name;
+                        button.onclick = () => {
+                            connectToRoomLocal(room.name, accessToken).then(() => { });
+                        }
+                    });
+                }
+                rovChooserElem.appendChild(button);
+            });
+        } else {
+            rovChooserElem.innerHTML = "Searching...";
+        }
+        await waitfor(1000);
+        break;
+    }
+}
+start()
+// registerServiceWorker();
+
+
+
 
 // wsHook.beforeSend = function (data, url, wsObject) {
 //     // DECODE_TXT(data)
@@ -55,25 +108,3 @@ let rooms = [];
 //  wsObject.send("Intercepted and sent again")
 //  return null;
 // }
-
-async function start() {
-    console.log("Starting")
-    while (true) {
-        const rooms = await listLivekitRooms()
-        if (rooms.length > 0) {
-            rovChooserElem.innerHTML = "";
-            rooms.forEach(room => {
-                const button = document.createElement("button");
-                const { accessToken } = JSON.parse(room.metadata)
-                // console.log("room " + room.name + " accessToken", accessToken)
-                button.innerText = "Connect to " + room.name;
-                button.onclick = () => { connectToLivekitRoom(room.name, accessToken); }
-                rovChooserElem.appendChild(button);
-            });
-        } else {
-            rovChooserElem.innerHTML = "Searching...";
-        }
-        await waitfor(1000);
-    }
-}
-start()

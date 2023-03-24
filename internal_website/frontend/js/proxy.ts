@@ -3,42 +3,46 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects
 // Some Ideas
 
-import { DECODE_TXT, ENCODE_TXT } from "../../js/consts";
+import { DECODE_TXT, ENCODE_TXT, PROXY_PREFIX } from "../../js/consts";
 import { waitfor } from "../../js/util";
 import { wsHook } from "../../js/wsHook";
 
-enum proxyMessageTypes {
+export enum proxyMessageTypes {
     openWebsocket,
     socketMsg,
     outgoingHttpReq,
     incomingHttpReq,
 }
 
-type proxyInterchangeFormat = {
+export type proxyInterchangeFormat = {
     type: proxyMessageTypes;
     url: string;
     body: number[]; // binary data
+    result: object; // for fetch response
 }
 
 let isOnline = true;
 const proxiedWsObjects: { [key: string]: WebSocket } = {};
-let sendLivekitDataCallback: ((data: ArrayBufferLike) => void) | null = null
-
-export function setSendLivekitDataCallback(callback: (data: ArrayBufferLike) => void) {
-    sendLivekitDataCallback = callback;
+let sendProxyMessageCallback: ((data: ArrayBufferLike) => void) | null = null
+export function setSendProxyMessageCallback(callback: (data: ArrayBufferLike) => void) {
+    sendProxyMessageCallback = callback;
 }
 
-const isProxiedUrl = (url) => {
-    return url.includes("proxy") || !isOnline
+const isProxiedUrl = (url: string) => {
+    return url.startsWith(PROXY_PREFIX) || !isOnline
 }
 
 wsHook.allowNewSocket = (url) => {
+    console.log("Checking ws url: ", url)
     if (isProxiedUrl(url)) {
-        return false
+        console.log("Proxying ws url: ", url)
+        return false;
     } else return true;
 };
 
 wsHook.modifyUrl = (url: string | URL) => {
+    url = url.toString();
+    if (isProxiedUrl(url)) url = url.substring(PROXY_PREFIX.length)
     console.log("modifyUrl: ", url)
     return url
 };
@@ -46,17 +50,33 @@ wsHook.modifyUrl = (url: string | URL) => {
 
 wsHook.afterInit = (wsObject) => {
     const url = wsObject.url;
-    if (isProxiedUrl(url)) {
+    if (!wsObject.isReal) {
         proxiedWsObjects[url] = wsObject;
-        wsHook.triggerOnOpen(wsObject)
+        setTimeout(() => {
+            wsHook.triggerOnOpen(wsObject);
+            sendNewConnMsgThruProxy(url);
+        }, 1)
     }
     return wsObject;
 };
 
 wsHook.beforeSend = (data, url, wsObject) => {
-    if (!isProxiedUrl(url)) return data;
-    sendDataThruProxy(url, new Uint8Array(data as ArrayBuffer))
-    return null
+    if (wsObject.isReal) {
+        return data;
+    } else {
+        console.log("beforeSend: ", wsObject.isReal, wsObject.url, data)
+        sendDataThruProxy(url, new Uint8Array(data as ArrayBuffer))
+        return null
+    }
+}
+
+function sendNewConnMsgThruProxy(url: string) {
+    const proxiedMsg = {
+        type: proxyMessageTypes.openWebsocket,
+        url: url,
+    } as proxyInterchangeFormat
+    console.log("Sending openWebsocket msg Thru Proxy", proxiedMsg)
+    if (sendProxyMessageCallback) sendProxyMessageCallback(ENCODE_TXT(JSON.stringify(proxiedMsg)))
 }
 
 function sendDataThruProxy(url: string, data: ArrayBufferLike) {
@@ -67,15 +87,15 @@ function sendDataThruProxy(url: string, data: ArrayBufferLike) {
         body: new Array(...binary)
     } as proxyInterchangeFormat
     console.log("Sending Data Thru Proxy", proxiedMsg)
-    if (sendLivekitDataCallback) sendLivekitDataCallback(ENCODE_TXT(JSON.stringify(proxiedMsg)))
+    if (sendProxyMessageCallback) sendProxyMessageCallback(ENCODE_TXT(JSON.stringify(proxiedMsg)))
 }
 
 export function receiveProxiedMsg(rawMsg: ArrayBufferLike) {
     const proxiedMsg = JSON.parse(DECODE_TXT(rawMsg)) as proxyInterchangeFormat;
-    console.log("Received Proxy Message", proxiedMsg)
     if (proxiedMsg.type === proxyMessageTypes.socketMsg) {
         const ws = proxiedWsObjects[proxiedMsg.url]
         const body = new Uint8Array(proxiedMsg.body)
+        console.log("Received Proxy Message", proxiedMsg, body)
         if (ws) wsHook.triggerOnMessage(ws, body)
     }
 }

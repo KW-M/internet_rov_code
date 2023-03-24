@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "packageManager": "pnpm@7.18.1",
+  "packageManager": "pnpm@7.29.3",
   "scripts": {
     "compile:proto": "pnpm run compile:proto:python && pnpm run compile:proto:javascript",
     "compile:proto:python": "protoc --python_betterproto_out=src/lib/proto/python src/lib/proto/rov_actions.proto",
@@ -20,6 +20,12 @@
     "tslib": "^2.4.1",
     "typescript": "^4.9.4",
     "vite": "^4.0.0",
+    "vite-plugin-pwa": "^0.14.4",
+    "workbox-build": "^6.5.4",
+    "workbox-expiration": "^6.4.2",
+    "workbox-precaching": "^6.4.2",
+    "workbox-routing": "^6.4.2",
+    "workbox-strategies": "^6.4.2",
     "xstate": "^4.35.0"
   },
   "dependencies": {
@@ -27,6 +33,7 @@
     "livekit-server-sdk": "^1.1.0",
     "protobufjs": "~7.1.2",
     "rollup-plugin-node-polyfills": "^0.2.1",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "workbox-core": "^6.5.4"
   }
 }

@@ -19,6 +19,8 @@ declare global {
     _onclose?: (ev?: CloseEvent) => void;
     _onmessage?: (ev?: MessageEvent) => void;
     _addEventListener?: <K extends keyof WebSocketEventMap>(type: K, listener: (this: WebSocket, ev: WebSocketEventMap[K]) => any, options?: boolean | AddEventListenerOptions) => void;
+    _readyState: number;
+    isReal?: boolean;
   }
 }
 
@@ -74,18 +76,24 @@ const MakeMutableMessageEvent = (ev: MessageEvent) => {
 export const wsHook = {
   triggerOnOpen: (wsObject: WebSocket, ev?: Event) => {
     ev = ev || new Event("open", { composed: false, bubbles: false, cancelable: false })
+    wsObject._readyState = 1;
     if (wsObject._onopen) wsObject._onopen(ev);
     // wsObject.dispatchEvent(ev)
   },
   triggerOnError: (wsObject: WebSocket, ev?: Event) => {
     ev = ev || new Event("error", { composed: false, bubbles: false, cancelable: false })
+    wsObject._readyState = 3;
     if (wsObject._onerror) wsObject._onerror(ev);
   },
   triggerOnClose: (wsObject: WebSocket, ev?: CloseEvent) => {
     ev = ev || new CloseEvent("close", { wasClean: true, reason: "wsHook", composed: false, bubbles: false, cancelable: false, code: 1006 })
+    wsObject._readyState = 3;
     if (wsObject._onclose) wsObject._onclose(ev);
   },
   triggerOnMessage: (wsObject: WebSocket, data: socketMsgDataTypes) => {
+    // @ts-ignore
+    if (!(typeof data === typeof '' || data instanceof ArrayBuffer)) data = (data as Uint8Array).buffer;
+    console.log("triggerOnMessage", data, wsObject);
     const ev = new MessageEvent("mesage", { data: data, origin: wsObject.url, bubbles: false, cancelable: false, composed: false })
     if (wsObject._onmessage) wsObject._onmessage(ev);
   },
@@ -123,29 +131,37 @@ export const wsHook = {
 
 (function () {
 
-  const originalFuncs = Object.assign({}, wsHook)
+  // setup WSHook default functions
+  const defaultWSHooks = Object.assign({}, wsHook) // make a copy of the default functions
   wsHook.resetHooks = function () {
-    Object.assign(wsHook, originalFuncs)
+    Object.assign(wsHook, defaultWSHooks)
   }
 
+  // overwrite the default websocket
   var _WS = WebSocket
-  WebSocket = function (url: string | URL, protocols?: string | string[] | undefined): WebSocket {
-    this.prototype = Object.create(_WS.prototype);
+  // @ts-ignore
+  WebSocket = Object.assign(function (url: string | URL, protocols?: string | string[] | undefined): WebSocket {
+    const allowRealSocket = wsHook.allowNewSocket(url.toString())
     url = wsHook.modifyUrl(url) || url
-    let WSObject: WebSocket = Object.create(null, {     // _WS.prototype
-      url: { get() { return url } },
-      protocols: { get() { return protocols } }
-    });
-
-    if (wsHook.allowNewSocket(url.toString())) {
-      if (!protocols) { WSObject = new _WS(url) } else { WSObject = new _WS(url, protocols) }
+    let WSObject: WebSocket;
+    if (allowRealSocket) {
+      WSObject = protocols ? new _WS(url, protocols) : new _WS(url);
+      WSObject.isReal = true;
+    } else {
+      // @ts-ignore
+      WSObject = Object.assign({}, _WS);
+      Object.defineProperty(WSObject, 'url', { get() { return url } })
+      Object.defineProperty(WSObject, 'protocols', { get() { return protocols } })
+      Object.defineProperty(WSObject, 'readyState', { get() { return this._readyState } })
+      Object.defineProperty(WSObject, 'close', { value: () => { return wsHook.triggerOnClose(this) } })
+      Object.defineProperty(WSObject, 'isReal', { value: false })
+      Object.defineProperty(WSObject, '_readyState', { value: 0, writable: true })
     }
-
-    wsHook.afterInit(WSObject);
 
     // Hook the websocket send function
     var _send = WSObject.send
     WSObject.send = function (data) {
+      console.log("hook send")
       arguments[0] = wsHook.beforeSend(data, WSObject.url, this) || null;
       if (arguments[0] == null) return;
       _send.apply(this, arguments)
@@ -154,7 +170,20 @@ export const wsHook = {
     // Events needs to be proxied and bubbled down.
     WSObject._onopen = undefined;
     WSObject._onerror = undefined;
-    WSObject._addEventListener = WSObject.addEventListener;
+    WSObject._addEventListener = WSObject.addEventListener || function () {
+      // console.log("fake addEventListener() called")
+      // const eventName = arguments[0];
+      // const userFunc = arguments[1];
+      // if (eventName === 'message') {
+      //   WSObject._onmessage = userFunc
+      // } else if (eventName === 'open') {
+      //   WSObject._onopen = userFunc
+      // } else if (eventName === 'error') {
+      //   WSObject._onerror = userFunc
+      // } else if (eventName === 'close') {
+      //   WSObject._onclose = userFunc
+      // }
+    };
     WSObject.addEventListener = function () {
       const eventThis = this
       const eventName = arguments[0];
@@ -205,11 +234,14 @@ export const wsHook = {
         var eventThis = this
         var userFunc = arguments[0]
         WSObject._onmessage = userFunc
-        var onMessageHandler = function () {
+        var onMessageHandler = userFunc ? function () {
+          if (!WSObject.isReal) console.log('onMessageHandler', arguments)
           arguments[0] = wsHook.afterRecive(MakeMutableMessageEvent(arguments[0]), WSObject.url, WSObject)
           if (arguments[0] === null) return
           userFunc.apply(eventThis, arguments)
-        }
+        } : null;
+
+        console.log('onMsgHandler', arguments)
         WSObject._addEventListener?.apply(this, ['message', onMessageHandler, false])
       }
     })
@@ -219,11 +251,13 @@ export const wsHook = {
         var eventThis = this
         var userFunc = arguments[0]
         WSObject._onopen = userFunc
-        var onOpenHandler = function () {
+        var onOpenHandler = userFunc ? function () {
+          if (!WSObject.isReal) console.log('onOpenHandler', arguments)
           arguments[0] = wsHook.beforeOpen(arguments[0], WSObject.url, WSObject)
           if (arguments[0] === null) return
           userFunc.apply(eventThis, arguments)
-        }
+        } : null;
+        console.log('onOpenHandler', arguments)
         WSObject._addEventListener?.apply(this, ['open', onOpenHandler, false])
       }
     })
@@ -233,328 +267,33 @@ export const wsHook = {
         var eventThis = this
         var userFunc = arguments[0]
         WSObject._onerror = userFunc
-        var onOpenHandler = function () {
+        var onErrorHandler = userFunc ? function () {
+          if (!WSObject.isReal) console.log('onErrorHandler', arguments)
           arguments[0] = wsHook.beforeError(arguments[0], WSObject.url, WSObject)
           if (arguments[0] === null) return
           userFunc.apply(eventThis, arguments)
-        }
-        WSObject._addEventListener?.apply(this, ['open', onOpenHandler, false])
+        } : null
+        WSObject._addEventListener?.apply(this, ['error', onErrorHandler, false])
       }
     })
 
     Object.defineProperty(WSObject, 'onclose', {
       'set': function () {
-        console.log("Set On Close")
         var eventThis = this
         var userFunc = arguments[0]
         WSObject._onclose = userFunc
-        var onOpenHandler = function () {
+        var onCloseHandler = userFunc ? function () {
+          if (!WSObject.isReal) console.log('onCloseHandler', arguments)
           arguments[0] = wsHook.beforeClose(arguments[0], WSObject.url, WSObject)
           if (arguments[0] === null) return
           userFunc.apply(eventThis, arguments)
-        }
-        WSObject._addEventListener?.apply(this, ['open', onOpenHandler, false])
+        } : null
+        WSObject._addEventListener?.apply(this, ['close', onCloseHandler, false])
       }
     })
 
+    wsHook.afterInit(WSObject);
+    WSObject._readyState = _WS.OPEN;
     return WSObject
-  }
+  }, _WS);
 })();
-
-
-// (function () {
-
-//     const originalFuncs = Object.assign({}, wsHook)
-//     wsHook.resetHooks = function () {
-//         Object.assign(wsHook, originalFuncs)
-//     }
-
-//     var _WS = WebSocket
-//     WebSocket = function (url, protocols) {
-//         var WSObject: WebSocket
-//         url = wsHook.modifyUrl(url) || url
-//         WSObject.url = url
-//         WSObject.protocols = protocols
-//         if (!this.protocols) { WSObject = new _WS(url) } else { WSObject = new _WS(url, protocols) }
-
-//         var _send = WSObject.send
-//         WSObject.send = function (data) {
-//             arguments[0] = wsHook.beforeSend(data, WSObject.url, WSObject) || null;
-//             if (arguments[0] == null) return;
-//             _send.apply(this, arguments)
-//         }
-
-//         // Events needs to be proxied and bubbled down.
-//         WSObject._onopen = undefined;
-//         WSObject._onerror = undefined;
-//         WSObject._addEventListener = WSObject.addEventListener;
-//         WSObject.addEventListener = function () {
-//             const eventThis = this
-//             const eventName = arguments[0];
-//             const userFunc = arguments[0];
-
-//             if (eventName === 'message') {
-//                 arguments[1] = (function (userFunc) {
-//                     return function () {
-//                         arguments[0] = wsHook.afterRecive(MakeMutableMessageEvent(arguments[0]), WSObject.url, WSObject)
-//                         if (arguments[0] === null) return
-//                         userFunc.apply(eventThis, arguments)
-//                     }
-//                 })(userFunc)
-//             } else if (eventName === 'open') {
-//                 WSObject._onopen = userFunc
-//                 arguments[1] = (function (userFunc) {
-//                     return function () {
-//                         arguments[0] = wsHook.beforeOpen(MakeMutableMessageEvent(arguments[0]), WSObject.url, WSObject)
-//                         if (arguments[0] === null) return
-//                         userFunc.apply(eventThis, arguments)
-//                     }
-//                 })(userFunc)
-//             } else if (eventName === 'error') {
-//                 WSObject._onerror = userFunc
-//                 arguments[1] = (function (userFunc) {
-//                     return function () {
-//                         arguments[0] = wsHook.afterRecive(MakeMutableMessageEvent(arguments[0]), WSObject.url, WSObject)
-//                         if (arguments[0] === null) return
-//                         userFunc.apply(eventThis, arguments)
-//                     }
-//                 })(userFunc)
-//             }
-//             return WSObject._addEventListener.apply(this, arguments)
-//         }
-
-
-
-//         return WSObject
-//     }
-// })()
-
-
-// // class HookedWebSocket {
-// //   constructor(url: string | URL, protocols?: string | string[] | undefined) {
-// //     // super(wsHook.modifyUrl(url) || url, protocols)
-// //     wsHook.beforeNewSocket(this);
-// //     const self = this;
-
-// //     // Hook the websocket send function
-// //     var _send = this.send
-// //     this.send = function (data) {
-// //       arguments[0] = wsHook.beforeSend(data, this.url, this) || null;
-// //       if (arguments[0] == null) return;
-// //       _send.apply(this, arguments)
-// //     }
-
-// //     // Events needs to be proxied and bubbled down.
-// //     this._onopen = undefined;
-// //     this._onerror = undefined;
-// //     this._addEventListener = this.addEventListener;
-// //     this.addEventListener = function () {
-// //       const eventThis = this
-// //       const eventName = arguments[0];
-// //       const userFunc = arguments[1];
-
-// //       if (eventName === 'message') {
-// //         arguments[1] = (function (userFunc) {
-// //           return function () {
-// //             arguments[0] = wsHook.afterRecive(MakeMutableMessageEvent(arguments[0]), self.url, self)
-// //             if (arguments[0] === null) return
-// //             userFunc.apply(eventThis, arguments)
-// //           }
-// //         })(userFunc)
-// //       } else if (eventName === 'open') {
-// //         this._onopen = userFunc
-// //         arguments[1] = (function (userFunc) {
-// //           return function () {
-// //             arguments[0] = wsHook.beforeOpen(MakeMutableMessageEvent(arguments[0]), self.url, self)
-// //             if (arguments[0] === null) return
-// //             userFunc.apply(eventThis, arguments)
-// //           }
-// //         })(userFunc)
-// //       } else if (eventName === 'error') {
-// //         this._onerror = userFunc
-// //         arguments[1] = (function (userFunc) {
-// //           return function () {
-// //             arguments[0] = wsHook.afterRecive(MakeMutableMessageEvent(arguments[0]), self.url, self)
-// //             if (arguments[0] === null) return
-// //             userFunc.apply(eventThis, arguments)
-// //           }
-// //         })(userFunc)
-// //       }
-// //       return this._addEventListener.apply(this, arguments)
-// //     }
-
-// //     Object.defineProperty(this, 'onmessage', {
-// //       'set': function () {
-// //         var eventThis = this
-// //         var userFunc = arguments[0]
-// //         var onMessageHandler = function () {
-// //           arguments[0] = wsHook.afterRecive(MakeMutableMessageEvent(arguments[0]), self.url, self)
-// //           if (arguments[0] === null) return
-// //           userFunc.apply(eventThis, arguments)
-// //         }
-// //         self._addEventListener?.apply(this, ['message', onMessageHandler, false])
-// //       }
-// //     })
-
-// //     Object.defineProperty(this, 'onopen', {
-// //       'set': function () {
-// //         var eventThis = this
-// //         var userFunc = arguments[0]
-// //         var onOpenHandler = function () {
-// //           arguments[0] = wsHook.beforeOpen(arguments[0], self.url, self)
-// //           if (arguments[0] === null) return
-// //           userFunc.apply(eventThis, arguments)
-// //         }
-// //         self._addEventListener?.apply(this, ['open', onOpenHandler, false])
-// //       }
-// //     })
-// //   }
-// // }
-// // WebSocket = HookedWebSocket;
-
-// constructor(url: string | URL, protocols?: string | string[] | undefined) {
-//   super(url, protocols)
-// }
-// static originalConstructor: (url: string | URL, protocols?: string | string[] | undefined) => HookedWebSocket;
-
-// class HookedWebSocket extends WebSocket {
-//   static init(url: string | URL, protocols?: string | string[] | undefined): WebSocket {
-//     var _WS = WebSocket;
-//     this.prototype = Object.create(_WS.prototype);
-//     url = wsHook.modifyUrl(url) || url
-//     let WSObject: WebSocket = Object.create(null, {     // _WS.prototype
-//       url: { get() { return url } },
-//       protocols: { get() { return protocols } }
-//     });
-
-//     if (wsHook.allowNewSocket(url.toString())) {
-//       if (!protocols) { WSObject = new _WS(url) } else { WSObject = new _WS(url, protocols) }
-//     }
-
-//     wsHook.afterInit(WSObject);
-
-//     // Hook the websocket send function
-//     var _send = WSObject.send
-//     WSObject.send = function (data) {
-//       arguments[0] = wsHook.beforeSend(data, WSObject.url, this) || null;
-//       if (arguments[0] == null) return;
-//       _send.apply(this, arguments)
-//     }
-
-//     // Events needs to be proxied and bubbled down.
-//     WSObject._onopen = undefined;
-//     WSObject._onerror = undefined;
-//     WSObject._addEventListener = WSObject.addEventListener;
-//     WSObject.addEventListener = function () {
-//       const eventThis = this
-//       const eventName = arguments[0];
-//       const userFunc = arguments[1];
-
-//       if (eventName === 'message') {
-//         WSObject._onmessage = userFunc
-//         arguments[1] = (function (userFunc) {
-//           return function () {
-//             arguments[0] = wsHook.afterRecive(MakeMutableMessageEvent(arguments[0]), WSObject.url, WSObject)
-//             if (arguments[0] === null) return
-//             userFunc.apply(eventThis, arguments)
-//           }
-//         })(userFunc)
-//       } else if (eventName === 'open') {
-//         WSObject._onopen = userFunc
-//         arguments[1] = (function (userFunc) {
-//           return function () {
-//             arguments[0] = wsHook.beforeOpen(arguments[0], WSObject.url, WSObject)
-//             if (arguments[0] === null) return
-//             userFunc.apply(eventThis, arguments)
-//           }
-//         })(userFunc)
-//       } else if (eventName === 'error') {
-//         WSObject._onerror = userFunc
-//         arguments[1] = (function (userFunc) {
-//           return function () {
-//             arguments[0] = wsHook.beforeError(arguments[0], WSObject.url, WSObject)
-//             if (arguments[0] === null) return
-//             userFunc.apply(eventThis, arguments)
-//           }
-//         })(userFunc)
-//       } else if (eventName === 'close') {
-//         WSObject._onclose = userFunc
-//         arguments[1] = (function (userFunc) {
-//           return function () {
-//             arguments[0] = wsHook.beforeClose(arguments[0], WSObject.url, WSObject)
-//             if (arguments[0] === null) return
-//             userFunc.apply(eventThis, arguments)
-//           }
-//         })(userFunc)
-//       }
-//       return WSObject._addEventListener?.apply(this, arguments)
-//     }
-
-//     Object.defineProperty(WSObject, 'onmessage', {
-//       'set': function () {
-//         var eventThis = this
-//         var userFunc = arguments[0]
-//         WSObject._onmessage = userFunc
-//         var onMessageHandler = function () {
-//           arguments[0] = wsHook.afterRecive(MakeMutableMessageEvent(arguments[0]), WSObject.url, WSObject)
-//           if (arguments[0] === null) return
-//           userFunc.apply(eventThis, arguments)
-//         }
-//         WSObject._addEventListener?.apply(this, ['message', onMessageHandler, false])
-//       }
-//     })
-
-//     Object.defineProperty(WSObject, 'onopen', {
-//       'set': function () {
-//         var eventThis = this
-//         var userFunc = arguments[0]
-//         WSObject._onopen = userFunc
-//         var onOpenHandler = function () {
-//           arguments[0] = wsHook.beforeOpen(arguments[0], WSObject.url, WSObject)
-//           if (arguments[0] === null) return
-//           userFunc.apply(eventThis, arguments)
-//         }
-//         WSObject._addEventListener?.apply(this, ['open', onOpenHandler, false])
-//       }
-//     })
-
-//     Object.defineProperty(WSObject, 'onerror', {
-//       'set': function () {
-//         var eventThis = this
-//         var userFunc = arguments[0]
-//         WSObject._onerror = userFunc
-//         var onOpenHandler = function () {
-//           arguments[0] = wsHook.beforeError(arguments[0], WSObject.url, WSObject)
-//           if (arguments[0] === null) return
-//           userFunc.apply(eventThis, arguments)
-//         }
-//         WSObject._addEventListener?.apply(this, ['open', onOpenHandler, false])
-//       }
-//     })
-
-//     Object.defineProperty(WSObject, 'onclose', {
-//       'set': function () {
-//         console.log("Set On Close")
-//         var eventThis = this
-//         var userFunc = arguments[0]
-//         WSObject._onclose = userFunc
-//         var onOpenHandler = function () {
-//           arguments[0] = wsHook.beforeClose(arguments[0], WSObject.url, WSObject)
-//           if (arguments[0] === null) return
-//           userFunc.apply(eventThis, arguments)
-//         }
-//         WSObject._addEventListener?.apply(this, ['open', onOpenHandler, false])
-//       }
-//     })
-
-//     return WSObject
-//   }
-// }
-// // HookedWebSocket.constructor =  HookedWebSocket.init;
-
-// var oldProto = HookedWebSocket.prototype;
-// HookedWebSocket = function () {
-//   console.log("hi")
-// };
-// HookedWebSocket.prototype = oldProto;
-// WebSocket = HookedWebSocket;
