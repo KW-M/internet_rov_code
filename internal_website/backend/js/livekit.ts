@@ -30,16 +30,15 @@ export type LivekitSetupOptions = {
 }
 
 
-import * as nothin from '../../js/nodeShimsBundle'
-console.log(nothin); // KEEP SO NODE SHIMS GET INCLUDED
-// import type { AccessToken as AccessTokenType, AccessTokenOptions, RoomServiceClient } from 'livekit-server-sdk';
+import '../../js/nodeShimsBundle'
+
 import type * as livekitServerSDKTypes from 'livekit-server-sdk';
 import { LIVEKIT_CLOUD_ENDPOINT, LIVEKIT_LOCAL_ENDPOINT, LIVEKIT_BACKEND_ROOM_CONNECTION_CONFIG, DECODE_TXT, ENCODE_TXT, PROXY_PREFIX } from '../../js/consts';
 import { appendLog, getWebsocketURL, waitfor } from '../../js/util';
 import { getFrontendAccessToken, getPublisherAccessToken } from './livekitTokens';
 import { setSendProxyMessageCallback } from '../../js/proxyReciever';
 import { handleBackendMsgRcvd } from './msgHandler'
-const RoomServiceClient = globalThis.nodeJsShim.livekitServerSDK.RoomServiceClient as typeof livekitServerSDKTypes.RoomServiceClient
+const RoomServiceClient = globalThis.livekitServerSDK.RoomServiceClient as typeof livekitServerSDKTypes.RoomServiceClient
 
 export async function createLivekitRoom(client: livekitServerSDKTypes.RoomServiceClient, roomName: string) {
     return await client.createRoom({

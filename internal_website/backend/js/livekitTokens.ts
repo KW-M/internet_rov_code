@@ -1,10 +1,7 @@
 
-import * as nothin from '../../js/nodeShimsBundle'
-console.log(nothin)
-
-
+import '../../js/nodeShimsBundle'
 import type * as livekitServerSDKTypes from 'livekit-server-sdk';
-const AccessToken = globalThis.nodeJsShim.livekitServerSDK.AccessToken as typeof livekitServerSDKTypes.AccessToken
+const AccessToken = globalThis.livekitServerSDK.AccessToken as typeof livekitServerSDKTypes.AccessToken
 
 
 /**

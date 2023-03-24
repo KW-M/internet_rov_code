@@ -1,4 +1,6 @@
 // Do not import this file directly, run npm compile:browserify to turn this file into nodeShimsBundle.js
-module.exports = {
-    livekitServerSDK: require('livekit-server-sdk')
-}
+const sdk = require('livekit-server-sdk')
+window.livekitServerSDK = sdk;
+// module.exports = {
+//     livekitServerSDK: sdk
+// }

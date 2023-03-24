@@ -55,6 +55,11 @@ export default {
         offlineframe: resolve(__dirname, "offlineframe/index.html"),
         serviceworker: resolve(__dirname, "serviceworker.ts")
       },
+      output: {
+        globals: {
+          livekitServerSDK: "livekitServerSDK"
+        }
+      }
     },
   },
 };
