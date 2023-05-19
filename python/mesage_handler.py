@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import (
     TYPE_CHECKING,
     AsyncGenerator,
+    Callable,
     Optional,
     Union,
 )
@@ -20,6 +21,8 @@ from shell_cmd_utils import generate_cmd_continued_output_response, run_shell_cm
 from rovSecurity.userAuth import generateAuthToken, check_token_validty
 from protobuf.rov_action_api import RovAction, SensorUpdatesResponse, RovResponse, DoneResponse, TokenInvalidResponse, DriverChangedResponse, HeartbeatResponse, betterproto, ErrorResponse, PasswordAcceptedResponse, PasswordInvalidResponse, PasswordRequiredResponse, PongResponse, TokenAcceptedResponse
 from protobuf.webrtcrelay import RelayEventStream, PeerConnectedEvent, MsgRecivedEvent, PeerCalledEvent, PeerDataConnErrorEvent, PeerDisconnectedEvent, PeerHungupEvent, PeerMediaConnErrorEvent, RelayConnectedEvent, RelayDisconnectedEvent, RelayErrorEvent
+
+from websocket_server import WebSocketServer
 
 if TYPE_CHECKING:
     from grpc_client import RelayGRPCClient
@@ -66,15 +69,14 @@ def verify_authorization(needs_authentication: bool, needs_driver: bool):
 class MessageHandler:
     """ Handles all incoming and outgoing messages to the rov and events from the webrtc-relay."""
 
-    relay_grpc: RelayGRPCClient
     sensor_ctrl: SensorController
     media_controller: MediaStreamController
     motion_ctrl: MotionController
     last_msg_send_time: float
 
-    def __init__(self, relay_grpc: RelayGRPCClient, media_controller: MediaStreamController, motion_controller: MotionController, sensor_controller):
+    def __init__(self, webSocketServer: WebSocketServer , media_controller: MediaStreamController, motion_controller: MotionController, sensor_controller):
         """Initialize the message handler."""
-        self.relay_grpc = relay_grpc
+        self.webSocketServer = webSocketServer
         self.media_controller = media_controller
         self.motion_ctrl = motion_controller
         self.sensor_ctrl = sensor_controller
@@ -91,7 +93,7 @@ class MessageHandler:
         while True:
 
             # Cut motors & keep looping if no one is connected to the rov (safety feature):
-            if self.designated_driver_peerid is None or not self.relay_grpc.is_connected:
+            if self.designated_driver_peerid is None or not self.webSocketServer.is_connected():
                 self.motion_ctrl.stop_motors()
                 # # if no one is connected continue looping
                 await asyncio.sleep(0.1)
@@ -490,7 +492,9 @@ class MessageHandler:
         self.last_msg_send_time = time.time()
         if not msg_data.is_set("heartbeat") and not msg_data.is_set("sensor_updates") and not msg_data.is_set("continued_output"):
             print("Sending Message: ", msg_data)
-        return await self.relay_grpc.send_message(payload=msg_data.SerializeToString(), target_peer_ids=recipient_peers)
+        # TODO add target peer IDs (ids of those meant to receive message) to message
+        return await self.webSocketServer.broadcast(msg_data.SerializeToString())
+        # return await self.broadcastMsgFn(msg_data.SerializeToString(), target_peer_ids=recipient_peers)
 
     def parse_message_payload(self, message_payload: bytes) -> Optional[RovAction]:
         """

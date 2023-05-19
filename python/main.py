@@ -23,6 +23,7 @@ from rovSecurity.userAuth import readAuthStateFromDisk
 # from sensor_log import Sensor_Log
 from sensors.sensors_controller import SensorController
 from mesage_handler import MessageHandler
+from websocket_server import WebSocketServer
 # import logging_formatter
 
 config = read_config_file()
@@ -54,12 +55,15 @@ async def main():
     motion_ctrl = MotionController(pigpio_instance=pigpio_instance)
     media_ctrl = MediaStreamController()
     message_handler = MessageHandler(relay_grpc, media_ctrl, motion_ctrl, sensors)
+    websocket_server = WebSocketServer(message_handler.handle_incoming_msg)
+    
 
     # setup the asyncio loop to run each of these async functions aka "tasks" aka "coroutines" concurently
     await asyncio.gather(
         sensors.sensor_setup_loop(),
         motion_ctrl.motor_setup_loop(),
-        relay_grpc.start_loop(message_handler),
+        # relay_grpc.start_loop(message_handler),
+        websocket_server.start_wss(),
         message_handler.update_sender_loop(),
         # start_aiohttp_api_server(),
         # monitor_tasks()
