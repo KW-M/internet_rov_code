@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "livekit-client": "^1.6.9",
-    "livekit-server-sdk": "^1.1.0",
+    "livekit-server-sdk": "^1.2.1",
     "protobufjs": "~7.1.2",
     "rollup-plugin-node-polyfills": "^0.2.1",
     "uuid": "^9.0.0",
