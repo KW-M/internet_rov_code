@@ -45,11 +45,13 @@ jobs:
           with:
              version: 8.5.1
              dest: ./internal_website
+             run_install: |
+               - recursive: false
+               - cwd: ./internal_website
 
         - name: Install and Build 🔧 # This project is built using pnpm and outputs the result to the 'dist' folder. Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
           working-directory: ./internal_website
           run: |
-            pnpm install
             pnpm run build
 
         - name: Deploy to Github Pages 🚀
