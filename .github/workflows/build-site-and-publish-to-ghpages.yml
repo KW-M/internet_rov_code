@@ -37,7 +37,6 @@ jobs:
             submodules: recursive
 
         - name: Details 🔧 # This project is built using pnpm and outputs the result to the 'dist' folder. Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
-          working-directory: ~/
           run: |
             ls -R
 
