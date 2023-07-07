@@ -4,7 +4,7 @@ specifiers:
   buffer: ^6.0.3
   livekit-client: ^1.6.9
   livekit-server-sdk: ^1.1.0
-  protobufjs: ~7.1.2
+  protobufjs: ~7.2.4
   protobufjs-cli: ~1.0.2
   rollup-plugin-node-polyfills: ^0.2.1
   tslib: ^2.4.1
@@ -23,14 +23,14 @@ specifiers:
 dependencies:
   livekit-client: 1.6.9
   livekit-server-sdk: 1.1.0
-  protobufjs: 7.1.2
+  protobufjs: 7.2.4
   rollup-plugin-node-polyfills: 0.2.1
   uuid: 9.0.0
   workbox-core: 6.5.4
 
 devDependencies:
   buffer: 6.0.3
-  protobufjs-cli: 1.0.2_protobufjs@7.1.2
+  protobufjs-cli: 1.0.2_protobufjs@7.2.4
   tslib: 2.5.0
   typescript: 4.9.5
   vite: 4.2.0
@@ -2947,7 +2947,7 @@ packages:
     engines: {node: ^14.13.1 || >=16.0.0}
     dev: true
 
-  /protobufjs-cli/1.0.2_protobufjs@7.1.2:
+  /protobufjs-cli/1.0.2_protobufjs@7.2.4:
     resolution: {integrity: sha512-cz9Pq9p/Zs7okc6avH20W7QuyjTclwJPgqXG11jNaulfS3nbVisID8rC+prfgq0gbZE0w9LBFd1OKFF03kgFzg==}
     engines: {node: '>=12.0.0'}
     hasBin: true
@@ -2961,7 +2961,7 @@ packages:
       glob: 8.1.0
       jsdoc: 3.6.11
       minimist: 1.2.8
-      protobufjs: 7.1.2
+      protobufjs: 7.2.4
       semver: 7.3.8
       tmp: 0.2.1
       uglify-js: 3.17.4
@@ -2989,6 +2989,25 @@ packages:
 
   /protobufjs/7.1.2:
     resolution: {integrity: sha512-4ZPTPkXCdel3+L81yw3dG6+Kq3umdWKh7Dc7GW/CpNk4SX3hK58iPCWeCyhVTDrbkNeKrYNZ7EojM5WDaEWTLQ==}
+    engines: {node: '>=12.0.0'}
+    requiresBuild: true
+    dependencies:
+      '@protobufjs/aspromise': 1.1.2
+      '@protobufjs/base64': 1.1.2
+      '@protobufjs/codegen': 2.0.4
+      '@protobufjs/eventemitter': 1.1.0
+      '@protobufjs/fetch': 1.1.0
+      '@protobufjs/float': 1.0.2
+      '@protobufjs/inquire': 1.1.0
+      '@protobufjs/path': 1.1.2
+      '@protobufjs/pool': 1.1.0
+      '@protobufjs/utf8': 1.1.0
+      '@types/node': 18.15.0
+      long: 5.2.1
+    dev: false
+
+  /protobufjs/7.2.4:
+    resolution: {integrity: sha512-AT+RJgD2sH8phPmCf7OUZR8xGdcJRga4+1cOaXJ64hvcSkVhNcRHOwIxUatPH15+nj59WAGTDv3LSGZPEQbJaQ==}
     engines: {node: '>=12.0.0'}
     requiresBuild: true
     dependencies:
